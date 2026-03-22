@@ -6,7 +6,7 @@ Formal knowledge representation for in-kind donation coordination. Defines the d
 
 ## Documentation Website
 
-[https://nruemmele.github.io/inkind-knowledge-repo](https://nruemmele.github.io/inkind-knowledge-repo)
+[https://inkind-at.github.io/inkind-knowledge-repo](https://inkind-at.github.io/inkind-knowledge-repo)
 
 ## Repository Structure
 
