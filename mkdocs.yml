@@ -57,8 +57,8 @@ nav:
 exclude_docs: |
   /templates-linkml/
 
-site_url: https://nruemmele.github.io/inkind-knowledge-repo
-repo_url: https://github.com/nruemmele/inkind-knowledge-repo
+site_url: https://inkind-at.github.io/inkind-knowledge-repo
+repo_url: https://github.com/inkind-at/inkind-knowledge-repo
 
 # Uncomment this block to enable use of Google Analytics.
 # Replace the property value with your own ID.
