@@ -1,0 +1,142 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/provenance
+name: provenance
+title: Provenance Schema
+description: >-
+  The π(s_k) provenance record — one record per completed process step.
+  Captures the complete context of who did what, when, with what device,
+  and at what configured cost.  Grounds in W3C PROV-O for audit trail
+  interoperability.
+license: MIT
+see_also:
+  - http://www.w3.org/ns/prov#Activity
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+  p-plan: http://purl.org/net/p-plan#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+
+  ProvenanceRecord:
+    description: >-
+      A single provenance record capturing one completed process step — who
+      did it, when, on which device, at what configured cost, and what
+      observations were submitted.  Corresponds to prov:Activity in W3C
+      PROV-O.
+    slots:
+      - id
+      - step_type_ref
+      - actor_ref
+      - actor_role_ref
+      - org
+      - device
+      - started_at
+      - completed_at
+      - duration_seconds
+      - cost_configured
+      - observations_ref
+      - override_flag
+      - override_reason
+    class_uri: prov:Activity
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+      actor_role_ref:
+        range: ActorRoleEnum
+        required: true
+
+slots:
+
+  step_type_ref:
+    range: string
+    required: true
+    description: >-
+      Slug reference to the StepType that was executed (e.g.,
+      `assign_category`).
+
+  actor_ref:
+    range: string
+    required: true
+    description: >-
+      UUID reference to the Actor who performed this step.
+    slot_uri: prov:wasAssociatedWith
+
+  actor_role_ref:
+    range: string
+    required: true
+    description: >-
+      Actor role captured at step time — role may change after the fact so
+      it is snapshotted here.
+
+  device:
+    range: DeviceTypeEnum
+    required: true
+    description: Device type used to complete this step.
+
+  started_at:
+    range: datetime
+    required: true
+    description: Timestamp when the step fragment was presented to the actor.
+
+  completed_at:
+    range: datetime
+    required: true
+    description: Timestamp when the actor submitted the step.
+    slot_uri: prov:endedAtTime
+
+  duration_seconds:
+    range: integer
+    required: true
+    description: >-
+      Derived: completed_at - started_at in whole seconds.  Used for
+      observed vs configured cost comparison.
+
+  cost_configured:
+    range: float
+    required: true
+    description: >-
+      The c_s scalar from StepCost at time of execution — the configured
+      cost for this step type under this organisation.
+
+  observations_ref:
+    range: string
+    required: true
+    description: >-
+      JSON blob of field values submitted by the actor during this step.
+    see_also:
+      - prov:generated
+
+  override_flag:
+    range: boolean
+    required: true
+    description: >-
+      True if the actor acknowledged a constraint warning (UC or PC) and
+      proceeded anyway.
+
+  override_reason:
+    range: string
+    description: >-
+      Free-text reason provided by the actor when override_flag is true.
+
+enums:
+
+  DeviceTypeEnum:
+    description: Device type used to complete a process step.
+    permissible_values:
+      mobile:
+        description: Mobile phone or tablet.
+      desktop:
+        description: Desktop or laptop browser.
+      scan:
+        description: Barcode / QR scanner peripheral.
+...

@@ -1,0 +1,145 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/process_template
+name: process_template
+title: Process Template Schema
+description: >-
+  Named, complete process definitions — ordered sequences of step types that
+  organisations select from.  Organisations select one template per process
+  type; they do not assemble custom step sequences.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pplan: http://purl.org/net/p-plan#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  ProcessTemplate:
+    description: >-
+      A named, complete process definition — an ordered sequence of step
+      types available for selection by organisations.
+    slots:
+      - id
+      - process_type
+      - label
+      - description
+      - is_default
+      - entity_type
+      - launchable_from_states
+      - steps
+    class_uri: pplan:Plan
+    see_also:
+      - pplan:Plan
+
+  ProcessTemplateStep:
+    description: >-
+      A single ordered step within a process template sequence.  Inlined
+      into ProcessTemplate.steps as a list.
+    attributes:
+      step_type:
+        range: StepType
+        required: true
+        description: FK into the step type catalogue.
+      sequence:
+        range: integer
+        required: true
+        description: Explicit ordering index within the template (1-based).
+      is_optional:
+        range: boolean
+        required: true
+        description: Whether the actor may skip this step.
+      skip_condition:
+        range: AttributeCondition
+        description: >-
+          Condition under which the engine auto-skips this step (e.g., when
+          a category has already been assigned in a prior step).
+
+  # ── Stub: attribute condition expression ────────────────────────────────────
+  AttributeCondition:
+    description: >-
+      A declarative condition expression over entity attribute values. Used
+      to specify auto-skip conditions on ProcessTemplateStep. Full
+      expression language to be defined in Phase 2.
+    attributes:
+      expression:
+        range: string
+        required: false
+        description: >-
+          Phase 2 stub — condition expression placeholder.
+          Full expression language TBD.
+
+slots:
+
+  process_type:
+    range: ProcessTypeEnum
+    required: true
+    description: >-
+      The broad process category this template implements.
+
+  is_default:
+    range: boolean
+    required: true
+    description: >-
+      If true, used for any organisation with no explicit template selection
+      for this process_type.
+
+  entity_type:
+    range: EntityTypeEnum
+    required: true
+    description: >-
+      The domain entity type this process operates on.
+
+  launchable_from_states:
+    range: string
+    multivalued: true
+    required: true
+    description: >-
+      Entity lifecycle states from which this process may be launched.
+      The engine's `available_processes()` filters against the entity's
+      current lifecycle_state.
+
+  steps:
+    range: ProcessTemplateStep
+    multivalued: true
+    required: true
+    inlined_as_list: true
+    description: >-
+      Ordered list of ProcessTemplateStep entries defining the full step
+      sequence for this template.
+    see_also:
+      - pplan:wasGeneratedBy
+
+enums:
+
+  ProcessTypeEnum:
+    description: High-level process categories available in the system.
+    permissible_values:
+      sort_item:
+        description: Process for sorting a DonationItem through intake stages.
+      register_demand_signal:
+        description: Process for registering a new DemandSignal.
+      stock_check:
+        description: >-
+          Process for checking stock levels against demand signals.
+          Phase 1 stub.
+
+  EntityTypeEnum:
+    description: Domain entity types that can be the subject of a process.
+    permissible_values:
+      donation_item:
+        description: A DonationItem entity.
+      demand_signal:
+        description: A DemandSignal entity.
+      donation_collection:
+        description: A DonationCollection entity.
+      storage_unit:
+        description: A StorageLocation entity.
+...

@@ -1,0 +1,17 @@
+# DemandSignal-001.yaml
+# Scenario: standing demand signal for adult unisex medium clothing
+# attributes is a free-form filter bag (Any) — Phase 2 will type this
+# against ClothingAttributes once the *Attributes refactor is done.
+
+id: urn:uuid:signal123-4567-4567-4567-signal123456789
+org: urn:uuid:org123-4567-4567-4567-org123456789
+signal_type: standing
+category: ClothingItem
+attributes:
+  subcategory: tops
+  demographic: unisex
+  size: m
+quantity_fulfilled: 0
+lifecycle_state: active
+registered_at: "2026-03-22T08:00:00Z"
+public_visibility: true

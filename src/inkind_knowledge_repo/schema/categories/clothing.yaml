@@ -1,0 +1,536 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/clothing
+name: clothing
+title: Clothing Category Schema
+description: >-
+  Defines ClothingCategory mixin applied to ClothingItem in donation_item.yaml.
+  Covers wearable garments only: tops, bottoms, outerwear, underwear,
+  nightwear, sportswear.
+
+  COICOP alignment: Division 03.1 (clothing).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    CPI (Clothing Product Information ontology) — cpi:ClothingAndAccessories
+      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+      Provides: demographic (cpi:designatedFor), size (cpi:ClothingSize),
+      size groups (cpi:SportShoes).
+    schema.org — size groups and size systems
+      schema:WearableSizeGroupBaby, schema:WearableSizeGroupChildrens,
+      schema:WearableSizeGroupAdult, schema:WearableSizeSystemEU
+
+  Separation from AccessoriesItem:
+    Accessories have no demographic→size value map — the full clothing value
+    map is entirely irrelevant for a bag or a scarf. The UC rules (underwear
+    condition, adult underwear must be new) do not apply to accessories.
+    Progressive disclosure in the sorting UI requires a clean branch:
+    "is this clothing or an accessory?" See categories/accessories.yaml.
+
+  Value-map structure:
+    subcategory → demographic  (which demographics are valid per subcategory)
+    demographic → size         (which sizes are valid per demographic)
+
+  UC constraints:
+    uc-underwear-condition-block  — underwear must be new or like_new condition
+    uc-underwear-adult-used-block — adult underwear (adult_male/adult_female)
+                                    must have usage=new
+    vm-underwear-no-unisex        — underwear excludes unisex demographic
+
+  VM constraints (size value maps):
+    vm-size-baby   — baby demographic → baby sizes only
+    vm-size-child  — child demographic → children's sizes only
+    vm-size-adult  — adult/unisex demographics → adult sizes only
+
+  ── Seasonality model ──────────────────────────────────────────────────────
+
+  Two fields, intentionally redundant at the extremes, independent in the
+  middle of the seasonal spectrum:
+
+    is_winter_suitable (boolean) — required at standard completeness for all
+      subcategories except underwear (fixed thermal context) and sportswear
+      (assessed separately). The operationally critical field for emergency
+      cold-weather distribution. The sorter asks: "would this keep someone
+      warm in cold weather?" — a two-second judgement that the schema cannot
+      reliably infer.
+
+    season (SeasonEnum) — optional, detailed completeness tier.
+      winter | spring_autumn | summer | all_season.
+      Multivalued — a denim jacket might be both spring_autumn and summer.
+      Provides finer demand-signal matching granularity when time permits.
+
+    Design decision — explicit tagging over inference:
+      Subcategory + material could theoretically approximate seasonality:
+      outerwear → probably winter; linen → probably summer. Inference was
+      rejected because it fails at the cases that matter most:
+        - A thin cotton top and a heavyweight flannel shirt are both `tops`,
+          same demographic, same size — identical to the schema without
+          explicit input.
+        - Inference produces no answer for genuinely all-season items and
+          wrong answers for edge cases (a summer linen blazer in outerwear).
+      The fragment compiler MAY use inference as a UI pre-fill suggestion
+      (e.g. pre-check is_winter_suitable when subcategory=outerwear) but the
+      sorter's explicit input always takes precedence.
+
+    VM auto-derivation between the two fields:
+      season = winter        → is_winter_suitable = true  (vm-season-winter)
+      season = summer        → is_winter_suitable = false (vm-season-summer)
+      season = all_season    → is_winter_suitable = true  (vm-season-all)
+      season = spring_autumn → no constraint on is_winter_suitable
+                               (the sorter decides — a heavy wool cardigan
+                               tagged spring_autumn may still be winter_suitable)
+
+  Completeness tiers (read by fragment compiler and match engine):
+    minimal:  subcategory, usage
+    standard: subcategory, demographic, size, is_winter_suitable, usage,
+              condition_grade
+    detailed: subcategory, demographic, size, is_winter_suitable, season,
+              usage, condition_grade, intact_labels
+
+license: MIT
+see_also:
+  - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  cpi: http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+  schema: http://schema.org/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  ClothingCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin carrying clothing-specific slots, value maps, and UC rules.
+      Applied to ClothingItem via mixins: [ClothingCategory].
+      Does NOT include accessories — see AccessoriesCategory (accessories.yaml).
+
+      Domain-level rules only (no lifecycle_state references).
+      Lifecycle-aware rules (lc-*) live on ClothingItem in donation_item.yaml
+      because lifecycle_state is a DonationItem slot invisible to this mixin.
+
+      Value maps grounded in CPI ontology demographic and size vocabularies.
+      Underwear UC constraints reflect real social-sector hygiene policy.
+      Seasonality: is_winter_suitable (boolean, standard tier) + season
+      (SeasonEnum, optional, detailed tier). See schema description above
+      for the full design rationale.
+    see_also:
+      - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+    slots:
+      - subcategory
+      - demographic
+      - size
+      - is_winter_suitable
+      - season
+      - intact_labels
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: ClothingSubcategoryEnum
+        required: false
+        description: "Subcategory becomes a required field on DonationItem when item's lifecycle is sorted."
+      demographic:
+        range: DemographicEnum
+        required: false
+      size:
+        range: ClothingSizeEnum
+        required: false
+      is_winter_suitable:
+        range: boolean
+        required: false
+        description: >-
+          Whether this garment provides meaningful warmth in cold-weather
+          conditions. Required at standard completeness for tops, bottoms,
+          outerwear, nightwear. The sorter's direct assessment — not inferred
+          from subcategory or material. The primary emergency distribution
+          filter: "all winter-suitable clothing for adults."
+      season:
+        range: SeasonEnum
+        required: false
+        multivalued: true
+        description: >-
+          Seasonal suitability. Optional — detailed completeness tier.
+          Multivalued: a garment may span seasons (e.g. spring_autumn +
+          summer). VM rules auto-derive is_winter_suitable for the extreme
+          values (winter, summer, all_season); spring_autumn leaves the
+          sorter to set is_winter_suitable explicitly.
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, demographic, size, is_winter_suitable, usage, condition_grade"
+      completeness_detailed: "subcategory, demographic, size, is_winter_suitable, season, usage, condition_grade, intact_labels"
+      coicop_division: "03.1"
+      season_ui_hint: >-
+        Fragment compiler may pre-fill is_winter_suitable=true when
+        subcategory=outerwear and is_winter_suitable=false when
+        subcategory=sportswear (swimwear). Sorter can override.
+    rules:
+      # ── UC: underwear ─────────────────────────────────────────────────────
+      - title: uc-underwear-condition-block
+        description: >-
+          Underwear must be new or like_new condition. fair or poor graded
+          underwear must not be redistributed. Reflects universal hygiene
+          policy across social organisations.
+          action: block, suggest: disposal.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: underwear
+            condition_grade:
+              any_of:
+                - equals_string: fair
+                - equals_string: poor
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-underwear-adult-used-block
+        description: >-
+          Used adult underwear (adult_male or adult_female demographic) must
+          not be redistributed. usage must be new. Reflects hygiene and
+          dignity standards applied universally in the social sector.
+          action: block.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: underwear
+            demographic:
+              any_of:
+                - equals_string: adult_male
+                - equals_string: adult_female
+        postconditions:
+          slot_conditions:
+            usage:
+              equals_string: new
+
+      - title: vm-underwear-no-unisex
+        description: >-
+          Underwear subcategory does not support unisex demographic.
+          action: block (invalid combination).
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: underwear
+        postconditions:
+          slot_conditions:
+            demographic:
+              none_of:
+                - equals_string: unisex
+
+      # ── VM: size maps ─────────────────────────────────────────────────────
+      - title: vm-size-baby
+        description: baby demographic constrains size to infant size codes.
+        preconditions:
+          slot_conditions:
+            demographic:
+              equals_string: baby
+        postconditions:
+          slot_conditions:
+            size:
+              any_of:
+                - equals_string: baby_0_3m
+                - equals_string: baby_3_6m
+                - equals_string: baby_6_12m
+                - equals_string: baby_12_18m
+                - equals_string: baby_18_24m
+
+      - title: vm-size-child
+        description: child demographic constrains size to children's size codes.
+        preconditions:
+          slot_conditions:
+            demographic:
+              equals_string: child
+        postconditions:
+          slot_conditions:
+            size:
+              any_of:
+                - equals_string: child_2T
+                - equals_string: child_3T
+                - equals_string: child_4T
+                - equals_string: child_5
+                - equals_string: child_6
+                - equals_string: child_7
+                - equals_string: child_8
+                - equals_string: child_10
+                - equals_string: child_12
+                - equals_string: child_14
+
+      - title: vm-size-adult
+        description: adult/unisex demographics constrain size to adult size codes.
+        preconditions:
+          slot_conditions:
+            demographic:
+              any_of:
+                - equals_string: adult_male
+                - equals_string: adult_female
+                - equals_string: unisex
+        postconditions:
+          slot_conditions:
+            size:
+              any_of:
+                - equals_string: xs
+                - equals_string: s
+                - equals_string: m
+                - equals_string: l
+                - equals_string: xl
+                - equals_string: xxl
+                - equals_string: xxxl
+                - equals_string: one_size
+
+      # ── VM: season → is_winter_suitable auto-derivation ───────────────────
+      - title: vm-season-winter
+        description: >-
+          season = winter implies is_winter_suitable = true.
+          A garment explicitly tagged winter must be winter-suitable.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: winter
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "true"
+
+      - title: vm-season-summer
+        description: >-
+          season = summer implies is_winter_suitable = false.
+          A garment explicitly tagged summer-only is not winter-suitable.
+          Note: if a sorter tags both summer and spring_autumn, the
+          is_winter_suitable value is their explicit call — no rule fires.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: summer
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "false"
+
+      - title: vm-season-all
+        description: >-
+          season = all_season implies is_winter_suitable = true.
+          All-season items are by definition suitable in winter.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: all_season
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "true"
+
+
+slots:
+
+  size:
+    range: ClothingSizeEnum
+    description: >-
+      Size of the clothing item. Valid values constrained by demographic
+      via value map rules (vm-size-baby, vm-size-child, vm-size-adult).
+      Grounded in cpi:ClothingSize and schema.org size systems.
+    see_also:
+      - cpi:ClothingSize
+      - schema:WearableSizeGroupAdult
+      - schema:WearableSizeSystemEU
+
+  is_winter_suitable:
+    range: boolean
+    description: >-
+      Whether this item provides meaningful warmth in cold-weather conditions.
+      The primary emergency distribution filter — enables "show me all
+      winter-suitable clothing for children" queries at standard completeness.
+
+      Set explicitly by the sorter. The fragment compiler may pre-fill based
+      on subcategory (outerwear → true, swimwear → false) as a UI hint, but
+      the sorter's input always takes precedence.
+
+      Auto-derived from season when season is set to an unambiguous value:
+        season = winter     → is_winter_suitable = true  (vm-season-winter)
+        season = summer     → is_winter_suitable = false (vm-season-summer)
+        season = all_season → is_winter_suitable = true  (vm-season-all)
+        season = spring_autumn → sorter decides explicitly
+
+      Also declared on FootwearCategory (footwear.yaml) and
+      BeddingTextilesCategory (bedding_textiles.yaml) for the same purpose.
+    see_also:
+      - schema:itemCondition
+
+  season:
+    range: SeasonEnum
+    multivalued: true
+    description: >-
+      Seasonal suitability. Optional — detailed completeness tier.
+      Multivalued: a garment may span seasons. Record all that apply.
+      VM rules auto-derive is_winter_suitable for winter, summer, and
+      all_season. spring_autumn leaves is_winter_suitable to the sorter.
+    see_also:
+      - schema:itemCondition
+
+  intact_labels:
+    range: boolean
+    description: >-
+      Whether care and composition labels are present and legible.
+      Improves match quality for beneficiaries with care requirements
+      (e.g. allergy to certain materials). Detailed completeness tier.
+    annotations:
+      show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear]"
+
+enums:
+
+  SeasonEnum:
+    description: >-
+      Seasonal suitability of a clothing or footwear item. Used on
+      ClothingCategory (season slot) and FootwearCategory (season slot).
+
+      Design notes:
+        - Four values only — fine enough for redistribution decisions,
+          coarse enough for fast sorting.
+        - spring_autumn is a single value because the thermal characteristics
+          that define a transitional garment are the same regardless of
+          which shoulder season it appears in.
+        - all_season covers items with no meaningful seasonal constraint
+          (e.g. a plain cotton t-shirt, a lightweight fleece) — distinct from
+          "we don't know" (absence of the field) and from "suitable in all
+          conditions including winter" (is_winter_suitable=true + all_season).
+        - Multivalued: a linen blazer might be both spring_autumn and summer.
+          Record all applicable values.
+    permissible_values:
+      winter:
+        description: >-
+          Primarily suitable for cold weather. Implies is_winter_suitable=true.
+          Examples: heavy winter coat, thermal base layer, fleece-lined trousers,
+          woollen jumper, ski jacket.
+      spring_autumn:
+        description: >-
+          Suitable for mild transitional seasons. Thermal weight between
+          winter and summer. is_winter_suitable is sorter's call.
+          Examples: light jacket, cardigan, jeans, hoodie, trench coat.
+      summer:
+        description: >-
+          Suitable for warm weather; not appropriate for cold conditions.
+          Implies is_winter_suitable=false.
+          Examples: t-shirt, shorts, sundress, swimwear, linen top.
+      all_season:
+        description: >-
+          No meaningful seasonal constraint — appropriate across all seasons
+          or in climate-controlled environments. Implies is_winter_suitable=true
+          (all-season items are by definition usable in winter).
+          Examples: underwear, plain cotton t-shirt used as a base layer,
+          school uniform shirt.
+
+  ClothingSubcategoryEnum:
+    description: >-
+      Clothing garment subcategories. Accessories are NOT here —
+      they are in AccessoriesSubcategoryEnum (accessories.yaml) on a separate
+      item class. Separation enables clean progressive disclosure in the UI.
+    see_also:
+      - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+    permissible_values:
+      tops:
+        description: >-
+          T-shirts, shirts, blouses, sweaters, upper-body garments.
+          is_winter_suitable varies widely — a linen shirt and a wool jumper
+          are both tops. Sorter must set explicitly.
+        see_also: [cpi:ClothingAndAccessories]
+      bottoms:
+        description: >-
+          Trousers, skirts, shorts, leggings, lower-body garments.
+          is_winter_suitable varies — shorts are summer; thermal leggings are winter.
+      outerwear:
+        description: >-
+          Jackets, coats, outer layers. Fragment compiler may pre-fill
+          is_winter_suitable=true; sorter can override for summer-weight jackets.
+        see_also: [pto:Coat]
+      underwear:
+        description: >-
+          Underwear and intimate apparel. UC constraints apply.
+          Thermal underwear should be tagged is_winter_suitable=true.
+          Standard underwear → all_season / is_winter_suitable=true (base layer).
+      nightwear:
+        description: >-
+          Pyjamas, nightgowns, dressing gowns, sleep sets.
+          Seasonal weight varies — lightweight vs. fleece nightwear.
+      sportswear:
+        description: >-
+          Athletic wear, gym tops, leggings, swimwear, base layers.
+          Non-specialist — specialist sports clothing (wetsuits, cycling
+          jerseys) belongs in SportsItem. Fragment compiler may pre-fill
+          is_winter_suitable=false for swimwear subcategory context.
+      other:
+        description: Clothing garments not fitting above subcategories.
+
+  DemographicEnum:
+    description: >-
+      Combined age-and-gender demographic for clothing and footwear items.
+      Grounded in cpi:designatedFor and schema.org wearable size groups.
+      Shared with FootwearItem and SportsItem via slot_usage overrides.
+      AccessoriesItem uses the simpler AccessoriesDemographicEnum instead.
+    see_also:
+      - cpi:designatedFor
+    permissible_values:
+      baby:
+        description: "Baby (0-24 months). Valid sizes: baby_0_3m through baby_18_24m."
+        see_also: [schema:WearableSizeGroupBaby]
+      child:
+        description: "Child (2-14 years). Valid sizes: child_2T through child_14."
+        see_also: [schema:WearableSizeGroupChildrens]
+      adult_male:
+        description: "Adult male / menswear. Valid sizes: xs through one_size."
+        see_also: [schema:WearableSizeGroupAdult]
+      adult_female:
+        description: "Adult female / womenswear. Valid sizes: xs through one_size."
+        see_also: [schema:WearableSizeGroupAdult]
+      unisex:
+        description: >-
+          Unisex / gender-neutral adult. Valid sizes: xs through one_size.
+          Not valid for underwear subcategory.
+        see_also: [schema:WearableSizeGroupAdult]
+
+  ClothingSizeEnum:
+    description: >-
+      Clothing sizes covering infant, children's, and adult sizing.
+      Grounded in schema.org wearable size groups and CPI ClothingSize.
+      Valid values per demographic are constrained by vm-size-* rules.
+    see_also:
+      - cpi:ClothingSize
+      - schema:WearableSizeSystemEU
+    permissible_values:
+      baby_0_3m:   {description: "Baby 0-3 months",   see_also: [schema:WearableSizeGroupBaby]}
+      baby_3_6m:   {description: "Baby 3-6 months",   see_also: [schema:WearableSizeGroupBaby]}
+      baby_6_12m:  {description: "Baby 6-12 months",  see_also: [schema:WearableSizeGroupBaby]}
+      baby_12_18m: {description: "Baby 12-18 months", see_also: [schema:WearableSizeGroupBaby]}
+      baby_18_24m: {description: "Baby 18-24 months", see_also: [schema:WearableSizeGroupBaby]}
+      child_2T:    {description: "Toddler 2T",   see_also: [schema:WearableSizeGroupChildrens]}
+      child_3T:    {description: "Toddler 3T",   see_also: [schema:WearableSizeGroupChildrens]}
+      child_4T:    {description: "Toddler 4T",   see_also: [schema:WearableSizeGroupChildrens]}
+      child_5:     {description: "Child size 5",  see_also: [schema:WearableSizeGroupChildrens]}
+      child_6:     {description: "Child size 6",  see_also: [schema:WearableSizeGroupChildrens]}
+      child_7:     {description: "Child size 7",  see_also: [schema:WearableSizeGroupChildrens]}
+      child_8:     {description: "Child size 8",  see_also: [schema:WearableSizeGroupChildrens]}
+      child_10:    {description: "Child size 10", see_also: [schema:WearableSizeGroupChildrens]}
+      child_12:    {description: "Child size 12", see_also: [schema:WearableSizeGroupChildrens]}
+      child_14:    {description: "Child size 14", see_also: [schema:WearableSizeGroupChildrens]}
+      xs:          {description: "Extra small (adult)", see_also: [schema:WearableSizeGroupAdult]}
+      s:           {description: "Small (adult)",       see_also: [schema:WearableSizeGroupAdult]}
+      m:           {description: "Medium (adult)",      see_also: [schema:WearableSizeGroupAdult]}
+      l:           {description: "Large (adult)",       see_also: [schema:WearableSizeGroupAdult]}
+      xl:          {description: "Extra large (adult)", see_also: [schema:WearableSizeGroupAdult]}
+      xxl:         {description: "XXL (adult)",         see_also: [schema:WearableSizeGroupAdult]}
+      xxxl:        {description: "3XL (adult)",         see_also: [schema:WearableSizeGroupAdult]}
+      one_size:    {description: "One size fits most."}

@@ -1,0 +1,95 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/campaign
+name: campaign
+title: Campaign Schema
+description: >-
+  Coordination wrapper grouping related DemandSignals under a shared
+  public-facing appeal with a common title, timeline, and beneficiary group.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  Campaign:
+    description: >-
+      A public-facing appeal grouping related DemandSignals under a shared
+      title, timeline, and beneficiary group.  Campaign progress is derived
+      from its child signals.
+    slots:
+      - id
+      - org
+      - title
+      - description
+      - starts_at
+      - ends_at
+      - target_beneficiary_group
+      - lifecycle_state
+      - signals
+    class_uri: schema:Event
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+      lifecycle_state:
+        range: CampaignLifecycleEnum
+        required: true
+
+slots:
+
+  title:
+    range: string
+    required: true
+    description: Human-readable campaign title, e.g. "Back to School 2026".
+
+  starts_at:
+    range: datetime
+    required: true
+    description: Campaign start date and time.
+    slot_uri: schema:startDate
+
+  ends_at:
+    range: datetime
+    required: true
+    description: >-
+      Campaign end date and time.  Propagated as deadline to all child
+      DemandSignals.
+    slot_uri: schema:endDate
+
+  target_beneficiary_group:
+    range: string
+    description: >-
+      Free-text description of the target beneficiary group, e.g. "Primary
+      school children starting September".
+
+  signals:
+    range: DemandSignal
+    multivalued: true
+    description: >-
+      Inverse relation — DemandSignals with FK to this Campaign
+      (signal_type = campaign).
+
+enums:
+
+  CampaignLifecycleEnum:
+    description: Lifecycle states for a Campaign.
+    permissible_values:
+      planned:
+        description: Campaign is planned but not yet started.
+      active:
+        description: Campaign is active and accepting donations.
+      completed:
+        description: Campaign reached its end date with fulfilment achieved.
+      cancelled:
+        description: Campaign was cancelled before completion.
+...

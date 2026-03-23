@@ -1,0 +1,243 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/sports
+name: sports
+title: Sports Equipment Category Schema
+description: >-
+  Defines SportsCategory mixin applied to SportsItem.
+
+  COICOP alignment: Division 09.4 (recreational and sporting services,
+  sport and recreational equipment).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Note: bicycles are placed in this category by domain convention.
+  COICOP assigns bicycles to Division 07 (Transport). The domain decision
+  reflects how social organisations actually sort, store, and redistribute
+  these items — sports equipment stores, not vehicle storage.
+
+  Ontology grounding:
+    Product Types Ontology — pto:Sporting_goods, pto:Racket, pto:Protective_gear,
+    pto:Exercise_equipment, pto:Bicycle, pto:Ski, pto:Camping
+      http://www.productontology.org/id/Sporting_goods
+
+  Dual-track assessment model (design rationale):
+    Sports equipment contains fundamentally different item types requiring
+    different assessment approaches:
+
+    1. Protective gear (helmets, pads, life jackets):
+       Uses SportsProtectiveAssessmentEnum — structured safety assessment.
+       Wear grade is insufficient: structural damage from impact may not be
+       visually apparent (a cracked helmet inner shell can be invisible under
+       an intact outer shell). A helmet that has absorbed an impact is unsafe
+       even if it looks undamaged.
+       assessment_result required regardless of usage — new protective gear
+       can have manufacturing defects.
+
+    2. General sports equipment (balls, rackets, bicycles, fitness equipment):
+       Uses condition_grade (wear grade) — appropriate vocabulary.
+       Condition grade is sufficient for items where wear is visually
+       apparent and structural failure would be obvious.
+
+    SportsCategory rules enforce which track applies based on subcategory.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, condition_grade, usage  (general equipment)
+              subcategory, assessment_result, usage  (protective gear)
+    detailed: subcategory, sport_type, demographic, condition_grade,
+              is_set_complete, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Sporting_goods
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  SportsCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for sports equipment slots and UC rules.
+      Applied to SportsItem via mixins: [SportsCategory].
+      Dual-track assessment: assessment_result for protective_gear,
+      condition_grade for all other subcategories.
+      See schema description for full rationale.
+    see_also:
+      - http://www.productontology.org/id/Sporting_goods
+    slots:
+      - subcategory
+      - assessment_result
+      - condition_grade
+      - sport_type
+      - demographic
+      - is_set_complete
+    slot_usage:
+      subcategory:
+        range: SportsSubcategoryEnum
+        required: true
+      assessment_result:
+        range: SportsProtectiveAssessmentEnum
+        required: false
+        description: >-
+          Structured safety assessment for protective_gear subcategory only.
+          Required when subcategory = protective_gear; absent otherwise.
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+        description: >-
+          Wear grade for general sports equipment (non-protective-gear).
+          Required when subcategory ≠ protective_gear.
+      demographic:
+        range: DemographicEnum
+        required: false
+        description: >-
+          Age/gender demographic (from DemographicEnum in clothing.yaml).
+          Optional — detailed completeness tier for sports equipment.
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, condition_grade, usage"
+      completeness_detailed: "subcategory, sport_type, demographic, condition_grade, is_set_complete, usage"
+      protective_gear_standard: "subcategory, assessment_result, usage"
+      coicop_division: "09.4"
+      bicycle_note: >-
+        Bicycles are in this category by domain convention.
+        COICOP assigns bicycles to Division 07 (Transport).
+    rules:
+      - title: uc-sports-protective-gear-assessment-required
+        description: >-
+          Protective gear requires structured safety assessment regardless
+          of usage — new protective gear can have manufacturing defects.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: protective_gear
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+      - title: uc-sports-protective-gear-unsafe-block
+        description: >-
+          Protective gear assessed as unsafe must not be redistributed.
+          action: block.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: protective_gear
+            assessment_result:
+              equals_string: unsafe_do_not_redistribute
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-sports-protective-gear-post-impact-warn
+        description: >-
+          Protective gear with unknown impact history requires confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: protective_gear
+            assessment_result:
+              equals_string: unknown_impact_history
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-sports-general-condition-grade-required
+        description: General sports equipment requires condition_grade.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              none_of:
+                - equals_string: protective_gear
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+      - title: uc-sports-general-poor-warn
+        description: >-
+          General sports equipment in poor condition requires confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              none_of:
+                - equals_string: protective_gear
+            condition_grade:
+              equals_string: poor
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+
+slots:
+
+  sport_type:
+    range: string
+    description: Sport or activity type (free text, e.g. "football", "cycling").
+
+
+enums:
+
+  SportsProtectiveAssessmentEnum:
+    description: >-
+      Structured safety assessment for protective gear (helmets, pads, life
+      jackets, mouth guards). Structural damage may not be visually apparent
+      after impact — a helmet that has absorbed an impact is unsafe even if
+      it looks undamaged. Required regardless of usage.
+    permissible_values:
+      safe_to_redistribute:
+        description: >-
+          Visually and physically intact; all components present (straps, buckles,
+          padding); no signs of impact damage; appropriate for redistribution.
+          Appropriate for new items with no observed defects.
+      safe_cosmetic_wear_only:
+        description: >-
+          Minor cosmetic wear (scratches, scuffs) but structurally sound with
+          no impact damage. Safe to redistribute.
+      unknown_impact_history:
+        description: >-
+          No visible damage but impact history cannot be confirmed.
+          action: warn — sorter must confirm; advise recipient that protective
+          certification cannot be guaranteed.
+      visible_structural_damage:
+        description: >-
+          Cracks, dents, deformation, or compromised structural components.
+          Must not be redistributed regardless of usage. action: block.
+      unsafe_do_not_redistribute:
+        description: >-
+          Definitively unsafe: confirmed post-impact, recalled model, expired
+          certification, missing critical safety components.
+          action: block — consider specialist recycling.
+
+  SportsSubcategoryEnum:
+    description: Sports equipment subcategories. Grounded in Product Types Ontology.
+    permissible_values:
+      balls:             {description: "Footballs, basketballs, tennis balls, rugby balls."}
+      rackets_bats:      {description: "Tennis/badminton rackets, cricket bats, ping-pong bats.", see_also: [pto:Racket]}
+      protective_gear:   {description: "Helmets, shin pads, knee pads, life jackets. Structured assessment required.", see_also: [pto:Protective_gear]}
+      fitness_equipment: {description: "Weights, resistance bands, yoga mats, exercise machines.", see_also: [pto:Exercise_equipment]}
+      bicycles:          {description: "Bicycles and cycling accessories. Domain convention — COICOP 07 (Transport).", see_also: [pto:Bicycle]}
+      water_sports:      {description: "Swimming goggles, snorkels, fins, wetsuits."}
+      winter_sports:     {description: "Skis, snowboards, ice skates, sleds.", see_also: [pto:Ski]}
+      camping_outdoor:   {description: "Tents, sleeping bags, backpacks, hiking poles.", see_also: [pto:Camping]}
+      other:             {description: Sports equipment not fitting above subcategories.}

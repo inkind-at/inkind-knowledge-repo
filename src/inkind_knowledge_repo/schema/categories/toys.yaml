@@ -1,0 +1,172 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/toys
+name: toys
+title: Toys & Games Category Schema
+description: >-
+  Defines ToysCategory mixin applied to ToysItem.
+
+  COICOP alignment: Division 09.3 (games, toys, and hobbies).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Toy, pto:Construction_toy, pto:Doll,
+    pto:Board_game, pto:Puzzle, pto:Ride-on_toy, pto:Educational_toy,
+    pto:Stuffed_animal
+      http://www.productontology.org/id/Toy
+
+  Age grading standards:
+    EU Toy Safety Directive 2009/48/EC (primary reference):
+      https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+      Defines age group boundaries and the small parts choking hazard rule.
+      ToyAgeRangeEnum values align with the directive's age-grading categories.
+    ASTM F963 (US reference, secondary):
+      Consumer Safety Specification for Toy Safety — cited for completeness
+      as many donated toys originate from the US market.
+
+  UC constraint — small parts choking hazard:
+    The uc-toys-small-parts-under3-block rule directly implements the
+    EU Toy Safety Directive requirement: toys with small parts must not be
+    marketed to or used by children under 3 years of age. This is a legal
+    safety requirement, not merely a recommendation.
+
+  Assessment: condition_grade (wear grade). Appropriate here because the
+  redistribution signal for toys is primarily how worn/complete the item is,
+  not a structured safety checklist (except for the small parts rule, which
+  is an attribute constraint, not a condition assessment).
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, age_range, is_set_complete, usage, condition_grade
+    detailed: subcategory, age_range, is_set_complete, has_small_parts,
+              usage, condition_grade
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Toy
+  - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  ToysCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for toys and games slots and UC rules.
+      Applied to ToysItem via mixins: [ToysCategory].
+      Age grading follows EU Toy Safety Directive 2009/48/EC.
+      The small parts rule (uc-toys-small-parts-under3-block) directly
+      implements the Directive's choking hazard requirement.
+    see_also:
+      - http://www.productontology.org/id/Toy
+      - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    slots:
+      - subcategory
+      - age_range
+      - is_set_complete
+      - has_small_parts
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: ToysSubcategoryEnum
+        required: true
+      age_range:
+        range: ToyAgeRangeEnum
+        required: false
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, age_range, is_set_complete, usage, condition_grade"
+      completeness_detailed: "subcategory, age_range, is_set_complete, has_small_parts, usage, condition_grade"
+      coicop_division: "09.3"
+      regulatory_reference: "EU Toy Safety Directive 2009/48/EC; ASTM F963"
+    rules:
+      - title: uc-toys-small-parts-under3-block
+        description: >-
+          Toys with small parts must not be assigned to age_0_to_3.
+          Implements EU Toy Safety Directive 2009/48/EC choking hazard
+          requirement (also ASTM F963 for US-market toys).
+          action: block.
+        preconditions:
+          slot_conditions:
+            has_small_parts:
+              equals_string: "true"
+        postconditions:
+          slot_conditions:
+            age_range:
+              any_of:
+                - equals_string: age_3_to_6
+                - equals_string: age_6_to_12
+                - equals_string: age_12_plus
+                - equals_string: adult
+
+      - title: uc-toys-incomplete-set-warn
+        description: >-
+          Incomplete sets require sorter confirmation — missing pieces may
+          render the toy unusable or unsafe for its intended purpose.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            is_set_complete:
+              equals_string: "false"
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+
+slots:
+
+  has_small_parts:
+    range: boolean
+    description: >-
+      Whether the item contains small parts posing a choking hazard.
+      UC block: has_small_parts=true → age_range must exclude age_0_to_3.
+      Implements EU Toy Safety Directive 2009/48/EC.
+
+
+enums:
+
+  ToysSubcategoryEnum:
+    description: Toys subcategories. Grounded in Product Types Ontology.
+    permissible_values:
+      construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy]}
+      dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll]}
+      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game]}
+      puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle]}
+      outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys."}
+      ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy]}
+      arts_crafts:      {description: "Colouring books, craft kits, modelling clay, paint sets."}
+      educational:      {description: "Educational games and learning toys.", see_also: [pto:Educational_toy]}
+      plush:            {description: "Soft toys and stuffed animals.", see_also: [pto:Stuffed_animal]}
+      other:            {description: Toys not fitting above subcategories.}
+
+  ToyAgeRangeEnum:
+    description: >-
+      Age suitability for toys. Values aligned with EU Toy Safety Directive
+      2009/48/EC age-grading categories. The age_0_to_3 value is the critical
+      boundary for the small parts choking hazard rule.
+    see_also:
+      - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    permissible_values:
+      age_0_to_3:  {description: "0-3 years. MUST NOT have small parts (EU Toy Safety Directive 2009/48/EC)."}
+      age_3_to_6:  {description: "3-6 years."}
+      age_6_to_12: {description: "6-12 years."}
+      age_12_plus: {description: "12 years and above."}
+      adult:       {description: "Adult games / collector items; not for children."}
+      all_ages:    {description: "Suitable for all ages."}

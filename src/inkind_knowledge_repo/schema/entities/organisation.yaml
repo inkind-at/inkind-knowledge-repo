@@ -1,0 +1,81 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+name: organisation
+title: Organisation Schema
+description: >-
+  A social organisation deploying the platform — the primary operational
+  tenant.  Supports a hierarchy up to depth 4 via the `parent` slot.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  org: http://www.w3.org/ns/org#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  SocialOrganisation:
+    description: >-
+      A social organisation deploying the in-kind platform.  Primary
+      operational tenant; hierarchy depth is limited to 4 levels.
+    slots:
+      - id
+      - name
+      - parent
+      - geo_point
+      - is_active
+      - config
+    class_uri: org:Organization
+    slot_usage:
+      parent:
+        range: SocialOrganisation
+        required: false
+        description: >-
+          FK — parent organisation in the hierarchy.
+          uri: org:subOrganizationOf — hierarchy depth limit 4.
+
+  # ── Stub: geographic point ──────────────────────────────────────────────────
+  GeoPoint:
+    description: >-
+      Geographic coordinates for public map display of an organisation.
+    attributes:
+      lat:
+        range: float
+        description: Latitude in decimal degrees.
+      long:
+        range: float
+        description: Longitude in decimal degrees.
+
+  # ── Stub: org configuration ─────────────────────────────────────────────────
+  OrgConfig:
+    description: >-
+      Organisation-specific configuration parameters (timezone, locale, etc.).
+      Full schema to be expanded in Phase 1.
+    attributes:
+      timezone:
+        range: string
+        description: IANA timezone identifier (e.g., "Europe/Vienna").
+      locale:
+        range: string
+        description: BCP-47 locale code (e.g., "de-AT").
+
+slots:
+
+  geo_point:
+    range: GeoPoint
+    description: >-
+      Geographic coordinates for public map display.  Optional — used by the
+      public org directory.
+
+  config:
+    range: OrgConfig
+    description: >-
+      Inlined organisation configuration object (timezone, locale, etc.).
+...

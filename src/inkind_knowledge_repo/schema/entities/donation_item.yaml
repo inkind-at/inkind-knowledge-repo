@@ -1,0 +1,946 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/donation_item
+name: donation_item
+title: Donation Item Schema
+description: >-
+  All donation item types in a single schema file.
+
+  ── Architecture: type hierarchy via designates_type ─────────────────────────
+
+  DonationItem is abstract and is never instantiated directly. The category
+  slot carries designates_type: true — its value (a class URI) selects the
+  concrete subclass and therefore the valid slot set. This is the LinkML
+  mechanism for discriminated unions; it is used in preference to a separate
+  observation payload object because:
+    - Category IS a type, not an attribute. A ClothingItem and a FurnitureItem
+      are genuinely different kinds of things, not the same thing with a
+      different field value.
+    - The closed-world assumption (CWA) enforces slot absence at no cost:
+      food_type does not exist on ClothingItem because it is not declared there.
+    - gen-json-schema, gen-pydantic, and linkml-validate all dispatch on
+      category automatically, producing typed output without extra code.
+
+  Concrete subclasses via is_a + mixins:
+    # Apparel (COICOP Division 03)
+    ClothingItem         mixins: [ClothingCategory]
+    AccessoriesItem      mixins: [AccessoriesCategory]
+    FootwearItem         mixins: [FootwearCategory]
+    # Home (COICOP Division 05)
+    FurnitureItem        mixins: [FurnitureCategory]
+    BeddingTextilesItem  mixins: [BeddingTextilesCategory]
+    HouseholdItem        mixins: [HouseholdCategory]
+    # Technology (COICOP Division 09)
+    ElectronicsItem      mixins: [ElectronicsCategory]
+    ToysItem             mixins: [ToysCategory]
+    SportsItem           mixins: [SportsCategory]
+    # Learning (COICOP Division 09)
+    BooksItem            mixins: [BooksCategory]
+    StationeryItem       mixins: [StationeryCategory]
+    # Care (COICOP Divisions 06 + 12)
+    PersonalCareItem     mixins: [PersonalCareCategory]
+    MobilityAidsItem     mixins: [MobilityAidsCategory]
+    # Life stage
+    BabyInfantItem       mixins: [BabyInfantCategory]
+    FoodItem             mixins: [FoodCategory]
+    # Catch-all
+    OtherItem            (no mixin)
+
+  ── Separation of concerns: category files vs. this file ─────────────────────
+
+  Category files (categories/*.yaml) are the single source of truth for
+  everything that varies by item type:
+    - Category-specific slots and their enums
+    - Value map rules (vm-*) — dependent dropdown logic
+    - Domain UC rules (uc-*) — redistribution constraints
+    - Completeness tier annotations
+
+  This file owns:
+    - DonationItem base operational slots
+    - lc-* lifecycle-aware rules — rules whose preconditions reference
+      lifecycle_state, which is a DonationItem slot invisible to category mixins
+    - Mixin application on each item class
+
+  The prefix convention (lc-* / uc-* / vm-*) is load-bearing: it makes
+  clear at a glance whether a rule belongs in a category file or here.
+
+  ── Clothing and accessories separation ──────────────────────────────────────
+
+  ClothingItem and AccessoriesItem are distinct classes with separate
+  category mixins and separate UI sorting fragments. Rationale:
+    - Accessories have no demographic→size value map — the clothing value map
+      is entirely irrelevant for a bag or scarf.
+    - UC rules (underwear condition, adult underwear must be new) do not
+      apply to accessories.
+    - Progressive disclosure: "is this clothing or an accessory?" is a clean
+      first branch in the sorting UI — mixing them in one subcategory dropdown
+      forces sorters to scan past irrelevant options.
+    - AccessoriesDemographicEnum is simpler (baby/child/adult/all_ages) —
+      gender is not a meaningful dimension for most accessories.
+  Both map to COICOP Division 03 but are handled separately here.
+
+  ── Condition model ───────────────────────────────────────────────────────────
+
+  See core.yaml for the full two-dimensional condition model explanation.
+  Summary for this file:
+    usage              — provenance (on DonationItem base, universal)
+    condition_grade    — wear grade (clothing, accessories, footwear, books,
+                         stationery, household, toys, general sports)
+    assessment_result  — structured assessment (furniture, electronics,
+                         bedding, sports protective gear, mobility aids,
+                         baby equipment)
+    PersonalCareItem   — is_sealed + expiry_date only (COICOP 12.1)
+    FoodItem           — packaging_intact + expiry_date (FoodOn / COICOP 01)
+
+  All assessments required at sorted state regardless of usage value —
+  new items can have manufacturing defects and must be assessed.
+
+  ── External standards ────────────────────────────────────────────────────────
+
+  Category grouping grounded in COICOP 2018 and UNHCR NFI standards.
+  See core.yaml CategoryEnum for per-category grounding documentation.
+
+  Base class grounded in schema:Product:
+    https://schema.org/Product
+
+  COICOP 2018:
+    https://unstats.un.org/unsd/classifications/unsdclassifications/
+    COICOP_2018_-_pre-edited_white_cover_version_-_2018-12-26.pdf
+
+  UNHCR NFI Core Relief Standards:
+    https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+    kind-non-food-item-distribution
+
+license: MIT
+see_also:
+  - https://schema.org/Product
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  cpi: http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+  pto: http://www.productontology.org/id/
+  foodon: http://purl.obolibrary.org/obo/FOODON_
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+  - ../categories/clothing
+  - ../categories/accessories
+  - ../categories/footwear
+  - ../categories/furniture
+  - ../categories/bedding_textiles
+  - ../categories/household
+  - ../categories/electronics
+  - ../categories/toys
+  - ../categories/sports
+  - ../categories/books
+  - ../categories/stationery
+  - ../categories/personal_care
+  - ../categories/mobility_aids
+  - ../categories/baby_infant
+  - ../categories/food
+
+
+classes:
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Abstract base
+  # ════════════════════════════════════════════════════════════════════════════
+
+  DonationItem:
+    abstract: true
+    class_uri: schema:Product
+    description: >-
+      Abstract base for all donation items. Never instantiated directly.
+
+      The category slot carries designates_type: true — its value (the class
+      URI of the concrete subclass) selects which subclass schema applies.
+      This is the LinkML mechanism for a discriminated union: category IS the
+      type, not an attribute of the item. Grounded in schema:Product.
+
+      attribute_completeness is set by the fragment engine when the sorting
+      episode completes. It records data quality — NOT whether the episode
+      was complete (lifecycle_state = sorted records that). See
+      AttributeCompletenessEnum in core.yaml for the full rationale.
+
+      The lifecycle state machine is documented in ItemLifecycleStateEnum
+      in core.yaml. Transitions are enforced by Django model clean().
+      The sorting_in_progress state prevents concurrent editing of the same
+      item by two sorters simultaneously.
+    see_also:
+      - schema:Product
+    slots:
+      - id
+      - category
+      - lifecycle_state
+      - usage
+      - attribute_completeness
+      - source_collection
+      - donation_source
+      - storage_unit
+      - sorting_notes
+      - created_at
+      - updated_at
+    slot_usage:
+      category:
+        # designates_type: true
+        required: true
+        notes:
+          - Due to a limitation in LinkML, the designates_type annotation was removed because the range is an Enum and not a string.
+      lifecycle_state:
+        range: ItemLifecycleStateEnum
+        required: true
+      usage:
+        range: ItemUsageEnum
+        required: true
+      attribute_completeness:
+        range: AttributeCompletenessEnum
+        required: false
+      source_collection:
+        range: DonationCollection
+        required: false
+      donation_source:
+        range: DonationSource
+        required: false
+      storage_unit:
+        range: StorageLocation
+        required: false
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # APPAREL GROUP — COICOP Division 03 (Clothing and footwear)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  ClothingItem:
+    is_a: DonationItem
+    mixins:
+      - ClothingCategory
+    class_uri: cpi:ClothingAndAccessories
+    description: >-
+      Clothing garments: tops, bottoms, outerwear, underwear, nightwear,
+      sportswear. COICOP 03.1 (clothing).
+      Grounded in CPI (Clothing Product Information ontology):
+        http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+
+      Assessment: condition_grade (wear grade). The demographic→size value map
+      and all UC rules (underwear condition, adult underwear must be new) are
+      defined in ClothingCategory (categories/clothing.yaml).
+
+      Lifecycle-aware rules here:
+        lc-sorted-clothing-condition-grade-required
+        lc-sorted-clothing-demographic-required
+        lc-sorted-clothing-size-required
+    see_also:
+      - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+    rules:
+      - title: lc-sorted-clothing-condition-grade-required
+        description: >-
+          condition_grade required at sorted state regardless of usage.
+          New item with defect → grade fair or poor, not assumed like_new.
+          Sorters observe and record; they do not assume from the usage label.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+      - title: lc-sorted-clothing-is-winter-suitable-required
+        description: >-
+          is_winter_suitable required at sorted state for tops, bottoms,
+          outerwear, and nightwear. Not required for underwear (thermally
+          neutral base layer) or sportswear (assessed differently by the
+          SportsItem category). The thermal character of a garment is
+          independent of usage — sorters assess what they hold.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+            subcategory:
+              any_of:
+                - equals_string: tops
+                - equals_string: bottoms
+                - equals_string: outerwear
+                - equals_string: nightwear
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-sorted-clothing-demographic-required
+        description: >-
+          demographic required at sorted state for all ClothingItem instances.
+          Drives demand signal matching (e.g. "adult female tops, size M").
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            demographic:
+              required: true
+
+      - title: lc-sorted-clothing-size-required
+        description: >-
+          size required at sorted state.
+          Drives demand signal matching and storage slot assignment.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            size:
+              required: true
+
+      - title: lc-sorted-clothing-subcategory-required
+        description: >-
+          subcategory required at sorted state. Drives demand signal matching,
+          UC rule evaluation (underwear constraints), and storage routing.
+          Not required at received state — category is known but subcategory
+          is determined during sorting.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+
+  AccessoriesItem:
+    is_a: DonationItem
+    mixins:
+      - AccessoriesCategory
+    class_uri: pto:Fashion_accessory
+    description: >-
+      Fashion and personal accessories: hats, scarves, gloves, belts, bags,
+      jewellery, sunglasses, watches. COICOP 03.1 (grouped with clothing by
+      COICOP; separated here for progressive UI disclosure and schema clarity).
+
+      Separated from ClothingItem because:
+        - No demographic→size value map — accessories are not sized XS–XXL
+        - Clothing UC rules (underwear condition) do not apply
+        - Progressive disclosure: "clothing or accessory?" is a clean first
+          branch in the sorting UI
+        - AccessoriesDemographicEnum uses a simpler age-only vocabulary
+          (baby/child/adult/all_ages) — gender is not meaningful for most
+          accessories
+
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - http://www.productontology.org/id/Fashion_accessory
+    rules:
+      - title: lc-sorted-accessories-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+  FootwearItem:
+    is_a: DonationItem
+    mixins:
+      - FootwearCategory
+    class_uri: pto:Footwear
+    description: >-
+      Footwear: shoes, boots, sandals, slippers. COICOP 03.2 (footwear).
+      Separated from ClothingItem because:
+        - Shoe sizing systems (EU/UK/US/CM) differ from clothing sizes
+        - Pair-completeness is a footwear-specific assessment concern
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - http://www.productontology.org/id/Footwear
+    rules:
+      - title: lc-sorted-footwear-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+      - title: lc-sorted-footwear-is-winter-suitable-required
+        description: >-
+          is_winter_suitable required at sorted state. The thermal and
+          weather-protection character of footwear is operationally critical
+          for cold-weather emergency distribution — boots and sandals serve
+          entirely different needs. Sorter makes the call; fragment compiler
+          provides subcategory-based hints only.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-sorted-footwear-size-required
+        description: >-
+          shoe_size and shoe_size_system required at sorted state.
+          System required alongside size to disambiguate EU 42 from UK 8.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            shoe_size:
+              required: true
+            shoe_size_system:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # HOME GROUP — COICOP Division 05 (Housing, water, household goods)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  FurnitureItem:
+    is_a: DonationItem
+    mixins:
+      - FurnitureCategory
+    class_uri: pto:Furniture
+    description: >-
+      Structural furniture: chairs, tables, beds, wardrobes, shelving.
+      COICOP 05.1 (furniture and furnishings).
+      Grounded in Product Types Ontology:
+        http://www.productontology.org/id/Furniture
+
+      Assessment: FurnitureAssessmentEnum (structured structural assessment).
+      Structural soundness is the primary redistribution signal for furniture —
+      a scratched but solid chair is redistributable; a wobbly but clean one
+      is not. assessment_result required regardless of usage because new
+      flatpack furniture can have manufacturing defects or assembly issues.
+    see_also:
+      - http://www.productontology.org/id/Furniture
+    rules:
+      - title: lc-sorted-furniture-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New furniture can have manufacturing defects (cracked panels,
+          defective joints, damaged flatpack components).
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+
+  BeddingTextilesItem:
+    is_a: DonationItem
+    mixins:
+      - BeddingTextilesCategory
+    class_uri: pto:Bedding
+    description: >-
+      Bedding and household textiles: blankets, duvets, mattresses, pillows,
+      sleeping bags, towels, curtains. COICOP 05.2 (household textiles).
+
+      Separated from HouseholdItem following COICOP 05.2 and UNHCR NFI kit
+      standards, which list blankets and sleeping mats as core relief items
+      at the same priority level as clothing — not incidental household goods.
+      The hygiene assessment vocabulary (BeddingAssessmentEnum) also differs
+      fundamentally from household item wear grading.
+
+      Assessment: BeddingAssessmentEnum (hygiene and condition assessment).
+      Hygiene state is the primary redistribution signal for bedding —
+      a worn but clean blanket is redistributable; a visually intact but
+      stained mattress is not. assessment_result required regardless of usage
+      because new items may have packaging damage or factory soiling.
+
+      UNHCR NFI standards reference:
+        https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+        kind-non-food-item-distribution
+    see_also:
+      - http://www.productontology.org/id/Bedding
+      - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    rules:
+      - title: lc-sorted-bedding-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New items may have packaging damage or factory soiling.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+
+  HouseholdItem:
+    is_a: DonationItem
+    mixins:
+      - HouseholdCategory
+    class_uri: pto:Household_goods
+    description: >-
+      Household and kitchen goods: cookware, crockery, small appliances,
+      cleaning tools, home decor, garden tools.
+      COICOP 05.3 (household appliances), 05.4 (glassware, tableware,
+      utensils), 05.5 (tools for house and garden).
+      Note: bedding and textiles (COICOP 05.2) are BeddingTextilesItem,
+      not HouseholdItem — separated per COICOP structure and UNHCR NFI practice.
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - http://www.productontology.org/id/Household_goods
+    rules:
+      - title: lc-sorted-household-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # TECHNOLOGY GROUP — COICOP Division 09 (Recreation and culture)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  ElectronicsItem:
+    is_a: DonationItem
+    mixins:
+      - ElectronicsCategory
+    class_uri: pto:Consumer_electronics
+    description: >-
+      Consumer electronics: phones, tablets, laptops, cameras, audio devices,
+      cables, gaming consoles. COICOP 09.1 (audio-visual equipment) and 09.2.
+
+      Assessment: ElectronicsAssessmentEnum (functional and cosmetic state).
+      Functional state is the primary redistribution signal for electronics —
+      a cracked-screen phone that works is more useful than a pristine one that
+      does not. assessment_result required regardless of usage because new
+      devices can have factory defects or dead batteries.
+
+      Data wiping is a process concern (fragment step in sort_electronics
+      process path), not a schema constraint — it is enforced by the fragment
+      engine, not by a UC rule here.
+    see_also:
+      - http://www.productontology.org/id/Consumer_electronics
+    rules:
+      - title: lc-sorted-electronics-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New devices can have factory defects or dead batteries.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+      - title: lc-sorted-electronics-not-untested
+        description: >-
+          untested is only valid at received state. At sorted state the sorter
+          must have tested the device and recorded a definitive assessment result.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              none_of:
+                - equals_string: untested
+
+
+  ToysItem:
+    is_a: DonationItem
+    mixins:
+      - ToysCategory
+    class_uri: pto:Toy
+    description: >-
+      Toys and games. COICOP 09.3 (games, toys, hobbies).
+      Age grading follows EU Toy Safety Directive 2009/48/EC:
+        https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+      UC rule for small parts choking hazard also references ASTM F963
+      (US standard) for completeness.
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - http://www.productontology.org/id/Toy
+      - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    rules:
+      - title: lc-sorted-toys-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+  SportsItem:
+    is_a: DonationItem
+    mixins:
+      - SportsCategory
+    class_uri: pto:Sporting_goods
+    description: >-
+      Sports and fitness equipment. COICOP 09.4 (sport and recreational
+      equipment).
+      Note: bicycles are placed here by domain convention; COICOP assigns
+      them to Division 07 (Transport). The domain decision reflects how
+      social organisations actually sort and store these items.
+
+      Dual-track assessment (defined in SportsCategory, categories/sports.yaml):
+        protective_gear subcategory → SportsProtectiveAssessmentEnum
+          Wear grade is insufficient for safety-critical items — structural
+          damage may not be visually apparent after impact (e.g. a cracked
+          helmet inner shell invisible under an intact outer shell).
+        all other subcategories → condition_grade (wear grade)
+    see_also:
+      - http://www.productontology.org/id/Sporting_goods
+    rules:
+      - title: lc-sorted-sports-subcategory-required
+        description: >-
+          subcategory required at sorted state. SportsCategory rules then
+          enforce whether assessment_result or condition_grade is required
+          based on the subcategory value (protective_gear vs. other).
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # LEARNING GROUP — COICOP Division 09 (Recreation and culture)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  BooksItem:
+    is_a: DonationItem
+    mixins:
+      - BooksCategory
+    class_uri: schema:Book
+    description: >-
+      Books and educational materials. COICOP 09.5 (newspapers, books,
+      stationery). Grounded in schema:Book (schema.org has a first-class
+      Book type distinct from generic Product).
+      No demographic or clothing-style size dimension — age_range
+      (BookAgeRangeEnum) is broader and non-gendered.
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - schema:Book
+    rules:
+      - title: lc-sorted-books-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+  StationeryItem:
+    is_a: DonationItem
+    mixins:
+      - StationeryCategory
+    class_uri: pto:Stationery
+    description: >-
+      Stationery and office supplies: pens, notebooks, art supplies, calculators.
+      COICOP 09.5 (newspapers, books, stationery).
+      Separated from BooksItem because published content (BooksItem) and
+      consumable/office supplies have different sorting paths, condition
+      vocabularies (partially-used pens are not "poor condition books"), and
+      demand signal patterns (school supply drives vs. book donations).
+      Assessment: condition_grade (wear grade).
+    see_also:
+      - http://www.productontology.org/id/Stationery
+    rules:
+      - title: lc-sorted-stationery-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # CARE GROUP — COICOP Divisions 06 (Health) + 12 (Personal care)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  PersonalCareItem:
+    is_a: DonationItem
+    mixins:
+      - PersonalCareCategory
+    class_uri: pto:Personal_hygiene
+    description: >-
+      Personal care, hygiene, and health products. Merges COICOP 06.1
+      (medical products and appliances) and 12.1 (personal care — toiletries,
+      cosmetics, related appliances). Open Eligibility uses a single
+      "Personal Care Items" node for both:
+        https://company.auntbertha.com/openeligibility/
+
+      Merged because the operative safety rules are identical across both
+      former categories: sealed required, used tools blocked, expiry enforced.
+      Splitting them would duplicate all three rules with no semantic benefit.
+
+      Assessment: is_sealed + expiry_date (no condition_grade or assessment_result).
+      For personal care products, the relevant safety signals are hygiene
+      integrity (sealed?) and freshness (not expired?). A wear grade is
+      meaningless for a tube of toothpaste — it is either sealed or it is not.
+    see_also:
+      - http://www.productontology.org/id/Personal_hygiene
+      - http://www.productontology.org/id/Cosmetics
+      - https://company.auntbertha.com/openeligibility/
+    rules:
+      - title: lc-sorted-personal-care-sealed-required
+        description: >-
+          is_sealed required at sorted state regardless of usage.
+          Even new personal care items may have compromised packaging.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            is_sealed:
+              required: true
+
+
+  MobilityAidsItem:
+    is_a: DonationItem
+    mixins:
+      - MobilityAidsCategory
+    class_uri: pto:Assistive_technology
+    description: >-
+      Mobility aids and assistive devices: wheelchairs, crutches, walking
+      frames, hearing aids, orthotics, daily living aids.
+      COICOP 06.1.3 (other medical products) and 06.2 (outpatient services,
+      durable medical equipment). Open Eligibility "Assistive Technology"
+      top-level category:
+        https://company.auntbertha.com/openeligibility/
+
+      Assessment: MobilityAssessmentEnum (structured safety and hygiene).
+      A single enum captures structural soundness, functional state, and
+      body-contact hygiene (used hearing aids, orthotics) — replacing the
+      former separate boolean structural_integrity + functional_status slots
+      that generated the problematic annotation-based approach.
+      assessment_result required regardless of usage — new mobility aids
+      can have manufacturing defects.
+    see_also:
+      - http://www.productontology.org/id/Assistive_technology
+      - https://company.auntbertha.com/openeligibility/
+    rules:
+      - title: lc-sorted-mobility-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New mobility aids can have manufacturing defects.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # LIFE STAGE GROUP
+  # ════════════════════════════════════════════════════════════════════════════
+
+  BabyInfantItem:
+    is_a: DonationItem
+    mixins:
+      - BabyInfantCategory
+    class_uri: pto:Baby_transport
+    description: >-
+      Baby and infant supplies: pushchairs, cots, car seats, infant formula,
+      feeding bottles, baby monitors, bath equipment.
+      Baby clothing belongs in ClothingItem (demographic=baby).
+
+      COICOP distributes baby items across Division 03 (clothing), 05
+      (household), and 01 (food). Treated as a first-class top-level category
+      here following Open Eligibility "Baby Supplies" and UNHCR NFI kit
+      practice (nappies and formula are core NFI kit items):
+        https://company.auntbertha.com/openeligibility/
+        https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+
+      Three-track assessment model (defined in BabyInfantCategory):
+        Track 1 — safety-critical equipment (BabyEquipmentAssessmentEnum):
+          pushchairs, cots, car seats, carriers, high chairs, sleeping bags.
+          EN 1888 (pushchairs), EN 716 (cots), EN 14344 (car seats),
+          EN 16781 (baby sleeping bags — neck/armhole openings, no loose
+          cords), all require structured provenance + structural assessment.
+          Baby sleeping bags are Track 1, NOT BeddingTextilesItem — the
+          EN 16781 safety check differs materially from adult sleeping bag
+          hygiene assessment.
+        Track 2 — consumables (is_sealed + expiry_date):
+          infant_formula, feeding_bottles_teats, baby_food.
+        Track 3 — general baby gear (condition_grade):
+          bath equipment, changing, monitors, bouncers.
+    see_also:
+      - http://www.productontology.org/id/Baby_transport
+      - http://www.productontology.org/id/Infant_bed
+      - https://company.auntbertha.com/openeligibility/
+      - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    rules:
+      - title: lc-sorted-baby-sleeping-bag-winter-required
+        description: >-
+          is_winter_suitable required at sorted state for baby sleeping bags.
+          A summer-weight baby sleeping bag (0.5–1.0 tog) issued in cold-
+          weather distribution is a safety risk — infants cannot regulate
+          their own temperature. BabyInfantCategory also carries this rule;
+          the lifecycle rule here ensures it is enforced at the sorted
+          transition.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+            subcategory:
+              equals_string: sleeping_bags
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-sorted-baby-subcategory-required
+        description: >-
+          subcategory required at sorted state. BabyInfantCategory rules
+          then enforce the appropriate assessment track for that subcategory.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+
+  FoodItem:
+    is_a: DonationItem
+    mixins:
+      - FoodCategory
+    class_uri: foodon:00001006
+    description: >-
+      Food donation item. COICOP Division 01 (food and non-alcoholic beverages).
+      Grounded in FoodOn (OBO Foundry food ontology):
+        http://purl.obolibrary.org/obo/foodon.owl
+
+      Phase 1 stub — fully declared to establish the schema; the sort_food
+      process path is activated when food-bank organisations are onboarded.
+
+      Assessment: packaging_intact + expiry_date (defined in FoodCategory).
+      No condition_grade or assessment_result — food safety is binary:
+      packaging intact or not, expired or not. FoodCategory does not extend
+      CategoryMixin for this reason.
+    see_also:
+      - foodon:00001006
+      - http://purl.obolibrary.org/obo/foodon.owl
+    annotations:
+      phase: Phase 1 stub
+    rules:
+      - title: lc-sorted-food-storage-required
+        description: storage_requirement required at sorted state.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              required: true
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # CATCH-ALL
+  # ════════════════════════════════════════════════════════════════════════════
+
+  OtherItem:
+    is_a: DonationItem
+    class_uri: schema:Product
+    description: >-
+      Catch-all for donation items not fitting any other category.
+      No mixin — minimal slots only (item_description + condition_grade).
+      Use sparingly: if a new item type appears frequently in operations,
+      it warrants a proper subclass with a category mixin and dedicated
+      sorting fragment rather than accumulating in OtherItem.
+    rules:
+      - title: lc-sorted-other-required-fields
+        description: >-
+          item_description and condition_grade required at sorted state.
+          item_description provides the minimum human-readable record for
+          items with no controlled vocabulary.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            item_description:
+              required: true
+            condition_grade:
+              required: true
+    slots:
+      - item_description
+      - condition_grade
+    slot_usage:
+      item_description:
+        required: true
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+
+
+# ── Slots declared in this schema ─────────────────────────────────────────────
+
+slots:
+
+  source_collection:
+    range: DonationCollection
+    description: >-
+      FK — the DonationCollection (arrival type) this item was registered from.
+      Null for items not arriving as part of a collection.
+
+  storage_unit:
+    range: StorageLocation
+    description: >-
+      FK — set when lifecycle_state transitions to stored.
+      Null until the item reaches stored state.
+
+  item_description:
+    range: string
+    description: >-
+      Free-text description of the item. Required for OtherItem at sorted
+      state — provides the minimum human-readable record where no controlled
+      vocabulary applies.

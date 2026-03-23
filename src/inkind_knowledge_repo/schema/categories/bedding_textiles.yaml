@@ -1,0 +1,274 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/bedding_textiles
+name: bedding_textiles
+title: Bedding & Textiles Category Schema
+description: >-
+  Defines BeddingTextilesCategory mixin applied to BeddingTextilesItem.
+
+  COICOP alignment: Division 05.2 (household textiles).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  UNHCR NFI Core Relief Standards:
+  https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+  kind-non-food-item-distribution
+  UNHCR lists blankets and sleeping mats as core NFI relief items at the
+  same priority level as clothing. This is the primary justification for
+  treating bedding as a distinct top-level category.
+
+  Ontology grounding:
+    Product Types Ontology — pto:Bedding, pto:Blanket, pto:Duvet,
+    pto:Pillow, pto:Mattress, pto:Sleeping_bag, pto:Towel, pto:Curtain
+      http://www.productontology.org/id/Bedding
+
+  Assessment model:
+    Uses BeddingAssessmentEnum (structured hygiene/condition assessment).
+    Hygiene state is the primary redistribution signal — a worn but clean
+    blanket is redistributable; a visually intact but stained mattress is not.
+    assessment_result required regardless of usage.
+
+  Seasonality:
+    is_winter_suitable is declared on BeddingTextilesCategory because
+    thermal weight of bedding items is operationally significant for
+    emergency distribution — a fleece blanket and a cotton sheet are both
+    blankets but serve entirely different needs in a cold-weather response.
+
+    SeasonEnum (full four-value vocabulary) is intentionally NOT declared
+    on BeddingTextilesCategory. Bedding suitability is captured well by the
+    binary is_winter_suitable — "will this keep someone warm?" is the
+    question, and the spring_autumn/summer distinction that matters for
+    clothing (how you dress for temperature transitions) does not apply
+    to bedding in the same way. A duvet is either a winter-weight duvet
+    or it is not.
+
+    Sleeping bag thermal rating (if known) can be recorded in sorting_notes
+    as free text until sufficient demand warrants a structured slot.
+
+    Fragment compiler UI hints:
+      sleeping_bags → prompt for is_winter_suitable (critical — a summer
+        sleeping bag in a cold-weather emergency is dangerous)
+      blankets, duvets_quilts → prompt for is_winter_suitable
+      mattresses, towels, curtains, tablecloths → suppress is_winter_suitable
+        (not a meaningful signal for these subcategories)
+
+  Completeness tiers:
+    minimal:  subcategory, assessment_result, usage
+    standard: subcategory, is_set_complete, assessment_result,
+              is_winter_suitable, usage
+    detailed: subcategory, is_set_complete, assessment_result,
+              is_winter_suitable, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Bedding
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+  - ./clothing   # imports is_winter_suitable slot definition
+
+
+classes:
+
+  BeddingTextilesCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for bedding and textiles slots and UC rules.
+      Applied to BeddingTextilesItem via mixins: [BeddingTextilesCategory].
+      Split from HouseholdItem per COICOP 05.2 and UNHCR NFI standards.
+      Uses BeddingAssessmentEnum — hygiene is the primary redistribution signal.
+      is_winter_suitable added for thermal weight signal on blankets, duvets,
+      and sleeping bags. SeasonEnum not declared — binary is sufficient for
+      bedding. See schema description for full rationale.
+    see_also:
+      - http://www.productontology.org/id/Bedding
+      - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    slots:
+      - subcategory
+      - assessment_result
+      - is_set_complete
+      - is_winter_suitable
+    slot_usage:
+      subcategory:
+        range: BeddingTextilesSubcategoryEnum
+        required: true
+      assessment_result:
+        range: BeddingAssessmentEnum
+        required: true
+        description: >-
+          Hygiene and condition assessment. Required regardless of usage —
+          new items may have packaging damage or factory soiling.
+      is_winter_suitable:
+        range: boolean
+        required: false
+        description: >-
+          Whether this bedding item provides meaningful warmth for cold
+          conditions. Required at standard completeness for blankets,
+          duvets_quilts, and sleeping_bags. Not meaningful for towels,
+          curtains, tablecloths. Suppressed by fragment compiler for those
+          subcategories via the season_relevant_subcategories annotation.
+
+          Critical for sleeping bags — a summer sleeping bag issued in a
+          cold-weather emergency is dangerous. Thermal rating in tog or
+          season number may be noted in sorting_notes as free text.
+    annotations:
+      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_standard: "subcategory, is_set_complete, assessment_result, is_winter_suitable, usage"
+      completeness_detailed: "subcategory, is_set_complete, assessment_result, is_winter_suitable, usage"
+      coicop_division: "05.2"
+      unhcr_nfi_category: "household_items"
+      winter_suitable_subcategories: "blankets, duvets_quilts, pillows, mattresses, sleeping_bags, bedsheets"
+      winter_suppress_subcategories: "towels, curtains_blinds, tablecloths_napkins"
+    rules:
+      - title: uc-bedding-hygiene-concern-block
+        description: >-
+          Items with hygiene concerns must not be redistributed. Covers mattress
+          staining, infestation signs, biological contamination, and packaging
+          damage on new items. Applies regardless of usage.
+          action: block, suggest: disposal.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: hygiene_concern
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-bedding-not-washed-warn
+        description: >-
+          Used items where laundering is unconfirmed require sorter confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: used_not_confirmed_washed
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-bedding-stained-warn
+        description: >-
+          Visibly stained items require sorter confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: clean_with_visible_staining
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-bedding-sleeping-bag-winter-required
+        description: >-
+          Sleeping bags require is_winter_suitable to be explicitly set.
+          A summer sleeping bag issued in a cold-weather emergency is a
+          genuine safety risk. Sorters must assess the thermal rating.
+          action: warn — is_winter_suitable must be set at sorted state.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: sleeping_bags
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+
+enums:
+
+  BeddingAssessmentEnum:
+    description: >-
+      Structured hygiene and condition assessment for bedding and textiles.
+      Replaces former boolean slots has_been_washed and is_mattress_hygienic.
+      Required at sorting regardless of usage.
+    permissible_values:
+      clean_unused:
+        description: >-
+          Clearly unused/new with original packaging intact or no signs of
+          previous use. No hygiene concerns.
+      clean_washed:
+        description: >-
+          Previously used but confirmed laundered and clean. No staining,
+          odour, or hygiene concerns. Fully redistributable.
+      clean_with_visible_staining:
+        description: >-
+          Clean and odour-free but with visible staining. Structurally sound.
+          action: warn — sorting_notes required.
+      used_not_confirmed_washed:
+        description: >-
+          Used item where laundering cannot be confirmed.
+          action: warn — sorting_notes required.
+      hygiene_concern:
+        description: >-
+          Visible contamination, significant staining, odour, infestation,
+          or other hygiene issue. Redistribution unsafe.
+          action: block, suggest: disposal.
+
+  BeddingTextilesSubcategoryEnum:
+    description: >-
+      Bedding and household textiles subcategories. Aligned with COICOP 05.2.
+      is_winter_suitable is meaningful for the first five subcategories;
+      suppressed by the fragment compiler for the last three.
+    permissible_values:
+      blankets:
+        description: >-
+          Blankets, throws, fleece covers. UNHCR NFI core relief item.
+          is_winter_suitable required — a fleece blanket and a cotton
+          throw serve very different needs in cold-weather distribution.
+        see_also: [pto:Blanket]
+      duvets_quilts:
+        description: >-
+          Duvets, quilts, continental quilts. is_winter_suitable required —
+          tog rating (if legible) may be noted in sorting_notes.
+        see_also: [pto:Duvet]
+      pillows:
+        description: Pillows and sleeping cushions.
+        see_also: [pto:Pillow]
+      mattresses:
+        description: >-
+          Single, double, children's mattresses. Hygiene UC applies.
+          is_winter_suitable typically not meaningful — suppressed in UI.
+        see_also: [pto:Mattress]
+      sleeping_bags:
+        description: >-
+          Adult and general sleeping bags and camping bedding.
+          UNHCR NFI core relief item.
+          is_winter_suitable required and UC-enforced — a summer sleeping
+          bag in cold-weather emergency distribution is a safety risk.
+          Thermal rating (e.g. "3-season", "-10°C comfort limit") may
+          be noted in sorting_notes.
+          IMPORTANT: Baby sleeping bags (0-24 months) → BabyInfantItem
+          (subcategory: sleeping_bags). EN 16781:2018 applies — neck and
+          armhole safety assessment required. Do not sort into this category.
+        see_also: [pto:Sleeping_bag]
+      bedsheets:
+        description: Fitted sheets, flat sheets, pillowcases, duvet covers.
+      towels:
+        description: >-
+          Bath, hand, face, beach towels. is_winter_suitable not meaningful
+          — suppressed by fragment compiler.
+        see_also: [pto:Towel]
+      curtains_blinds:
+        description: >-
+          Curtains, net curtains, roller blinds. is_winter_suitable not
+          meaningful at item level — suppressed by fragment compiler.
+        see_also: [pto:Curtain]
+      tablecloths_napkins:
+        description: Tablecloths, placemats, cloth napkins. Seasonal not applicable.
+      other:
+        description: Household textiles not fitting above subcategories.

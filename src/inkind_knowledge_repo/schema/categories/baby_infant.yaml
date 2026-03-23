@@ -1,0 +1,427 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/baby_infant
+name: baby_infant
+title: Baby & Infant Supplies Category Schema
+description: >-
+  Defines BabyInfantCategory mixin applied to BabyInfantItem.
+
+  COICOP note: Baby items are distributed across COICOP Divisions 03
+  (clothing), 05 (household), and 01 (food). Treated as a first-class
+  top-level category here because:
+    - Open Eligibility taxonomy has "Baby Supplies" as a top-level goods
+      category: https://company.auntbertha.com/openeligibility/
+    - UNHCR NFI kit standards include nappies and infant formula as core
+      relief items alongside blankets and clothing:
+      https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+      kind-non-food-item-distribution
+    - Safety assessment for baby equipment (car seats, cots, pushchairs)
+      requires specialised rules that cannot be expressed via general
+      HouseholdItem or ClothingItem categories.
+
+  Ontology grounding:
+    Product Types Ontology — pto:Baby_transport, pto:Child_safety_seat,
+    pto:Infant_bed, pto:Infant_formula, pto:Baby_food, pto:Baby_monitor,
+    pto:High_chair
+      http://www.productontology.org/id/Baby_transport
+
+  Safety standards referenced in UC rules:
+    EN 1888:2012+A1:2013 — pushchairs and prams
+    EN 716-1:2017 — children's cots and folding cots
+    EN 14344:2004+A1:2007 — child restraints for motor vehicles (car seats)
+    EN 14350:2018 — drinking equipment for children
+    EN 16781:2018 — baby sleeping bags for home use (neck/armhole openings,
+                    no loose cords or drawstrings)
+
+  Three-track assessment model (design rationale):
+    Baby items span fundamentally different safety concerns that cannot be
+    handled by a single assessment vocabulary:
+
+    Track 1 — Safety-critical equipment:
+      pushchairs_prams, cots_cribs, car_seats, baby_carriers, high_chairs,
+      sleeping_bags
+      Uses BabyEquipmentAssessmentEnum — structured provenance + structural
+      assessment. EN standards require age verification for car seats (10-year
+      redistribution limit per EN 14344) and structural integrity for cots
+      (EN 716 bans dropside cots in EU). Baby sleeping bags (EN 16781) require
+      verification of neck and armhole openings (infant entrapment hazard) and
+      absence of loose cords or drawstrings (strangulation hazard). This is a
+      meaningfully different assessment from adult sleeping bags — which belong
+      in BeddingTextilesItem. is_winter_suitable is also required for sleeping
+      bags: a summer-weight baby sleeping bag in cold-weather distribution is
+      a safety risk.
+
+    Track 2 — Consumables:
+      infant_formula, feeding_bottles_teats, baby_food
+      Uses is_sealed + expiry_date (same pattern as PersonalCareCategory).
+      Hygiene and safety are binary: sealed/not sealed, expired/not expired.
+      Used feeding bottles/teats are blocked outright (EN 14350 hygiene).
+
+    Track 3 — General baby gear:
+      bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding
+      Uses condition_grade (wear grade) — appropriate for these items.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, usage (track-specific assessment required)
+    detailed: subcategory, manufacture_year, is_complete_with_accessories, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Baby_transport
+  - https://company.auntbertha.com/openeligibility/
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  BabyInfantCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for baby and infant supply slots and UC rules.
+      Applied to BabyInfantItem via mixins: [BabyInfantCategory].
+      Three-track assessment model — see schema description above.
+      EN 1888 (pushchairs), EN 716 (cots), EN 14344 (car seats),
+      EN 14350 (feeding bottles) ground the safety UC rules.
+    see_also:
+      - http://www.productontology.org/id/Baby_transport
+      - https://company.auntbertha.com/openeligibility/
+    slots:
+      - subcategory
+      - assessment_result
+      - manufacture_year
+      - includes_original_accessories
+      - is_winter_suitable
+      - is_sealed
+      - expiry_date
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: BabyInfantSubcategoryEnum
+        required: true
+      assessment_result:
+        range: BabyEquipmentAssessmentEnum
+        required: false
+        description: >-
+          Structural/provenance assessment for Track 1 safety-critical equipment.
+          Required when subcategory in [pushchairs_prams, cots_cribs,
+          baby_carriers, high_chairs, car_seats, sleeping_bags].
+      is_winter_suitable:
+        range: boolean
+        required: false
+        description: >-
+          Whether this item provides meaningful warmth in cold conditions.
+          Required for sleeping_bags (UC-enforced) — a summer-weight baby
+          sleeping bag in cold-weather distribution is a safety risk.
+          Thermal rating (e.g. "2.5 tog", "0°C comfort limit") may be
+          noted in sorting_notes.
+      is_sealed:
+        required: false
+        description: >-
+          Packaging/seal integrity for Track 2 consumables.
+          Required when subcategory in [infant_formula, feeding_bottles_teats,
+          baby_food].
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+        description: >-
+          Wear grade for Track 3 general baby gear.
+          Required when subcategory in [bath_equipment, changing,
+          baby_monitors, bouncers_swings, breastfeeding, other].
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, usage"
+      completeness_detailed: "subcategory, manufacture_year, is_complete_with_accessories, usage"
+      track_structural_subcategories: "pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags"
+      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food"
+      track_general_subcategories:    "bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other"
+      regulatory_references: "EN 1888, EN 716, EN 14344, EN 14350, EN 16781"
+    rules:
+      # ── Track 1: safety equipment ─────────────────────────────────────────
+      - title: uc-baby-equipment-assessment-required
+        description: >-
+          Safety-critical baby equipment requires a structured assessment.
+          Required regardless of usage — new equipment can have defects.
+          Standards: EN 1888 (pushchairs), EN 716 (cots), EN 14344 (car seats),
+          EN 16781 (baby sleeping bags — neck/armhole openings, no loose cords).
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: pushchairs_prams
+                - equals_string: cots_cribs
+                - equals_string: baby_carriers
+                - equals_string: high_chairs
+                - equals_string: car_seats
+                - equals_string: sleeping_bags
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+      - title: uc-baby-equipment-unsafe-block
+        description: >-
+          Equipment assessed as do_not_redistribute or structural_concern
+          must not be redistributed. action: block.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              any_of:
+                - equals_string: do_not_redistribute
+                - equals_string: structural_concern
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-baby-car-seat-manufacture-year
+        description: >-
+          Car seats require manufacture_year to enable the runtime age check.
+          EN 14344 standard — car seats over 10 years old or with unknown
+          collision history must not be redistributed. manufacture_year must
+          be recorded for all car seats (new and used) so the runtime check
+          can verify the 10-year limit.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: car_seats
+        postconditions:
+          slot_conditions:
+            manufacture_year:
+              required: true
+
+      - title: uc-baby-equipment-specialist-warn
+        description: >-
+          Equipment requiring specialist check before redistribution needs
+          sorter confirmation. action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: requires_specialist_check
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-baby-sleeping-bag-winter-required
+        description: >-
+          Baby sleeping bags require is_winter_suitable to be explicitly set.
+          A summer-weight baby sleeping bag (e.g. 0.5-1.0 tog) issued in a
+          cold-weather response is a genuine safety risk — infants cannot
+          regulate their own temperature. The thermal rating is typically
+          printed on the label (tog, season number, or comfort temperature).
+          action: warn — is_winter_suitable must be set at sorted state.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: sleeping_bags
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      # ── Track 2: consumables ──────────────────────────────────────────────
+      - title: uc-baby-consumable-sealed-required
+        description: >-
+          Consumable baby items require sealed packaging. Nappies and formula
+          are UNHCR NFI core relief items — hygiene integrity is essential.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: infant_formula
+                - equals_string: feeding_bottles_teats
+                - equals_string: baby_food
+        postconditions:
+          slot_conditions:
+            is_sealed:
+              required: true
+
+      - title: uc-baby-consumable-unsealed-block
+        description: >-
+          Unsealed consumable baby items must not be redistributed.
+          action: block.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: infant_formula
+                - equals_string: feeding_bottles_teats
+                - equals_string: baby_food
+            is_sealed:
+              equals_string: "false"
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-baby-feeding-used-block
+        description: >-
+          Used feeding bottles and teats must not be redistributed.
+          Hygiene and infant safety — EN 14350 (drinking equipment for
+          children). action: block — no override.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: feeding_bottles_teats
+            usage:
+              equals_string: used
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-baby-consumable-expiry-block
+        description: >-
+          Consumables past expiry must not be redistributed. Runtime check.
+        preconditions: {}
+        annotations:
+          enforcement: application_layer
+          uc_action: block
+          uc_suggest: disposal
+          uc_note: "expiry_date < today — runtime check by Django model clean()"
+
+      # ── Track 3: general baby gear ────────────────────────────────────────
+      - title: uc-baby-general-condition-grade-required
+        description: General baby gear requires condition_grade wear assessment.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: bath_equipment
+                - equals_string: changing
+                - equals_string: baby_monitors
+                - equals_string: bouncers_swings
+                - equals_string: breastfeeding
+                - equals_string: other
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+
+slots:
+
+  manufacture_year:
+    range: integer
+    description: >-
+      Year of manufacture. Required for car seats (EN 14344 — 10-year
+      redistribution limit). Recommended for cots (EN 716) and pushchairs
+      (EN 1888) to verify age of safety-relevant components.
+    annotations:
+      show_if: "subcategory in [car_seats, cots_cribs, pushchairs_prams]"
+
+  includes_original_accessories:
+    range: boolean
+    description: >-
+      Whether standard accessories/components are included (e.g. pushchair
+      includes rain cover and harness; cot includes mattress and side rails).
+
+
+
+enums:
+
+  BabyEquipmentAssessmentEnum:
+    description: >-
+      Structured safety assessment for safety-critical baby equipment
+      (pushchairs, cots, car seats, carriers, high chairs).
+      Required at sorting regardless of usage — new equipment can have
+      manufacturing defects or fail safety age/provenance criteria.
+
+      Car seat specific (EN 14344):
+        Structural integrity after a collision cannot be verified. Car seats
+        over 10 years old or with unknown collision history must receive
+        do_not_redistribute. manufacture_year is required for all car seats
+        to enable the runtime age check.
+
+      Cot specific (EN 716):
+        Drop-side cots are banned in the EU. A new-looking dropside cot
+        must receive do_not_redistribute.
+
+      Baby sleeping bag specific (EN 16781):
+        Neck opening must prevent infant from slipping inside. Armhole
+        openings must be present and correctly sized. No loose cords,
+        drawstrings, or ribbon ties permitted. No small detachable decorative
+        parts. is_winter_suitable must be set — thermal weight ranges from
+        0.5 tog (summer) to 3.5 tog (winter).
+    see_also:
+      - https://eur-lex.europa.eu/  # EN 14344, EN 716, EN 1888
+    permissible_values:
+      safe_to_redistribute:
+        description: >-
+          Structurally sound; all components present; manufacture date within
+          acceptable range; no safety concerns. Ready for redistribution.
+          Appropriate for new items with no observed defects.
+      safe_minor_wear:
+        description: >-
+          Minor cosmetic wear but structurally sound and all safety-relevant
+          components intact. Safe to redistribute.
+      requires_specialist_check:
+        description: >-
+          Appears functional but sorter cannot fully verify safety (unknown
+          locking mechanism, unfamiliar harness system, unclear provenance).
+          action: warn — redistribution only after specialist confirmation.
+      structural_concern:
+        description: >-
+          Visible structural damage, cracked components, bent frame, broken
+          harness buckle. Applies to new (manufacturing defect) and used items.
+          action: block.
+      do_not_redistribute:
+        description: >-
+          Must not be redistributed: car seat over 10 years old or confirmed
+          post-collision (EN 14344), EU-banned dropside cot (EN 716), recalled
+          model, missing critical safety components.
+          action: block.
+
+  BabyInfantSubcategoryEnum:
+    description: >-
+      Baby and infant supplies subcategories. Grounded in Product Types
+      Ontology. Baby clothing belongs in ClothingItem (demographic=baby).
+    permissible_values:
+      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport]}
+      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat]}
+      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed]}
+      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport]}
+      infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula]}
+      feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350)."}
+      baby_food:             {description: "Prepared baby food. Must be sealed + within expiry.", see_also: [pto:Baby_food]}
+      breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers."}
+      bath_equipment:        {description: "Baby baths, bath seats, bath thermometers."}
+      changing:              {description: "Changing mats, nappy bags, changing bags."}
+      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor]}
+      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms."}
+      high_chairs:           {description: "High chairs and booster feeding seats. Structural assessment required.", see_also: [pto:High_chair]}
+      sleeping_bags:
+        description: >-
+          Baby sleeping bags for home use (0-24 months). Track 1 — structured
+          safety assessment required per EN 16781:2018. Sorter must verify:
+            - Neck opening size appropriate (infant cannot slip inside)
+            - Armhole openings present and correctly sized
+            - No loose cords, drawstrings, or ribbon ties (strangulation hazard)
+            - No small decorative parts that could detach (choking hazard)
+          is_winter_suitable required — thermal weight varies widely from
+          0.5 tog (summer) to 3.5 tog (winter). Tog or comfort temperature
+          rating is typically printed on the label.
+          Adult and camping sleeping bags → BeddingTextilesItem.
+        see_also:
+          - pto:Sleeping_bag
+      other:                 {description: Baby and infant supplies not fitting above subcategories.}

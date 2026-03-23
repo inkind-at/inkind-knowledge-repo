@@ -1,0 +1,182 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/electronics
+name: electronics
+title: Electronics Category Schema
+description: >-
+  Defines ElectronicsCategory mixin applied to ElectronicsItem.
+
+  COICOP alignment:
+    Division 09.1 — audio-visual, photographic, and information processing
+    equipment (televisions, cameras, laptops, phones, audio equipment)
+    Division 09.1.3 — information processing equipment (computers, tablets)
+    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Consumer_electronics, pto:Smartphone,
+    pto:Tablet_computer, pto:Laptop, pto:Desktop_computer, pto:Computer_monitor,
+    pto:Camera, pto:Audio_equipment, pto:Computer_hardware, pto:Video_game_console
+      http://www.productontology.org/id/Consumer_electronics
+
+  Assessment model rationale:
+    Uses ElectronicsAssessmentEnum (structured functional + cosmetic assessment)
+    instead of condition_grade (wear grade). Functional state is the primary
+    redistribution signal for electronics — a cracked-screen phone that works
+    is more useful to a beneficiary than a pristine-looking one that does not
+    power on. The assessment vocabulary combines functional state and cosmetic
+    condition into a single meaningful grade.
+
+    assessment_result required regardless of usage because new devices can have
+    factory defects or dead batteries (dead battery on a new device is indistinguishable
+    from a broken device until tested).
+
+    The untested value is valid at received state but blocked at sorted state
+    by a lifecycle rule in donation_item.yaml — sorters must test the device.
+
+  Data wiping:
+    Data wiping is a process concern, not a schema constraint. It is enforced
+    by a dedicated data_wipe step in the sort_electronics process path (fragment
+    engine), not by a UC rule here. This separation keeps the schema focused
+    on physical assessment and avoids conflating process steps with data constraints.
+
+  Completeness tiers:
+    minimal:  subcategory, assessment_result, usage
+    standard: subcategory, assessment_result, usage
+    detailed: subcategory, assessment_result, includes_charger,
+              includes_original_packaging, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Consumer_electronics
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  ElectronicsCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for electronics slots and UC rules.
+      Applied to ElectronicsItem via mixins: [ElectronicsCategory].
+      Uses ElectronicsAssessmentEnum — see schema description for rationale.
+      assessment_result required regardless of usage.
+    see_also:
+      - http://www.productontology.org/id/Consumer_electronics
+    slots:
+      - subcategory
+      - assessment_result
+      - includes_charger
+      - includes_original_packaging
+    slot_usage:
+      subcategory:
+        range: ElectronicsSubcategoryEnum
+        required: true
+      assessment_result:
+        range: ElectronicsAssessmentEnum
+        required: true
+        description: >-
+          Functional and cosmetic assessment. Required regardless of usage —
+          new devices can have factory defects or dead batteries.
+    annotations:
+      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_standard: "subcategory, assessment_result, usage"
+      completeness_detailed: "subcategory, assessment_result, includes_charger, includes_original_packaging, usage"
+      coicop_division: "09.1"
+      data_wipe_note: >-
+        Data wiping is enforced by the sort_electronics process path fragment
+        step, not by a UC rule in this schema.
+    rules:
+      - title: uc-electronics-non-functional-warn
+        description: >-
+          Non-functional items require sorter confirmation before redistribution.
+          Applies to both new (factory defect) and used items.
+          Sorter should note whether repair referral is appropriate.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: non_functional
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+
+slots:
+
+  includes_charger:
+    range: boolean
+    description: >-
+      Whether a compatible charger is included. Affects redistribution value —
+      a device without a charger is significantly less useful.
+      Optional — detailed completeness tier.
+
+  includes_original_packaging:
+    range: boolean
+    description: >-
+      Whether original retail packaging is present. Optional — detailed tier.
+
+
+enums:
+
+  ElectronicsAssessmentEnum:
+    description: >-
+      Structured functional and cosmetic assessment for electronic items.
+      Combines functional state with cosmetic condition in one vocabulary.
+      Required at sorting regardless of usage — new devices can have defects.
+    permissible_values:
+      fully_functional:
+        description: >-
+          Powers on; all features operate correctly; cosmetic condition
+          good or better. Ready for redistribution.
+          Appropriate for new items with no observed defects.
+      functional_minor_cosmetic:
+        description: >-
+          Fully functional but with minor cosmetic issues (light scratches,
+          small scuffs) that do not affect operation. Redistributable.
+      functional_significant_cosmetic:
+        description: >-
+          Fully functional but with significant cosmetic damage (cracked bezel,
+          major scratches, missing casing components). Functional but appearance
+          notably affected.
+      functional_with_issues:
+        description: >-
+          Powers on but has functional issues (cracked screen still displays,
+          missing key, camera not working, port not functioning). Redistributable
+          with explicit description — sorting_notes required.
+      non_functional:
+        description: >-
+          Does not power on, or major functionality failure rendering it unusable.
+          action: warn — sorting_notes required. Consider repair referral or
+          electronics recycling.
+      untested:
+        description: >-
+          Not yet tested. Valid only at received state — blocked at sorted state
+          by lc-sorted-electronics-not-untested rule in donation_item.yaml.
+
+  ElectronicsSubcategoryEnum:
+    description: Electronics subcategories. Grounded in Product Types Ontology.
+    permissible_values:
+      smartphones:       {description: "Mobile phones and smartphones.", see_also: [pto:Smartphone]}
+      tablets:           {description: "Tablet computers and e-readers.", see_also: [pto:Tablet_computer]}
+      laptops:           {description: "Laptop and notebook computers.", see_also: [pto:Laptop]}
+      desktop_computers: {description: "Desktop computers and all-in-ones.", see_also: [pto:Desktop_computer]}
+      monitors:          {description: "Computer monitors and display screens.", see_also: [pto:Computer_monitor]}
+      cameras:           {description: "Digital cameras and camcorders.", see_also: [pto:Camera]}
+      audio:             {description: "Headphones, speakers, radios, MP3 players.", see_also: [pto:Audio_equipment]}
+      cables_chargers:   {description: "USB cables, charging adapters, power banks, extension leads."}
+      peripherals:       {description: "Keyboards, mice, printers, webcams.", see_also: [pto:Computer_hardware]}
+      gaming:            {description: "Gaming consoles, controllers, handheld gaming devices.", see_also: [pto:Video_game_console]}
+      other:             {description: "Electronics not fitting above subcategories."}

@@ -1,0 +1,123 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/books
+name: books
+title: Books & Education Category Schema
+description: >-
+  Defines BooksCategory mixin applied to BooksItem.
+
+  COICOP alignment: Division 09.5 (newspapers, books, and stationery).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    schema.org — schema:Book (first-class type, distinct from generic Product)
+      https://schema.org/Book
+    Product Types Ontology — pto:Fiction, pto:Non-fiction, pto:Textbook
+      http://www.productontology.org/id/
+
+  Separation from StationeryItem:
+    COICOP 09.5 groups books and stationery together. Separated here because:
+      - Published content (BooksItem) and consumable/office supplies have
+        different sorting paths and condition vocabularies.
+      - "Poor condition" for a book means worn pages/cover; for a pen it
+        means dried out or unusable — the same grade means different things.
+      - Demand signal patterns differ: school supply drives (stationery)
+        vs. book donations for libraries/reading programmes.
+
+  No demographic or clothing-style size dimension. age_range (BookAgeRangeEnum)
+  is broader and non-gendered — appropriate for content suitability.
+
+  Assessment: condition_grade (wear grade). Appropriate here because the
+  redistribution signal for books is primarily legibility and physical
+  integrity, well captured by the standard like_new/good/fair/poor scale.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, age_range, usage, condition_grade
+    detailed: subcategory, age_range, language, usage, condition_grade
+
+license: MIT
+see_also:
+  - http://schema.org/Book
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  BooksCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for books and educational materials slots.
+      Applied to BooksItem via mixins: [BooksCategory].
+      No UC block rules beyond the cross-cutting condition rule.
+    see_also:
+      - http://schema.org/Book
+    slots:
+      - subcategory
+      - language
+      - age_range
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: BooksSubcategoryEnum
+        required: true
+      age_range:
+        range: BookAgeRangeEnum
+        required: false
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, age_range, usage, condition_grade"
+      completeness_detailed: "subcategory, age_range, language, usage, condition_grade"
+      coicop_division: "09.5"
+
+
+slots:
+
+  language:
+    range: string
+    description: >-
+      Language of item content (ISO 639-1 code, e.g. "de", "en", "ar", "fa").
+      Important for demand signal matching — organisations serving specific
+      language communities have targeted language preferences.
+      Optional — detailed completeness tier.
+
+enums:
+
+  BooksSubcategoryEnum:
+    description: Books and educational materials subcategories.
+    permissible_values:
+      fiction:               {description: "Novels, short stories, graphic novels, comics.", see_also: [pto:Fiction]}
+      non_fiction:           {description: "Biographies, history, science, self-help, cookbooks.", see_also: [pto:Non-fiction]}
+      childrens_books:       {description: "Picture books, board books, early readers."}
+      textbooks:             {description: "School and university textbooks, reference books.", see_also: [pto:Textbook]}
+      language_learning:     {description: "Language learning books, dictionaries, phrasebooks."}
+      religious:             {description: "Religious texts and devotional books."}
+      educational_materials: {description: "Workbooks, flashcards, educational posters, school supplies."}
+      other:                 {description: Books and educational materials not fitting above subcategories.}
+
+  BookAgeRangeEnum:
+    description: >-
+      Age suitability for books. Broader and non-gendered compared to
+      DemographicEnum — content suitability does not require gender split.
+    permissible_values:
+      children_0_5:  {description: "Picture books, board books, early learning (0-5 years)"}
+      children_6_12: {description: "Middle-grade readers, chapter books (6-12 years)"}
+      young_adult:   {description: "Young adult (13-17 years)"}
+      adult:         {description: Adult readership}
+      all_ages:      {description: Suitable for all ages}

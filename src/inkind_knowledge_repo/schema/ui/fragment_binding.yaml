@@ -1,0 +1,149 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/ui/fragment_binding
+name: fragment_binding
+title: UI Fragment Binding Schema
+description: >-
+  Fragment routing configuration — the resolution table loaded into the
+  inference engine's in-memory routing index.  Resolves
+  (step_type, category, actor_role, org_id) to a template reference, required
+  field set, and postcondition state.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  UIFragmentBinding:
+    description: >-
+      A single row in the fragment resolution table.  The engine evaluates
+      bindings in specificity order: category-specific bindings take priority
+      over category-null (catch-all) bindings; role-specific takes priority
+      over role-null.
+    slots:
+      - id
+      - label
+      - step_type_slug
+      - binding_category
+      - actor_role
+      - precondition_state
+      - postcondition_state
+      - template_ref
+      - required_fields
+      - guidance_text
+      - emits_event
+      - fragment_mode
+
+slots:
+
+  step_type_slug:
+    range: string
+    required: true
+    description: >-
+      Slug reference to the StepType (e.g., `assign_category`,
+      `manual_condition_assessment`).
+
+  binding_category:
+    range: CategoryEnum
+    description: >-
+      Category this binding applies to.  Null = catch-all binding that
+      applies to all categories for this step_type and actor_role.
+
+  actor_role:
+    range: ActorRoleEnum
+    required: true
+    description: >-
+      Actor role this binding applies to.  Determines guided vs expert mode
+      within a process path.
+
+  precondition_state:
+    range: string
+    required: true
+    description: >-
+      Entity lifecycle state required before this fragment may be served
+      (FS constraint).  Format: `<entity_type>:<state>`, e.g.
+      `item:received`.
+
+  postcondition_state:
+    range: string
+    required: true
+    description: >-
+      Entity lifecycle state produced when the actor completes this fragment.
+
+  template_ref:
+    range: string
+    required: true
+    description: >-
+      Relative path to the Django HTMX template file that renders this
+      fragment, e.g. `fragments/sort_clothing.html`.
+
+  required_fields:
+    range: string
+    multivalued: true
+    required: true
+    description: >-
+      Slot names the actor must fill in during this fragment step.
+
+  guidance_text:
+    range: string
+    description: >-
+      Helper text shown to volunteer-mode actors.  Null for expert-mode
+      bindings.
+
+  emits_event:
+    range: DomainEventEnum
+    description: >-
+      Domain event emitted on fragment completion.  Null for intermediate
+      steps.  Event bus deferred to Year 2; declared here to reserve the
+      vocabulary.
+
+  fragment_mode:
+    range: FragmentModeEnum
+    description: "Informational — `guided` for volunteer mode, `expert` for staff."
+
+enums:
+
+  FragmentModeEnum:
+    description: "Fragment rendering mode — controls guidance text and field density."
+    permissible_values:
+      guided:
+        description: >-
+          Guided mode — more fields shown, guidance text displayed.
+          Default for volunteer role.
+      expert:
+        description: >-
+          Expert mode — minimal fields, fast-path layout.
+          Default for staff role.
+
+  DomainEventEnum:
+    description: >-
+      Domain events emitted on process step completion.  Declared now to
+      reserve the vocabulary; event bus activation deferred to Year 2.
+    permissible_values:
+      collection_received:
+        description: "An arrival DonationCollection was received and opened."
+      item_sorted:
+        description: "A DonationItem completed the sort process."
+      item_stored:
+        description: "A DonationItem was assigned to a StorageLocation."
+      collection_fulfilled:
+        description: "A DonationCollection was closed as fully processed."
+      stock_collection_updated:
+        description: "A stock DonationCollection's item count changed."
+      demand_signal_registered:
+        description: "A new DemandSignal was registered."
+      demand_signal_fulfilled:
+        description: "A DemandSignal reached the `fulfilled` lifecycle state."
+      campaign_launched:
+        description: "A Campaign transitioned to `active` state."
+      campaign_completed:
+        description: "A Campaign reached `completed` state."
+...

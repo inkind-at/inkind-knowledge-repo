@@ -1,0 +1,106 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/stationery
+name: stationery
+title: Stationery & Office Supplies Category Schema
+description: >-
+  Defines StationeryCategory mixin applied to StationeryItem.
+
+  COICOP alignment: Division 09.5 (newspapers, books, and stationery).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Stationery, pto:Pen, pto:Notebook,
+    pto:Binder, pto:Art_supply, pto:Calculator
+      http://www.productontology.org/id/Stationery
+
+  Separation from BooksItem (COICOP groups both under 09.5):
+    - Published content (BooksItem) and consumable/office supplies have
+      different sorting paths and condition vocabularies.
+    - "Poor condition" means different things: worn pages for a book;
+      dried-out ink or unusable tip for a pen.
+    - Demand signal patterns differ: school supply drives target stationery;
+      book donation drives target BooksItem.
+    - Partially-used consumables (half-used notebook, pen still writing)
+      are valid for redistribution — condition_grade=fair captures this
+      without the same stigma as a fair-condition book.
+
+  Typical donation contexts:
+    - School supply drives (back-to-school campaigns)
+    - Refugee/asylum seeker support (language learning materials, writing tools)
+    - Community centre / adult education support
+    - Corporate office supply donations (surplus stock)
+
+  Assessment: condition_grade (wear grade). No strict UC block rules —
+  condition_grade=poor captures items that are unusable. Sorters use
+  good judgement for partially-used consumables.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, is_set_complete, usage, condition_grade
+    detailed: subcategory, is_set_complete, usage, condition_grade
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Stationery
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  StationeryCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for stationery and office supply slots.
+      Applied to StationeryItem via mixins: [StationeryCategory].
+      No UC block rules — condition_grade=poor captures unusable items.
+      Sorters use good judgement for partially-used consumables.
+    see_also:
+      - http://www.productontology.org/id/Stationery
+    slots:
+      - subcategory
+      - is_set_complete
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: StationerySubcategoryEnum
+        required: true
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
+      completeness_detailed: "subcategory, is_set_complete, usage, condition_grade"
+      coicop_division: "09.5"
+
+
+enums:
+
+  StationerySubcategoryEnum:
+    description: Stationery and office supply subcategories.
+    permissible_values:
+      pens_pencils:           {description: "Ballpoint pens, pencils, felt-tips, highlighters, markers.", see_also: [pto:Pen]}
+      writing_sets:           {description: "Pencil cases, pen sets, calligraphy sets."}
+      notebooks_paper:        {description: "Notebooks, exercise books, loose-leaf paper, drawing pads.", see_also: [pto:Notebook]}
+      envelopes_cards:        {description: "Envelopes, postcards, greeting cards."}
+      folders_binders:        {description: "Ring binders, lever arch files, document wallets.", see_also: [pto:Binder]}
+      organisers:             {description: "Desk organisers, filing trays, clipboards, planners, diaries."}
+      art_supplies:           {description: "Paints, brushes, colouring pencils, pastels, canvases.", see_also: [pto:Art_supply]}
+      craft_supplies:         {description: "Scissors, glue, tape, staplers, hole punches, rulers."}
+      calculators:            {description: "Scientific, graphing, and basic calculators.", see_also: [pto:Calculator]}
+      office_equipment_small: {description: "Staplers, hole punches, sharpeners, correction tape."}
+      storage_supplies:       {description: "Labels, sticky notes, index cards, dividers."}
+      other:                  {description: Stationery not fitting above subcategories.}

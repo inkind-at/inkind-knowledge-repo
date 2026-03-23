@@ -1,0 +1,20 @@
+---
+# DonationItem-001.yaml
+# Scenario: a used adult unisex medium t-shirt
+# Demonstrates the two-level condition model and designates_type pattern.
+#
+# State 1 — received: category/usage known; sorting attributes absent (permitted)
+ 
+# ── State 1: received ────────────────────────────────────────────────────────
+id: urn:uuid:12345678-1234-1234-1234-123456789abc
+category: ClothingItem   # designates_type — selects ClothingItem schema
+lifecycle_state: received
+usage: used                                     # level-1 condition: provenance
+# condition_grade absent — not yet assessed; required at sorted state
+source_collection: urn:uuid:87654321-4321-4321-4321-cba987654321
+donation_source: urn:uuid:abcdef12-3456-3456-3456-abcdef123456
+storage_unit: null                              # not yet assigned; assigned at stored state
+created_at: "2026-03-22T10:00:00Z"
+updated_at: "2026-03-22T10:00:00Z"
+# ClothingItem slots absent at received state — linkml-validate permits this
+# because uc-sorted-attributes-complete only fires when lifecycle_state = sorted

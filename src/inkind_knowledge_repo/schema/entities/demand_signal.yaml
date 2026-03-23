@@ -1,0 +1,200 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/demand_signal
+name: demand_signal
+title: Demand Signal Schema
+description: >-
+  Demand-side entity — what an organisation wants.  Unifies standing stock
+  interests and time-bounded campaign requests under one model with a
+  `signal_type` discriminator.
+license: MIT
+see_also:
+  - http://schema.org/Demand
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  openeligibility: https://openeligibility.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  AnyValue:
+    description: >-
+      Current workaround before proper attributes are introduced.
+      Unconstrained value holder for schemaless JSON blobs.
+      Used for DemandSignal.attributes until the Phase 2
+      typed ItemAttributes refactor.
+    # class_uri: linkml:Any
+    slots:
+      - subcategory
+      - demographic
+      - size
+      
+
+  DemandSignal:
+    description: >-
+      A signal representing demand for a category of items.  Covers standing
+      interests, time-bounded campaigns, and specific beneficiary requests
+      under a single unified model.
+    slots:
+      - id
+      - org
+      - signal_type
+      - category
+      - attributes
+      - quantity_requested
+      - quantity_fulfilled
+      - campaign
+      - holder
+      - context_note
+      - deadline
+      - urgency_tier
+      - lifecycle_state
+      - registered_at
+      - public_visibility
+    see_also:
+      - schema:Demand
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+      category:
+        range: CategoryEnum
+        required: true
+        see_also:
+          - openeligibility:ServiceTag
+      lifecycle_state:
+        range: DemandSignalLifecycleEnum
+        required: true
+      urgency_tier:
+        range: UrgencyTierEnum
+        required: false
+        see_also:
+          - openeligibility:HumanSituation
+
+slots:
+
+  signal_type:
+    range: DemandSignalTypeEnum
+    required: true
+    description: >-
+      Discriminator — standing (permanent interest), campaign (time-bounded),
+      or specific (concrete beneficiary request).
+
+  attributes:
+    range: AnyValue
+    description: >-
+      Category-specific demand attribute filters. Structure mirrors the
+      attribute vocabulary defined in the category schema for the given
+      category value.
+      Phase 2 refactor: replace Any with typed ItemAttributes subclass
+      hierarchy, moving category mixin slots into *Attributes classes
+      shared between DonationItem and DemandSignal.
+
+  quantity_requested:
+    range: integer
+    description: >-
+      Target quantity.  Null = any amount welcome (standing signals have no
+      target).
+
+  quantity_fulfilled:
+    range: integer
+    required: true
+    description: >-
+      Items matched to this signal — derived at runtime.
+
+  campaign:
+    range: Campaign
+    description: >-
+      FK to Campaign — set only for `campaign` signal_type.
+
+  holder:
+    range: string
+    description: >-
+      FK reference to Beneficiary or SocialOrganisation — used for `specific`
+      signal_type.
+
+  context_note:
+    range: string
+    description: >-
+      Human-readable context note, e.g. "Back to school for 30 primary school
+      children".
+
+  deadline:
+    range: date
+    description: >-
+      Deadline for fulfilment.  Null for standing signals.
+
+  urgency_tier:
+    range: UrgencyTierEnum
+    description: >-
+      Urgency classification.  Null for standing signals; set for campaign and
+      specific types.
+
+  registered_at:
+    range: datetime
+    required: true
+    description: Timestamp when this demand signal was registered.
+
+  public_visibility:
+    range: boolean
+    required: true
+    description: >-
+      Whether to expose this signal on the public API and Donor Portal.
+
+enums:
+
+  DemandSignalTypeEnum:
+    description: >-
+      Discriminator for the type of demand signal.
+    permissible_values:
+      standing:
+        description: >-
+          Permanent standing interest in a category.  No deadline, no quantity
+          target.  Stays active until explicitly withdrawn.
+      campaign:
+        description: >-
+          Time-bounded coordinated effort tied to a Campaign.  Has deadline
+          and quantity target.
+      specific:
+        description: >-
+          Concrete request for a specific beneficiary or holder.  Has urgency
+          tier.
+
+  UrgencyTierEnum:
+    description: Urgency classification for campaign and specific demand signals.
+    permissible_values:
+      low:
+        description: "Low urgency — no immediate deadline pressure."
+      medium:
+        description: "Medium urgency."
+      high:
+        description: "High urgency — deadline approaching or need is acute."
+      critical:
+        description: "Critical — immediate fulfilment required."
+
+  DemandSignalLifecycleEnum:
+    description: >-
+      Lifecycle states for a DemandSignal.  Standing signals stay `active`
+      permanently; campaign and specific signals follow the full lifecycle.
+    permissible_values:
+      active:
+        description: Signal is active and accepting matched items.
+      partially_fulfilled:
+        description: Some items matched but quantity_requested not yet reached.
+      fulfilled:
+        description: All requested items matched.
+      expired:
+        description: >-
+          Deadline passed without full fulfilment (campaign/specific types
+          only).
+      withdrawn:
+        description: Organisation explicitly cancelled this signal.
+...

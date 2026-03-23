@@ -1,0 +1,206 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/personal_care
+name: personal_care
+title: Personal Care Category Schema
+description: >-
+  Defines PersonalCareCategory mixin applied to PersonalCareItem.
+  Merges former HygieneItem and HealthBeautyItem into a single class.
+
+  COICOP alignment:
+    Division 06.1 — medical products and appliances (OTC medications,
+    medical devices, first aid supplies)
+    Division 12.1 — personal care (toiletries, cosmetics, related appliances)
+    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Open Eligibility taxonomy:
+    Uses a single "Personal Care Items" node for both COICOP 06.1 and 12.1:
+    https://company.auntbertha.com/openeligibility/
+
+  Ontology grounding:
+    Product Types Ontology — pto:Personal_hygiene, pto:Soap, pto:Hair_care,
+    pto:Oral_hygiene, pto:Diaper, pto:Skin_care, pto:Cosmetics,
+    pto:Over-the-counter_drug, pto:First_aid, pto:Medical_device
+      http://www.productontology.org/id/Personal_hygiene
+
+  Merge rationale (HygieneItem + HealthBeautyItem → PersonalCareItem):
+    The operative safety rules are identical across both former categories:
+      1. Sealed required for consumables (soap, shampoo, OTC medications)
+      2. Used personal care tools must not be redistributed (toothbrushes,
+         razors, used cosmetics)
+      3. Expiry date enforced for medications and perishable products
+    Splitting them created rule duplication with no semantic benefit.
+    Open Eligibility's single node supports this merge.
+
+  Assessment model:
+    PersonalCareCategory uses NEITHER condition_grade NOR assessment_result.
+    The complete assessment vocabulary is is_sealed + expiry_date.
+    Rationale: for personal care products, the relevant safety signals are
+    hygiene integrity (sealed?) and freshness (not expired?). A wear grade
+    is meaningless for a tube of toothpaste or a pack of nappies — it is
+    either sealed or it is not. A structured safety enum would simply
+    duplicate is_sealed. FoodCategory uses the same pattern.
+
+  Note on OTC medications:
+    Prescription medications must NEVER be accepted. If found, sorters must
+    flag for safe pharmaceutical disposal, not sort into PersonalCareItem.
+    This is enforced by operational procedure, not a schema rule (the schema
+    cannot prevent a sorter from incorrectly classifying a prescription item).
+
+  Completeness tiers:
+    minimal:  subcategory, is_sealed, usage
+    standard: subcategory, is_sealed, expiry_date, usage
+    detailed: subcategory, is_sealed, expiry_date, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Personal_hygiene
+  - http://www.productontology.org/id/Cosmetics
+  - http://www.productontology.org/id/Health_care
+  - https://company.auntbertha.com/openeligibility/
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  PersonalCareCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for personal care, hygiene, and health product slots and UC rules.
+      Applied to PersonalCareItem via mixins: [PersonalCareCategory].
+      Merges COICOP 06.1 and 12.1. See schema description for merge rationale.
+      No condition_grade or assessment_result — is_sealed + expiry_date
+      are the complete assessment vocabulary. See schema description.
+    see_also:
+      - http://www.productontology.org/id/Personal_hygiene
+      - https://company.auntbertha.com/openeligibility/
+    slots:
+      - subcategory
+      - is_sealed
+      - expiry_date
+    slot_usage:
+      subcategory:
+        range: PersonalCareSubcategoryEnum
+        required: true
+      is_sealed:
+        required: true
+        description: >-
+          Whether the item's original packaging/seal is intact.
+          UC block for most consumable subcategories when false.
+          Primary safety signal for personal care items — replaces condition_grade.
+      expiry_date:
+        range: date
+        description: >-
+          Expiry or best-before date from the packaging.
+          UC block: expiry_date < today (runtime check by Django model clean()).
+          Secondary safety signal — important for medications, skincare, food.
+        annotations:
+          uc_action: block
+          uc_suggest: disposal
+          uc_note: "Dynamic date comparison — runtime enforcement by Django model clean()"
+    annotations:
+      completeness_minimal:  "subcategory, is_sealed, usage"
+      completeness_standard: "subcategory, is_sealed, expiry_date, usage"
+      completeness_detailed: "subcategory, is_sealed, expiry_date, usage"
+      coicop_divisions: "06.1, 12.1"
+      prescription_medication_note: >-
+        Prescription medications must NOT be accepted. Flag for pharmaceutical
+        disposal. This is operational procedure — not enforceable by schema rule.
+    rules:
+      - title: uc-personal-care-unsealed-consumables-block
+        description: >-
+          Unsealed consumable personal care products must not be redistributed.
+          A PC (Policy Constraint) override at the org level can permit
+          specific subcategories (e.g. bulk bar soap) if org policy allows.
+          action: block.
+        preconditions:
+          slot_conditions:
+            is_sealed:
+              equals_string: "false"
+            subcategory:
+              any_of:
+                - equals_string: soap_body_wash
+                - equals_string: shampoo_conditioner
+                - equals_string: dental
+                - equals_string: deodorant
+                - equals_string: sanitary_products
+                - equals_string: nappies_incontinence
+                - equals_string: skincare
+                - equals_string: cosmetics
+                - equals_string: hair_styling
+                - equals_string: otc_medication
+                - equals_string: first_aid
+                - equals_string: medical_consumables
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-personal-care-used-tools-block
+        description: >-
+          Used personal care tools must not be redistributed. Health and
+          sanitary safety — no PC override permitted.
+          action: block.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: personal_care_tools
+            usage:
+              equals_string: used
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-personal-care-expired-block
+        description: >-
+          Items past expiry date must not be redistributed.
+          Runtime check — dynamic date comparison not expressible as a static
+          LinkML rule. Enforced by Django model clean() at save time.
+        preconditions: {}
+        annotations:
+          enforcement: application_layer
+          uc_action: block
+          uc_suggest: disposal
+          uc_note: "expiry_date < today — runtime check by Django model clean()"
+
+
+enums:
+
+  PersonalCareSubcategoryEnum:
+    description: >-
+      Personal care, hygiene, and health product subcategories.
+      Covers COICOP 06.1 (medical products) and 12.1 (personal care).
+    permissible_values:
+      soap_body_wash:       {description: "Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.", see_also: [pto:Soap]}
+      shampoo_conditioner:  {description: "Shampoo, conditioner, dry shampoo. Must be sealed.", see_also: [pto:Hair_care]}
+      dental:               {description: "Toothpaste, mouthwash, dental floss. Must be sealed. (Toothbrushes → personal_care_tools).", see_also: [pto:Oral_hygiene]}
+      deodorant:            {description: "Deodorant and antiperspirant. Must be sealed."}
+      sanitary_products:    {description: "Menstrual pads, tampons, menstrual cups. Must be sealed."}
+      nappies_incontinence: {description: "Baby nappies, adult incontinence products. Must be sealed.", see_also: [pto:Diaper]}
+      toilet_paper_tissue:  {description: "Toilet paper, facial tissue. Must be sealed/wrapped."}
+      personal_care_tools:  {description: "Toothbrushes, razors, nail clippers, tweezers, combs. UC block: used → never redistribute."}
+      skincare:             {description: "Moisturisers, sunscreen, face wash, lip balm. Must be sealed.", see_also: [pto:Skin_care]}
+      cosmetics:            {description: "Foundation, lipstick, mascara, nail polish. Must be sealed/unused.", see_also: [pto:Cosmetics]}
+      hair_styling:         {description: "Hair gel, mousse, hairspray, hair dye. Must be sealed."}
+      otc_medication:       {description: "OTC pain relief, vitamins, cold medicine. Sealed + expiry enforced. NO prescription medications.", see_also: [pto:Over-the-counter_drug]}
+      first_aid:            {description: "First aid kits, plasters, antiseptic, sterile dressings. Sealed required.", see_also: [pto:First_aid]}
+      medical_consumables:  {description: "Disposable gloves, masks, syringes (sealed). Sealed + expiry.", see_also: [pto:Medical_device]}
+      medical_devices_small: {description: "Thermometers, blood pressure monitors, reading glasses. Not durable aids (→ MobilityAidsItem)."}
+      other:                {description: "Personal care products not fitting above subcategories."}

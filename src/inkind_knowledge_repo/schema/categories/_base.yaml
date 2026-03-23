@@ -1,0 +1,168 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/_base
+name: _base
+title: Base Category Schema
+description: >-
+  Common slots and the abstract CategoryMixin base shared across all
+  item category schemas.
+
+  ── Mixin pattern ─────────────────────────────────────────────────────────────
+
+  Each category file defines a concrete mixin class (e.g. ClothingCategory)
+  that extends CategoryMixin. The mixin carries:
+    - category-specific slots
+    - value map rules (vm-*) — dependent dropdown logic
+    - domain UC rules (uc-*) — redistribution constraints independent of lifecycle
+    - completeness tier annotations — read by fragment compiler and match engine
+
+  DonationItem subclasses apply the mixin in donation_item.yaml:
+    ClothingItem:
+      is_a: DonationItem
+      mixins: [ClothingCategory]
+
+  Design rationale for the mixin separation:
+    Category files are the single source of truth for everything that varies
+    by item type. Domain experts editing clothing constraints only touch
+    categories/clothing.yaml — never donation_item.yaml. This supports the
+    implementation plan requirement that adding a new item type requires only
+    a new YAML file with no engine code changes.
+
+    Lifecycle-aware rules (rules whose preconditions reference lifecycle_state)
+    cannot live in category mixins because lifecycle_state is a DonationItem
+    slot invisible to the mixin. These lc-* rules live on the item subclasses
+    in donation_item.yaml. The prefix convention (lc-* vs uc-* vs vm-*)
+    makes the origin and nature of each rule immediately clear.
+
+  ── Condition model — why no universal rule on CategoryMixin ──────────────────
+
+  See core.yaml for the full two-dimensional condition model explanation.
+
+  CategoryMixin deliberately does NOT declare a condition rule because the
+  three condition approaches across categories are incompatible with a single
+  universal rule:
+    - Wear-graded categories (clothing, footwear, books, etc.) declare
+      condition_grade (UsedConditionGradeEnum) and their own rule.
+    - Assessment categories (furniture, electronics, bedding, etc.) declare
+      a category-specific assessment_result enum instead.
+    - FoodCategory has neither — food safety uses packaging_intact + expiry_date.
+      FoodCategory therefore does not extend CategoryMixin at all.
+  A universal rule on CategoryMixin would apply incorrectly to all three types.
+
+  ── Completeness annotations ───────────────────────────────────────────────────
+
+  Each concrete mixin declares completeness tiers as annotations:
+    completeness_minimal:  fields that MUST be present at sorted state.
+                           Fragment engine marks these required in the sorting UI.
+                           Schema lc-* rules validate their presence post-transition.
+    completeness_standard: fields that SHOULD be present for standard sorting.
+                           Fragment engine marks these recommended in the UI.
+    completeness_detailed: optional fields improving match quality.
+                           Fragment engine offers but does not require these.
+
+  The fragment compiler reads these annotations at load time to configure
+  the sorting UI fragment for each category. The match engine reads
+  attribute_completeness (set on the item at sorted transition) to filter
+  which demand signals an item can be matched against.
+
+  ── External standards grounding ──────────────────────────────────────────────
+
+  The category structure follows COICOP 2018 and UNHCR NFI standards.
+  See core.yaml CategoryEnum for per-category grounding documentation.
+
+  COICOP 2018:
+    https://unstats.un.org/unsd/classifications/unsdclassifications/
+    COICOP_2018_-_pre-edited_white_cover_version_-_2018-12-26.pdf
+
+  UNHCR NFI Core Relief Standards:
+    https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+    kind-non-food-item-distribution
+
+  Open Eligibility taxonomy:
+    https://company.auntbertha.com/openeligibility/
+
+license: MIT
+see_also:
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+  - https://company.auntbertha.com/openeligibility/
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  CategoryMixin:
+    mixin: true
+    description: >-
+      Abstract mixin base for all category classes except FoodCategory.
+
+      Provides shared slots (notes, material) available to all categories.
+      Does NOT declare a condition rule — each category type handles condition
+      differently (see schema description above for full rationale).
+
+      FoodCategory does not extend this mixin because food safety assessment
+      uses packaging_intact + expiry_date rather than condition_grade or
+      assessment_result. Extending CategoryMixin would pull in slots that
+      are semantically incorrect for food items.
+
+      All other concrete category mixins extend CategoryMixin and declare
+      their own condition approach (condition_grade or assessment_result)
+      along with category-specific slots, UC rules, VM rules, and
+      completeness tier annotations.
+    slots:
+      - notes
+      - material
+
+
+slots:
+  
+  demographic:
+    range: DemographicEnum
+    description: >-
+      Combined age-and-gender demographic suitability of clothing items.
+      Valid values depend on subcategory (see value_map above).
+      Grounded in cpi:designatedFor and schema.org wearable size groups.
+      Not applicable to AccessoriesItem — accessories use the simpler
+      AccessoriesDemographicEnum (baby/child/adult/all_ages).
+    see_also:
+      - cpi:designatedFor
+      - schema:WearableSizeGroupBaby
+      - schema:WearableSizeGroupChildrens
+      - schema:WearableSizeGroupAdult
+
+  is_set_complete:
+    range: boolean
+    description: >-
+      Whether all components of the set are present. Optional — standard completeness tier.
+
+  age_range:
+    range: string
+    description: >-
+      Age suitability. Range overridden per class:
+        ToysItem  → ToyAgeRangeEnum
+        BooksItem → BookAgeRangeEnum
+
+  expiry_date:
+    range: date
+    description: >-
+      Expiry or best-before date. UC block: expiry_date < today (runtime check).
+    annotations:
+      uc_action: block
+      uc_suggest: disposal
+      uc_note: "Dynamic date comparison — runtime enforcement"
+
+  is_sealed:
+    range: boolean
+    description: >-
+      Whether the item's original packaging/seal is intact.
+      UC block for most consumable subcategories when false.
+      Primary safety signal for personal care items — replaces condition_grade.

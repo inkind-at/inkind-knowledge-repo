@@ -1,0 +1,111 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/donation_source
+name: donation_source
+title: Donation Source Schema
+description: >-
+  Supply-side abstraction — who or what originated a donation.  Acts as the
+  privacy boundary between item records and donor identity.  Set on the
+  arrival DonationCollection and inherited by child collections and items.
+license: MIT
+see_also:
+  - http://schema.org/GiveAction
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  DonationSource:
+    description: >-
+      Supply-side abstraction representing the origin of a donation.
+      Phase 1 uses `anonymous_private` type only.
+    slots:
+      - id
+      - source_type
+      - anonymous_donor_id
+      - corporate_donor_ref
+      - organisation_ref
+      - lifecycle_state
+      - created_at
+      - provenance
+    slot_usage:
+      lifecycle_state:
+        range: DonationSourceLifecycleEnum
+        required: true
+
+slots:
+
+  source_type:
+    range: DonationSourceTypeEnum
+    required: true
+    description: >-
+      Discriminator — `anonymous_private` is the only type used in Phase 1.
+
+  anonymous_donor_id:
+    range: uriorcurie
+    description: >-
+      Opaque UUID token linking items back to an anonymous donor for impact
+      reporting.  Populated only for `anonymous_private` source type.
+    see_also:
+      - schema:identifier
+
+  corporate_donor_ref:
+    range: string
+    description: >-
+      FK reference to CorporateDonor profile — Year 2 feature, nullable in
+      Phase 1.
+
+  organisation_ref:
+    range: SocialOrganisation
+    description: >-
+      FK to a SocialOrganisation — set for the Share disposal workflow
+      (Phase 2+).
+
+  provenance:
+    range: ProvenanceRecord
+    description: >-
+      Who recorded this source, on which device, and when.
+
+enums:
+
+  DonationSourceTypeEnum:
+    description: >-
+      Discriminator for the origin type of a donation.
+    permissible_values:
+      anonymous_private:
+        description: >-
+          Anonymous private donor.  Only type active in Phase 1.
+          Identity tracked via opaque `anonymous_donor_id` token only.
+      corporate:
+        description: >-
+          Corporate donor — linked to CorporateDonor profile.
+          Year 2 feature stub.
+      organisation:
+        description: >-
+          Donation from another SocialOrganisation (e.g., a Share workflow
+          transfer).  Phase 2 stub.
+
+  DonationSourceLifecycleEnum:
+    description: >-
+      Lifecycle states for a DonationSource.
+    permissible_values:
+      announced:
+        description: >-
+          Donor indicated intent to donate; physical items not yet received.
+      received:
+        description: >-
+          Physical items received and linked to this source.
+      acknowledged:
+        description: >-
+          Impact notification sent to donor.  Phase 1 stub — activated when
+          items complete their lifecycle and Donor Portal is live.
+...

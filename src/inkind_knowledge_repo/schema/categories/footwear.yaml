@@ -1,0 +1,234 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/footwear
+name: footwear
+title: Footwear Category Schema
+description: >-
+  Defines FootwearCategory mixin applied to FootwearItem.
+
+  COICOP alignment: Division 03.2 (footwear).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Footwear, pto:Shoe, pto:Boot, pto:Sandal
+      http://www.productontology.org/id/Footwear
+    CPI ontology — cpi:SportShoes
+      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+
+  Separation from ClothingItem:
+    - Shoe sizing systems (EU/UK/US/CM) differ fundamentally from clothing sizes.
+    - Pair-completeness is a footwear-specific assessment concern.
+    - The demographic slot is reused from clothing.yaml but the size slot is
+      replaced by shoe_size + shoe_size_system.
+
+  Seasonality:
+    is_winter_suitable and season are applied to footwear for the same
+    reason as clothing — boots and sandals are obviously different for
+    emergency cold-weather distribution. SeasonEnum is declared in
+    clothing.yaml and reused here via import. The same VM auto-derivation
+    rules (vm-season-winter, vm-season-summer, vm-season-all) apply.
+    The fragment compiler may pre-fill is_winter_suitable=true for boots
+    and is_winter_suitable=false for sandals as a UI hint; sorters override.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, demographic, shoe_size, shoe_size_system,
+              is_pair_complete, is_winter_suitable, usage, condition_grade
+    detailed: subcategory, demographic, shoe_size, shoe_size_system,
+              is_pair_complete, is_winter_suitable, season, usage,
+              condition_grade
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Footwear
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+  cpi: http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+  - ./clothing   # imports SeasonEnum, DemographicEnum, is_winter_suitable, season
+
+
+classes:
+
+  FootwearCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for footwear slots and UC rules.
+      Applied to FootwearItem via mixins: [FootwearCategory].
+      Uses shoe_size + shoe_size_system instead of ClothingSizeEnum.
+      Reuses DemographicEnum, is_winter_suitable, and SeasonEnum from
+      clothing.yaml. Same VM season auto-derivation rules apply.
+    see_also:
+      - http://www.productontology.org/id/Footwear
+    slots:
+      - subcategory
+      - demographic
+      - shoe_size
+      - shoe_size_system
+      - is_pair_complete
+      - is_winter_suitable
+      - season
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: FootwearSubcategoryEnum
+        required: true
+      demographic:
+        range: DemographicEnum
+        required: false
+      is_winter_suitable:
+        range: boolean
+        required: false
+        description: >-
+          Whether this footwear provides meaningful warmth and weather
+          protection in cold conditions. Required at standard completeness.
+          Fragment compiler may pre-fill: boots → true, sandals → false.
+          Sorter always overrides (e.g. a lightweight canvas boot → false).
+      season:
+        range: SeasonEnum
+        required: false
+        multivalued: true
+        description: >-
+          Seasonal suitability. Optional — detailed completeness tier.
+          Same VM auto-derivation as ClothingCategory:
+            winter → is_winter_suitable = true
+            summer → is_winter_suitable = false
+            all_season → is_winter_suitable = true
+            spring_autumn → sorter decides is_winter_suitable explicitly.
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, demographic, shoe_size, shoe_size_system, is_pair_complete, is_winter_suitable, usage, condition_grade"
+      completeness_detailed: "subcategory, demographic, shoe_size, shoe_size_system, is_pair_complete, is_winter_suitable, season, usage, condition_grade"
+      coicop_division: "03.2"
+      season_ui_hint: >-
+        Fragment compiler may pre-fill is_winter_suitable=true for boots
+        and is_winter_suitable=false for sandals. Sorter can override.
+    rules:
+      - title: uc-footwear-pair-incomplete-warn
+        description: >-
+          Single shoes require sorter confirmation. Single shoes may still
+          be appropriate for beneficiaries with limb differences.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            is_pair_complete:
+              equals_string: "false"
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      # ── VM: season → is_winter_suitable auto-derivation (mirrors clothing) ─
+      - title: vm-season-winter
+        description: season = winter implies is_winter_suitable = true.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: winter
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "true"
+
+      - title: vm-season-summer
+        description: season = summer implies is_winter_suitable = false.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: summer
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "false"
+
+      - title: vm-season-all
+        description: season = all_season implies is_winter_suitable = true.
+        preconditions:
+          slot_conditions:
+            season:
+              equals_string: all_season
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "true"
+
+
+slots:
+
+  shoe_size:
+    range: string
+    description: >-
+      Shoe size as a string. Use with shoe_size_system to disambiguate
+      (e.g. "42" with system "EU", "8" with system "UK").
+
+  shoe_size_system:
+    range: ShoeSizeSystemEnum
+    description: Sizing system for the shoe_size value.
+
+  is_pair_complete:
+    range: boolean
+    description: >-
+      Whether both shoes of the pair are present.
+      UC warn if false — sorting_notes required.
+
+
+enums:
+
+  FootwearSubcategoryEnum:
+    description: >-
+      Footwear subcategories. Grounded in Product Types Ontology.
+      is_winter_suitable is the sorter's call — subcategory alone is
+      insufficient (a lightweight canvas boot is not winter-suitable;
+      a fleece-lined boot is). Fragment compiler provides UI hints.
+    permissible_values:
+      shoes:
+        description: >-
+          Everyday shoes, trainers/sneakers, loafers, school shoes.
+          is_winter_suitable varies — trainers are spring_autumn/summer;
+          leather Oxford shoes can be all_season.
+        see_also: [pto:Shoe]
+      boots:
+        description: >-
+          Ankle boots, knee-high boots, work boots, winter boots.
+          Fragment compiler pre-fills is_winter_suitable=true; sorter
+          overrides for summer ankle boots, fashion boots without insulation.
+        see_also: [pto:Boot]
+      sandals:
+        description: >-
+          Open sandals and flip-flops. Fragment compiler pre-fills
+          is_winter_suitable=false.
+        see_also: [pto:Sandal]
+      slippers:
+        description: >-
+          Indoor slippers and house shoes. Typically all_season
+          (indoor use, climate-controlled environment).
+      sports_footwear:
+        description: >-
+          Football boots, running shoes, cleats, cycling shoes.
+          Specialist sports footwear.
+        see_also: [cpi:SportShoes]
+      other:
+        description: Footwear not fitting above subcategories.
+
+  ShoeSizeSystemEnum:
+    description: >-
+      Shoe size measurement system. Multiple systems in common use across
+      European, UK, US, and children's sizing conventions.
+    permissible_values:
+      EU: {description: "European sizing (e.g. 36, 38, 42, 46)"}
+      UK: {description: "UK sizing (e.g. 3, 5, 8, 11)"}
+      US: {description: "US sizing (e.g. 6, 7.5, 9, 12)"}
+      CM: {description: "Foot length in centimetres — used for infant sizing"}

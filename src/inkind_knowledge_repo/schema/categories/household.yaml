@@ -1,0 +1,100 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/household
+name: household
+title: Household & Kitchen Category Schema
+description: >-
+  Defines HouseholdCategory mixin applied to HouseholdItem.
+
+  COICOP alignment:
+    Division 05.3 — household appliances (toasters, kettles, blenders)
+    Division 05.4 — glassware, tableware, utensils (crockery, cutlery)
+    Division 05.5 — tools for house and garden (cleaning tools, garden tools)
+    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Note on COICOP 05.2: household textiles (blankets, duvets, towels, curtains)
+  are in BeddingTextilesItem, not here, following the COICOP 05.2 separation
+  and UNHCR NFI standards. The former linens subcategory has been removed.
+
+  Ontology grounding:
+    Product Types Ontology — pto:Household_goods, pto:Cookware, pto:Tableware,
+    pto:Cutlery, pto:Glassware, pto:Home_appliance, pto:Decorative_arts,
+    pto:Garden_tool
+      http://www.productontology.org/id/Household_goods
+
+  Assessment: condition_grade (wear grade). Wear grade is appropriate here
+  because the redistribution signal for cookware, appliances, and decor is
+  primarily how worn/functional the item appears, not a structured safety
+  checklist.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, is_set_complete, usage, condition_grade
+    detailed: subcategory, material, is_set_complete, usage, condition_grade
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Household_goods
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  HouseholdCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for household and kitchen goods slots.
+      Applied to HouseholdItem via mixins: [HouseholdCategory].
+      COICOP 05.3-05.5. Bedding/textiles (COICOP 05.2) are in
+      BeddingTextilesCategory — not here.
+    see_also:
+      - http://www.productontology.org/id/Household_goods
+    slots:
+      - subcategory
+      - material
+      - is_set_complete
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: HouseholdSubcategoryEnum
+        required: true
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
+      completeness_detailed: "subcategory, material, is_set_complete, usage, condition_grade"
+      coicop_divisions: "05.3, 05.4, 05.5"
+
+
+enums:
+
+  HouseholdSubcategoryEnum:
+    description: >-
+      Household and kitchen goods subcategories aligned with COICOP 05.3-05.5.
+      Bedding, towels, and curtains (COICOP 05.2) belong in
+      BeddingTextilesSubcategoryEnum.
+    permissible_values:
+      cookware:             {description: "Pots, pans, baking trays, woks, pressure cookers. COICOP 05.4.", see_also: [pto:Cookware]}
+      crockery:             {description: "Plates, bowls, mugs, cups, serving dishes. COICOP 05.4.", see_also: [pto:Tableware]}
+      cutlery:              {description: "Knives, forks, spoons, serving utensils. COICOP 05.4.", see_also: [pto:Cutlery]}
+      glassware:            {description: "Drinking glasses, jugs, functional glassware. COICOP 05.4.", see_also: [pto:Glassware]}
+      small_appliances:     {description: "Toasters, kettles, blenders, microwaves, irons, hairdryers. COICOP 05.3.", see_also: [pto:Home_appliance]}
+      cleaning:             {description: "Mops, brushes, buckets, vacuum cleaners, brooms. COICOP 05.6.", }
+      storage_organisation: {description: "Storage boxes, baskets, coat hangers, drawer organisers."}
+      home_decor:           {description: "Picture frames, vases, candles, mirrors, clocks, lamps.", see_also: [pto:Decorative_arts]}
+      garden_tools:         {description: "Spades, trowels, secateurs, watering cans. COICOP 05.5.", see_also: [pto:Garden_tool]}
+      other:                {description: "Household items not fitting above subcategories."}

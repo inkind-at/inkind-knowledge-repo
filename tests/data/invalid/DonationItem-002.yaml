@@ -1,0 +1,7 @@
+id: urn:uuid:invalid123-4567-4567-4567-invalid123456789
+category: clothing
+condition: used
+lifecycle_state: invalid_state  # Invalid enum value
+source_collection: urn:uuid:87654321-4321-4321-4321-cba987654321
+created_at: 2026-03-22T10:00:00Z
+updated_at: 2026-03-22T10:00:00Z

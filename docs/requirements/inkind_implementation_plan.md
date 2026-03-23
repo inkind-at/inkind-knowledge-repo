@@ -17,9 +17,13 @@
 6. [Inference Engine](#6-inference-engine)
 7. [Category Schema: Single Source of Truth](#7-category-schema-single-source-of-truth)
 8. [Efficiency-First: Cost Instrumentation](#8-efficiency-first-cost-instrumentation)
-9. [DonationSource: Supply-Side Abstraction](#9-donationsource-supply-side-abstraction)
+9. [DonationCollection, DonationSource, and the Dynamic Warehouse](#9-donationcollection-donationsource-and-the-dynamic-warehouse)
 10. [Platform Entry Points: Multi-Application Vision](#10-platform-entry-points-multi-application-vision)
 11. [Future Architecture Direction](#11-future-architecture-direction)
+
+**Appendices**
+- [Appendix A: Key Decisions Summary](#appendix-a-key-decisions-summary)
+- [Appendix B: Constraint Types Summary](#appendix-b-constraint-types-summary)
 
 ---
 
@@ -32,7 +36,7 @@ The current prototype is a Django/PostgreSQL/HTMX application deployed with one 
 - User management and enterprise management
 - Storage management (units, hierarchy, rules)
 - Item processing (intake, sorting, condition assessment — decomposed into steps)
-- Batch processing (unsorted bulk intake)
+- Collection processing (arrival collections, unsorted bulk intake — now `DonationCollection`)
 - Category configuration (separate app)
 - Basic provenance capture (actor, device, timestamp per step)
 
@@ -97,10 +101,9 @@ inkind-hub/
 │   ├── storage/                # Storage units, hierarchy, rules
 │   ├── category_config/        # Item categories, observation schemas, UC/PC constraints
 │   │                           # (already exists — the right split)
-│   ├── batch_processing/       # Bulk unsorted intake → already exists
+│   ├── collections/            # DonationCollection — arrival collections replacing batch model
 │   ├── item_processing/        # Sorting, condition assessment, individual items
-│   ├── needs/                  # NEW — minimal needs for Phase 1
-│   ├── donations/              # NEW — DonationSource entity + lifecycle
+│   ├── needs/                  # NEW — DemandSignal + Campaign entities
 │   └── fragments/              # NEW — fragment resolution engine + process episodes
 ```
 
@@ -119,13 +122,13 @@ This is the most architecturally significant new app. It is the Django implement
 **Does not own:**
 - Any business logic about what sorting or intake does
 - Any category-specific field definitions (those live in `category_config`)
-- Any views that render intake or sorting forms (those live in `item_processing` and `batch_processing`)
+- Any views that render intake or sorting forms (those live in `item_processing` and `collections`)
 
 **Dependency direction:**
 
 ```
 item_processing  →  fragments  ←  needs  (future: disposal, storage_ops)
-batch_processing →  fragments
+collections    →  fragments
 donations        →  fragments
                         ↑
                   category_config
@@ -162,14 +165,14 @@ This means fragment templates are not hardcoded in views. They are resolved from
 - Per-role UI configuration: guided mode (volunteer) vs. expert mode (staff) resolved from fragment bindings, not hardcoded in views
 - Config-driven inventory categories: categories and their observation schemas defined in data, not code
 - Step cost configuration: per-org, per-step-type cost scalars configurable by org admin
-- Minimal needs: create a need (category, priority, status), link an inventory item to it, mark fulfilled
+- Minimal demand signals: create standing and campaign signals (category, signal_type, attributes), surface them in the sorting workflow, mark fulfilled
 - Provenance enhancement: add `step_duration_seconds` (derived from timestamp deltas) and `step_cost_configured` to existing provenance records
 - `fragments` app: initial implementation with in-memory engine backed by compiled knowledge repo config
 
 **Explicitly out of scope:**
 - Donor engagement (any of it)
 - Disposal workflows beyond existing "mark for disposal"
-- Needs campaigns, public visibility, reporting
+- Public visibility of demand signals and reporting
 - Beneficiary profiles or matching
 - The full `v_efficiency` reward function (requires match step)
 - LinkML knowledge repo (observe this deployment first — "complexity from practice")
@@ -250,18 +253,21 @@ process_templates:
         sequence: 2
         is_optional: false
 
-  - id: register_need
-    process_type: register_need
-    label: "Register need"
+  - id: register_demand_signal
+    process_type: register_demand_signal
+    label: "Register demand signal"
     is_default: true
-    entity_type: need
+    entity_type: demand_signal
     launchable_from_states: [expressed]
     steps:
-      - step_type: assess_need
+      - step_type: set_category
         sequence: 1
         is_optional: false
-      - step_type: set_priority
+      - step_type: set_signal_type
         sequence: 2
+        is_optional: false
+      - step_type: set_attributes
+        sequence: 3
         is_optional: false
 ```
 
@@ -272,16 +278,16 @@ The `is_default: true` template is used for any org with no explicit selection, 
 ```
 OrgProcessConfig                   ← Level 3, one row per process type per org
 ├── org                            FK → Enterprise
-├── process_type                   # sort_item | register_need
+├── process_type                   # sort_item | register_demand_signal
 └── template_id                    # slug reference to a ProcessTemplate
 ```
 
 ```
 ProcessEpisode                     ← runtime record per episode instance
 ├── id                             # UUID
-├── process_type                   # sort_item | register_need
+├── process_type                   # sort_item | register_demand_signal
 ├── template_id                    # which template was selected at launch
-├── entity_type                    # donation_item | need | storage_unit
+├── entity_type                    # donation_item | demand_signal | donation_collection | storage_unit
 ├── entity_id                      # UUID of the specific entity
 ├── org                            FK → Enterprise
 ├── actor                          FK → User
@@ -385,21 +391,89 @@ Introduce explicit lifecycle state on `DonationItem` as a controlled vocabulary 
 announced → received → sorting_in_progress → sorted → stored
 ```
 
-And on `Need`:
-
-```
-expressed → registered → matched → fulfilled
-```
-
 States are enforced by the model (illegal transitions raise validation errors). The fragment engine reads `item.lifecycle_state` to determine which fragment is valid. This replaces implicit UI-flow sequencing with explicit data-level sequencing — which is the prerequisite for multi-org configuration.
 
 **No state machine library needed at this stage.** A `status` field with transition validation in the model layer is sufficient. The state machine formalism belongs in the knowledge repo schema; Django enforces transitions through model validation.
 
-### Needs as demand signal
+### Demand signals: the unified need model
 
-Minimal needs serve one purpose in this sprint: making storage pressure visible to the sorting workflow. When an item is being sorted, if an active `Need` exists for that category, the sorting UI can indicate this — which justifies choosing a longer sorting path (collecting more observation fields) over a rapid triage path. This is the simplest possible form of cost-aware path selection: path length calibrated to whether downstream matching is plausible.
+The `needs` app owns the demand side of the platform — what organisations want, expressed in a form that the sorting workflow can consult and the donor portal can surface.
 
-This does not require beneficiaries. A `Need` is just a signal: "there is demand for this category." The system uses that signal to influence path cost tradeoffs during sorting.
+**The core insight** is that organisations express demand in two structurally different ways that serve the same purpose: indicating what items are of interest. A standing interest in a category ("we always want children's outerwear size 8-14") and a time-bounded campaign ("30 backpacks by September 1st for back to school") both answer the same question the sorter asks: "is there demand for this item?" The structural difference is an internal concern; from the sorter's and donor's perspective they are the same signal.
+
+This produces a single `DemandSignal` entity with a `signal_type` discriminator rather than two separate models.
+
+**`DemandSignal` model:**
+
+```
+DemandSignal
+├── id                     # UUID
+├── org                    FK → Enterprise
+├── signal_type            # standing | campaign | specific
+├── category               # clothing | food | furniture | ...
+├── attributes             # JSON — {subcategory, demographic, size, ...}
+│                          #   matches the category schema's attribute vocabulary
+├── quantity_requested     # nullable int — null means "any amount welcome"
+├── quantity_fulfilled     # int, derived from matched items
+├── campaign               # nullable FK → Campaign
+├── holder                 # nullable FK → Beneficiary | SocialOrganisation
+├── context_note           # "Back to school for 30 primary school children"
+├── deadline               # nullable date
+├── urgency_tier           # nullable: low | medium | high | critical
+│                          #   only set for campaign and specific types
+├── lifecycle_state        # active → partially_fulfilled → fulfilled | expired | withdrawn
+├── registered_at
+└── public_visibility      # bool — whether to show on donor portal / public API
+```
+
+**`signal_type` values:**
+
+`standing` — a permanent interest in a category. No deadline, no quantity target, no urgency. Automatically stays active until explicitly withdrawn. Displayed with lower visual weight in the sorting UI and the donor portal. The organisation declares a standing want, not a specific request.
+
+`campaign` — a bounded coordinated effort tied to a `Campaign`. Has a deadline (inherited from the campaign), a quantity target, and urgency that increases as the deadline approaches and the fulfilment rate falls behind. "30 backpacks by September 1st." Displayed prominently while active.
+
+`specific` — a concrete request for a specific category for a specific holder, independent of any campaign. A social worker registers that a family needs a single item. Has a deadline or urgency tier.
+
+**`Campaign` model:**
+
+```
+Campaign
+├── id                       # UUID
+├── org                      FK → Enterprise
+├── title                    # "Back to School 2026"
+├── description
+├── starts_at
+├── ends_at                  # deadline propagates to child DemandSignals
+├── target_beneficiary_group # "Primary school children starting September"
+├── lifecycle_state          # planned → active → completed | cancelled
+└── signals[]                → DemandSignal[] where signal_type = campaign
+```
+
+A campaign is a display and coordination wrapper — it groups related `DemandSignal` instances under a shared narrative and timeline. Campaign progress is derived: total `quantity_requested` and `quantity_fulfilled` across its signals. When a campaign's `ends_at` passes, its child signals transition to `expired` if not yet fulfilled.
+
+**Lifecycle states for `DemandSignal`:**
+
+```
+active → partially_fulfilled → fulfilled
+active → expired        (deadline passed, not fully fulfilled)
+active → withdrawn      (org explicitly cancels)
+```
+
+`standing` type signals do not follow the expiry path — they stay `active` until explicitly withdrawn.
+
+**How the sorting workflow uses demand signals:**
+
+When an item is being sorted and a category is assigned, the engine queries active `DemandSignal` records for that org and category. The results are sorted by urgency tier (critical → high → medium → low → null) then by deadline proximity. The sorting UI renders:
+
+- **Campaign signals** — a highlighted banner with title, deadline, and fulfilment progress ("Back to School: 18 of 30 collected, deadline September 1st")
+- **Standing signals** — a softer indicator ("this organisation has a standing interest in children's outerwear")
+- **No active signals** — no indicator; item is routed to general stock
+
+Both signal types influence the same cost-aware path decision: active demand justifies the longer sorting path (collecting more observations) because matching probability is higher. The engine queries `DemandSignal.objects.filter(org=org, category=category, lifecycle_state='active').exists()` — one query, both types.
+
+**Semantic grounding:**
+
+`DemandSignal` grounds in OSSN (`ossn:Goal` — a goal state of the organisation as agent), Open Eligibility tags (need category vocabulary), and `schema:Demand`. `Campaign` grounds in `schema:Event` with `schema:startDate` / `schema:endDate`.
 
 ### Success criterion for Phase 1
 
@@ -422,26 +496,29 @@ inkind-knowledge-repo/
 ├── src/inkind/schema/
 │   ├── entities/
 │   │   ├── donation_item.yaml       # category, condition, lifecycle_state
+│   │   ├── donation_collection.yaml # collection_type, parent, lifecycle_state
 │   │   ├── storage_location.yaml    # unit, capacity, occupancy
 │   │   ├── actor.yaml               # role, experience_level
 │   │   ├── organisation.yaml        # config, hierarchy
-│   │   └── need.yaml                # category, priority, holder, lifecycle_state
+│   │   ├── donation_source.yaml     # source_type, anonymous_donor_id, lifecycle_state
+│   │   ├── demand_signal.yaml       # signal_type, category, attributes, lifecycle_state
+│   │   └── campaign.yaml            # title, dates, beneficiary_group, signals[]
 │   ├── states/
 │   │   ├── item_lifecycle.yaml      # announced → received → sorting_in_progress → sorted → stored
-│   │   └── need_lifecycle.yaml      # expressed → registered → matched → fulfilled
+│   │   ├── collection_lifecycle.yaml # open → processing → closed → archived
+│   │   └── demand_signal_lifecycle.yaml  # active → partially_fulfilled → fulfilled | expired | withdrawn
 │   ├── process/
-│   │   ├── fragment.yaml            # precondition_states, postcondition_states, step_type
-│   │   └── step.yaml                # type, cost_ref, actor_role, ui_fragment_ref
+│   │   ├── step_type.yaml           # catalogue of available step types
+│   │   └── process_template.yaml    # named step sequences orgs select from
 │   ├── value/
 │   │   └── step_cost.yaml           # c_s(step_type) schema — per-org cost configuration
 │   ├── ui/
 │   │   └── fragment_binding.yaml    # (step_type, category, actor_role) → template_ref + fields
+│   ├── categories/                  # category schemas — single source of truth per item type
+│   │   ├── clothing.yaml            # attributes, value_map, UC/PC constraints, process_path ref
+│   │   ├── furniture.yaml           # attributes, value_map, UC/PC constraints, process_path ref
+│   │   └── _base.yaml               # shared attribute types (condition, storage_unit)
 │   └── provenance.yaml              # π(s_k) structure
-│
-├── categories/                      # category schemas — single source of truth per item type
-│   ├── clothing.yaml                # attributes, value_map, UC/PC constraints, process_path ref
-│   ├── furniture.yaml               # attributes, value_map, UC/PC constraints, process_path ref
-│   └── _base.yaml                   # shared attribute types (condition, storage_unit)
 │
 ├── instances/
 │   ├── orgs/
@@ -460,7 +537,7 @@ inkind-knowledge-repo/
 
 ### The category schema structure
 
-Each file in `categories/` is the single source of truth for everything that varies by item type: the attribute set, the `value_map` for dependent fields, the UC/PC constraint rules, and the process path reference. This structure means adding a new item type requires only a new YAML file — no code change anywhere.
+Each file in `src/inkind/schema/categories/` is the single source of truth for everything that varies by item type: the attribute set, the `value_map` for dependent fields, the UC/PC constraint rules, and the process path reference. This structure means adding a new item type requires only a new YAML file — no code change anywhere.
 
 A category schema has three distinct sections:
 
@@ -522,7 +599,7 @@ The furniture category schema follows the same structure but with completely dif
 
 **Schema level** (in `src/inkind/schema/`) defines the *shape* of valid configuration. The `fragment_binding.yaml` schema declares that a `UIFragmentBinding` has a `precondition_state`, `actor_role`, `template_ref`, `data_fields[]`, and `emits_event`. It does not say what those values are for any specific organisation.
 
-**Category level** (in `categories/`) defines item-type-specific configuration: attribute sets, value maps, and UC rules. This is shared across all organisations — the underwear rule applies everywhere. It changes only when the domain model changes, not when an org changes its settings.
+**Category level** (in `src/inkind/schema/categories/`) defines item-type-specific configuration: attribute sets, value maps, and UC rules. This is shared across all organisations — the underwear rule applies everywhere. It changes only when the domain model changes, not when an org changes its settings.
 
 **Instance level** (in `instances/`) gives org-specific values. `org_a.yaml` declares org A's step costs, workflow mode selection, and any PC overrides on top of the shared category constraints. The `scenarios/` directory is the funder communication artifact — self-contained YAML instances that walk through the formal spec's worked examples as real data. `winter_coat.yaml` shows two candidate paths, their step costs, and the net-value comparison. This replaces a Figma presentation and a written business case simultaneously.
 
@@ -535,7 +612,7 @@ At Django application startup (or on admin config reload):
 3. The loader reads compiled Pydantic models from the knowledge repo package
 4. It builds an in-memory engine index keyed by `(step_type, category, actor_role, org_id)` mapping to resolved fragment definitions
 5. Step cost tables are loaded per org into a separate index
-6. The `category_config` app loader reads all `categories/*.yaml` files, compiles each to JSON Schema via `gen-json-schema`, and stores the compiled schemas in a `CategoryConstraintSchema` database record keyed by category slug
+6. The `category_config` app loader reads all `src/inkind/schema/categories/*.yaml` files, compiles each to JSON Schema via `gen-json-schema`, and stores the compiled schemas in a `CategoryConstraintSchema` database record keyed by category slug
 7. The in-memory constraint index is populated from these database records
 
 The JSON Schema compilation (step 6) runs at reload time, not at request time. When a category YAML changes (new constraint added, `value_map` updated), the admin triggers a reload. The compiler regenerates only the affected category's JSON Schema, updates the database record, and invalidates the in-memory cache for that category. No server restart required.
@@ -627,7 +704,7 @@ For Phase 1, the engine evaluates four things:
 3. **Cost lookup** — what is `c_s` for this step type under this org's configuration? (in-memory cost table)
 4. **Constraint schema retrieval** — return the compiled JSON Schema for this category + org, merged from shared UC rules and org-specific PC overrides
 
-The `get_constraint_schema` method merges two sources: the shared UC constraint schema compiled from `categories/clothing.yaml` (same for all orgs) and any PC constraint additions from `instances/orgs/org_a.yaml` (org-specific). The merged schema is what the browser receives and what server-side POST validation evaluates against.
+The `get_constraint_schema` method merges two sources: the shared UC constraint schema compiled from `src/inkind/schema/categories/clothing.yaml` (same for all orgs) and any PC constraint additions from `instances/orgs/org_a.yaml` (org-specific). The merged schema is what the browser receives and what server-side POST validation evaluates against.
 
 ### JSON Schema as dual-purpose constraint and filter driver
 
@@ -657,7 +734,7 @@ These two levels are kept strictly separate. Fragment routing never encodes fiel
 
 ### The category schema as single source of truth
 
-Each category YAML file in `inkind-knowledge-repo/categories/` is the authoritative definition of everything that varies for that item type. It is the single place where:
+Each category YAML file in `inkind-knowledge-repo/src/inkind/schema/categories/` is the authoritative definition of everything that varies for that item type. It is the single place where:
 
 - The attribute set is declared (what fields exist for this category)
 - The `value_map` is declared (which field values depend on other field values)
@@ -669,7 +746,7 @@ This means a domain expert can understand the complete operational logic for clo
 ### The hot-reload flow
 
 ```
-Admin edits categories/clothing.yaml in knowledge repo
+Admin edits src/inkind/schema/categories/clothing.yaml in knowledge repo
     ↓ commit + push
 Admin navigates to "Reload Configuration" in Django admin
     (or webhook fires automatically from repo push)
@@ -775,31 +852,131 @@ Once cost data is accumulating, the engine can present path alternatives at the 
 
 This is the feature that makes efficiency tangible to the co-creation partner — it looks like workflow optimisation, which is commercially understandable, but architecturally it is the first live demonstration of path-as-optimisation-unit.
 
-### Needs as cost signal
+### Demand signals as cost signal
 
-When an active `Need` exists for the category of an item being sorted, the longer path (collecting more observation fields) has lower effective cost-per-outcome because the probability of successful matching is higher. The engine does not compute this formally in Phase 1 — but the data exists to retrospectively validate this hypothesis once needs and items are linked. This is the provenance substrate for later H4 validation.
+When an active `DemandSignal` exists for the category of an item being sorted, the longer path (collecting more observation fields) has lower effective cost-per-outcome because the probability of successful matching is higher. Campaign signals with tight deadlines and low fulfilment rates provide the strongest justification for the longer path. Standing signals provide a softer justification. The engine does not compute this formally in Phase 1 — but the data exists to retrospectively validate this hypothesis once signals and items are linked. This is the provenance substrate for later H4 validation.
 
 ---
 
-## 9. DonationSource: Supply-Side Abstraction
+## 9. DonationCollection, DonationSource, and the Dynamic Warehouse
 
-### The problem with donor as attribute
+### DonationCollection: from batch to recursive collection model
 
-Donor information currently lives as an attribute on `DonationItem` and `DonationBatch`. This works for one organisation with one type of donor — an anonymous private individual dropping off a bag of clothing. It breaks in three distinct ways as the platform grows:
+The current prototype uses a flat `DonationBatch` (renamed `DonationCollection`) as a simple grouping for items that arrived together. This works for Phase 1 but encodes a fundamentally limited warehouse model: items arrive in a group, get sorted individually, and go to fixed storage locations. Real warehouse operations are more fluid.
 
-**Multi-type donors.** A private individual, a corporate donor making a bulk CSRD-reportable donation, and a social organisation sharing items via the Share disposal workflow are structurally different sources. Each has different attributes, different lifecycle events, different legal requirements. An attribute field cannot represent all three without becoming a discriminated union with nullable columns for each case — the classic sign that an attribute should be a first-class entity.
+A more expressive model treats a `DonationCollection` as a general-purpose grouping of items that can be created at any stage of processing, derived from other collections, and used to represent any meaningful cluster — an arrival, an intermediate sort pass, a named stock, or a campaign fulfilment set. This recursive structure is the data model foundation for a **dynamic warehouse**: one where inventory is organised by operational purpose rather than fixed physical location.
 
-**One-to-many.** A corporate donor making a recurring bulk donation links one donor identity to many batches across many donation events. An attribute on the item cannot represent this without duplicating identity data across every item record — which both wastes space and creates consistency risk.
+**The model is introduced now in full.** Phase 1 uses only the `arrival` collection type — a direct replacement for `DonationBatch` with identical semantics. The recursive structure, the additional `collection_type` values, and the dynamic warehouse behaviour are explicitly deferred to later phases. Declaring the full data model from the start means the migration path is an extension (adding collection types and process templates), not a rewrite (changing the model structure).
 
-**Privacy by design.** Staff processing items should never see donor identity. If donor data is embedded in the item record, every item query potentially exposes it. A separate entity with its own access control boundary enforces the privacy requirement structurally rather than by policy.
+### The DonationCollection data model
+
+```
+DonationCollection
+├── id                      # UUID
+├── org                     FK → Enterprise
+├── collection_type         # arrival | working | sorted | stock | campaign | disposed
+├── label                   # Human-readable: "Winter clothing — Nov 2026 arrival"
+├── parent                  # nullable FK → DonationCollection
+│                           #   null for arrival collections (root)
+│                           #   set for all derived collections
+├── donation_source         # nullable FK → DonationSource
+│                           #   set on arrival collections; inherited by children
+├── lifecycle_state         # open | processing | closed | archived
+├── item_count              # int — items directly registered to this collection
+├── total_item_count        # int — derived: items in this + all descendant collections
+├── created_at
+├── created_by              FK → Actor
+└── notes
+```
+
+**`collection_type` values and phase:**
+
+| Type | Phase | Description |
+|---|---|---|
+| `arrival` | Phase 1 | Root collection created when a donation arrives. Replaces `DonationBatch`. Has a `DonationSource`. No parent. |
+| `working` | Phase 2 | Temporary intermediate collection during a multi-stage sort pass. Example: "Condition: acceptable — awaiting category sort." |
+| `sorted` | Phase 2 | Completed sort stage — stable grouping ready for next stage or individual item registration. |
+| `stock` | Phase 2 | Named standing collection of items ready for distribution. Maps to `DemandSignal` of type `standing`. The dynamic warehouse inventory unit. |
+| `campaign` | Phase 2 | Collection assembled for a specific campaign. Drawn from `stock` collections. Maps to a `Campaign` entity. |
+| `disposed` | Phase 2 | Items culled during sorting. A collection, not individual records — keeps disposal auditable and batchable. |
+
+### Collection hierarchy examples
+
+**Multi-stage sort of a large clothing arrival:**
+
+```
+DonationCollection [arrival] "40 bags — Nov 2026"
+    ├── DonationCollection [working] "Condition: acceptable"
+    │       ├── DonationCollection [sorted] "Children's clothing"
+    │       │       ├── DonationItem  ← individually registered
+    │       │       └── DonationItem
+    │       └── DonationCollection [sorted] "Adult clothing"
+    │               └── DonationItem
+    └── DonationCollection [disposed] "Damaged / hygiene"
+            # items counted but not individually registered
+```
+
+**Stock collection built from multiple arrivals:**
+
+```
+DonationCollection [stock] "Children's winter clothing — ready"
+    ├── DonationItem  (from November arrival)
+    ├── DonationItem  (from October arrival)
+    └── DonationItem  (from September arrival)
+```
+
+**Campaign collection pulling from stock:**
+
+```
+DonationCollection [campaign] "Back to School 2026"
+    ├── DonationItem  (school bag — pulled from stock)
+    ├── DonationItem  (school bag — pulled from stock)
+    └── DonationItem  (pencil case — pulled from stock)
+```
+
+### The dynamic warehouse concept
+
+A static warehouse assigns items to fixed physical locations — Bin A3, Shelf 2, Rack 4. This requires upfront storage configuration, produces friction when locations change, and makes it difficult to see inventory by operational purpose rather than physical position.
+
+A **dynamic warehouse** organises items by operational collections rather than fixed locations. Physical location is a secondary attribute on the item or collection, not the primary organisational principle. The warehouse's structure emerges from the organisation's operational practice rather than being configured upfront.
+
+Under this model:
+
+**Inventory queries become collection queries.** "How many children's winter coats are ready?" queries the `stock` collection for that category, not a set of fixed bin locations. The answer is correct regardless of where items physically sit.
+
+**Campaign fulfilment is a collection operation.** Fulfilling a campaign means assembling a `campaign` collection from `stock` collections and marking items as distributed. No bin location changes required — collection membership changes.
+
+**`DemandSignal` maps to collections, not items.** A standing `DemandSignal` for children's clothing maps to the corresponding `stock` collection. The gap (demanded − available) is `DemandSignal.quantity_requested − stock.total_item_count`. When a new item is sorted into the stock collection, the gap closes by one automatically.
+
+**Storage location remains available but optional.** The `storage_unit` field on `DonationItem` can still record physical location when known. But it is informational — the system does not require it to function. This resolves the storage setup friction identified in §11.6: organisations can begin processing items before their physical storage layout is formalised.
+
+**The process template system is already designed for this.** Adding multi-stage sorting means adding new process templates (`sort_by_condition`, `sort_by_category`) with new step types (`create_sub_collection`, `move_to_collection`). The fragment routing and episode infrastructure requires no modification — only new configuration in the knowledge repo.
+
+### Phase 1 scope: arrival collections only
+
+Phase 1 uses `DonationCollection` with `collection_type = arrival` only — a direct replacement for `DonationBatch` with identical runtime behaviour:
+
+- One collection per donation event
+- No parent collection
+- Items individually registered directly from the arrival collection
+- `lifecycle_state`: `open → processing → closed`
+- `donation_source` FK set on arrival, inherited by child items
+
+**Explicitly deferred to Phase 2+:**
+- `working`, `sorted`, `stock`, `campaign`, `disposed` collection types
+- Multi-stage sort processes creating derived collections
+- `stock` collection ↔ `DemandSignal` mapping
+- Campaign collection assembly and fulfilment
+- Dynamic warehouse inventory queries replacing bin-based queries
 
 ### DonationSource as a first-class entity
 
-`DonationSource` is the supply-side counterpart to `Need` on the demand side. Just as `Need` is not an attribute on `Beneficiary` but its own entity with a lifecycle and a `holder` reference, `DonationSource` is not an attribute on `DonationItem` but its own entity with a lifecycle and a `source_type`.
+`DonationSource` records who or what originated a donation, separately from the items themselves. It is set on the `arrival` collection and propagates to child collections and items — all items from the same arrival trace back to the same source without duplicating identity data.
 
-The formal spec's §11.4 generalisation applies symmetrically: the match triple `(i, n, p)` where `n` carries a `holder` that can be a `Beneficiary` or a `SocialOrganisation` has a supply-side mirror — the donation event carries a `source` reference that can be an anonymous private donor, a corporate entity, or another social organisation.
-
-**Entity structure:**
+```
+DonationCollection [arrival] ──FK──→ DonationSource (nullable)
+    └── DonationItem ── inherits ──→ DonationSource (from parent collection)
+```
 
 ```
 DonationSource
@@ -813,74 +990,40 @@ DonationSource
 └── provenance                # who recorded this source, on what device
 ```
 
-The `source_type` discriminator determines which reference field is populated. The engine and the item processing logic never need to know which type — they reference `DonationSource` uniformly. Type-specific behaviour (CSRD reporting for corporate, impact notifications for private) is handled by the type-specific logic in the `donations` app, not scattered across intake views.
-
-### Lifecycle states for DonationSource
-
+**Lifecycle:**
 ```
 announced → received → acknowledged
 ```
 
-`announced` — the source has indicated intent to donate (QR code generated on Donor Portal, or corporate bulk donation scheduled).
+`acknowledged` — reached when linked items complete their lifecycle and impact notification is sent. Stub in Phase 1.
 
-`received` — the physical donation has arrived and been linked to a batch or item during intake.
+**Phase 1 scope:** `source_type: anonymous_private` only. `lifecycle_state: announced | received` only. No `CorporateDonor`, no `organisation_ref`. Introduced now to establish the privacy boundary before intake data accumulates — retrofitting later would require a migration touching every item and collection record.
 
-`acknowledged` — the platform has sent confirmation back to the source (impact notification for private donor, CSRD report for corporate). This state is only reached when the linked items have completed their lifecycle.
-
-### Relationship to DonationItem and DonationBatch
-
-`DonationBatch` and `DonationItem` both carry a nullable FK to `DonationSource`. Nullable because many donations arrive without any source identification — walk-in drops, unclaimed bags — and this must remain valid. The FK is set during intake when a QR code is scanned or a corporate reference is entered. It is never required.
-
-```
-DonationBatch ──FK──→ DonationSource (nullable)
-DonationItem  ──FK──→ DonationSource (nullable)
-              └── or inherits from parent batch
-```
-
-When a batch is processed into individual items, each item inherits the batch's `DonationSource` reference unless overridden during sorting. This handles the common case where a single donor drops off a mixed bag — all items from that bag trace back to the same source.
-
-### Where DonationSource lives in the app structure
-
-`DonationSource` belongs in a new lightweight `donations` app — not `batch_processing`, not `item_processing`, not a future `donors` app. The reasoning:
-
-The `donations` app owns the supply-side abstraction: `DonationSource` and its lifecycle. It is referenced by `batch_processing` and `item_processing` (FK) but owns nothing about how batches or items are processed. It is the symmetric counterpart to the `needs` app on the demand side.
-
-The future `donors` app — when built — owns the Donor Portal-facing API surface and the `CorporateDonor` profile model. It depends on `donations` (reads `DonationSource`), but `donations` does not depend on it. The `CorporateDonor` model and CSRD logic are Year 2 concerns that do not need to exist for Phase 1.
-
-**Updated app structure:**
+### Updated app structure
 
 ```
 inkind-hub/
 ├── apps/
 │   ├── users/
 │   ├── enterprises/
-│   ├── storage/
+│   ├── storage/               # physical location — optional, informational in dynamic warehouse
 │   ├── category_config/
-│   ├── batch_processing/       # references DonationSource (FK, nullable)
-│   ├── item_processing/        # references DonationSource (FK, nullable, inherited)
-│   ├── donations/              # NEW Phase 1 — DonationSource entity + lifecycle
-│   ├── needs/                  # NEW Phase 1 — Need entity + lifecycle
-│   ├── fragments/              # NEW Phase 1 — inference engine
-│   ├── disposal/               # future — disposal workflows
-│   └── donors/                 # future Year 2 — CorporateDonor, CSRD, Donor Portal API
+│   ├── collections/           # DonationCollection (all types) + DonationSource
+│   │                          # Phase 1: arrival type only
+│   ├── item_processing/       # DonationItem — registered from collections
+│   ├── needs/                 # DemandSignal + Campaign
+│   ├── fragments/             # inference engine + process episodes
+│   ├── disposal/              # future — disposal workflows
+│   └── donors/                # future Year 2 — CorporateDonor, CSRD, Donor Portal API
 ```
 
-### Phase 1 scope for DonationSource
+`DonationSource` lives in the `collections` app — it is the source attribute of an arrival collection, not a separate domain concern.
 
-For the intake and sorting sprint, `DonationSource` is minimal:
+### Impact event groundwork
 
-- `source_type: anonymous_private` only
-- `anonymous_donor_id`: nullable UUID, set by scanning a QR code at intake (the QR code generation lives in the future Donor Portal, not here — for now the field can be set manually or left null)
-- `lifecycle_state`: `announced` and `received` only — `acknowledged` requires impact events which come later
-- No `CorporateDonor`, no `organisation_ref` — those are nullable FKs that will be used in Year 2
+When a `DonationItem` reaches a terminal lifecycle state (`distributed`, `disposed`, `shared`), the system emits an impact event as a provenance record. The API stub `GET /api/public/impact/{anonymous_donor_id}/` returns an empty list in Phase 1. When the Donor Portal is built (Year 2), it consumes this endpoint as the data feed for "your donation helped someone."
 
-The value of introducing `DonationSource` in Phase 1 even at this minimal scope is twofold: it establishes the correct data model before intake data accumulates (retrofitting this later would require a migration touching every existing item and batch record), and it makes the privacy boundary structural from day one.
-
-### Impact event emission (groundwork for Year 2)
-
-When a `DonationItem` linked to a `DonationSource` reaches a terminal lifecycle state (`distributed`, `disposed`, `shared`), the system should emit an impact event. For Phase 1, this is a provenance record — the event is logged but not acted on. When the Donor Portal is built (Year 2), the impact event endpoint becomes the data feed for "your donation was given to someone in need."
-
-The impact event API stub — `GET /api/public/impact/{anonymous_donor_id}/` — can be introduced as an empty endpoint in Phase 1. It returns an empty list until items complete their lifecycles. When the Donor Portal is built, it simply starts consuming this already-existing endpoint.
+Domain events to declare in the knowledge repo schema: `collection_received`, `item_sorted`, `item_stored`, `collection_fulfilled`, `stock_collection_updated`.
 
 ---
 
@@ -920,7 +1063,7 @@ The backend exposes three distinct API namespaces, each with its own authenticat
 
 **`/api/org/`** — authenticated by session or token, scoped to the user's organisation membership and role. This is the full operational API: intake, sorting, storage management, needs management, disposal, user administration. Only users registered as organisation staff can access this namespace.
 
-**`/api/public/`** — unauthenticated read-only. Exposes: active needs with public visibility flag, organisation public profiles, organisation map data. This is what the Donor Portal and the public landing page consume. No authentication required. No operational data exposed.
+**`/api/public/`** — unauthenticated read-only. Exposes: active demand signals with public visibility flag, organisation public profiles, organisation map data. This is what the Donor Portal and the public landing page consume. No authentication required. No operational data exposed.
 
 **`/api/donor/`** — authenticated by anonymous donor token (not a user account). Exposes: impact events for a specific `anonymous_donor_id`, personal donation history, campaign participation. The authentication mechanism is token-based, where the token is derived from the QR code generated at Donor Portal registration. No PII is stored in the inkind-hub backend — only the anonymous token.
 
@@ -950,7 +1093,7 @@ The Donor Portal is primarily a read-only consumer of the public API plus a narr
 The Donor Portal can be a lightweight application — a static site, a simple React app, or an HTMX application — because its backend surface is narrow. The complexity lives in inkind-hub, not here.
 
 **The key Year 1 groundwork:**
-- `/api/public/needs/` endpoint returning active public needs — introduce in Phase 1
+- `/api/public/demand-signals/` endpoint returning active public demand signals (standing + active campaigns) — introduce in Phase 1
 - `/api/public/organisations/` endpoint returning public org profiles — introduce in Phase 1
 - `/api/public/impact/{anonymous_donor_id}/` stub endpoint — introduce in Phase 1, returns empty list until items complete lifecycles
 - `anonymous_donor_id` field on `DonationSource` — introduce in Phase 1 as a nullable UUID
@@ -966,9 +1109,9 @@ The corporate portal is the critical Year 2 validation test: zero engine code ch
 - New `/api/corporate/` endpoints (new API surface, not modified existing endpoints)
 - A new frontend application consuming those endpoints
 
-It should require zero changes to: `item_processing`, `batch_processing`, `storage`, `needs`, `fragments`, the inference engine, or any existing org API endpoint. If it does require such changes, that is direct evidence against H1 — the domain model failed to generalise, and the engine needed modification.
+It should require zero changes to: `item_processing`, `collections`, `storage`, `needs`, `fragments`, the inference engine, or any existing org API endpoint. If it does require such changes, that is direct evidence against H1 — the domain model failed to generalise, and the engine needed modification.
 
-**`DonationSource` is the bridge.** When a corporate donor submits a bulk donation, the organisation staff creates a `DonationBatch` linked to a `DonationSource` with `source_type: corporate` and a FK to the `CorporateDonor` profile. Everything downstream — sorting, storage, needs matching, disposal — operates identically to any other batch. The corporate-specific behaviour (CSRD report generation, tax documentation) is triggered only when the `DonationSource.source_type == corporate` and the linked items reach terminal states. This is a read path off existing data, not a modification of existing processing logic.
+**`DonationSource` is the bridge.** When a corporate donor submits a bulk donation, the organisation staff creates a `DonationCollection` linked to a `DonationSource` with `source_type: corporate` and a FK to the `CorporateDonor` profile. Everything downstream — sorting, storage, needs matching, disposal — operates identically to any other arrival collection. The corporate-specific behaviour (CSRD report generation, tax documentation) is triggered only when the `DonationSource.source_type == corporate` and the linked items reach terminal states. This is a read path off existing data, not a modification of existing processing logic.
 
 ### Repackaging philosophy
 
@@ -986,11 +1129,11 @@ This repackaging approach means the platform grows in surface area without growi
 
 The current architecture is request-driven: a user takes an action, a Django view handles it, a response is returned. Fragment resolution is triggered by explicit HTTP requests, not by state transitions.
 
-The transition to event-driven execution is a Year 2 goal, explicitly noted in the whitepaper. The key change: when an item transitions to `stored` state, the system emits a `item_stored` domain event. If a `Need` in `registered` state exists for that category, the allocation fragment becomes eligible and the system proactively surfaces this to a manager — rather than requiring the manager to manually check.
+The transition to event-driven execution is a Year 2 goal, explicitly noted in the whitepaper. The key change: when an item transitions to `stored` state, the system emits an `item_stored` domain event. If an active `DemandSignal` exists for that category, the allocation fragment becomes eligible and the system proactively surfaces this to a manager — rather than requiring the manager to manually check.
 
 **Groundwork to lay now:** Structure the REST API endpoint handlers so that state transitions are explicit and isolated. `POST /items/{id}/complete-sorting/` transitions state and is the natural point for future event emission. When Django signals or an event bus (Kafka, Year 2) are introduced, these endpoints become the event emitters. No rewrite — the transition points are already explicit.
 
-Domain events to define at schema level (in `inkind-knowledge-repo/src/schema/events/`) before they are implemented in Django: `donation_received`, `item_sorted`, `item_stored`, `need_registered`, `need_fulfilled`. The schema declarations serve as the authoritative vocabulary even before the event bus exists.
+Domain events to define at schema level (in `inkind-knowledge-repo/src/inkind/schema/events/`) before they are implemented in Django: `collection_received`, `item_sorted`, `item_stored`, `collection_fulfilled`, `stock_collection_updated`, `demand_signal_registered`, `demand_signal_fulfilled`, `campaign_launched`, `campaign_completed`. The schema declarations serve as the authoritative vocabulary even before the event bus exists.
 
 ### 11.2 RDF triplestore for configuration
 
@@ -1036,25 +1179,25 @@ Once the knowledge repo is the single source of truth for configuration, it beco
 
 The Year 1 goal is to make this separation real in the data: shared schema in `src/inkind/schema/`, org-sovereign configuration in `instances/orgs/`. If this discipline is maintained from the start, the federation transition is a deployment architecture change, not a data model rewrite.
 
-### 11.6 Storage setup rethink
+### 11.6 Dynamic warehouse: recursive collections and operational inventory
 
-Storage configuration — defining the physical layout of an organisation's warehouse, bins, shelves, and rules — was flagged in the prototype deployment as too complex for practical onboarding. The current implementation requires significant manual setup effort before an organisation can begin processing items. This is a blocker for scaling to many organisations, but the solution requires rethinking the whole approach rather than incremental fixes.
+The static warehouse model — fixed bins, mandatory storage assignment at intake, upfront location configuration — is the source of the onboarding friction identified in the prototype deployment. The `DonationCollection` recursive model introduced in §9 is the architectural resolution. This section describes the full expansion roadmap.
 
-The core problem is that storage setup conflates two concerns that operate at different timescales and are owned by different roles: the **physical topology** (what storage units exist, how they are named, how they nest) and the **routing logic** (which categories of items go where). Currently both must be configured up front before any item can be processed. In practice, organisations start processing items before their storage logic is fully formalised — the current model does not accommodate this.
+**Phase 2: multi-stage sorting via derived collections.** The process template system gains new step types: `create_sub_collection` and `move_to_collection`. A process template `sort_by_condition` creates two child collections from an arrival collection — "acceptable" and "disposal" — without requiring individual item registration. A subsequent `sort_by_category` template splits the "acceptable" collection into category-specific `sorted` collections. Items are only individually registered (creating `DonationItem` records) when the organisation needs that granularity — for high-value items, campaign fulfilment, or detailed provenance. For bulk low-value items, collection-level tracking is sufficient.
 
-The rethink direction is to decouple these two concerns and make storage configuration incremental:
+**Phase 2: stock collections as the inventory unit.** Named `stock` collections replace fixed storage zones as the primary inventory organiser. A `stock` collection for "children's winter clothing — ready" contains all items of that type regardless of their physical location. `DemandSignal` of type `standing` maps directly to a `stock` collection: the gap is computed as `DemandSignal.quantity_requested − stock.total_item_count`, updated automatically when items enter or leave the collection. The sorting workflow surfaces this gap as the demand signal indicator, exactly as it surfaces campaign signals today.
 
-**Physical topology** should be bootstrappable from a minimal seed — a single default storage unit is enough to begin intake and sorting. The topology can be enriched over time as the organisation's operational patterns become clearer. The system should not require a complete storage map before processing begins.
+**Phase 2: storage location becomes optional and incremental.** With `stock` collections as the inventory unit, physical `StorageLocation` assignment becomes a secondary annotation rather than a required field. An organisation can begin processing items into collections before their physical storage layout is formalised. As they learn their operational patterns, they can annotate collections and items with storage locations incrementally. This resolves the onboarding friction at its root cause — not by simplifying the storage configuration UI, but by removing the dependency on storage configuration as a precondition for operation.
 
-**Routing logic** — the storage rules that suggest where items of a given category should go — should be optional at intake time and suggested rather than required. A staff member who cannot find the right bin should be able to record the item without a storage assignment and resolve it later. Mandatory storage assignment at intake creates friction that discourages use.
+**Phase 3: campaign collection assembly.** A `campaign` collection is assembled from `stock` collections when a campaign is launched. Items are moved from stock into the campaign collection via a process episode. Campaign fulfilment is tracked at the collection level: `campaign.total_item_count / campaign_demand_signal.quantity_requested`. When the campaign collection is handed over or distributed, items transition to `distributed` state and the `DonationSource` impact event chain fires.
 
-**Configuration from practice.** The whitepaper's "complexity from practice" principle applies directly here: the storage layout an organisation needs should emerge from observing how they actually use the system, not be specified in full before deployment. This suggests a guided setup flow that builds the storage configuration incrementally from real intake and sorting sessions, asking minimal questions at each step and inferring structure from observed patterns.
+**Phase 3: inventory intelligence from collection provenance.** Because every collection operation is a process episode with a provenance record, the system accumulates rich operational data: how long items stay in `working` collections before being sorted, which `stock` collections turn over fastest, which categories accumulate without being matched to demand. This data feeds the efficiency scoring and the path optimisation — collections with high demand signal coverage justify more detailed per-item observations during sorting.
 
-This is a significant UX and data model design effort — it touches the storage app's model layer, the admin interface, and the onboarding flow. It is the right work to do before scaling beyond 3-5 pilot organisations, but it is not relevant to the intake and sorting functionality that Phase 1 delivers to existing users.
+**The configurability test for H1.** The dynamic warehouse expansion is the strongest test of H1. An organisation that operates a multi-stage sort with stock collections and campaign assembly should be configurable entirely through new process templates and collection type configuration — zero engine modifications. The fragment routing system resolves `(create_sub_collection, clothing, staff, org_a)` the same way it resolves `(sort_item, clothing, staff, org_a)`. Collections are entities with lifecycles; the engine treats them like any other entity type.
 
 ---
 
-## Appendix: Key Decisions Summary
+## Appendix A: Key Decisions Summary
 
 | Decision | Choice | Rationale |
 |---|---|---|
@@ -1072,22 +1215,29 @@ This is a significant UX and data model design effort — it touches the storage
 | Field-level dependencies | `value_map` in category schema, not fragment routing | Fragment routing is for coarse process-path decisions; `value_map` handles fine-grained field dependencies within a step |
 | Constraint mechanism | JSON Schema compiled from category YAML | Frontend-agnostic; hot-reloadable; drives both validation and dropdown filtering from one source |
 | Constraint dual use | JSON Schema drives both `ajv` validation and dropdown filtering | `ajv` computes valid values for dependent fields from the same schema used for validation — no duplication |
-| UC vs PC constraints | UC in `categories/*.yaml` (shared); PC in `instances/orgs/*.yaml` (org-specific) | Merged at reload time; browser receives merged schema per org |
+| UC vs PC constraints | UC in `src/inkind/schema/categories/*.yaml` (shared); PC in `instances/orgs/*.yaml` (org-specific) | Merged at reload time; browser receives merged schema per org |
 | Hot-reload scope | Constraints, value_map, routing config, step costs, process definitions — no restart needed | Template files and rendering code still require deployment |
 | State management | Explicit `lifecycle_state` field with transition validation | Prerequisite for fragment precondition checking |
 | Events | Deferred to Year 2 | Not needed for request-driven REST API; lay groundwork in endpoint structure |
 | Config store (now) | In-memory Python singleton loaded at startup | Sufficient for 1-5 orgs; zero SQL at request time |
 | Config store (later) | RDF triplestore (Oxigraph → Fuseki) | Graph query semantics match config structure; federation-native |
 | Efficiency approach | Cost instrumentation `C_s(p)` first, reward `v_efficiency` deferred | Reward requires match step; cost is supply-side only |
-| Needs scope | Minimal: category, priority, status, lifecycle state | Demand signal for path selection; full campaigns deferred |
+| Needs scope | `DemandSignal` entity with `signal_type` enum (standing/campaign/specific) + `Campaign` wrapper | Standing and campaign signals have same purpose (indicate items of interest) but different lifecycle and urgency semantics; unified entity avoids UI split |
+| DemandSignal standing type | No deadline, no quantity target, no urgency; stays active until withdrawn | Org declares permanent category interest; displayed at lower visual weight than campaigns |
+| DemandSignal campaign type | Bounded by Campaign deadline, has quantity target and urgency tier | Time-bounded coordinated effort; urgency increases as deadline approaches and fulfilment lags |
+| Campaign entity | Wrapper grouping related DemandSignals under shared title, dates, beneficiary group | Display and coordination artifact; progress derived from child signals; powers donor portal campaign view |
+| Sorting workflow demand query | Single query on `DemandSignal` for org + category — both standing and campaign types | Engine does not distinguish types for path cost decision; UI renders them at different visual weight |
 | Knowledge repo timing | Schema only for Phase 1; no full separate repo yet | "Complexity from practice" — observe Phase 1 deployment before formalising |
 | Value dimensions | Efficiency only (ω_s(efficiency) = 1.0) | Most studied; computable without distribution; commercial baseline |
 | Donor information | First-class `DonationSource` entity, not attribute on item | Supports multi-type sources; privacy by design; enables corporate generalisation without engine changes |
-| Donor app scope (Phase 1) | Minimal `donations` app with `DonationSource` only | `CorporateDonor`, CSRD logic, and Donor Portal API deferred to Year 2 |
+| DonationSource scope (Phase 1) | `DonationSource` lives in `collections` app; `anonymous_private` type only | `DonationCollection` owns supply-side abstraction; `CorporateDonor`, CSRD logic, and Donor Portal API deferred to Year 2 |
 | Multi-portal topology | One backend, multiple frontend applications per audience | Repackaging not rebuilding; new portals add API surface, not backend logic |
 | API namespacing | `/api/org/`, `/api/public/`, `/api/donor/`, `/api/corporate/` | Enforces permission scope structurally; enables portal addition without existing endpoint changes |
 | Corporate portal test | Zero engine/model changes when adding corporate portal | Direct H1 validation: `DonationSource.source_type` carries the variance; engine unchanged |
-| Storage setup simplification | Deferred to future work | Requires rethinking the whole approach — decoupling topology from routing logic and making setup incremental; not relevant to day-to-day operations in Phase 1 |
+| DonationCollection model | Recursive `parent` FK + `collection_type` enum declared now; Phase 1 uses `arrival` type only | Full model now avoids future migration; `working/sorted/stock/campaign/disposed` types deferred to Phase 2+ |
+| Dynamic warehouse | `stock` collections replace fixed storage zones as inventory unit; `storage_unit` becomes optional | Resolves onboarding friction at root cause — no storage configuration required to start operations |
+| DonationBatch rename | Renamed to `DonationCollection` throughout | `Batch` has industrial connotations incompatible with social sector vocabulary; German `Sammlung` scales naturally across all collection types |
+| Storage setup simplification | Deferred — resolved by dynamic warehouse model instead | `stock` collections organise inventory by operational purpose; physical location annotation is incremental |
 | Ontology reuse strategy | `uri` and `see_also` annotations in LinkML — no OWL axiom import | Lightweight semantic grounding; pays dividends when triplestore is introduced; no runtime overhead |
 | Condition vocabulary | `schema:OfferItemCondition` values (NewCondition, UsedCondition, DamagedCondition) | Stable, widely understood IRIs; avoids custom vocabulary for a universal concept |
 | Provenance grounding | PROV-O — `prov:Activity`, `prov:Agent`, `prov:Entity` | W3C standard; automatic interoperability with PROV-aware tools; correct for future federation |
@@ -1096,3 +1246,58 @@ This is a significant UX and data model design effort — it touches the storage
 | Clothing vocabulary | CPI ontology (`cpi:`) + schema.org wearable vocabulary | CPI covers size, demographic, care, certification; schema.org covers size groups/systems |
 | Food vocabulary | FoodOn (selective import via OntoFox) | Authoritative OBO Foundry ontology; UC constraint terms for expiry and food safety |
 | Furniture vocabulary | Product Types Ontology (`pto:`) + schema.org + GoodRelations | No single authoritative furniture ontology; combination covers taxonomy and structural attributes |
+
+---
+
+## Appendix B: Constraint Types Summary
+
+The platform enforces constraints at multiple levels, implemented through different mechanisms and owned by different configuration layers. This table provides a complete reference.
+
+| ID | Type | Name | Formal spec term | Scope | Defined in | Enforced by | Mechanism | Hot-reload | Example |
+|---|---|---|---|---|---|---|---|---|---|
+| **UC** | Universal Constraint | Item-level field rule | UC | All orgs, all items of a category | `src/inkind/schema/categories/*.yaml` (Level 2) | Server-side JSON Schema validation + `ajv` in browser | JSON Schema `if/then` compiled from category YAML | Yes | Underwear must be in new or good condition |
+| **PC** | Policy Constraint | Org-specific field rule | PC | One org, all items of a category | `instances/orgs/*.yaml` (Level 3) or `PolicyConstraint` DB model | Merged into per-org JSON Schema at reload; `ajv` + server-side | JSON Schema `if/then` merged with UC schema | Yes (DB write) | Org A requires intact labels on all tops |
+| **SQ** | Sequencing Constraint | Step ordering within an episode | SQ | All orgs | `ProcessTemplate` step sequence (Level 2 YAML) | `ProcessStep` completion records — step N+1 blocked until step N has a completion record | Episode progress tracking in `fragments` app | Yes (template reload) | `assign_storage` cannot precede `assign_category` |
+| **FS** | Fragment precondition | Entity state prerequisite for a fragment | Precondition (AV/SQ) | All orgs | `fragment_binding.yaml` — `precondition_state` field (Level 2) | Engine `resolve()` precondition check against `item.lifecycle_state` | In-memory state machine check at episode step resolution | Yes (binding reload) | `sort_item` fragment requires item in `received` state |
+| **VM** | Value map dependency | Dependent dropdown filtering | — | All orgs, per category | `src/inkind/schema/categories/*.yaml` — `value_map` block (Level 2) | JSON Schema `if/then` compiled from `value_map`; `ajv` filters dropdown options in browser | Same JSON Schema as UC/PC — dual use for validation and filtering | Yes | Baby demographic → baby sizes only shown |
+| **LC** | Lifecycle transition | Entity state machine transitions | — | All orgs | `states/*.yaml` in knowledge repo (Level 2) | Django model `clean()` / `save()` transition validation | Python model layer validation | No (code deploy) | `DonationItem` cannot skip from `received` to `stored` |
+| **AV** | Actor availability | Actor authorisation and capacity | AV | Per org | `OrgProcessConfig` + role assignments (Level 3 DB) | Deferred — future engine extension | Runtime DB query against actor state (one query, bounded) | Yes (DB) | Volunteer role cannot perform `manager_approval` step |
+| **TC** | Temporal/deadline | Campaign deadline enforcement | — | Per org, per campaign | `Campaign.ends_at` (Level 3 DB) | Background task marks expired `DemandSignal` records; urgency tier updated periodically | Scheduled task + lifecycle state update | Yes (DB) | Campaign ends_at passed → child signals → `expired` |
+| **EC** | Cross-entity constraint | Cross-entity consistency rules | EC | All orgs | `src/inkind/schema/` (Level 1/2) — deferred to triplestore phase | Future: SPARQL rules over triplestore; now: application-layer checks | SQL / Python for now; SPARQL when triplestore introduced | Deferred | A `DonationItem` in `stored` state must have a `storage_unit` assigned |
+
+### Constraint layer mapping
+
+```
+Layer 1 — Schema          Layer 2 — Base config       Layer 3 — Org config
+(knowledge repo schema)   (knowledge repo instances)  (Django database)
+
+UC rules                  Fragment preconditions       PC rules (PolicyConstraint)
+VM value maps             Process templates            Step costs (StepCost)
+LC lifecycle states        Fragment bindings            Org process selection
+EC cross-entity shape      Step type catalogue          OrgProcessConfig
+```
+
+### Constraint evaluation points
+
+| When | What is evaluated | Mechanism |
+|---|---|---|
+| Form field change (browser) | UC + PC (merged JSON Schema) + VM (dropdown filtering) | `ajv` in-browser, schema embedded at page load |
+| Form submission (POST) | UC + PC (merged JSON Schema) | Python `jsonschema` library, server-side |
+| Episode step resolution | Fragment precondition (FS), step sequencing (SQ) | Engine `resolve()` in-memory check |
+| Episode step completion | Lifecycle transition (LC) | Django model validation on save |
+| Campaign background task | Temporal deadline (TC), urgency tier update | Celery task or management command |
+| Future: triplestore | Cross-entity constraints (EC) | SPARQL rules over RDF graph |
+
+### Constraint ownership at a glance
+
+| Constraint | Who defines it | Who can change it | Change requires deployment? |
+|---|---|---|---|
+| UC | System architect / domain expert | PR to knowledge repo + reload | No (reload only) |
+| VM | Domain expert | PR to knowledge repo + reload | No (reload only) |
+| PC | Org admin | Django admin UI or org config page | No (DB write) |
+| SQ | Process designer | PR to knowledge repo + reload | No (reload only) |
+| FS | Process designer | PR to knowledge repo + reload | No (reload only) |
+| LC | System architect | PR to knowledge repo + code change | Yes |
+| AV | Org admin (role assignments) | Django admin UI | No (DB write) |
+| TC | Org admin (campaign dates) | Campaign edit UI | No (DB write) |
+| EC | System architect | Triplestore rule set (future) | No (rule reload, future) |

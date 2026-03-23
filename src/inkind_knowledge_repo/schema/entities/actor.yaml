@@ -1,0 +1,81 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/actor
+name: actor
+title: Actor Schema
+description: >-
+  A person interacting with the system — volunteer, staff member, or manager.
+  The `experience_level` informs fragment mode selection (guided vs expert).
+license: MIT
+see_also:
+  - http://xmlns.com/foaf/0.1/Person
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  foaf: http://xmlns.com/foaf/0.1/
+  org: http://www.w3.org/ns/org#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  Actor:
+    description: >-
+      A person interacting with the system — volunteer, staff, or manager.
+    slots:
+      - id
+      - org
+      - role
+      - experience_level
+      - is_active
+    see_also:
+      - foaf:Person
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+
+slots:
+
+  role:
+    range: ActorRoleEnum
+    required: true
+    description: The actor's role within the organisation.
+    see_also:
+      - org:Role
+
+  experience_level:
+    range: ExperienceLevelEnum
+    description: >-
+      Actor's experience level — informs whether the engine routes to guided
+      or expert fragment mode.
+
+enums:
+
+  ActorRoleEnum:
+    description: Valid actor roles within a SocialOrganisation.
+    permissible_values:
+      volunteer:
+        description: "Volunteer — routed to guided fragment mode by default."
+      staff:
+        description: "Staff member — routed to expert mode by default."
+      manager:
+        description: "Manager — access to reporting and configuration."
+      admin:
+        description: "Organisation administrator — full configuration access."
+
+  ExperienceLevelEnum:
+    description: Actor experience level for fragment mode selection.
+    permissible_values:
+      novice:
+        description: "Novice — additional guidance text shown."
+      experienced:
+        description: "Experienced — standard guidance."
+      expert:
+        description: "Expert — minimal guidance, fast-path mode."
+...

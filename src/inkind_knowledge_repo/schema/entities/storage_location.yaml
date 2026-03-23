@@ -1,0 +1,65 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/storage_location
+name: storage_location
+title: Storage Location Schema
+description: >-
+  A physical storage unit within an organisation's warehouse — a bin, shelf,
+  rack, or zone.  In the dynamic warehouse model (Phase 2+) physical location
+  becomes an optional annotation; `stock` collections are the primary
+  inventory organiser.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  StorageLocation:
+    description: >-
+      A physical storage unit within an organisation's warehouse.
+    slots:
+      - id
+      - org
+      - label
+      - parent
+      - capacity
+      - current_occupancy
+      - is_active
+      - category_affinity
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+      parent:
+        range: StorageLocation
+        required: false
+        description: >-
+          FK — for hierarchical storage (zone -> rack -> bin).  Null for
+          top-level locations.
+
+slots:
+
+  capacity:
+    range: integer
+    description: Maximum item count for this location.  Null = unlimited.
+
+  current_occupancy:
+    range: integer
+    required: true
+    description: >-
+      Current item count — derived from items linked to this location.
+
+  category_affinity:
+    range: CategoryEnum
+    description: >-
+      Preferred item category — informational hint, not enforced by the
+      engine.
+...

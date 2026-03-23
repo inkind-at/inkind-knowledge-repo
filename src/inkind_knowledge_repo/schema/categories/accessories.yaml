@@ -1,0 +1,160 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/accessories
+name: accessories
+title: Accessories Category Schema
+description: >-
+  Defines AccessoriesCategory mixin applied to AccessoriesItem.
+  Covers fashion and personal accessories: hats, scarves, gloves, belts,
+  bags, jewellery, sunglasses, watches, wallets.
+
+  COICOP alignment: Division 03.1 (clothing and footwear — COICOP groups
+  accessories with clothing; separated here for schema and UI clarity).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Fashion_accessory
+      http://www.productontology.org/id/Fashion_accessory
+    CPI ontology — see_also for subcategory terms
+      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+
+  Separation from ClothingItem (design rationale):
+    - No size dimension — accessories are not sized XS-XXL. A scarf is
+      not "medium"; a bag is not "adult female size S".
+    - No demographic→size value map — the clothing value map is entirely
+      irrelevant here.
+    - Clothing UC rules (underwear condition, adult underwear must be new)
+      do not apply to any accessory subcategory.
+    - Progressive disclosure: "clothing or accessory?" is a clean first
+      branch in the sorting UI — mixing them forces sorters to scan past
+      irrelevant subcategories.
+    - AccessoriesDemographicEnum uses a simpler age-only vocabulary
+      (baby/child/adult/all_ages) — gender is not a meaningful dimension
+      for most accessories at the sorting level.
+
+  Completeness tiers:
+    minimal:  subcategory, usage
+    standard: subcategory, usage, condition_grade
+    detailed: subcategory, demographic, material, usage, condition_grade
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Fashion_accessory
+  - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+  cpi: http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  AccessoriesCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for fashion and personal accessories.
+      Applied to AccessoriesItem via mixins: [AccessoriesCategory].
+      Deliberately simpler than ClothingCategory — no size dimension,
+      no demographic→size value map, simpler demographic vocabulary,
+      no underwear UC rules. See schema description above for full rationale.
+    see_also:
+      - http://www.productontology.org/id/Fashion_accessory
+    slots:
+      - subcategory
+      - demographic
+      - material
+      - condition_grade
+    slot_usage:
+      subcategory:
+        range: AccessoriesSubcategoryEnum
+        required: true
+      demographic:
+        range: AccessoriesDemographicEnum
+        required: false
+        description: >-
+          Optional age group. Not applicable to most accessories (bags,
+          jewellery, belts are generally adult by default). Use for clearly
+          age-targeted items: children's hats, baby mittens, baby carriers
+          (though carriers belong in BabyInfantItem).
+      material:
+        range: string
+        required: false
+        description: >-
+          Primary material (e.g. "leather", "wool", "cotton", "metal").
+          Free text — no controlled vocabulary at this stage.
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      completeness_minimal:  "subcategory, usage"
+      completeness_standard: "subcategory, usage, condition_grade"
+      completeness_detailed: "subcategory, demographic, material, usage, condition_grade"
+      coicop_division: "03.1"
+
+
+
+enums:
+
+  AccessoriesSubcategoryEnum:
+    description: >-
+      Fashion and personal accessories subcategories.
+      Deliberately separate from ClothingSubcategoryEnum to enable clean
+      progressive disclosure in the sorting UI.
+      Grounded in Product Types Ontology (pto:) terms.
+    permissible_values:
+      hats_headwear:
+        description: Hats, caps, beanies, headscarves, berets.
+        see_also: [pto:Hat]
+      scarves:
+        description: Scarves and shawls worn at neck or shoulders.
+        see_also: [pto:Scarf]
+      gloves_mittens:
+        description: Gloves and mittens (all ages).
+        see_also: [pto:Glove]
+      belts:
+        description: Belts, braces, and waist accessories.
+        see_also: [pto:Belt]
+      bags_luggage:
+        description: >-
+          Handbags, tote bags, backpacks, shoulder bags, wallets, purses,
+          clutch bags, small luggage items.
+        see_also: [pto:Bag]
+      jewellery:
+        description: Necklaces, bracelets, rings, earrings, brooches.
+        see_also: [pto:Jewellery]
+      sunglasses:
+        description: Sunglasses and fashion spectacle frames.
+        see_also: [pto:Sunglasses]
+      watches:
+        description: Wristwatches and pocket watches.
+        see_also: [pto:Watch]
+      other:
+        description: Accessories not fitting above subcategories.
+
+  AccessoriesDemographicEnum:
+    description: >-
+      Simplified age-group demographic for accessories. Gender split not
+      modelled — gender is not a meaningful dimension for most accessories
+      at the sorting level. This contrasts with DemographicEnum (clothing.yaml)
+      which carries adult_male/adult_female because clothing size systems
+      are gender-differentiated. Use only when the item clearly targets a
+      specific age group (e.g. children's hat, baby mittens).
+    permissible_values:
+      baby:
+        description: "Baby (0-24 months). e.g. baby hats, scratch mittens."
+      child:
+        description: "Child (2-14 years). e.g. children's hats, gloves."
+      adult:
+        description: "Adult. Default for most accessories when demographic matters."
+      all_ages:
+        description: "Suitable for all ages or demographic not applicable."

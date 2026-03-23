@@ -1,0 +1,261 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/furniture
+name: furniture
+title: Furniture Category Schema
+description: >-
+  Defines FurnitureCategory mixin applied to FurnitureItem.
+
+  COICOP alignment: Division 05.1 (furniture and furnishings).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Ontology grounding:
+    Product Types Ontology — pto:Furniture, pto:Chair, pto:Table, pto:Bed,
+    pto:Cabinet, pto:Wood
+      http://www.productontology.org/id/Furniture
+    schema.org — schema:material (first-class property on schema:Product,
+      superseding GoodRelations gr:qualitativeProductOrServiceProperty)
+      https://schema.org/material
+    schema.org — schema:SizeSpecification (dimensions)
+
+  Assessment model rationale:
+    Uses FurnitureAssessmentEnum (structured structural assessment) instead of
+    condition_grade (wear grade). Structural soundness is the primary safety
+    and redistribution signal for furniture — a scratched but solid chair is
+    redistributable; a visually clean but wobbly one is not. Wear grade
+    (like_new/good/fair/poor) does not capture this distinction adequately.
+
+    assessment_result required regardless of usage because:
+      - New flatpack furniture can have manufacturing defects (cracked panels,
+        defective cam locks, damaged veneer from transit)
+      - New donated furniture from corporate clearances may have assembly issues
+      Sorters must assess what they observe, not assume from the usage label.
+
+  Value-map subcategory → valid materials:
+    seating:       [wood, metal, plastic, fabric, mixed]
+    tables:        [wood, metal, plastic, glass, mixed]
+    beds:          [wood, metal, mixed]
+    storage_units: [wood, metal, plastic, mixed]
+    shelving:      [wood, metal, plastic, mixed]
+    other:         all materials valid
+
+  dimensions required_if: subcategory in [tables, beds]
+
+  Completeness tiers:
+    minimal:  subcategory, assessment_result, usage
+    standard: subcategory, material, assessment_result, usage
+    detailed: subcategory, material, assessment_result, dimensions, style, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Furniture
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+  schema: http://schema.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  FurnitureCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for furniture slots, value maps, and UC rules.
+      Applied to FurnitureItem via mixins: [FurnitureCategory].
+      Uses FurnitureAssessmentEnum instead of condition_grade — see schema
+      description above for the assessment model rationale.
+      assessment_result required regardless of usage.
+    see_also:
+      - http://www.productontology.org/id/Furniture
+    slots:
+      - subcategory
+      - material
+      - assessment_result
+      - dimensions
+      - style
+    slot_usage:
+      subcategory:
+        range: FurnitureSubcategoryEnum
+        required: true
+      material:
+        range: FurnitureMaterialEnum
+        required: false
+      assessment_result:
+        range: FurnitureAssessmentEnum
+        required: true
+        description: >-
+          Structural and quality assessment. Required regardless of usage —
+          new furniture can have manufacturing defects or assembly issues.
+    annotations:
+      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_standard: "subcategory, material, assessment_result, usage"
+      completeness_detailed: "subcategory, material, assessment_result, dimensions, style, usage"
+      coicop_division: "05.1"
+    rules:
+      - title: uc-furniture-compromised-block
+        description: >-
+          Items assessed as structurally_compromised must not be redistributed.
+          Applies to both new items (manufacturing defect) and used items.
+          action: block, suggest: disposal or repair referral.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: structurally_compromised
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-furniture-repairable-warn
+        description: >-
+          Items assessed as functional_with_repairs require sorter confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: functional_with_repairs
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-furniture-seating-beds-cosmetic-warn
+        description: >-
+          Seating and beds with significant cosmetic damage require sorter
+          confirmation. action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: seating
+                - equals_string: beds
+            assessment_result:
+              equals_string: significant_cosmetic_damage
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: vm-material-beds
+        description: >-
+          Beds accept structural materials only (wood, metal, mixed).
+          Fabric and plastic are not valid primary materials for beds.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: beds
+        postconditions:
+          slot_conditions:
+            material:
+              any_of:
+                - equals_string: wood
+                - equals_string: metal
+                - equals_string: mixed
+
+      - title: vm-material-tables
+        description: Tables do not use fabric as primary material.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: tables
+        postconditions:
+          slot_conditions:
+            material:
+              any_of:
+                - equals_string: wood
+                - equals_string: metal
+                - equals_string: plastic
+                - equals_string: glass
+                - equals_string: mixed
+
+
+slots:
+  dimensions:
+    range: string
+    description: >-
+      Physical dimensions in centimetres, e.g. "100*50*75 cm" (W*D*H).
+      Required for tables and beds to enable storage slot assignment and
+      demand signal matching.
+    see_also:
+      - schema:SizeSpecification
+    annotations:
+      required_if: "subcategory in [tables, beds]"
+
+  style:
+    range: string
+    description: >-
+      Style or design description (e.g. "Scandinavian", "Industrial",
+      "Rustic"). Free text. Optional — detailed completeness tier.
+      Supports demand signal matching for beneficiaries with style preferences.
+
+
+enums:
+
+  FurnitureAssessmentEnum:
+    description: >-
+      Structured assessment of furniture structural integrity and quality.
+      Replaces the boolean structural_integrity slot with a richer vocabulary
+      that distinguishes cosmetic damage from structural compromise.
+      Required at sorting regardless of usage — new items can have
+      manufacturing defects. See schema description for full rationale.
+    permissible_values:
+      structurally_sound:
+        description: >-
+          All load-bearing components intact; no cracks, wobbling, or unsafe
+          instability. Safe for redistribution without qualification.
+          Appropriate for new items with no observed defects.
+      minor_cosmetic_damage:
+        description: >-
+          Scratches, scuffs, minor surface damage. Structural integrity
+          unaffected. Fully redistributable.
+      significant_cosmetic_damage:
+        description: >-
+          Visible staining, discolouration, or notable surface damage.
+          Structurally sound but appearance significantly affected.
+          action: warn for seating/beds — sorting_notes required.
+      functional_with_repairs:
+        description: >-
+          Item is usable but benefits from minor repair before redistribution
+          (loose screw, wobbly leg, minor adjustment needed).
+          action: warn — sorting_notes required.
+      structurally_compromised:
+        description: >-
+          Load-bearing components cracked, broken, or unsafe. Must not be
+          redistributed. Applies to new items (manufacturing defect) and used.
+          action: block, suggest: disposal or repair referral.
+
+  FurnitureSubcategoryEnum:
+    description: Furniture subcategories. Grounded in Product Types Ontology.
+    permissible_values:
+      seating:       {description: "Chairs, sofas, armchairs, benches.", see_also: [pto:Chair]}
+      tables:        {description: "Dining tables, coffee tables, desks. dimensions required.", see_also: [pto:Table]}
+      beds:          {description: "Bed frames and divans. dimensions required.", see_also: [pto:Bed]}
+      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet]}
+      shelving:      {description: "Shelving units, bookcases, wall-mounted shelves."}
+      other:         {description: "Furniture not fitting above subcategories."}
+
+  FurnitureMaterialEnum:
+    description: >-
+      Primary furniture construction material. Grounded in schema:material
+      (schema.org property on schema:Product, superseding GoodRelations
+      gr:qualitativeProductOrServiceProperty). Valid values per subcategory
+      constrained by vm-material-* rules.
+    permissible_values:
+      wood:    {description: "Solid wood or wood-composite (MDF, plywood, chipboard).", see_also: [pto:Wood, schema:material]}
+      metal:   {description: "Metal frame (steel, aluminium, iron).", see_also: [schema:material]}
+      plastic: {description: "Plastic or synthetic polymer primary construction.", see_also: [schema:material]}
+      fabric:  {description: "Upholstered fabric (sofas, chairs). Not valid for tables or beds.", see_also: [schema:material]}
+      glass:   {description: "Glass panels or surface (glass-top tables). Not valid for beds.", see_also: [schema:material]}
+      mixed:   {description: "Mixed or composite materials.", see_also: [schema:material]}

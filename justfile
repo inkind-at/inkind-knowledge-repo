@@ -4,6 +4,9 @@
 # If it is not on path, provide the path to the executable in the following line.
 #set windows-shell := ["C:/Program Files/Git/usr/bin/sh", "-cu"]
 
+# On WIndows to fix encoding issues
+export PYTHONUTF8 := "1"
+
 # ============ Variables used in recipes ============
 
 # Load environment variables from config.public.mk or specified file
@@ -104,27 +107,29 @@ testdoc: gen-doc _serve
 # Generate the Python data models (dataclasses & pydantic)
 gen-python:
   uv run gen-project -d  {{pymodel}} -I python {{source_schema_path}}
-  uv run gen-pydantic {{gen_pydantic_args}} {{source_schema_path}} > {{pymodel}}/{{schema_name}}_pydantic.py
+  uv run python -c "from linkml.generators.pydanticgen import PydanticGenerator; open('{{pymodel}}/{{schema_name}}_pydantic.py', 'w', encoding='utf-8').write(PydanticGenerator('{{source_schema_path}}').serialize())"
 
 # Generate project files including Python data model
 [group('model development')]
 gen-project:
   uv run gen-project {{config_yaml}} -d {{dest}} {{source_schema_path}}
   mv {{dest}}/*.py {{pymodel}}
-  uv run gen-pydantic {{gen_pydantic_args}} {{source_schema_path}} > {{pymodel}}/{{schema_name}}_pydantic.py
+  #uv run gen-pydantic {{gen_pydantic_args}} {{source_schema_path}} > {{pymodel}}/{{schema_name}}_pydantic.py
+  # respect UTF8 on Windows
+  uv run python -c "from linkml.generators.pydanticgen import PydanticGenerator; open('{{pymodel}}/{{schema_name}}_pydantic.py', 'w', encoding='utf-8').write(PydanticGenerator('{{source_schema_path}}').serialize())"
 
-  @# Some generators ignore config_yaml or cannot create directories, so we run them separately.
-  uv run gen-java {{gen_java_args}} --output-directory {{dest}}/java/ {{source_schema_path}}
+#  @# Some generators ignore config_yaml or cannot create directories, so we run them separately.
+#  uv run gen-java {{gen_java_args}} --output-directory {{dest}}/java/ {{source_schema_path}}
 
-  @if [ ! -d "{{dest}}/typescript" ]; then \
-    mkdir -p {{dest}}/typescript ; \
-  fi
-  uv run gen-typescript {{gen_ts_args}} {{source_schema_path}} > {{dest}}/typescript/{{schema_name}}.ts
+#  @if [ ! -d "{{dest}}/typescript" ]; then \
+#    mkdir -p {{dest}}/typescript ; \
+#  fi
+#  uv run gen-typescript {{gen_ts_args}} {{source_schema_path}} > {{dest}}/typescript/{{schema_name}}.ts
 
-  @if [ ! -d "{{dest}}/owl" ]; then \
-    mkdir -p {{dest}}/owl ; \
-  fi
-  uv run gen-owl {{gen_owl_args}} {{source_schema_path}} > "{{dest}}/owl/{{schema_name}}.owl.ttl"
+#  @if [ ! -d "{{dest}}/owl" ]; then \
+#    mkdir -p {{dest}}/owl ; \
+#  fi
+#  uv run gen-owl {{gen_owl_args}} {{source_schema_path}} > "{{dest}}/owl/{{schema_name}}.owl.ttl"
 
 # ============== Migrations recipes for Copier ==============
 

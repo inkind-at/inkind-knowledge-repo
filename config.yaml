@@ -6,6 +6,15 @@
 # By default all generators are run. Specify here the ones to skip.
 excludes:
   - markdown
+  - owl
+  - excel
+  - graphql
+  - jsonld
+  - jsonldcontext
+  - proto
+  - shacl
+  - shex
+  - typescript
 
 # Alternatively only specify the generators to run
 # (comment out the above "excludes" section)

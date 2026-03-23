@@ -1,0 +1,663 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/core
+name: core
+title: inkind Core Domain Vocabulary
+description: >-
+  Core domain vocabulary for the inkind knowledge repository.
+  This is the foundational schema — imported first by inkind_knowledge_repo.yaml
+  and transitively by all entity and category schemas.
+
+  Contains:
+    - Cross-cutting operational slots (id, lifecycle_state, usage, timestamps, etc.)
+    - Core condition model (ItemUsageEnum, UsedConditionGradeEnum)
+    - Attribute completeness model (AttributeCompletenessEnum)
+    - Item lifecycle state machine (ItemLifecycleStateEnum)
+    - Category registry (CategoryEnum) — canonical list of all item types
+    - Deprecated legacy enum (ConditionEnum) retained for migration
+
+  ── Category taxonomy ────────────────────────────────────────────────────────
+
+  The category groupings are grounded in two authoritative external standards and one sector-specific taxonomy:
+
+  1. COICOP 2018 (Classification of Individual Consumption According to
+     Purpose, UN Statistics Division, endorsed March 2018):
+     https://unstats.un.org/unsd/classifications/unsdclassifications/
+     COICOP_2018_-_pre-edited_white_cover_version_-_2018-12-26.pdf
+     Used as the primary structural reference for how item types group
+     into domains. COICOP alignments per category value are documented
+     in CategoryEnum below.
+
+  2. UNHCR NFI (Non-Food Item) Core Relief Standards:
+     https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+     kind-non-food-item-distribution
+     Used to ensure the taxonomy covers items that social organisations
+     actually handle in practice, including items COICOP under-represents
+     because it is designed for household expenditure rather than in-kind
+     relief (e.g. blankets as a distinct top-level category rather than
+     a subcategory of household goods).
+
+  3. Open Eligibility taxonomy (Aunt Bertha / findhelp.org):
+     https://company.auntbertha.com/openeligibility/
+     A purpose-built taxonomy of goods and services provided by government
+     and charitable organisations. Used to validate that the category
+     vocabulary covers real social-sector use cases and to identify gaps
+     (baby supplies, assistive technology) that COICOP does not expose.
+
+  Key divergences from COICOP where domain practice takes precedence:
+    - bedding_textiles is a top-level category (COICOP 05.2) rather than
+      a subcategory of household — UNHCR NFI standards treat blankets and
+      sleeping mats as core relief items at the same priority as clothing.
+    - accessories is separate from clothing — COICOP groups them under
+      Division 03 but the sorting workflow and UI fragment differ.
+    - bicycles are in sports (domain convention) not transport (COICOP 07).
+    - baby_infant is a top-level category — Open Eligibility treats baby
+      supplies as a first-class goods category; COICOP distributes baby
+      items across clothing (03), household (05), and food (01).
+
+  ── Condition model (two orthogonal dimensions) ─────────────────
+
+  Grounded in schema:OfferItemCondition and schema:itemCondition:
+    https://schema.org/OfferItemCondition
+    GoodRelations (gr:condition) was absorbed into schema.org in 2012;
+    schema:itemCondition and schema:OfferItemCondition are the current equivalents.
+
+  Dimension 1 — usage (universal, on DonationItem base):
+    new | used — provenance only; independent of physical state.
+    Maps to schema:NewCondition / schema:UsedCondition.
+    A new item can be defective. A used item can be in excellent condition.
+    Assessment must always be performed regardless of usage.
+
+    Design decision: schema.org's OfferItemCondition hierarchy conflates
+    provenance (was it used?) with quality grade (how worn is it?). We
+    separate these into two orthogonal dimensions because:
+      - The redistribution decision for underwear depends on provenance
+        (used adult underwear → block) independently of wear grade.
+      - The assessment of a new cot with a cracked panel requires the same
+        structural assessment workflow as a used cot.
+
+  Dimension 2 — assessment (category-specific, two sub-types):
+
+    a) condition_grade (UsedConditionGradeEnum) — WEAR GRADE
+         Grounded in schema:LikeNewCondition, schema:DamagedCondition,
+         and schema:itemCondition. For categories where wear is the primary quality
+         signal: clothing, accessories, footwear, books, stationery,
+         household, toys, general sports equipment.
+         Applied regardless of usage (new items with defects graded accordingly).
+
+    b) assessment_result (category-specific enum) — STRUCTURED ASSESSMENT
+         For categories where wear grade is the wrong vocabulary and a
+         structured safety or hygiene checklist is needed:
+           FurnitureAssessmentEnum        — structural soundness
+           ElectronicsAssessmentEnum      — functional + cosmetic state
+           BeddingAssessmentEnum          — hygiene state
+           SportsProtectiveAssessmentEnum — safety for protective gear
+           MobilityAssessmentEnum         — structural + body-contact safety
+           BabyEquipmentAssessmentEnum    — provenance + structural safety
+         PersonalCareItem: neither — is_sealed + expiry_date are the
+           complete assessment (COICOP 12.1 personal care goods; hygiene
+           safety is binary: sealed/unsealed, expired/not expired).
+         FoodItem: neither — packaging_intact + expiry_date (FoodOn/COICOP 01).
+
+  ── Attribute completeness model ─────────────────────────────────────────────
+
+  attribute_completeness is set by the fragment engine on sorting step
+  completion. It is NOT derived from field presence at the schema level
+  and is NOT a lifecycle gate.
+
+  Design rationale: lifecycle_state = sorted means the sorting episode
+  completed (process fact). attribute_completeness records the data quality
+  outcome (data fact). These are orthogonal because:
+    - A label may be missing (size unknown) but the item is still sorted.
+    - A structural assessment may be inconclusive (specialist needed) but
+      the item is still routed to a hold state, not blocked from progressing.
+  The match engine reads attribute_completeness to calibrate which demand
+  signals an item can be matched against.
+
+license: MIT
+see_also:
+  - https://inkind-at.github.io/inkind-knowledge-repo
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+  - https://company.auntbertha.com/openeligibility/
+  - https://schema.org/OfferItemCondition
+  - http://purl.org/goodrelations/v1#condition
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  prov: http://www.w3.org/ns/prov#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+
+
+slots:
+
+  # ── Primary key ─────────────────────────────────────────────────────────────
+  id:
+    identifier: true
+    slot_uri: schema:identifier
+    range: uriorcurie
+    description: A unique identifier for the entity.
+
+  # ── Display ──────────────────────────────────────────────────────────────────
+  name:
+    slot_uri: schema:name
+    range: string
+    description: A human-readable name for a thing.
+
+  description:
+    slot_uri: schema:description
+    range: string
+    description: A human-readable description for a thing.
+
+  label:
+    range: string
+    required: true
+    description: Human-readable label for the entity.
+
+  # ── Organisation FK ──────────────────────────────────────────────────────────
+  org:
+    description: >-
+      Reference to the owning SocialOrganisation. Concrete range applied
+      via slot_usage in each class.
+    required: true
+
+  # ── Lifecycle state ──────────────────────────────────────────────────────────
+  lifecycle_state:
+    description: >-
+      Current lifecycle state of the entity. Concrete enum range applied
+      via slot_usage. Transitions enforced by Django model clean().
+    required: true
+
+  # ── Timestamps ───────────────────────────────────────────────────────────────
+  created_at:
+    range: datetime
+    required: true
+    description: Timestamp when the entity was created.
+
+  updated_at:
+    range: datetime
+    required: true
+    description: Timestamp when the entity record was last modified.
+
+  # ── Donation source FK ───────────────────────────────────────────────────────
+  donation_source:
+    slot_uri: inkind_knowledge_repo:donation_source
+    description: >-
+      Reference to the DonationSource — privacy boundary between item records
+      and donor identity. Concrete range applied via slot_usage.
+
+  # ── Status ───────────────────────────────────────────────────────────────────
+  is_active:
+    range: boolean
+    required: true
+    description: Whether this entity is currently active.
+
+  # ── Hierarchy ────────────────────────────────────────────────────────────────
+  parent:
+    description: >-
+      Parent entity reference for hierarchical structures.
+      Concrete range applied via slot_usage.
+
+  # ── Category (type-defining on DonationItem) ─────────────────────────────────
+  category:
+    range: CategoryEnum
+    required: true
+    slot_uri: schema:additionalType
+    description: >-
+      Type-defining slot on DonationItem. Value is the class URI of the
+      concrete subclass (e.g. inkind_knowledge_repo:ClothingItem).
+      linkml-validate, gen-json-schema, and gen-pydantic all use this slot
+      to dispatch to the correct subclass schema and valid slot set.
+      For other entities (DemandSignal, StorageLocation) the range is
+      overridden via slot_usage to CategoryEnum.
+
+  # ── Notes / sorting notes ────────────────────────────────────────────────────
+  notes:
+    range: string
+    description: Optional free-text notes.
+
+  sorting_notes:
+    range: string
+    description: >-
+      Free-text notes recorded by the sorter during sorting.
+      Required by UC warn rules to capture explicit sorter confirmation
+      (e.g. incomplete pair, body-contact item, inconclusive assessment).
+
+  # ── Material ──────────────────────────────────────────────────────────────────
+  material:
+    range: string
+    description: Primary material composition. Range overridden per class.
+
+  # ── Subcategory ───────────────────────────────────────────────────────────────
+  subcategory:
+    range: string
+    description: >-
+      Subcategory within the item type. Overridden via slot_usage in each
+      concrete DonationItem subclass to a category-specific enum.
+
+  # ── CONDITION DIMENSION 1: Provenance ────────────────────────────────────────
+  usage:
+    range: ItemUsageEnum
+    required: true
+    slot_uri: schema:itemCondition
+    description: >-
+      Provenance condition — was the item ever used before donation?
+      Orthogonal to condition_grade and assessment_result.
+      Maps to schema:NewCondition / schema:UsedCondition.
+      usage = new does NOT imply no defects — manufacturing defects are
+      possible and assessment must always be performed regardless of usage.
+    see_also:
+      - schema:OfferItemCondition
+      - schema:NewCondition
+      - schema:UsedCondition
+
+  # ── CONDITION DIMENSION 2a: Wear grade ───────────────────────────────────────
+  condition_grade:
+    range: UsedConditionGradeEnum
+    required: false
+    description: >-
+      Observed wear/quality grade at sorting time.
+      Grounded in schema:OfferItemCondition and schema:itemCondition.
+      Applied to wear-graded categories: clothing, accessories, footwear,
+      books, stationery, household, toys, general sports equipment.
+
+      Required at sorted state regardless of usage:
+        new item, no defects           → like_new
+        new item, manufacturing defect → fair or poor
+        used item, minimal wear        → like_new or good
+      Sorters record what they observe, not what the label says.
+
+      Categories using structured assessment_result enums instead (furniture,
+      electronics, bedding, protective sports gear, mobility aids, baby
+      equipment) do NOT declare this slot.
+    see_also:
+      - schema:OfferItemCondition
+      - schema:LikeNewCondition
+      - schema:DamagedCondition
+      - schema:itemCondition
+
+  # ── CONDITION DIMENSION 2b: Structured assessment ─────────────────────────
+  assessment_result:
+    range: string
+    required: false
+    description: >-
+      Category-specific structured assessment result. Range overridden to a
+      category-specific enum in each concrete mixin via slot_usage.
+      Used by categories that require a structured pass/fail or
+      hygiene/safety assessment instead of a wear grade: furniture,
+      electronics, bedding_textiles, mobility_aids, protective sports gear,
+      baby equipment (Tracks 1 & 2).
+      Required regardless of usage — new items can have manufacturing defects.
+    see_also:
+      - schema:OfferItemCondition
+
+  # ── Attribute completeness ────────────────────────────────────────────────────
+  attribute_completeness:
+    range: AttributeCompletenessEnum
+    required: false
+    description: >-
+      Data quality tier set by the fragment engine on sorting completion.
+      Not derived from field presence. Not a lifecycle gate.
+      Used by the match engine to filter candidates by data quality tier.
+      See AttributeCompletenessEnum for the relationship to lifecycle_state.
+      Set by: fragment_engine. Read by: match_engine.
+    # annotations:
+    #   set_by: "fragment_engine"
+    #   read_by: "match_engine"
+
+
+enums:
+
+  # ── Condition model ───────────────────────────────────────────────────────────
+
+  ItemUsageEnum:
+    description: >-
+      Provenance — was the item ever used before donation?
+      Orthogonal to assessment. new does NOT imply no defects.
+      Grounds the top-level split in schema:OfferItemCondition.
+    see_also:
+      - schema:OfferItemCondition
+      - schema:NewCondition
+      - schema:UsedCondition
+    permissible_values:
+      new:
+        description: >-
+          Never used before donation. Does NOT imply defect-free —
+          manufacturing defects or transit damage are possible.
+          Assessment must still be performed.
+        meaning: schema:NewCondition
+      used:
+        description: >-
+          Previously used before donation. Assessment required.
+        meaning: schema:UsedCondition
+
+  UsedConditionGradeEnum:
+    description: >-
+      Observed wear/quality grade at sorting time. For wear-graded categories.
+      Grounds schema:OfferItemCondition sub-values and schema:itemCondition.
+      Applied regardless of usage — a new item with a defect is graded fair
+      or poor, not assumed like_new. Sorters record what they observe.
+    see_also:
+      - schema:OfferItemCondition
+      - schema:LikeNewCondition
+      - schema:DamagedCondition
+      - schema:itemCondition
+    permissible_values:
+      like_new:
+        description: >-
+          No visible wear or defects. As-new appearance and function.
+          Appropriate for new items with no observed defects, or used items
+          showing no signs of wear.
+        meaning: schema:LikeNewCondition
+      good:
+        description: >-
+          Minor wear; fully functional; no significant defects.
+          Most common grade for used items in acceptable condition.
+        see_also:
+          - schema:itemCondition
+      fair:
+        description: >-
+          Visible wear, minor defects, or manufacturing issues.
+          Still suitable for redistribution with appropriate beneficiary matching.
+      poor:
+        description: >-
+          Significant wear or defects. Redistribution subject to
+          category-specific UC rules — some categories block, others warn
+          and require explicit sorter confirmation.
+        meaning: schema:DamagedCondition
+
+  # ── Attribute completeness ────────────────────────────────────────────────────
+
+  AttributeCompletenessEnum:
+    description: >-
+      Data quality tier for a DonationItem's category-specific attributes.
+      Set by the fragment engine on sorting step completion — not derived
+      from field presence at the schema level.
+
+      Design rationale:
+        lifecycle_state = sorted means the sorting episode completed (process
+        fact). attribute_completeness records the data quality outcome (data
+        fact). These are orthogonal:
+          - A size label may be missing → item sorted with minimal completeness
+          - A structural assessment may be inconclusive → item sorted but routed
+            to a hold state, not blocked from progressing in the lifecycle
+        The match engine reads attribute_completeness to calibrate which demand
+        signals an item can be matched against.
+
+      Each category mixin declares field sets for each tier via annotations:
+        completeness_minimal:  mandatory fields — must be present at sorted state
+        completeness_standard: standard fields — normal redistribution
+        completeness_detailed: optional fields — improve match quality
+      The fragment compiler reads these annotations to configure the sorting UI.
+    permissible_values:
+      minimal:
+        description: >-
+          Only mandatory fields recorded. Matches broad demand signals only
+          (e.g. "any adult clothing"). Typical cause: missing labels,
+          inconclusive assessment, rapid triage under time pressure.
+      standard:
+        description: >-
+          All standard fields recorded. Normal redistribution path.
+          Matches the majority of demand signals.
+      detailed:
+        description: >-
+          All optional fields also recorded (colour, style, intact labels, etc.).
+          Maximum match quality. Enables fine-grained demand signal matching.
+
+  # ── Item lifecycle ────────────────────────────────────────────────────────────
+
+  ItemLifecycleStateEnum:
+    description: >-
+      Lifecycle states for a DonationItem. Ordered; transitions enforced by
+      Django model clean(). The fragment engine drives the sorted transition
+      on sorting episode completion; attribute_completeness is set at the
+      same time.
+
+      Design rationale for explicit lifecycle states:
+        States are enforced by the model (illegal transitions raise validation
+        errors). The fragment engine reads lifecycle_state to determine which
+        fragment is valid. This replaces implicit UI-flow sequencing with
+        explicit data-level sequencing — which is the prerequisite for
+        multi-org configuration and concurrent access control.
+        No state machine library is needed: a status field with transition
+        validation in the model layer is sufficient.
+
+      sorted and attribute_completeness are ORTHOGONAL:
+        sorted    = the sorting episode completed (process fact)
+        minimal   = episode done but limited data captured, e.g. label missing
+        An item is always sorted when the episode completes — attribute_completeness
+        records how much was captured, not whether the episode was complete.
+
+      Transitions:
+        announced           → received            (item physically arrives)
+        received            → sorting_in_progress (sort episode launched)
+        sorting_in_progress → sorted              (sort episode completed;
+                                                   attribute_completeness set)
+        sorted              → stored              (storage assignment made)
+        sorted              → disposed            (unsuitable; Phase 2)
+        stored              → distributed         (given to beneficiary; Phase 2)
+        stored              → shared              (transferred to org; Phase 2)
+        stored              → disposed            (culled from stock; Phase 2)
+    permissible_values:
+      announced:
+        description: >-
+          Donor indicated intent to donate; item not yet physically present.
+          Optional state — used when pre-registration is supported.
+      received:
+        description: >-
+          Item physically arrived and registered against a DonationCollection.
+          usage must be set at this point. Category-specific assessment
+          slots are absent — they are populated during sorting.
+      sorting_in_progress:
+        description: >-
+          Active sorting episode in progress. Fragment engine sets this on
+          episode launch to prevent concurrent editing of the same item.
+      sorted:
+        description: >-
+          Sorting episode completed. Assessment and category attributes
+          recorded. attribute_completeness set by the fragment engine.
+          Item is ready for storage assignment.
+      stored:
+        description: >-
+          Item assigned to a physical StorageLocation.
+          storage_unit FK is set at this transition.
+      disposed:
+        description: >-
+          Item deemed unsuitable for redistribution and disposed of.
+          Terminal state. (Phase 2 stub — declared now for schema completeness.)
+      distributed:
+        description: >-
+          Item given to a beneficiary. Terminal state. (Phase 2 stub.)
+      shared:
+        description: >-
+          Item transferred to another organisation via the Share workflow.
+          Terminal state. (Phase 2 stub.)
+
+  # ── Category registry ─────────────────────────────────────────────────────────
+
+  CategoryEnum:
+    description: >-
+      Canonical registry of all donation item categories. Mirrors the
+      DonationItem subclass URI hierarchy for use in non-item entities:
+      DemandSignal.category, StorageLocation.category_affinity, etc.
+
+      DonationItem itself uses designates_type on the category slot;
+      this enum is for other entities that reference categories by value.
+
+      Grouping is aligned with COICOP 2018 divisions where applicable,
+      with deviations documented per value:
+        Apparel    → COICOP Division 03 (clothing and footwear)
+        Home       → COICOP Division 05 (housing, household goods)
+        Technology → COICOP Division 09 (recreation and culture)
+        Learning   → COICOP Division 09 (recreation and culture)
+        Care       → COICOP Divisions 06 (health) and 12 (personal care)
+        Life stage → COICOP Divisions 01 (food) and 03/05 (baby items)
+    see_also:
+      - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+      - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+      - https://company.auntbertha.com/openeligibility/
+    permissible_values:
+      # ── Apparel (COICOP Division 03) ─────────────────────────────────────────
+      ClothingItem:
+        description: >-
+          Clothing garments: tops, bottoms, outerwear, underwear, nightwear,
+          sportswear → ClothingItem. COICOP 03.1.
+          Separated from accessories because the demographic→size value map
+          and UC rules (underwear condition) do not apply to accessories.
+        meaning: inkind_knowledge_repo:ClothingItem
+        see_also:
+          - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+      AccessoriesItem:
+        description: >-
+          Fashion accessories: hats, bags, jewellery, scarves, gloves, belts
+          → AccessoriesItem. COICOP 03.1 (grouped with clothing by COICOP;
+          separated here for progressive UI disclosure and schema clarity —
+          no size dimension, simpler demographic vocabulary).
+        meaning: inkind_knowledge_repo:AccessoriesItem
+        see_also:
+          - http://www.productontology.org/id/Fashion_accessory
+      FootwearItem:
+        description: >-
+          Shoes, boots, sandals, slippers → FootwearItem. COICOP 03.2.
+          Separated from clothing because shoe sizing systems (EU/UK/US/CM)
+          differ from clothing sizes and pair-completeness is footwear-specific.
+        meaning: inkind_knowledge_repo:FootwearItem
+        see_also:
+          - http://www.productontology.org/id/Footwear
+      # ── Home (COICOP Division 05) ─────────────────────────────────────────────
+      FurnitureItem:
+        description: >-
+          Structural furniture: chairs, tables, beds, wardrobes → FurnitureItem.
+          COICOP 05.1 (furniture and furnishings).
+        meaning: inkind_knowledge_repo:FurnitureItem
+        see_also:
+          - http://www.productontology.org/id/Furniture
+      BeddingTextilesItem:
+        description: >-
+          Blankets, duvets, mattresses, pillows, towels, curtains
+          → BeddingTextilesItem. COICOP 05.2 (household textiles).
+          Separated from household following COICOP 05.2 and UNHCR NFI kit
+          standards, which list blankets and sleeping mats as core relief
+          items at the same priority level as clothing.
+        meaning: inkind_knowledge_repo:BeddingTextilesItem
+        see_also:
+          - http://www.productontology.org/id/Bedding
+          - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+      HouseholdItem:
+        description: >-
+          Cookware, crockery, small appliances, home decor → HouseholdItem.
+          COICOP 05.3 (household appliances), 05.4 (glassware/tableware/utensils),
+          05.5 (tools for house and garden).
+        meaning: inkind_knowledge_repo:HouseholdItem
+        see_also:
+          - http://www.productontology.org/id/Household_goods
+      # ── Technology (COICOP Division 09) ──────────────────────────────────────
+      ElectronicsItem:
+        description: >-
+          Consumer electronics: phones, laptops, cameras, gaming
+          → ElectronicsItem. COICOP 09.1 (audio-visual equipment) and 09.2.
+        meaning: inkind_knowledge_repo:ElectronicsItem
+        see_also:
+          - http://www.productontology.org/id/Consumer_electronics
+      ToysItem:
+        description: >-
+          Toys and games → ToysItem. COICOP 09.3 (games, toys, hobbies).
+          Age-grading follows EU Toy Safety Directive 2009/48/EC.
+        meaning: inkind_knowledge_repo:ToysItem
+        see_also:
+          - http://www.productontology.org/id/Toy
+      SportsItem:
+        description: >-
+          Sports and fitness equipment → SportsItem. COICOP 09.4 (sport
+          and recreational equipment). Note: bicycles are placed here by
+          domain convention; COICOP assigns them to Division 07 (Transport).
+        meaning: inkind_knowledge_repo:SportsItem
+        see_also:
+          - http://www.productontology.org/id/Sporting_goods
+      # ── Learning (COICOP Division 09) ────────────────────────────────────────
+      BooksItem:
+        description: >-
+          Books and educational materials → BooksItem. COICOP 09.5
+          (newspapers, books, stationery).
+        meaning: inkind_knowledge_repo:BooksItem
+        see_also:
+          - http://schema.org/Book
+      StationeryItem:
+        description: >-
+          Pens, notebooks, art supplies, office equipment → StationeryItem.
+          COICOP 09.5 (newspapers, books, stationery). Separated from books
+          because published content (BooksItem) and consumable/office supplies
+          have different sorting paths, condition vocabularies, and demand signals.
+        meaning: inkind_knowledge_repo:StationeryItem
+        see_also:
+          - http://www.productontology.org/id/Stationery
+      # ── Care (COICOP Divisions 06 + 12) ──────────────────────────────────────
+      PersonalCareItem:
+        description: >-
+          Personal hygiene, health, and beauty products → PersonalCareItem.
+          Merges COICOP 06.1 (medical products and appliances) and 12.1
+          (personal care). Merged because the operative safety rules are
+          identical across both: sealed required, used tools blocked, expiry
+          enforced. Open Eligibility uses a single "Personal Care Items" node.
+        meaning: inkind_knowledge_repo:PersonalCareItem
+        see_also:
+          - http://www.productontology.org/id/Personal_hygiene
+          - http://www.productontology.org/id/Cosmetics
+          - https://company.auntbertha.com/openeligibility/
+      MobilityAidsItem:
+        description: >-
+          Wheelchairs, crutches, hearing aids, assistive devices
+          → MobilityAidsItem. COICOP 06.1.3 (other medical products) and 06.2
+          (outpatient services, durable medical equipment). Open Eligibility
+          "Assistive Technology" top-level category.
+        meaning: inkind_knowledge_repo:MobilityAidsItem
+        see_also:
+          - http://www.productontology.org/id/Assistive_technology
+          - https://company.auntbertha.com/openeligibility/
+      # ── Life stage ────────────────────────────────────────────────────────────
+      BabyInfantItem:
+        description: >-
+          Pushchairs, cots, car seats, infant formula, feeding equipment
+          → BabyInfantItem. COICOP distributes baby items across 03 (clothing),
+          05 (household), and 01 (food). Treated as a first-class top-level
+          category here following Open Eligibility "Baby Supplies" and UNHCR
+          NFI kit practice (nappies and formula are core NFI kit items).
+        meaning: inkind_knowledge_repo:BabyInfantItem
+        see_also:
+          - https://company.auntbertha.com/openeligibility/
+          - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+      FoodItem:
+        description: >-
+          Food items → FoodItem. COICOP Division 01 (food and non-alcoholic
+          beverages). Phase 1 stub — activated when food-bank organisations
+          are onboarded. Grounded in FoodOn (OBO Foundry).
+        meaning: inkind_knowledge_repo:FoodItem
+        see_also:
+          - http://purl.obolibrary.org/obo/foodon.owl
+      # ── Catch-all ────────────────────────────────────────────────────────────
+      OtherItem:
+        description: >-
+          Items not fitting any other category → OtherItem. No COICOP alignment.
+          Use sparingly — if a type appears frequently, add a proper subclass.
+        meaning: inkind_knowledge_repo:OtherItem
+
+  # ── DEPRECATED ────────────────────────────────────────────────────────────────
+
+  ConditionEnum:
+    deprecated: >-
+      Replaced by ItemUsageEnum (usage slot) + UsedConditionGradeEnum
+      (condition_grade slot) + category-specific assessment enums.
+      Retained for migration compatibility only. Remove after all
+      references are updated to the new condition model.
+    description: DEPRECATED. Use usage + condition_grade instead.
+    permissible_values:
+      new:  {meaning: schema:NewCondition}
+      good: {meaning: schema:UsedCondition}
+      fair: {meaning: schema:UsedCondition}
+      poor: {meaning: schema:DamagedCondition}

@@ -1,6 +1,6 @@
 # Example data for inkind_knowledge_repo
 
-This folder contains example data for testing and demonstrating the datamodel`
+This folder contains example data for testing and demonstrating the datamodel
 sorted in subfolders:
 
 - `valid` for data conforming to the datamodel. Used to verify the datamodel.
@@ -12,3 +12,7 @@ The filenames of all example data must conform to the scheme `classname-###.yaml
 where classname must be a the name of a class from the schema. "###" can be a number
 or one or more other characters allowed in filenames. The classname is derived by
 splitting at the first "-" and taking the part before the "-".
+
+Current examples:
+- Valid: DonationItem-001.yaml, DonationCollection-001.yaml, DemandSignal-001.yaml
+- Invalid: DonationItem-002.yaml (invalid enum), DonationItem-003.yaml (missing required), DonationCollection-002.yaml (invalid enum)

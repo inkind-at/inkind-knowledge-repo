@@ -1,0 +1,132 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/donation_collection
+name: donation_collection
+title: Donation Collection Schema
+description: >-
+  A general-purpose grouping of items with optional recursive parent-child
+  structure.  Phase 1 uses the `arrival` type only (direct replacement for
+  DonationBatch).  The full recursive model is declared now to avoid a future
+  data migration when Phase 2 working/sorted/stock collection types are
+  activated.
+license: MIT
+see_also:
+  - https://ceon.org/
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  ceon: https://ceon.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  DonationCollection:
+    description: >-
+      A general-purpose grouping of items with optional recursive parent-child
+      structure.  Replaces the flat DonationBatch model.
+    slots:
+      - id
+      - org
+      - collection_type
+      - label
+      - parent
+      - donation_source
+      - lifecycle_state
+      - item_count
+      - total_item_count
+      - created_at
+      - created_by
+      - notes
+    see_also:
+      - ceon:Resource
+    slot_usage:
+      org:
+        range: SocialOrganisation
+        required: true
+      lifecycle_state:
+        range: CollectionLifecycleEnum
+        required: true
+      donation_source:
+        range: DonationSource
+        required: false
+      parent:
+        range: DonationCollection
+        required: false
+        description: >-
+          FK — null for arrival collections (root); set for all derived
+          child collections.
+
+slots:
+
+  collection_type:
+    range: CollectionTypeEnum
+    required: true
+    description: >-
+      Operational type of this collection.  Phase 1: `arrival` only.
+      Phase 2+: working, sorted, stock, campaign, disposed.
+
+  item_count:
+    range: integer
+    required: true
+    description: Count of items directly registered to this collection.
+
+  total_item_count:
+    range: integer
+    required: true
+    description: >-
+      Derived count — items in this collection plus all descendant
+      collections (computed by the engine).
+
+  created_by:
+    range: Actor
+    required: true
+    description: "FK — the Actor who created this collection."
+
+enums:
+
+  CollectionTypeEnum:
+    description: Operational type of a DonationCollection.
+    permissible_values:
+      arrival:
+        description: >-
+          Root collection created when a donation arrives.  Replaces
+          DonationBatch.  Phase 1 only type in active use.
+      working:
+        description: >-
+          Temporary intermediate collection during a multi-stage sort pass.
+          Phase 2 stub.
+      sorted:
+        description: >-
+          Stable grouping after a sort stage completes.  Phase 2 stub.
+      stock:
+        description: >-
+          Named standing collection ready for distribution.  Maps to
+          DemandSignal of type `standing`.  Phase 2 stub.
+        see_also:
+          - ceon:CircularValueNetwork
+      campaign:
+        description: >-
+          Collection assembled for a specific Campaign entity.  Phase 2 stub.
+      disposed:
+        description: >-
+          Items culled during sorting — auditable at collection level.
+          Phase 2 stub.
+
+  CollectionLifecycleEnum:
+    description: Lifecycle states for a DonationCollection.
+    permissible_values:
+      open:
+        description: Collection is open for item registration or operations.
+      processing:
+        description: Items are actively being registered or processed.
+      closed:
+        description: All processing complete; collection is closed.
+      archived:
+        description: Collection has been archived for record-keeping.
+...

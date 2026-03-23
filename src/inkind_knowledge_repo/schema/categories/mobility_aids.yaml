@@ -1,0 +1,213 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/mobility_aids
+name: mobility_aids
+title: Mobility Aids & Assistive Devices Category Schema
+description: >-
+  Defines MobilityAidsCategory mixin applied to MobilityAidsItem.
+
+  COICOP alignment:
+    Division 06.1.3 — other medical products (assistive devices, orthotic
+    appliances, medical equipment for home use)
+    Division 06.2 — outpatient services (durable medical equipment)
+    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  Open Eligibility taxonomy:
+    "Assistive Technology" — a top-level goods category distinct from
+    general medical supplies:
+    https://company.auntbertha.com/openeligibility/
+
+  Ontology grounding:
+    Product Types Ontology — pto:Assistive_technology, pto:Wheelchair,
+    pto:Crutch, pto:Walking_frame, pto:Hearing_aid, pto:Orthopedic_equipment,
+    pto:Augmentative_and_alternative_communication
+      http://www.productontology.org/id/Assistive_technology
+
+  Assessment model rationale:
+    Uses MobilityAssessmentEnum (structured safety and hygiene assessment)
+    instead of separate boolean structural_integrity + functional_status slots.
+    Rationale:
+      - Structural soundness is safety-critical (wheelchairs, crutches must
+        not fail under load)
+      - Body-contact items (hearing aids, orthotics) require hygiene
+        assessment independent of structural soundness
+      - A single unified enum captures all three dimensions (structural,
+        functional, hygiene) without requiring the sorter to navigate
+        multiple boolean fields
+      - The former annotation-driven approach (structural_check_subcategories)
+        was opaque to linkml-validate and the fragment compiler
+
+    assessment_result required regardless of usage because new mobility aids
+    can have manufacturing defects — a new wheelchair with a defective wheel
+    lock is dangerous regardless of never having been used.
+
+  Completeness tiers:
+    minimal:  subcategory, assessment_result, usage
+    standard: subcategory, assessment_result, usage
+    detailed: subcategory, assessment_result, usage
+
+license: MIT
+see_also:
+  - http://www.productontology.org/id/Assistive_technology
+  - https://company.auntbertha.com/openeligibility/
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pto: http://www.productontology.org/id/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ./_base
+
+
+classes:
+
+  MobilityAidsCategory:
+    mixin: true
+    is_a: CategoryMixin
+    description: >-
+      Mixin for mobility aids and assistive device slots and UC rules.
+      Applied to MobilityAidsItem via mixins: [MobilityAidsCategory].
+      Uses MobilityAssessmentEnum — see schema description for rationale.
+      assessment_result required regardless of usage.
+    see_also:
+      - http://www.productontology.org/id/Assistive_technology
+      - https://company.auntbertha.com/openeligibility/
+    slots:
+      - subcategory
+      - assessment_result
+    slot_usage:
+      subcategory:
+        range: MobilityAidsSubcategoryEnum
+        required: true
+      assessment_result:
+        range: MobilityAssessmentEnum
+        required: true
+        description: >-
+          Safety and hygiene assessment. Required regardless of usage —
+          new mobility aids can have manufacturing defects.
+    annotations:
+      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_standard: "subcategory, assessment_result, usage"
+      completeness_detailed: "subcategory, assessment_result, usage"
+      coicop_divisions: "06.1.3, 06.2"
+      open_eligibility_category: "Assistive Technology"
+    rules:
+      - title: uc-mobility-compromised-block
+        description: >-
+          Structurally compromised items must not be redistributed.
+          Safety-critical — applies to new (manufacturing defect) and used items.
+          action: block, suggest: disposal or specialist repair referral.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: structurally_compromised
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-mobility-specialist-required-block
+        description: >-
+          Items requiring specialist assessment must not enter general
+          redistribution. Flag for specialist organisation referral.
+          action: block from normal redistribution path.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: specialist_referral_required
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-mobility-safe-after-cleaning-warn
+        description: >-
+          Body-contact items (hearing aids, orthotics) requiring cleaning
+          before redistribution need sorter confirmation.
+          action: warn — sorting_notes required documenting cleaning recommendation.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: safe_after_cleaning
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+      - title: uc-mobility-non-functional-warn
+        description: >-
+          Non-functional powered devices require sorter confirmation.
+          action: warn — sorting_notes required.
+        preconditions:
+          slot_conditions:
+            assessment_result:
+              equals_string: non_functional
+        postconditions:
+          slot_conditions:
+            sorting_notes:
+              required: true
+
+
+enums:
+
+  MobilityAssessmentEnum:
+    description: >-
+      Structured safety and hygiene assessment for mobility aids and assistive
+      devices. Unified vocabulary covering structural soundness, functional
+      state, and body-contact hygiene. Replaces former separate boolean
+      structural_integrity + functional_status slots.
+      Required at sorting regardless of usage.
+    permissible_values:
+      safe_to_redistribute:
+        description: >-
+          Structurally sound, fully functional (if powered), and clean.
+          No hygiene concerns for body-contact items. Ready for redistribution.
+          Appropriate for new items with no observed defects.
+      safe_cosmetic_wear_only:
+        description: >-
+          Minor cosmetic wear but structurally sound and fully functional.
+          Safe to redistribute.
+      safe_after_cleaning:
+        description: >-
+          Body-contact item (hearing aid, orthotic) that is structurally sound
+          but requires professional cleaning before redistribution.
+          action: warn — sorting_notes required.
+      non_functional:
+        description: >-
+          Powered device does not operate as expected. Consider repair referral.
+          action: warn — sorting_notes required.
+      structurally_compromised:
+        description: >-
+          Load-bearing or structural components unsafe. Applies regardless of usage.
+          action: block, suggest: disposal or specialist repair referral.
+      specialist_referral_required:
+        description: >-
+          Cannot be assessed by a general sorter — specialist evaluation required
+          (prosthetics, complex orthotics, specialised communication devices).
+          action: block from normal redistribution; flag for specialist organisation.
+
+  MobilityAidsSubcategoryEnum:
+    description: >-
+      Mobility aids and assistive devices subcategories.
+      Grounded in Product Types Ontology and Open Eligibility taxonomy.
+    permissible_values:
+      wheelchairs:          {description: "Manual and powered wheelchairs. Structural + functional assessment required.", see_also: [pto:Wheelchair]}
+      crutches:             {description: "Axillary and forearm crutches, walking sticks. Structural assessment.", see_also: [pto:Crutch]}
+      walking_frames:       {description: "Walking frames, Zimmer frames, wheeled walkers, rollators.", see_also: [pto:Walking_frame]}
+      mobility_scooters:    {description: "Electric mobility scooters. Full functional + structural assessment."}
+      hearing_aids:         {description: "In-ear and behind-ear hearing aids. Body-contact — safe_after_cleaning minimum.", see_also: [pto:Hearing_aid]}
+      visual_aids:          {description: "Reading glasses (non-prescription), magnifiers, white canes."}
+      orthotics:            {description: "Splints, braces, supports. Body-contact assessment applies.", see_also: [pto:Orthopedic_equipment]}
+      prosthetics:          {description: "Prosthetic limbs. Specialist referral required."}
+      daily_living_aids:    {description: "Grab rails, bath seats, reachers, adapted cutlery.", see_also: [pto:Assistive_technology]}
+      communication_devices: {description: "AAC devices, talking clocks, large-button phones. Functional assessment required.", see_also: [pto:Augmentative_and_alternative_communication]}
+      other:                {description: Mobility aids and assistive devices not fitting above subcategories.}

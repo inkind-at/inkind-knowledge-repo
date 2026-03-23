@@ -1,0 +1,7 @@
+id: urn:uuid:missing123-4567-4567-4567-missing123456789
+category: clothing
+condition: used
+# Missing required lifecycle_state
+source_collection: urn:uuid:87654321-4321-4321-4321-cba987654321
+created_at: 2026-03-22T10:00:00Z
+updated_at: 2026-03-22T10:00:00Z

@@ -1,0 +1,11 @@
+id: urn:uuid:87654321-4321-4321-4321-cba987654321
+org: urn:uuid:org123-4567-4567-4567-org123456789
+collection_type: arrival
+label: Winter clothing arrival Nov 2026
+donation_source: urn:uuid:abcdef12-3456-3456-3456-abcdef123456
+lifecycle_state: open
+item_count: 50
+total_item_count: 50
+created_at: "2026-03-22T09:00:00Z"
+created_by: urn:uuid:user123-4567-4567-4567-user123456789
+notes: Bulk donation from local community center

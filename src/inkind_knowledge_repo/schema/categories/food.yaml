@@ -1,0 +1,326 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/food
+name: food
+title: Food Category Schema
+description: >-
+  Defines FoodCategory mixin applied to FoodItem.
+
+  COICOP alignment: Division 01 (food and non-alcoholic beverages).
+  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+  UNHCR NFI Core Relief Standards:
+  Food is explicitly excluded from the NFI category by definition (NFI =
+  non-food items), but UNHCR documentation consistently lists food as a
+  parallel core relief stream alongside NFIs:
+  https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+
+  Open Eligibility taxonomy:
+  "Food" is a top-level category parallel to "Goods":
+  https://company.auntbertha.com/openeligibility/
+
+  Ontology grounding:
+    FoodOn (OBO Foundry food ontology) — the authoritative reference for food
+    product classification:
+      http://purl.obolibrary.org/obo/foodon.owl
+    Class URIs used: foodon:00001006 (food), foodon:00001017 (food product),
+    foodon:00001043 (packaging), foodon:00001256 (dry goods), foodon:00002403
+    (canned goods), foodon:00001015 (fresh produce), foodon:00001180 (dairy),
+    foodon:00002253 (frozen), foodon:00001062 (beverages), foodon:00002640
+    (baby food), foodon:00001139 (condiments).
+
+  Phase 1 status:
+    FoodItem is a Phase 1 stub — fully declared to establish the schema.
+    The sort_food process path and associated fragment bindings are activated
+    when food-bank organisations are onboarded. Declaring now prevents a
+    future data migration.
+
+  Assessment model:
+    FoodCategory uses NEITHER condition_grade NOR assessment_result.
+    The complete assessment vocabulary is packaging_intact + expiry_date.
+    Rationale: food safety assessment is binary —
+      packaging intact?  → yes (redistributable) / no (block if perishable)
+      within expiry?     → yes (redistributable) / no (block)
+    A wear grade is meaningless for a tin of beans. A structured assessment
+    enum would duplicate packaging_intact.
+    This is the same pattern as PersonalCareCategory (is_sealed + expiry_date).
+
+    FoodCategory does NOT extend CategoryMixin for this reason — CategoryMixin
+    would pull in slots (notes, material) and imply condition model support
+    that is semantically incorrect for food items.
+
+  Value-map food_type → valid storage_requirement:
+    dry_goods:    [ambient, dry_cool]
+    canned_goods: [ambient]
+    fresh_produce:[refrigerated, ambient]
+    dairy:        [refrigerated, frozen]
+    frozen:       [frozen]
+    beverages:    [ambient, refrigerated]
+    baby_food:    [ambient, refrigerated]
+    condiments:   [ambient, refrigerated]
+    other:        [ambient, refrigerated, frozen, dry_cool]
+
+  UC constraints:
+    uc-expiry-date-past-block        — runtime; expiry_date < today → block
+    uc-packaging-perishable-block    — packaging_intact=false + perishable → block
+
+  Completeness tiers:
+    minimal:  food_type, packaging_intact, usage
+    standard: food_type, packaging_intact, storage_requirement, usage
+    detailed: food_type, packaging_intact, storage_requirement,
+              expiry_date, quantity, usage
+
+license: MIT
+see_also:
+  - http://purl.obolibrary.org/obo/foodon.owl
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+  - https://company.auntbertha.com/openeligibility/
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  foodon: http://purl.obolibrary.org/obo/FOODON_
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+
+classes:
+
+  FoodCategory:
+    mixin: true
+    # Intentionally does NOT extend CategoryMixin.
+    # FoodCategory has no condition_grade or assessment_result — food safety
+    # uses packaging_intact + expiry_date. CategoryMixin would pull in slots
+    # (notes, material) semantically incorrect for food items. See schema
+    # description for full rationale.
+    description: >-
+      Mixin for food-specific slots, value maps, and UC rules.
+      Applied to FoodItem via mixins: [FoodCategory].
+      Grounded in FoodOn (OBO Foundry): http://purl.obolibrary.org/obo/foodon.owl
+      Does not extend CategoryMixin — see schema description for rationale.
+      Phase 1 stub — sort_food process path activated on food-bank onboarding.
+    see_also:
+      - foodon:00001006
+      - http://purl.obolibrary.org/obo/foodon.owl
+    slots:
+      - food_type
+      - expiry_date
+      - packaging_intact
+      - storage_requirement
+      - quantity
+    slot_usage:
+      food_type:
+        required: true
+      packaging_intact:
+        required: true
+      storage_requirement:
+        required: true
+      expiry_date:
+        description: >-
+          Expiry or best-before date as printed on the packaging.
+          UC block: expiry_date < today (runtime check by Django model clean()).
+        see_also:
+          - foodon:00001043
+        annotations:
+          uc_action: block
+          uc_suggest: disposal
+          uc_note: "Dynamic date comparison — runtime enforcement"
+    annotations:
+      completeness_minimal:  "food_type, packaging_intact, usage"
+      completeness_standard: "food_type, packaging_intact, storage_requirement, usage"
+      completeness_detailed: "food_type, packaging_intact, storage_requirement, expiry_date, quantity, usage"
+      coicop_division: "01"
+      phase: "Phase 1 stub"
+    rules:
+      - title: uc-packaging-perishable-block
+        description: >-
+          Perishable items with compromised packaging must not be redistributed.
+          Food safety principle — perishable items cannot be safely redistributed
+          once packaging integrity is lost. action: block.
+        preconditions:
+          slot_conditions:
+            packaging_intact:
+              equals_string: "false"
+            food_type:
+              any_of:
+                - equals_string: fresh_produce
+                - equals_string: dairy
+                - equals_string: frozen
+                - equals_string: baby_food
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      - title: uc-expiry-date-past-block
+        description: >-
+          Items past expiry date must not be redistributed. Runtime check —
+          dynamic date comparison not expressible as a static LinkML rule.
+          Enforced by Django model clean() at save time.
+        preconditions: {}
+        annotations:
+          enforcement: application_layer
+          uc_action: block
+          uc_suggest: disposal
+          uc_note: "expiry_date < today — runtime check by Django model clean()"
+
+      # ── VM: storage requirements by food type ─────────────────────────────
+      - title: vm-storage-frozen
+        description: >-
+          Frozen food requires frozen storage only. Breaking the cold chain
+          makes frozen food unsafe to refreeze. action: block invalid value.
+        preconditions:
+          slot_conditions:
+            food_type:
+              equals_string: frozen
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              equals_string: frozen
+
+      - title: vm-storage-dairy
+        description: Dairy requires refrigerated or frozen storage.
+        preconditions:
+          slot_conditions:
+            food_type:
+              equals_string: dairy
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: refrigerated
+                - equals_string: frozen
+
+      - title: vm-storage-canned
+        description: Canned goods are shelf-stable — ambient storage only.
+        preconditions:
+          slot_conditions:
+            food_type:
+              equals_string: canned_goods
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              equals_string: ambient
+
+
+slots:
+
+  food_type:
+    range: FoodTypeEnum
+    required: true
+    description: >-
+      Primary food type classification. Grounded in FoodOn food product
+      taxonomy. Determines valid storage_requirement values via value map.
+    see_also:
+      - foodon:00001017
+
+  packaging_intact:
+    range: boolean
+    required: true
+    description: >-
+      Whether the item's original packaging is intact and uncompromised.
+      UC block: false + perishable food_type → must not redistribute.
+      Primary safety signal for food items — analogous to is_sealed in
+      PersonalCareCategory.
+    see_also:
+      - foodon:00001043
+
+  storage_requirement:
+    range: StorageRequirementEnum
+    required: true
+    description: >-
+      Required storage condition. Valid values constrained by food_type
+      via vm-storage-* rules. Set during sorting to enable correct
+      storage slot assignment and demand signal matching.
+
+  quantity:
+    range: integer
+    description: >-
+      Quantity in natural units (items, cans, bags, kg, etc.). Optional —
+      detailed completeness tier. Supports demand signal fulfilment tracking.
+
+
+enums:
+
+  FoodTypeEnum:
+    description: >-
+      Primary food type classification. Grounded in FoodOn ontology (OBO Foundry).
+      Each value maps to valid storage_requirement values via vm-storage-* rules.
+    see_also:
+      - foodon:00001017
+    permissible_values:
+      dry_goods:
+        description: >-
+          Non-perishable dry staples: pasta, rice, flour, cereals, pulses.
+          Storage: ambient or dry_cool.
+        see_also: [foodon:00001256]
+      canned_goods:
+        description: >-
+          Factory-sealed tins and cans. Shelf-stable at ambient temperature.
+          Storage: ambient only.
+        see_also: [foodon:00002403]
+      fresh_produce:
+        description: >-
+          Unprocessed fruit, vegetables, herbs. Perishable.
+          packaging_intact rule applies.
+        see_also: [foodon:00001015]
+      dairy:
+        description: >-
+          Milk, cheese, yoghurt, and dairy-based products. Perishable —
+          requires refrigeration or freezing.
+        see_also: [foodon:00001180]
+      frozen:
+        description: >-
+          Items requiring continuous frozen storage. Perishable — frozen
+          storage is the only valid option. Breaking the cold chain makes
+          refreezing unsafe.
+        see_also: [foodon:00002253]
+      beverages:
+        description: Bottled or packaged drinks (non-alcoholic).
+        see_also: [foodon:00001062]
+      baby_food:
+        description: >-
+          Commercially prepared infant formula and baby food. Perishable
+          once opened — packaging_intact rule applies.
+          Note: infant formula as a separate donation item belongs in
+          BabyInfantItem (baby_infant category); this value covers baby food
+          donated as part of a food collection.
+        see_also: [foodon:00002640]
+      condiments:
+        description: Sauces, spreads, oils, vinegars, and seasoning products.
+        see_also: [foodon:00001139]
+      other:
+        description: Food items not fitting above categories.
+
+  StorageRequirementEnum:
+    description: >-
+      Required storage condition for a food item. Valid values per food_type
+      are constrained by vm-storage-* rules in FoodCategory.
+    permissible_values:
+      ambient:
+        description: "Room temperature (15-25°C), dry conditions. Standard pantry/warehouse shelf."
+      refrigerated:
+        description: "Refrigerated storage (0-4°C)."
+      frozen:
+        description: "Frozen storage (-18°C or below)."
+      dry_cool:
+        description: "Cool, dry conditions (8-15°C) — root vegetable or wine-cellar type."
+
+  FoodSubcategoryEnum:
+    description: >-
+      Optional subcategory for further food classification within a food_type.
+      Used when more granular labelling is operationally useful.
+    permissible_values:
+      vegetables:        {description: "Fresh vegetables.", see_also: [foodon:00001638]}
+      fruit:             {description: "Fresh fruit.", see_also: [foodon:00001032]}
+      bread_bakery:      {description: "Bread, rolls, and baked goods.", see_also: [foodon:00001112]}
+      meat_alternatives: {description: "Plant-based meat substitutes."}
+      ready_meals:       {description: "Prepared meals — ambient, refrigerated, or frozen."}
+      other:             {description: "Food subcategory not covered above."}
