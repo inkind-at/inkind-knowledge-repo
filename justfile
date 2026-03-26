@@ -219,9 +219,12 @@ _test-examples: _ensure_examples_output
     --schema {{source_schema_path}} > examples/output/README.md
 
 # Add the merged model to docs/schema.
+# Uses gen_yaml_fixed.py instead of gen-yaml directly to work around a
+# linkml / PyYAML serialisation bug with structured annotations (JsonObj /
+# Annotation objects).  See gen_yaml_fixed.py for full details.
 _gen-yaml:
   -mkdir -p {{distrib_schema_path}}
-  uv run gen-yaml {{source_schema_path}} > {{distrib_schema_path}}/{{schema_name}}.yaml
+  uv run python gen_yaml_fixed.py {{source_schema_path}} > {{distrib_schema_path}}/{{schema_name}}.yaml
 
 # Overridable recipe to add project-specific artifacts to the distribution schema path
 _add-artifacts:
