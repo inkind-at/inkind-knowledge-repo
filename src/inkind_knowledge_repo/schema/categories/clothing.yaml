@@ -18,6 +18,48 @@ description: >-
     schema.org — size groups and size systems
       schema:WearableSizeGroupBaby, schema:WearableSizeGroupChildrens,
       schema:WearableSizeGroupAdult, schema:WearableSizeSystemEU
+    Product Types Ontology (pto:) — individual textile fibres and fabrics
+      http://www.productontology.org/id/
+      Provides per-value grounding for ClothingMaterialEnum:
+        pto:Cotton, pto:Wool, pto:Linen, pto:Silk, pto:Denim,
+        pto:Leather, pto:Polar_fleece, pto:Down_feather,
+        pto:Polyester, pto:Nylon.
+    schema:material — overarching property grounding for the material slot
+      https://schema.org/material
+      First-class property on schema:Product (GoodRelations absorbed 2012).
+      Used as the see_also anchor for synthetic_blend and other values that
+      lack a discrete pto: IRI.
+
+  ── Material model ─────────────────────────────────────────────────────────
+
+  ClothingMaterialEnum records the predominant fibre or fabric type.
+  For blended fabrics (e.g. 60% cotton / 40% polyester), select the
+  dominant fibre; use synthetic_blend when no single synthetic dominates.
+
+  Three uses at sorting time:
+    1. Allergen filtering — beneficiaries with wool, latex, or nickel
+       sensitivities can be matched against items where material is known.
+       Enabled by intact_labels=true (care label legible); exact percentages
+       may be noted in sorting_notes.
+    2. Seasonality hinting — the fragment compiler MAY pre-fill
+       is_winter_suitable based on material:
+         wool, fleece, down  → pre-fill is_winter_suitable=true
+         linen, silk         → pre-fill is_winter_suitable=false
+       The sorter's explicit input always takes precedence; these are
+       UI suggestions only (same principle as subcategory→is_winter_suitable
+       pre-fills documented in the season_ui_hint annotation).
+    3. Care requirement matching — silk and leather require specialist care;
+       the match engine can surface this signal when beneficiary profiles
+       include care constraints.
+
+  material is in the detailed completeness tier for clothing (consistent with
+  furniture and household), because:
+    - Sorting throughput is the primary constraint; material is read from
+      the care label, which the sorter may not always locate quickly.
+    - is_winter_suitable (standard tier) already captures the most operationally
+      critical thermal signal without requiring material to be recorded.
+    - The allergen and care matching use-cases are valuable but secondary to
+      the core redistribution flow.
 
   Separation from AccessoriesItem:
     Accessories have no demographic→size value map — the full clothing value
@@ -84,12 +126,14 @@ description: >-
     standard: subcategory, demographic, size, is_winter_suitable, usage,
               condition_grade
     detailed: subcategory, demographic, size, is_winter_suitable, season,
-              usage, condition_grade, intact_labels
+              material, usage, condition_grade, intact_labels
 
 license: MIT
 see_also:
   - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
   - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - http://www.productontology.org/id/Cotton
+  - https://schema.org/material
 
 prefixes:
   inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
@@ -130,6 +174,7 @@ classes:
     slots:
       - condition_grade
       - subcategory
+      - material
       - is_winter_suitable
       - demographic
       - size
@@ -165,14 +210,27 @@ classes:
           summer). VM rules auto-derive is_winter_suitable for the extreme
           values (winter, summer, all_season); spring_autumn leaves the
           sorter to set is_winter_suitable explicitly.
+      material:
+        range: ClothingMaterialEnum
+        required: false
+        description: >-
+          Primary fibre or fabric composition. Optional — detailed completeness
+          tier. Select the dominant fibre for blended fabrics; use
+          synthetic_blend when no single synthetic dominates. Exact fibre
+          percentages from legible care labels may be noted in sorting_notes.
+          See ClothingMaterialEnum for full vocabulary and ontology grounding.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
     annotations:
       completeness_minimal:  "subcategory, usage"
       completeness_standard: "subcategory, demographic, size, is_winter_suitable, usage, condition_grade"
-      completeness_detailed: "subcategory, demographic, size, is_winter_suitable, season, usage, condition_grade, intact_labels"
+      completeness_detailed: "subcategory, demographic, size, is_winter_suitable, season, material, usage, condition_grade, intact_labels"
       coicop_division: "03.1"
+      material_winter_hint: >-
+        Fragment compiler may pre-fill is_winter_suitable=true when
+        material in [wool, fleece, down] and is_winter_suitable=false when
+        material in [linen, silk]. Sorter can always override.
       season_ui_hint: >-
         Fragment compiler may pre-fill is_winter_suitable=true when
         subcategory=outerwear and is_winter_suitable=false when
@@ -378,6 +436,9 @@ slots:
       - cpi:ClothingSize
       - schema:WearableSizeGroupAdult
       - schema:WearableSizeSystemEU
+    annotations:
+      label_en: "Size"
+      label_de: "Größe"
 
   is_winter_suitable:
     range: boolean
@@ -400,6 +461,9 @@ slots:
       BeddingTextilesCategory (bedding_textiles.yaml) for the same purpose.
     see_also:
       - schema:itemCondition
+    annotations:
+      label_en: "Winter Suitable"
+      label_de: "Wintertauglich"
 
   season:
     range: SeasonEnum
@@ -608,3 +672,147 @@ enums:
       m_l:           {description: "Medium or Large(adult)",      see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "M/L", label_de: "M/L"}}
       xl_plus:          {description: "Extra large or XL+ (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XL+", label_de: "XL+"}}
       one_size:    {description: "One size fits most.", annotations: {label_en: "One Size", label_de: "Einheitsgröße"}}
+
+  ClothingMaterialEnum:
+    description: >-
+      Primary fibre or fabric composition of a clothing item.
+      Records the predominant material; for blended fabrics (e.g. 60% cotton /
+      40% polyester), select the dominant fibre or use synthetic_blend when no
+      single synthetic dominates and a more specific value does not apply.
+
+      Grounded in:
+        Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
+          concepts, consistent with pto:Wood in FurnitureMaterialEnum.
+          http://www.productontology.org/id/
+        schema:material — overarching property on schema:Product, first-class
+          since GoodRelations was absorbed into schema.org in 2012.
+          https://schema.org/material
+          Used as see_also anchor for values that have no discrete pto: IRI
+          (synthetic_blend, other).
+
+      Three uses at sorting time:
+        1. Allergen filtering — wool, latex, and nickel sensitivities;
+           requires intact_labels=true for highest confidence;
+           exact percentages may be recorded in sorting_notes.
+        2. Seasonality hinting by the fragment compiler
+           (wool/fleece/down → pre-fill is_winter_suitable=true;
+            linen/silk → pre-fill is_winter_suitable=false).
+           Sorter override always takes precedence.
+        3. Care requirement matching — silk and leather indicate specialist
+           care needs that the match engine can surface.
+
+    see_also:
+      - schema:material
+    permissible_values:
+      cotton:
+        description: >-
+          Cotton or cotton-dominant blend (>50% cotton). The most common
+          natural fibre. All-season versatile; thermal weight varies by
+          weave and weight (a thin cotton t-shirt vs. a heavy flannel shirt).
+        see_also: [pto:Cotton]
+        annotations:
+          label_en: "Cotton"
+          label_de: "Baumwolle"
+      wool:
+        description: >-
+          Wool, merino, lambswool, cashmere, or wool-dominant blend.
+          Primary natural indicator of winter suitability.
+        see_also: [pto:Wool]
+        annotations:
+          label_en: "Wool"
+          label_de: "Wolle"
+          winter_hint: "true"
+      linen:
+        description: >-
+          Linen (flax) fabric. Lightweight and breathable natural fibre.
+          Primarily summer-weight.
+        see_also: [pto:Linen]
+        annotations:
+          label_en: "Linen"
+          label_de: "Leinen"
+          winter_hint: "false"
+      silk:
+        description: >-
+          Silk or silk-blend. Lightweight natural fibre; typically summer
+          or formal wear. Requires specialist care (dry clean or hand wash).
+          Fragment compiler may pre-fill is_winter_suitable=false.
+        see_also: [pto:Silk]
+        annotations:
+          label_en: "Silk"
+          label_de: "Seide"
+          winter_hint: "false"
+      denim:
+        description: >-
+          Denim (woven cotton twill). Used for jeans, jackets, and skirts.
+          Seasonality varies by weight — standard denim is spring_autumn;
+          heavy or lined denim may be winter-suitable. Sorter decides.
+        see_also: [pto:Denim]
+        annotations:
+          label_en: "Denim"
+          label_de: "Denim"
+      leather:
+        description: >-
+          Leather or leather-look (genuine, PU, or faux leather).
+          Primarily for outerwear (jackets, coats). Typically spring_autumn
+          or winter-suitable depending on lining. Requires specialist care.
+        see_also: [pto:Leather]
+        annotations:
+          label_en: "Leather / Faux Leather"
+          label_de: "Leder / Kunstleder"
+      fleece:
+        description: >-
+          Polar fleece or other synthetic-pile insulating fabric. Warm and
+          lightweight. Fragment compiler may pre-fill is_winter_suitable=true.
+          This value covers synthetic-pile fleece only — use wool for merino
+          or lambswool fleece.
+        see_also: [pto:Polar_fleece]
+        annotations:
+          label_en: "Fleece"
+          label_de: "Fleece"
+          winter_hint: "true"
+      down:
+        description: >-
+          Down-filled or feather-filled insulating garments (puffer jackets,
+          gilets, down coats). Fragment compiler may pre-fill
+          is_winter_suitable=true.
+        see_also: [pto:Down_feather]
+        annotations:
+          label_en: "Down / Fill"
+          label_de: "Daunen"
+          winter_hint: "true"
+      polyester:
+        description: >-
+          Polyester or polyester-dominant synthetic. Common in sportswear,
+          activewear, and everyday garments. All-season; thermal weight varies
+          by fabric construction.
+        see_also: [pto:Polyester]
+        annotations:
+          label_en: "Polyester"
+          label_de: "Polyester"
+      nylon:
+        description: >-
+          Nylon (polyamide) fabric. Common in sportswear, windbreakers, and
+          tights. Strong, lightweight, and moisture-resistant.
+        see_also: [pto:Nylon]
+        annotations:
+          label_en: "Nylon"
+          label_de: "Nylon"
+      synthetic_blend:
+        description: >-
+          Mixed synthetic fibres or a synthetic + natural blend where no single
+          fibre dominates and a more specific value does not apply.
+          Examples: polyester/spandex (activewear), nylon/cotton blends,
+          acrylic/polyester blends.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Synthetic Blend"
+          label_de: "Synthetische Mischung"
+      other:
+        description: >-
+          Materials not covered above — e.g. viscose/rayon, bamboo, modal,
+          technical fabrics, specialty textiles. Record the specific material
+          in sorting_notes when known and intact_labels=true.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"

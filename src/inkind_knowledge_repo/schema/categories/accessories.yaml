@@ -12,10 +12,27 @@ description: >-
   https://unstats.un.org/unsd/classifications/Family/Detail/2094
 
   Ontology grounding:
-    Product Types Ontology — pto:Fashion_accessory
+    Product Types Ontology — pto:Fashion_accessory, and per-value IRIs for
+      ClothingMaterialEnum (pto:Leather, pto:Wool, pto:Cotton, pto:Silk).
       http://www.productontology.org/id/Fashion_accessory
     CPI ontology — see_also for subcategory terms
       http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+    schema:material — overarching property on schema:Product, used as
+      see_also anchor for values without a discrete pto: IRI.
+      https://schema.org/material
+
+  Material model:
+    AccessoriesMaterialEnum records the primary construction material of the
+    accessory. Two redistribution-relevant uses:
+      1. Allergen filtering — wool sensitivity (scarves, gloves, hats);
+         nickel sensitivity in metal jewellery.
+      2. Care requirement matching — leather requires conditioning/specialist
+         care; silk is dry-clean only; metal jewellery requires anti-tarnish
+         storage.
+    Material is in the detailed completeness tier — already reflected in the
+    annotations. Not every accessory has a single identifiable primary
+    material (e.g. a wristwatch has metal case + leather strap + glass face),
+    so material records the dominant element the sorter can identify quickly.
 
   Separation from ClothingItem (design rationale):
     - No size dimension — accessories are not sized XS-XXL. A scarf is
@@ -41,12 +58,14 @@ see_also:
   - http://www.productontology.org/id/Fashion_accessory
   - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
   - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://schema.org/material
 
 prefixes:
   inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
   linkml: https://w3id.org/linkml/
   pto: http://www.productontology.org/id/
   cpi: http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+  schema: http://schema.org/
 
 default_prefix: inkind_knowledge_repo
 default_range: string
@@ -87,11 +106,13 @@ classes:
           age-targeted items: children's hats, baby mittens, baby carriers
           (though carriers belong in BabyInfantItem).
       material:
-        range: string
+        range: AccessoriesMaterialEnum
         required: false
         description: >-
-          Primary material (e.g. "leather", "wool", "cotton", "metal").
-          Free text — no controlled vocabulary at this stage.
+          Primary construction material of the accessory. Optional — detailed
+          completeness tier. Record the dominant material; use other and
+          note the specific material in sorting_notes when known.
+          See AccessoriesMaterialEnum for full vocabulary and ontology grounding.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -167,6 +188,111 @@ enums:
         annotations:
           label_en: "Other"
           label_de: "Sonstiges"
+
+  AccessoriesMaterialEnum:
+    description: >-
+      Primary construction material of a fashion or personal accessory.
+      Records the dominant material the sorter can identify quickly.
+      Not all accessories have a single primary material — a watch has a metal
+      case, leather strap, and glass face; record the most prominent element.
+
+      Grounded in Product Types Ontology (pto:) for individual fibres and
+      common materials, and schema:material as the overarching property anchor.
+      Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml)
+      for the fibre values (leather, wool, cotton, silk) for consistency.
+
+      Two redistribution-relevant uses:
+        1. Allergen filtering — wool (scarves, hats, gloves) and nickel
+           (base metal jewellery, belt buckles) sensitivities.
+        2. Care requirement matching — leather requires conditioning; silk
+           is dry-clean only; metal jewellery requires anti-tarnish storage.
+    see_also:
+      - schema:material
+    permissible_values:
+      leather:
+        description: >-
+          Genuine or faux leather (PU/synthetic leather). Predominant material
+          for bags, belts, wallets, and some gloves and watch straps.
+          Requires specialist conditioning care.
+        see_also: [pto:Leather]
+        annotations:
+          label_en: "Leather / Faux Leather"
+          label_de: "Leder / Kunstleder"
+      wool:
+        description: >-
+          Wool, merino, cashmere, or wool-dominant blend. Primary material for
+          scarves, hats, and gloves. Allergen signal for wool-sensitive beneficiaries.
+        see_also: [pto:Wool]
+        annotations:
+          label_en: "Wool"
+          label_de: "Wolle"
+      cotton:
+        description: >-
+          Cotton or cotton-dominant woven fabric. Common in fabric hats,
+          canvas bags, and some gloves and scarves. All-season versatile.
+        see_also: [pto:Cotton]
+        annotations:
+          label_en: "Cotton / Canvas Fabric"
+          label_de: "Baumwolle / Segeltuch"
+      silk:
+        description: >-
+          Silk or silk-blend. Typical for elegant scarves and ties.
+          Requires specialist care (hand wash or dry clean).
+        see_also: [pto:Silk]
+        annotations:
+          label_en: "Silk"
+          label_de: "Seide"
+      metal:
+        description: >-
+          Metal (gold, silver, base metal, stainless steel, or alloy).
+          Predominant for jewellery, watch cases, belt buckles, and eyewear
+          frames. Nickel in base metal alloys is a common allergen.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Metal"
+          label_de: "Metall"
+      plastic:
+        description: >-
+          Plastic or acrylic. Common for sunglasses frames, costume jewellery,
+          and some bags. Wide range of types — record specifics in sorting_notes
+          if relevant (e.g. recycled plastic, BPA-free for baby accessories).
+        see_also: [schema:material]
+        annotations:
+          label_en: "Plastic"
+          label_de: "Kunststoff"
+      synthetic:
+        description: >-
+          Synthetic fabric or material — nylon, polyester, or other man-made
+          fibres. Common in nylon bags, polyester scarves, and synthetic gloves.
+          Distinct from leather_faux_leather (which mimics leather texture).
+        see_also: [schema:material]
+        annotations:
+          label_en: "Synthetic"
+          label_de: "Synthetisch"
+      natural_fibre:
+        description: >-
+          Natural plant-based fibres other than cotton — straw, raffia,
+          jute, bamboo, rattan, wicker. Common in summer hats and baskets.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Natural Fibre (Straw / Raffia / Wicker)"
+          label_de: "Naturfaser (Stroh / Bast / Weide)"
+      glass_crystal:
+        description: >-
+          Glass or crystal elements. Common in costume jewellery (glass beads,
+          crystal pendants) and some decorative accessories.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Glass / Crystal"
+          label_de: "Glas / Kristall"
+      other:
+        description: >-
+          Materials not covered above. Record the specific material in
+          sorting_notes when known.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   AccessoriesDemographicEnum:
     description: >-

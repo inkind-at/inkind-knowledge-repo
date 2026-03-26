@@ -9,10 +9,32 @@ description: >-
   https://unstats.un.org/unsd/classifications/Family/Detail/2094
 
   Ontology grounding:
-    Product Types Ontology — pto:Footwear, pto:Shoe, pto:Boot, pto:Sandal
+    Product Types Ontology — pto:Footwear, pto:Shoe, pto:Boot, pto:Sandal,
+    pto:Leather, pto:Suede, pto:Rubber, pto:Wool
       http://www.productontology.org/id/Footwear
     CPI ontology — cpi:SportShoes
       http://www.ebusiness-unibw.org/ontologies/cpi/ns#
+    schema:material — overarching property on schema:Product, used as
+      see_also anchor for values without a discrete pto: IRI (canvas,
+      synthetic_mesh, textile).
+      https://schema.org/material
+
+  Material model:
+    FootwearMaterialEnum records the primary upper-material (the dominant
+    outer fabric/surface visible on the shoe). Three redistribution-relevant
+    uses:
+      1. Care requirement matching — leather requires conditioning; suede
+         requires specialist brushing and waterproofing; rubber boots can
+         be wiped clean; canvas is machine-washable.
+      2. Allergen filtering — latex rubber (relevant for latex-sensitive
+         beneficiaries; most modern rubber boots use synthetic rubber, but
+         natural rubber is still used in some products).
+      3. Seasonality hinting — canvas and synthetic_mesh are typically
+         summer/spring-autumn shoes; wool/felt slippers are all-season
+         or winter-suitable for indoor use. The fragment compiler MAY
+         use material as an additional UI pre-fill signal alongside
+         subcategory. Sorter always overrides.
+    Material is added to the detailed completeness tier.
 
   Separation from ClothingItem:
     - Shoe sizing systems (EU/UK/US/CM) differ fundamentally from clothing sizes.
@@ -41,6 +63,7 @@ license: MIT
 see_also:
   - http://www.productontology.org/id/Footwear
   - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://schema.org/material
 
 prefixes:
   inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
@@ -73,6 +96,7 @@ classes:
     slots:
       - condition_grade
       - subcategory
+      - material
       - is_pair_complete
       - is_winter_suitable
       - demographic
@@ -105,13 +129,20 @@ classes:
             summer → is_winter_suitable = false
             all_season → is_winter_suitable = true
             spring_autumn → sorter decides is_winter_suitable explicitly.
+      material:
+        range: FootwearMaterialEnum
+        required: false
+        description: >-
+          Primary upper-material. Optional — detailed completeness tier.
+          Record the dominant outer surface material. See FootwearMaterialEnum
+          for full vocabulary and ontology grounding.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
     annotations:
       completeness_minimal:  "subcategory, usage"
       completeness_standard: "subcategory, demographic, shoe_size, shoe_size_system, is_pair_complete, is_winter_suitable, usage, condition_grade"
-      completeness_detailed: "subcategory, demographic, shoe_size, shoe_size_system, is_pair_complete, is_winter_suitable, season, usage, condition_grade"
+      completeness_detailed: "subcategory, demographic, shoe_size, shoe_size_system, is_pair_complete, is_winter_suitable, season, material, usage, condition_grade"
       coicop_division: "03.2"
       season_ui_hint: >-
         Fragment compiler may pre-fill is_winter_suitable=true for boots
@@ -249,6 +280,113 @@ enums:
         annotations:
           label_en: "other"
           label_de: "Sonstige"
+
+  FootwearMaterialEnum:
+    description: >-
+      Primary upper-material of a footwear item — the dominant outer fabric
+      or surface visible on the shoe upper (excluding the sole, which is
+      rubber or synthetic in almost all footwear).
+
+      Grounded in Product Types Ontology (pto:) where distinct IRIs exist,
+      and schema:material as the overarching property anchor for values
+      without a discrete pto: IRI. Aligned with ClothingMaterialEnum for
+      shared values (leather, suede, wool).
+
+      Three redistribution-relevant uses:
+        1. Care requirement matching — leather needs conditioning; suede
+           needs specialist brushing and waterproofing; canvas is typically
+           machine-washable; rubber boots can be wiped clean.
+        2. Allergen filtering — latex rubber (natural rubber) is a known
+           allergen; most modern Wellington boots use synthetic rubber but
+           natural rubber is still used in premium lines.
+        3. Seasonality hinting — canvas and synthetic_mesh are typical
+           summer/spring-autumn materials; wool_felt is associated with
+           warm indoor slippers. Fragment compiler MAY use material as a
+           supplementary UI pre-fill hint (secondary to subcategory-based
+           hints). Sorter always overrides.
+    see_also:
+      - schema:material
+    permissible_values:
+      leather:
+        description: >-
+          Genuine or polished leather upper. The most common material for
+          dress shoes, leather boots, loafers, and classic Oxford shoes.
+          Requires conditioning and polishing; not machine-washable.
+        see_also: [pto:Leather]
+        annotations:
+          label_en: "Leather"
+          label_de: "Leder"
+      suede:
+        description: >-
+          Suede or nubuck upper. Brushed, napped leather surface. Common
+          for ankle boots, desert boots, and casual shoes. Requires
+          specialist suede brush and waterproofing spray.
+        see_also: [pto:Suede]
+        annotations:
+          label_en: "Suede / Nubuck"
+          label_de: "Wildleder / Nubuk"
+      synthetic_leather:
+        description: >-
+          PU or synthetic leather (faux leather) upper. Common in budget
+          shoes, trainers, and fashion boots. Easier care than genuine
+          leather but less durable over time.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Synthetic Leather"
+          label_de: "Kunstleder"
+      canvas:
+        description: >-
+          Canvas or cotton-based textile upper. Typical for casual trainers
+          (e.g. classic low-top sneakers), espadrilles, and deck shoes.
+          Usually machine-washable. Primarily spring-autumn or summer use.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Canvas"
+          label_de: "Segeltuch"
+      synthetic_mesh:
+        description: >-
+          Breathable synthetic mesh or knit upper. Standard material for
+          running shoes, athletic trainers, and performance footwear.
+          Lightweight and quick-drying. Primarily spring-autumn or summer.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Synthetic / Mesh"
+          label_de: "Synthetisch / Mesh"
+      rubber:
+        description: >-
+          Rubber or PVC. Primary material for Wellington boots, rain boots,
+          and some sandal soles. Fully waterproof; can be wiped clean.
+          Natural rubber is a known allergen — record in sorting_notes if
+          identifiable as natural rubber (often marked on the boot).
+        see_also: [pto:Rubber]
+        annotations:
+          label_en: "Rubber / PVC"
+          label_de: "Gummi / PVC"
+      wool_felt:
+        description: >-
+          Wool, felt, or boiled-wool upper. Most common in warm indoor
+          slippers and some traditional boots. Allergen signal for
+          wool-sensitive beneficiaries.
+        see_also: [pto:Wool]
+        annotations:
+          label_en: "Wool / Felt"
+          label_de: "Wolle / Filz"
+      textile:
+        description: >-
+          Woven or knitted textile upper that is not canvas or synthetic mesh
+          — e.g. fabric mules, woven espadrille-style shoes, textile slip-ons.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Textile"
+          label_de: "Textil"
+      other:
+        description: >-
+          Materials not covered above (e.g. cork, wood clogs, exotic leather).
+          Record the specific material in sorting_notes when known.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   ShoeSizeSystemEnum:
     description: >-

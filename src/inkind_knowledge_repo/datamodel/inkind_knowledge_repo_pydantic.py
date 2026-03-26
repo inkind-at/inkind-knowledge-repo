@@ -619,6 +619,80 @@ class ClothingSizeEnum(str, Enum):
     """
 
 
+class ClothingMaterialEnum(str, Enum):
+    """
+    Primary fibre or fabric composition of a clothing item. Records the predominant material; for blended fabrics (e.g. 60% cotton / 40% polyester), select the dominant fibre or use synthetic_blend when no single synthetic dominates and a more specific value does not apply.
+Grounded in:
+  Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
+    concepts, consistent with pto:Wood in FurnitureMaterialEnum.
+    http://www.productontology.org/id/
+  schema:material — overarching property on schema:Product, first-class
+    since GoodRelations was absorbed into schema.org in 2012.
+    https://schema.org/material
+    Used as see_also anchor for values that have no discrete pto: IRI
+    (synthetic_blend, other).
+
+Three uses at sorting time:
+  1. Allergen filtering — wool, latex, and nickel sensitivities;
+     requires intact_labels=true for highest confidence;
+     exact percentages may be recorded in sorting_notes.
+  2. Seasonality hinting by the fragment compiler
+     (wool/fleece/down → pre-fill is_winter_suitable=true;
+      linen/silk → pre-fill is_winter_suitable=false).
+     Sorter override always takes precedence.
+  3. Care requirement matching — silk and leather indicate specialist
+     care needs that the match engine can surface.
+    """
+    cotton = "cotton"
+    """
+    Cotton or cotton-dominant blend (>50% cotton). The most common natural fibre. All-season versatile; thermal weight varies by weave and weight (a thin cotton t-shirt vs. a heavy flannel shirt).
+    """
+    wool = "wool"
+    """
+    Wool, merino, lambswool, cashmere, or wool-dominant blend. Primary natural indicator of winter suitability.
+    """
+    linen = "linen"
+    """
+    Linen (flax) fabric. Lightweight and breathable natural fibre. Primarily summer-weight.
+    """
+    silk = "silk"
+    """
+    Silk or silk-blend. Lightweight natural fibre; typically summer or formal wear. Requires specialist care (dry clean or hand wash). Fragment compiler may pre-fill is_winter_suitable=false.
+    """
+    denim = "denim"
+    """
+    Denim (woven cotton twill). Used for jeans, jackets, and skirts. Seasonality varies by weight — standard denim is spring_autumn; heavy or lined denim may be winter-suitable. Sorter decides.
+    """
+    leather = "leather"
+    """
+    Leather or leather-look (genuine, PU, or faux leather). Primarily for outerwear (jackets, coats). Typically spring_autumn or winter-suitable depending on lining. Requires specialist care.
+    """
+    fleece = "fleece"
+    """
+    Polar fleece or other synthetic-pile insulating fabric. Warm and lightweight. Fragment compiler may pre-fill is_winter_suitable=true. This value covers synthetic-pile fleece only — use wool for merino or lambswool fleece.
+    """
+    down = "down"
+    """
+    Down-filled or feather-filled insulating garments (puffer jackets, gilets, down coats). Fragment compiler may pre-fill is_winter_suitable=true.
+    """
+    polyester = "polyester"
+    """
+    Polyester or polyester-dominant synthetic. Common in sportswear, activewear, and everyday garments. All-season; thermal weight varies by fabric construction.
+    """
+    nylon = "nylon"
+    """
+    Nylon (polyamide) fabric. Common in sportswear, windbreakers, and tights. Strong, lightweight, and moisture-resistant.
+    """
+    synthetic_blend = "synthetic_blend"
+    """
+    Mixed synthetic fibres or a synthetic + natural blend where no single fibre dominates and a more specific value does not apply. Examples: polyester/spandex (activewear), nylon/cotton blends, acrylic/polyester blends.
+    """
+    other = "other"
+    """
+    Materials not covered above — e.g. viscose/rayon, bamboo, modal, technical fabrics, specialty textiles. Record the specific material in sorting_notes when known and intact_labels=true.
+    """
+
+
 class AccessoriesSubcategoryEnum(str, Enum):
     """
     Fashion and personal accessories subcategories. Deliberately separate from ClothingSubcategoryEnum to enable clean progressive disclosure in the sorting UI. Grounded in Product Types Ontology (pto:) terms.
@@ -658,6 +732,58 @@ class AccessoriesSubcategoryEnum(str, Enum):
     other = "other"
     """
     Accessories not fitting above subcategories.
+    """
+
+
+class AccessoriesMaterialEnum(str, Enum):
+    """
+    Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can identify quickly. Not all accessories have a single primary material — a watch has a metal case, leather strap, and glass face; record the most prominent element.
+Grounded in Product Types Ontology (pto:) for individual fibres and common materials, and schema:material as the overarching property anchor. Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml) for the fibre values (leather, wool, cotton, silk) for consistency.
+Two redistribution-relevant uses:
+  1. Allergen filtering — wool (scarves, hats, gloves) and nickel
+     (base metal jewellery, belt buckles) sensitivities.
+  2. Care requirement matching — leather requires conditioning; silk
+     is dry-clean only; metal jewellery requires anti-tarnish storage.
+    """
+    leather = "leather"
+    """
+    Genuine or faux leather (PU/synthetic leather). Predominant material for bags, belts, wallets, and some gloves and watch straps. Requires specialist conditioning care.
+    """
+    wool = "wool"
+    """
+    Wool, merino, cashmere, or wool-dominant blend. Primary material for scarves, hats, and gloves. Allergen signal for wool-sensitive beneficiaries.
+    """
+    cotton = "cotton"
+    """
+    Cotton or cotton-dominant woven fabric. Common in fabric hats, canvas bags, and some gloves and scarves. All-season versatile.
+    """
+    silk = "silk"
+    """
+    Silk or silk-blend. Typical for elegant scarves and ties. Requires specialist care (hand wash or dry clean).
+    """
+    metal = "metal"
+    """
+    Metal (gold, silver, base metal, stainless steel, or alloy). Predominant for jewellery, watch cases, belt buckles, and eyewear frames. Nickel in base metal alloys is a common allergen.
+    """
+    plastic = "plastic"
+    """
+    Plastic or acrylic. Common for sunglasses frames, costume jewellery, and some bags. Wide range of types — record specifics in sorting_notes if relevant (e.g. recycled plastic, BPA-free for baby accessories).
+    """
+    synthetic = "synthetic"
+    """
+    Synthetic fabric or material — nylon, polyester, or other man-made fibres. Common in nylon bags, polyester scarves, and synthetic gloves. Distinct from leather_faux_leather (which mimics leather texture).
+    """
+    natural_fibre = "natural_fibre"
+    """
+    Natural plant-based fibres other than cotton — straw, raffia, jute, bamboo, rattan, wicker. Common in summer hats and baskets.
+    """
+    glass_crystal = "glass_crystal"
+    """
+    Glass or crystal elements. Common in costume jewellery (glass beads, crystal pendants) and some decorative accessories.
+    """
+    other = "other"
+    """
+    Materials not covered above. Record the specific material in sorting_notes when known.
     """
 
 
@@ -710,6 +836,61 @@ class FootwearSubcategoryEnum(str, Enum):
     other = "other"
     """
     Footwear not fitting above subcategories.
+    """
+
+
+class FootwearMaterialEnum(str, Enum):
+    """
+    Primary upper-material of a footwear item — the dominant outer fabric or surface visible on the shoe upper (excluding the sole, which is rubber or synthetic in almost all footwear).
+Grounded in Product Types Ontology (pto:) where distinct IRIs exist, and schema:material as the overarching property anchor for values without a discrete pto: IRI. Aligned with ClothingMaterialEnum for shared values (leather, suede, wool).
+Three redistribution-relevant uses:
+  1. Care requirement matching — leather needs conditioning; suede
+     needs specialist brushing and waterproofing; canvas is typically
+     machine-washable; rubber boots can be wiped clean.
+  2. Allergen filtering — latex rubber (natural rubber) is a known
+     allergen; most modern Wellington boots use synthetic rubber but
+     natural rubber is still used in premium lines.
+  3. Seasonality hinting — canvas and synthetic_mesh are typical
+     summer/spring-autumn materials; wool_felt is associated with
+     warm indoor slippers. Fragment compiler MAY use material as a
+     supplementary UI pre-fill hint (secondary to subcategory-based
+     hints). Sorter always overrides.
+    """
+    leather = "leather"
+    """
+    Genuine or polished leather upper. The most common material for dress shoes, leather boots, loafers, and classic Oxford shoes. Requires conditioning and polishing; not machine-washable.
+    """
+    suede = "suede"
+    """
+    Suede or nubuck upper. Brushed, napped leather surface. Common for ankle boots, desert boots, and casual shoes. Requires specialist suede brush and waterproofing spray.
+    """
+    synthetic_leather = "synthetic_leather"
+    """
+    PU or synthetic leather (faux leather) upper. Common in budget shoes, trainers, and fashion boots. Easier care than genuine leather but less durable over time.
+    """
+    canvas = "canvas"
+    """
+    Canvas or cotton-based textile upper. Typical for casual trainers (e.g. classic low-top sneakers), espadrilles, and deck shoes. Usually machine-washable. Primarily spring-autumn or summer use.
+    """
+    synthetic_mesh = "synthetic_mesh"
+    """
+    Breathable synthetic mesh or knit upper. Standard material for running shoes, athletic trainers, and performance footwear. Lightweight and quick-drying. Primarily spring-autumn or summer.
+    """
+    rubber = "rubber"
+    """
+    Rubber or PVC. Primary material for Wellington boots, rain boots, and some sandal soles. Fully waterproof; can be wiped clean. Natural rubber is a known allergen — record in sorting_notes if identifiable as natural rubber (often marked on the boot).
+    """
+    wool_felt = "wool_felt"
+    """
+    Wool, felt, or boiled-wool upper. Most common in warm indoor slippers and some traditional boots. Allergen signal for wool-sensitive beneficiaries.
+    """
+    textile = "textile"
+    """
+    Woven or knitted textile upper that is not canvas or synthetic mesh — e.g. fabric mules, woven espadrille-style shoes, textile slip-ons.
+    """
+    other = "other"
+    """
+    Materials not covered above (e.g. cork, wood clogs, exotic leather). Record the specific material in sorting_notes when known.
     """
 
 
@@ -823,6 +1004,63 @@ class FurnitureMaterialEnum(str, Enum):
     """
 
 
+class BeddingMaterialEnum(str, Enum):
+    """
+    Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend when no single synthetic dominates (e.g. a polyester/cotton blend duvet cover).
+Grounded in Product Types Ontology (pto:) for individual fibres and schema:material as the overarching property anchor. Values for natural fibres (cotton, wool, linen, silk, down_feather) are aligned with ClothingMaterialEnum (clothing.yaml) for consistency across all textile category material enums.
+Three redistribution-relevant uses:
+  1. Allergen filtering — wool (blankets, duvets) for wool-sensitive
+     beneficiaries; down/feather (duvets, pillows) for feather-allergy
+     or asthma sufferers.
+  2. Winter suitability hinting — the fragment compiler MAY pre-fill
+     is_winter_suitable=true for wool, fleece, and down_feather, and
+     false for linen and silk. Sorter always overrides.
+     The winter_hint annotation on individual values carries this signal.
+  3. Care requirement matching — wool requires gentle/hand-wash;
+     silk requires dry-clean; down requires low-heat tumble drying.
+    """
+    cotton = "cotton"
+    """
+    Cotton or cotton-dominant. The most common natural fibre for sheets, pillowcases, and towels. All-season versatile; thermal weight varies by thread count and weave.
+    """
+    polyester = "polyester"
+    """
+    Polyester or polyester-dominant synthetic. Common in budget blankets, pillows, and duvet covers. All-season; easy-care.
+    """
+    wool = "wool"
+    """
+    Wool, merino, or wool-dominant blend. Primary signal of winter suitability in blankets and duvets. Fragment compiler may pre-fill is_winter_suitable=true. Allergen signal for wool-sensitive beneficiaries.
+    """
+    linen = "linen"
+    """
+    Linen (flax) fabric. Lightweight and breathable. Typical for summer-weight sheets and tablecloths. Fragment compiler may pre-fill is_winter_suitable=false.
+    """
+    fleece = "fleece"
+    """
+    Polar fleece or other synthetic-pile fabric. Common in lightweight throws and entry-level blankets. Warm for its weight. Fragment compiler may pre-fill is_winter_suitable=true.
+    """
+    down_feather = "down_feather"
+    """
+    Down-filled or feather-filled duvets and pillows. Classic winter-weight fill. Fragment compiler may pre-fill is_winter_suitable=true. Allergen signal for feather/down allergy and asthma sufferers. Requires low-heat tumble drying.
+    """
+    silk = "silk"
+    """
+    Silk. Lightweight and temperature-regulating. Common in premium bedding sets. Requires dry-clean or specialist gentle wash. Fragment compiler may pre-fill is_winter_suitable=false.
+    """
+    microfibre = "microfibre"
+    """
+    Microfibre (ultra-fine synthetic) fabric. Common in microfibre towels, soft sheets, and lightweight blankets. Quick-drying and easy-care.
+    """
+    synthetic_blend = "synthetic_blend"
+    """
+    Mixed synthetic fibres or a synthetic + natural blend where no single fibre dominates. Covers polyester/cotton blends (polycotton), acrylic blends, and other mixed compositions.
+    """
+    other = "other"
+    """
+    Materials not covered above. Record the specific material in sorting_notes when known.
+    """
+
+
 class BeddingAssessmentEnum(str, Enum):
     """
     Structured hygiene and condition assessment for bedding and textiles. Replaces former boolean slots has_been_washed and is_mattress_hygienic. Required at sorting regardless of usage.
@@ -892,6 +1130,69 @@ class BeddingTextilesSubcategoryEnum(str, Enum):
     other = "other"
     """
     Household textiles not fitting above subcategories.
+    """
+
+
+class HouseholdMaterialEnum(str, Enum):
+    """
+    Primary construction material of a household or kitchen item. Records the dominant material; use mixed when no single material dominates (e.g. a saucepan with a stainless steel body and plastic handle).
+Grounded in Product Types Ontology (pto:) for discrete material types and schema:material as the overarching property anchor (schema.org property on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty). pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
+Two redistribution-relevant uses:
+  1. Allergen filtering — nickel in stainless steel cutlery (relevant for
+     nickel contact dermatitis, though most modern stainless steel is
+     safe); copper cookware (rare sensitivity).
+  2. Care requirement matching — cast iron requires seasoning and
+     cannot be soaked; copper requires specialist polishing; wood
+     requires periodic oiling; non-stick coatings need specific
+     cleaning instructions.
+    """
+    stainless_steel = "stainless_steel"
+    """
+    Stainless steel. Most common material for cutlery, pots, pans, kettles, and small appliances.
+    """
+    wood = "wood"
+    """
+    Solid wood or wood-composite (including bamboo, which is functionally similar). Common for utensils, chopping boards, salad bowls, and home decor. Requires periodic oiling; not dishwasher-safe.
+    """
+    ceramic = "ceramic"
+    """
+    Ceramic, earthenware, stoneware, or porcelain. Predominant for crockery (plates, bowls, mugs), baking dishes, and decorative items. May include a glazed finish.
+    """
+    glass = "glass"
+    """
+    Glass (borosilicate or soda-lime). Used for drinking glasses, storage jars, glass baking dishes, and glass decor items. Fragility relevant to packaging during storage and distribution.
+    """
+    cast_iron = "cast_iron"
+    """
+    Cast iron cookware (frying pans, casseroles, trivets). Requires seasoning and cannot be soaked or put in the dishwasher. Heavy — relevant for storage slot load-bearing assessment.
+    """
+    copper = "copper"
+    """
+    Copper or copper-clad cookware and decor. Requires specialist polishing to prevent tarnishing.
+    """
+    aluminium = "aluminium"
+    """
+    Aluminium cookware and baking trays. Lightweight and common in baking trays, roasting pans, and budget cookware.
+    """
+    non_stick = "non_stick"
+    """
+    Non-stick coated cookware (PTFE/Teflon or ceramic-coated pans). Requires specific care: no metal utensils, hand-wash only. Record the base material in sorting_notes when visible (typically aluminium or stainless steel with non-stick coating).
+    """
+    plastic = "plastic"
+    """
+    Plastic (various types). Common for containers, food storage boxes, some appliances, and kitchen organisation items.
+    """
+    silicone = "silicone"
+    """
+    Silicone. Used for baking molds, spatulas, oven gloves, and ice cube trays. Heat-resistant and dishwasher-safe.
+    """
+    mixed = "mixed"
+    """
+    Mixed or composite materials where no single material dominates — e.g. a saucepan with a stainless steel body and plastic handle.
+    """
+    other = "other"
+    """
+    Materials not covered above. Record the specific material in sorting_notes when known.
     """
 
 
@@ -1018,6 +1319,61 @@ class ElectronicsSubcategoryEnum(str, Enum):
     other = "other"
     """
     Electronics not fitting above subcategories.
+    """
+
+
+class ToysMaterialEnum(str, Enum):
+    """
+    Primary construction material of a toy or game item. Operationally relevant under the EU Toy Safety Directive 2009/48/EC Annex II (Chemical properties), which restricts hazardous substances in toy materials. Recording material type enables targeted awareness:
+  - Old plastic (pre-2000) → potential lead paint or cadmium concern.
+    Sorters should note in sorting_notes for age-apparent vintage items.
+  - PVC plastic → potential phthalate concern for toys aimed at
+    children under 3 (Directive Annex II, point 45).
+  - Rubber/natural rubber → latex allergen signal (teething rings,
+    bath toys). Fragment compiler may surface allergen note when
+    material=rubber and age_range=age_0_to_3.
+  - Wood → durability and repairability signal; matches demand for
+    natural-material toys.
+  - Fabric_plush → allergen signal for dustmite sensitivity.
+    Laundering before redistribution is good practice.
+
+Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and schema:material as the overarching property anchor for the remainder.
+    """
+    plastic = "plastic"
+    """
+    Plastic (various types — ABS, PP, HDPE, PVC). The most common primary toy material. PVC is of particular concern under the Directive (phthalate restrictions for toys for under-3s). Sorters should note in sorting_notes if item appears to be vintage PVC (typically pre-2005 soft plastic with characteristic flexibility and smell).
+    """
+    wood = "wood"
+    """
+    Solid wood or wood composite. Positive signal for durability and repairability. Common in building blocks, puzzles, pull toys, and wooden vehicles. Supports demand matching for natural-material toy preferences.
+    """
+    fabric_plush = "fabric_plush"
+    """
+    Soft fabric or plush textile. Primary material for stuffed animals, cloth dolls, fabric books, and cloth puzzles. Dust-mite allergen signal — laundering before redistribution is recommended best practice. Check that soft toys do not have small detachable decorative parts (choking hazard for age_0_to_3 — see has_small_parts).
+    """
+    rubber_silicone = "rubber_silicone"
+    """
+    Rubber or silicone. Common in bath toys, teething rings, and some bouncy balls. Natural rubber is a known latex allergen — relevant for teething rings and squeeze toys for very young children (age_0_to_3). Synthetic rubber (TPR, TPE, silicone) is latex-free. Record in sorting_notes if natural rubber is identifiable.
+    """
+    metal = "metal"
+    """
+    Metal (steel, aluminium, tin, die-cast alloy). Common in die-cast model vehicles, metal construction toys, and some board game pieces. Older die-cast toys may contain lead alloys — sorters should note in sorting_notes for visibly very old metal toys.
+    """
+    cardboard_paper = "cardboard_paper"
+    """
+    Cardboard or paper. Primary material for board games, jigsaw puzzles, card games, memory games, and paper craft kits. Condition signal: check for water damage, missing pieces.
+    """
+    foam = "foam"
+    """
+    Foam (EVA, polyurethane, or other foam). Common in foam building blocks, play mats, foam sports toys, and puzzle mats. Check for crumbling or deterioration — degraded foam can produce small particles.
+    """
+    mixed = "mixed"
+    """
+    Mixed or composite materials where no single material dominates — e.g. a board game with a cardboard board, plastic pieces, and paper cards.
+    """
+    other = "other"
+    """
+    Materials not covered above. Record the specific material in sorting_notes when known.
     """
 
 
@@ -1951,7 +2307,7 @@ class DonationCollection(ConfiguredBaseModel):
     created_by: str = Field(default=..., description="""FK — the Actor who created this collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection']} })
     notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
                          'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
+         'domain_of': ['DonationCollection']} })
 
 
 class FoodCategory(ConfiguredBaseModel):
@@ -2355,7 +2711,9 @@ class AnyValue(ConfiguredBaseModel):
                       'schema:WearableSizeGroupBaby',
                       'schema:WearableSizeGroupChildrens',
                       'schema:WearableSizeGroupAdult']} })
-    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory', 'AnyValue'],
+    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
+                         'label_en': {'tag': 'label_en', 'value': 'Size'}},
+         'domain_of': ['ClothingCategory', 'AnyValue'],
          'see_also': ['cpi:ClothingSize',
                       'schema:WearableSizeGroupAdult',
                       'schema:WearableSizeSystemEU']} })
@@ -2468,21 +2826,22 @@ class Campaign(ConfiguredBaseModel):
 class CategoryMixin(ConfiguredBaseModel):
     """
     Abstract mixin base for all category classes except FoodCategory.
-    Provides shared slots (notes, material) available to all categories. Does NOT declare a condition rule — each category type handles condition differently (see schema description above for full rationale).
+    Provides shared slots (material) available to all categories. Does NOT declare a condition rule — each category type handles condition differently (see schema description above for full rationale).
     FoodCategory does not extend this mixin because food safety assessment uses packaging_intact + expiry_date rather than condition_grade or assessment_result. Extending CategoryMixin would pull in slots that are semantically incorrect for food items.
     All other concrete category mixins extend CategoryMixin and declare their own condition approach (condition_grade or assessment_result) along with category-specific slots, UC rules, VM rules, and completeness tier annotations.
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/categories/_base',
          'mixin': True})
 
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -2496,7 +2855,7 @@ class ClothingCategory(CategoryMixin):
                          'completeness_detailed': {'tag': 'completeness_detailed',
                                                    'value': 'subcategory, demographic, '
                                                             'size, is_winter_suitable, '
-                                                            'season, usage, '
+                                                            'season, material, usage, '
                                                             'condition_grade, '
                                                             'intact_labels'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
@@ -2505,6 +2864,16 @@ class ClothingCategory(CategoryMixin):
                                                    'value': 'subcategory, demographic, '
                                                             'size, is_winter_suitable, '
                                                             'usage, condition_grade'},
+                         'material_winter_hint': {'tag': 'material_winter_hint',
+                                                  'value': 'Fragment compiler may '
+                                                           'pre-fill '
+                                                           'is_winter_suitable=true '
+                                                           'when material in [wool, '
+                                                           'fleece, down] and '
+                                                           'is_winter_suitable=false '
+                                                           'when material in [linen, '
+                                                           'silk]. Sorter can always '
+                                                           'override.'},
                          'season_ui_hint': {'tag': 'season_ui_hint',
                                             'value': 'Fragment compiler may pre-fill '
                                                      'is_winter_suitable=true when '
@@ -2660,6 +3029,21 @@ class ClothingCategory(CategoryMixin):
                                                'name': 'is_winter_suitable',
                                                'range': 'boolean',
                                                'required': False},
+                        'material': {'description': 'Primary fibre or fabric '
+                                                    'composition. Optional — detailed '
+                                                    'completeness tier. Select the '
+                                                    'dominant fibre for blended '
+                                                    'fabrics; use synthetic_blend when '
+                                                    'no single synthetic dominates. '
+                                                    'Exact fibre percentages from '
+                                                    'legible care labels may be noted '
+                                                    'in sorting_notes. See '
+                                                    'ClothingMaterialEnum for full '
+                                                    'vocabulary and ontology '
+                                                    'grounding.',
+                                     'name': 'material',
+                                     'range': 'ClothingMaterialEnum',
+                                     'required': False},
                         'season': {'description': 'Seasonal suitability. Optional — '
                                                   'detailed completeness tier. '
                                                   'Multivalued: a garment may span '
@@ -2723,7 +3107,19 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this garment provides meaningful warmth in cold-weather conditions. Required at standard completeness for tops, bottoms, outerwear, nightwear. The sorter's direct assessment — not inferred from subcategory or material. The primary emergency distribution filter: \"all winter-suitable clothing for adults.\"""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    material: Optional[ClothingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Select the dominant fibre for blended fabrics; use synthetic_blend when no single synthetic dominates. Exact fibre percentages from legible care labels may be noted in sorting_notes. See ClothingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this garment provides meaningful warmth in cold-weather conditions. Required at standard completeness for tops, bottoms, outerwear, nightwear. The sorter's direct assessment — not inferred from subcategory or material. The primary emergency distribution filter: \"all winter-suitable clothing for adults.\"""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -2739,7 +3135,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:WearableSizeGroupBaby',
                       'schema:WearableSizeGroupChildrens',
                       'schema:WearableSizeGroupAdult']} })
-    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory', 'AnyValue'],
+    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
+                         'label_en': {'tag': 'label_en', 'value': 'Size'}},
+         'domain_of': ['ClothingCategory', 'AnyValue'],
          'see_also': ['cpi:ClothingSize',
                       'schema:WearableSizeGroupAdult',
                       'schema:WearableSizeSystemEU']} })
@@ -2757,15 +3155,6 @@ Categories using structured assessment_result enums instead (furniture, electron
                                               'outerwear, underwear, nightwear, '
                                               'sportswear]'}},
          'domain_of': ['ClothingCategory']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class AccessoriesCategory(CategoryMixin):
@@ -2800,12 +3189,18 @@ class AccessoriesCategory(CategoryMixin):
                                         'name': 'demographic',
                                         'range': 'AccessoriesDemographicEnum',
                                         'required': False},
-                        'material': {'description': 'Primary material (e.g. "leather", '
-                                                    '"wool", "cotton", "metal"). Free '
-                                                    'text — no controlled vocabulary '
-                                                    'at this stage.',
+                        'material': {'description': 'Primary construction material of '
+                                                    'the accessory. Optional — '
+                                                    'detailed completeness tier. '
+                                                    'Record the dominant material; use '
+                                                    'other and note the specific '
+                                                    'material in sorting_notes when '
+                                                    'known. See '
+                                                    'AccessoriesMaterialEnum for full '
+                                                    'vocabulary and ontology '
+                                                    'grounding.',
                                      'name': 'material',
-                                     'range': 'string',
+                                     'range': 'AccessoriesMaterialEnum',
                                      'required': False},
                         'subcategory': {'name': 'subcategory',
                                         'range': 'AccessoriesSubcategoryEnum',
@@ -2839,11 +3234,15 @@ class AccessoriesCategory(CategoryMixin):
                       'schema:WearableSizeGroupBaby',
                       'schema:WearableSizeGroupChildrens',
                       'schema:WearableSizeGroupAdult']} })
-    material: Optional[str] = Field(default=None, description="""Primary material (e.g. \"leather\", \"wool\", \"cotton\", \"metal\"). Free text — no controlled vocabulary at this stage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+    material: Optional[AccessoriesMaterialEnum] = Field(default=None, description="""Primary construction material of the accessory. Optional — detailed completeness tier. Record the dominant material; use other and note the specific material in sorting_notes when known. See AccessoriesMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
@@ -2867,9 +3266,6 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class FootwearCategory(CategoryMixin):
@@ -2883,7 +3279,7 @@ class FootwearCategory(CategoryMixin):
                                                             'shoe_size_system, '
                                                             'is_pair_complete, '
                                                             'is_winter_suitable, '
-                                                            'season, usage, '
+                                                            'season, material, usage, '
                                                             'condition_grade'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
                                                   'value': 'subcategory, usage'},
@@ -2953,6 +3349,16 @@ class FootwearCategory(CategoryMixin):
                                                'name': 'is_winter_suitable',
                                                'range': 'boolean',
                                                'required': False},
+                        'material': {'description': 'Primary upper-material. Optional '
+                                                    '— detailed completeness tier. '
+                                                    'Record the dominant outer surface '
+                                                    'material. See '
+                                                    'FootwearMaterialEnum for full '
+                                                    'vocabulary and ontology '
+                                                    'grounding.',
+                                     'name': 'material',
+                                     'range': 'FootwearMaterialEnum',
+                                     'required': False},
                         'season': {'description': 'Seasonal suitability. Optional — '
                                                   'detailed completeness tier. Same VM '
                                                   'auto-derivation as '
@@ -3012,11 +3418,23 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[FootwearMaterialEnum] = Field(default=None, description="""Primary upper-material. Optional — detailed completeness tier. Record the dominant outer surface material. See FootwearMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     is_pair_complete: Optional[bool] = Field(default=None, description="""Whether both shoes of the pair are present. UC warn if false — sorting_notes required.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Ist das Paar vollständig?'},
                          'label_en': {'tag': 'label_en', 'value': 'is pair complete'}},
          'domain_of': ['FootwearCategory']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this footwear provides meaningful warmth and weather protection in cold conditions. Required at standard completeness. Fragment compiler may pre-fill: boots → true, sandals → false. Sorter always overrides (e.g. a lightweight canvas boot → false).""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this footwear provides meaningful warmth and weather protection in cold conditions. Required at standard completeness. Fragment compiler may pre-fill: boots → true, sandals → false. Sorter always overrides (e.g. a lightweight canvas boot → false).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -3046,15 +3464,6 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'label_en': {'tag': 'label_en', 'value': 'Season'}},
          'domain_of': ['ClothingCategory', 'FootwearCategory'],
          'see_also': ['schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class FurnitureCategory(CategoryMixin):
@@ -3160,9 +3569,13 @@ class FurnitureCategory(CategoryMixin):
                        'AnyValue']} })
     material: Optional[FurnitureMaterialEnum] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     assessment_result: FurnitureAssessmentEnum = Field(default=..., description="""Structural and quality assessment. Required regardless of usage — new furniture can have manufacturing defects or assembly issues.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -3178,9 +3591,6 @@ class FurnitureCategory(CategoryMixin):
          'domain_of': ['FurnitureCategory'],
          'see_also': ['schema:SizeSpecification']} })
     style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'domain_of': ['FurnitureCategory']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class BeddingTextilesCategory(CategoryMixin):
@@ -3189,7 +3599,7 @@ class BeddingTextilesCategory(CategoryMixin):
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'coicop_division': {'tag': 'coicop_division', 'value': '05.2'},
                          'completeness_detailed': {'tag': 'completeness_detailed',
-                                                   'value': 'subcategory, '
+                                                   'value': 'subcategory, material, '
                                                             'is_set_complete, '
                                                             'assessment_result, '
                                                             'is_winter_suitable, '
@@ -3203,6 +3613,16 @@ class BeddingTextilesCategory(CategoryMixin):
                                                             'assessment_result, '
                                                             'is_winter_suitable, '
                                                             'usage'},
+                         'material_winter_hint': {'tag': 'material_winter_hint',
+                                                  'value': 'Fragment compiler may '
+                                                           'pre-fill '
+                                                           'is_winter_suitable=true '
+                                                           'when material in [wool, '
+                                                           'fleece, down_feather] and '
+                                                           'is_winter_suitable=false '
+                                                           'when material in [linen, '
+                                                           'silk]. Sorter always '
+                                                           'overrides.'},
                          'unhcr_nfi_category': {'tag': 'unhcr_nfi_category',
                                                 'value': 'household_items'},
                          'winter_suitable_subcategories': {'tag': 'winter_suitable_subcategories',
@@ -3294,6 +3714,18 @@ class BeddingTextilesCategory(CategoryMixin):
                                                'name': 'is_winter_suitable',
                                                'range': 'boolean',
                                                'required': False},
+                        'material': {'description': 'Primary fibre or fabric '
+                                                    'composition. Optional — detailed '
+                                                    'completeness tier. Record the '
+                                                    'dominant fibre; use '
+                                                    'synthetic_blend when no single '
+                                                    'synthetic dominates. See '
+                                                    'BeddingMaterialEnum for full '
+                                                    'vocabulary and ontology '
+                                                    'grounding.',
+                                     'name': 'material',
+                                     'range': 'BeddingMaterialEnum',
+                                     'required': False},
                         'subcategory': {'name': 'subcategory',
                                         'range': 'BeddingTextilesSubcategoryEnum',
                                         'required': True}}})
@@ -3315,6 +3747,16 @@ class BeddingTextilesCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[BeddingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Record the dominant fibre; use synthetic_blend when no single synthetic dominates. See BeddingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     assessment_result: BeddingAssessmentEnum = Field(default=..., description="""Hygiene and condition assessment. Required regardless of usage — new items may have packaging damage or factory soiling.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
          'domain_of': ['FurnitureCategory',
@@ -3332,20 +3774,13 @@ class BeddingTextilesCategory(CategoryMixin):
                        'SportsCategory',
                        'StationeryCategory']} })
     is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this bedding item provides meaningful warmth for cold conditions. Required at standard completeness for blankets, duvets_quilts, and sleeping_bags. Not meaningful for towels, curtains, tablecloths. Suppressed by fragment compiler for those subcategories via the season_relevant_subcategories annotation.
-Critical for sleeping bags — a summer sleeping bag issued in a cold-weather emergency is dangerous. Thermal rating in tog or season number may be noted in sorting_notes as free text.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+Critical for sleeping bags — a summer sleeping bag issued in a cold-weather emergency is dangerous. Thermal rating in tog or season number may be noted in sorting_notes as free text.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class HouseholdCategory(CategoryMixin):
@@ -3370,6 +3805,17 @@ class HouseholdCategory(CategoryMixin):
          'slot_usage': {'condition_grade': {'name': 'condition_grade',
                                             'range': 'UsedConditionGradeEnum',
                                             'required': False},
+                        'material': {'description': 'Primary construction material. '
+                                                    'Optional — detailed completeness '
+                                                    'tier. Record the dominant '
+                                                    'material; use mixed when no '
+                                                    'single material dominates. See '
+                                                    'HouseholdMaterialEnum for full '
+                                                    'vocabulary and ontology '
+                                                    'grounding.',
+                                     'name': 'material',
+                                     'range': 'HouseholdMaterialEnum',
+                                     'required': False},
                         'subcategory': {'name': 'subcategory',
                                         'range': 'HouseholdSubcategoryEnum',
                                         'required': True}}})
@@ -3391,11 +3837,15 @@ class HouseholdCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+    material: Optional[HouseholdMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Record the dominant material; use mixed when no single material dominates. See HouseholdMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -3426,9 +3876,6 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class ElectronicsCategory(CategoryMixin):
@@ -3507,14 +3954,15 @@ class ElectronicsCategory(CategoryMixin):
          'see_also': ['schema:OfferItemCondition']} })
     includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
     includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -3524,7 +3972,8 @@ class ToysCategory(CategoryMixin):
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'coicop_division': {'tag': 'coicop_division', 'value': '09.3'},
                          'completeness_detailed': {'tag': 'completeness_detailed',
-                                                   'value': 'subcategory, age_range, '
+                                                   'value': 'subcategory, material, '
+                                                            'age_range, '
                                                             'is_set_complete, '
                                                             'has_small_parts, usage, '
                                                             'condition_grade'},
@@ -3568,6 +4017,18 @@ class ToysCategory(CategoryMixin):
                         'condition_grade': {'name': 'condition_grade',
                                             'range': 'UsedConditionGradeEnum',
                                             'required': False},
+                        'material': {'description': 'Primary construction material. '
+                                                    'Optional — detailed completeness '
+                                                    'tier. Operationally relevant '
+                                                    'under EU Toy Safety Directive '
+                                                    '2009/48/EC Annex II (chemical '
+                                                    'restrictions in toy materials). '
+                                                    'See ToysMaterialEnum for full '
+                                                    'vocabulary, ontology grounding, '
+                                                    'and safety rationale.',
+                                     'name': 'material',
+                                     'range': 'ToysMaterialEnum',
+                                     'required': False},
                         'subcategory': {'name': 'subcategory',
                                         'range': 'ToysSubcategoryEnum',
                                         'required': True}}})
@@ -3589,6 +4050,16 @@ class ToysCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[ToysMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Operationally relevant under EU Toy Safety Directive 2009/48/EC Annex II (chemical restrictions in toy materials). See ToysMaterialEnum for full vocabulary, ontology grounding, and safety rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     age_range: Optional[ToyAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
   BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
@@ -3601,7 +4072,9 @@ class ToysCategory(CategoryMixin):
                        'ToysCategory',
                        'SportsCategory',
                        'StationeryCategory']} })
-    has_small_parts: Optional[bool] = Field(default=None, description="""Whether the item contains small parts posing a choking hazard. UC block: has_small_parts=true → age_range must exclude age_0_to_3. Implements EU Toy Safety Directive 2009/48/EC.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ToysCategory']} })
+    has_small_parts: Optional[bool] = Field(default=None, description="""Whether the item contains small parts posing a choking hazard. UC block: has_small_parts=true → age_range must exclude age_0_to_3. Implements EU Toy Safety Directive 2009/48/EC.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Enthält Kleinteile'},
+                         'label_en': {'tag': 'label_en', 'value': 'Has Small Parts'}},
+         'domain_of': ['ToysCategory']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
   new item, no defects           → like_new
@@ -3624,15 +4097,6 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class SportsCategory(CategoryMixin):
@@ -3798,14 +4262,15 @@ class SportsCategory(CategoryMixin):
                        'ToysCategory',
                        'SportsCategory',
                        'StationeryCategory']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -3881,14 +4346,15 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -3963,14 +4429,15 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -4117,14 +4584,15 @@ class PersonalCareCategory(CategoryMixin):
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -4227,14 +4695,15 @@ class MobilityAidsCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:OfferItemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -4484,7 +4953,9 @@ class BabyInfantCategory(CategoryMixin):
                          'label_en': {'tag': 'label_en',
                                       'value': 'Includes original accessories'}},
          'domain_of': ['BabyInfantCategory']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this item provides meaningful warmth in cold conditions. Required for sleeping_bags (UC-enforced) — a summer-weight baby sleeping bag in cold-weather distribution is a safety risk. Thermal rating (e.g. \"2.5 tog\", \"0°C comfort limit\") may be noted in sorting_notes.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this item provides meaningful warmth in cold conditions. Required for sleeping_bags (UC-enforced) — a summer-weight baby sleeping bag in cold-weather distribution is a safety risk. Thermal rating (e.g. \"2.5 tog\", \"0°C comfort limit\") may be noted in sorting_notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -4517,14 +4988,15 @@ class BabyInfantCategory(CategoryMixin):
                       'schema:LikeNewCondition',
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -4636,7 +5108,19 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this garment provides meaningful warmth in cold-weather conditions. Required at standard completeness for tops, bottoms, outerwear, nightwear. The sorter's direct assessment — not inferred from subcategory or material. The primary emergency distribution filter: \"all winter-suitable clothing for adults.\"""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    material: Optional[ClothingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Select the dominant fibre for blended fabrics; use synthetic_blend when no single synthetic dominates. Exact fibre percentages from legible care labels may be noted in sorting_notes. See ClothingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this garment provides meaningful warmth in cold-weather conditions. Required at standard completeness for tops, bottoms, outerwear, nightwear. The sorter's direct assessment — not inferred from subcategory or material. The primary emergency distribution filter: \"all winter-suitable clothing for adults.\"""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -4652,7 +5136,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                       'schema:WearableSizeGroupBaby',
                       'schema:WearableSizeGroupChildrens',
                       'schema:WearableSizeGroupAdult']} })
-    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory', 'AnyValue'],
+    size: Optional[ClothingSizeEnum] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
+                         'label_en': {'tag': 'label_en', 'value': 'Size'}},
+         'domain_of': ['ClothingCategory', 'AnyValue'],
          'see_also': ['cpi:ClothingSize',
                       'schema:WearableSizeGroupAdult',
                       'schema:WearableSizeSystemEU']} })
@@ -4710,15 +5196,6 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class AccessoriesItem(AccessoriesCategory, DonationItem):
@@ -4777,11 +5254,15 @@ class AccessoriesItem(AccessoriesCategory, DonationItem):
                       'schema:WearableSizeGroupBaby',
                       'schema:WearableSizeGroupChildrens',
                       'schema:WearableSizeGroupAdult']} })
-    material: Optional[str] = Field(default=None, description="""Primary material (e.g. \"leather\", \"wool\", \"cotton\", \"metal\"). Free text — no controlled vocabulary at this stage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+    material: Optional[AccessoriesMaterialEnum] = Field(default=None, description="""Primary construction material of the accessory. Optional — detailed completeness tier. Record the dominant material; use other and note the specific material in sorting_notes when known. See AccessoriesMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
@@ -4845,9 +5326,6 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class FootwearItem(FootwearCategory, DonationItem):
@@ -4932,11 +5410,23 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[FootwearMaterialEnum] = Field(default=None, description="""Primary upper-material. Optional — detailed completeness tier. Record the dominant outer surface material. See FootwearMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     is_pair_complete: Optional[bool] = Field(default=None, description="""Whether both shoes of the pair are present. UC warn if false — sorting_notes required.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Ist das Paar vollständig?'},
                          'label_en': {'tag': 'label_en', 'value': 'is pair complete'}},
          'domain_of': ['FootwearCategory']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this footwear provides meaningful warmth and weather protection in cold conditions. Required at standard completeness. Fragment compiler may pre-fill: boots → true, sandals → false. Sorter always overrides (e.g. a lightweight canvas boot → false).""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this footwear provides meaningful warmth and weather protection in cold conditions. Required at standard completeness. Fragment compiler may pre-fill: boots → true, sandals → false. Sorter always overrides (e.g. a lightweight canvas boot → false).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -5006,15 +5496,6 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class FurnitureItem(FurnitureCategory, DonationItem):
@@ -5059,9 +5540,13 @@ class FurnitureItem(FurnitureCategory, DonationItem):
                        'AnyValue']} })
     material: Optional[FurnitureMaterialEnum] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     assessment_result: FurnitureAssessmentEnum = Field(default=..., description="""Structural and quality assessment. Required regardless of usage — new furniture can have manufacturing defects or assembly issues.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -5117,9 +5602,6 @@ class FurnitureItem(FurnitureCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class BeddingTextilesItem(BeddingTextilesCategory, DonationItem):
@@ -5166,6 +5648,16 @@ class BeddingTextilesItem(BeddingTextilesCategory, DonationItem):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[BeddingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Record the dominant fibre; use synthetic_blend when no single synthetic dominates. See BeddingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     assessment_result: BeddingAssessmentEnum = Field(default=..., description="""Hygiene and condition assessment. Required regardless of usage — new items may have packaging damage or factory soiling.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
          'domain_of': ['FurnitureCategory',
@@ -5183,7 +5675,9 @@ class BeddingTextilesItem(BeddingTextilesCategory, DonationItem):
                        'SportsCategory',
                        'StationeryCategory']} })
     is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this bedding item provides meaningful warmth for cold conditions. Required at standard completeness for blankets, duvets_quilts, and sleeping_bags. Not meaningful for towels, curtains, tablecloths. Suppressed by fragment compiler for those subcategories via the season_relevant_subcategories annotation.
-Critical for sleeping bags — a summer sleeping bag issued in a cold-weather emergency is dangerous. Thermal rating in tog or season number may be noted in sorting_notes as free text.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+Critical for sleeping bags — a summer sleeping bag issued in a cold-weather emergency is dangerous. Thermal rating in tog or season number may be noted in sorting_notes as free text.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -5228,15 +5722,6 @@ Critical for sleeping bags — a summer sleeping bag issued in a cold-weather em
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class HouseholdItem(HouseholdCategory, DonationItem):
@@ -5274,11 +5759,15 @@ class HouseholdItem(HouseholdCategory, DonationItem):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+    material: Optional[HouseholdMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Record the dominant material; use mixed when no single material dominates. See HouseholdMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -5349,9 +5838,6 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
 
 
 class ElectronicsItem(ElectronicsCategory, DonationItem):
@@ -5452,14 +5938,15 @@ class ElectronicsItem(ElectronicsCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -5502,6 +5989,16 @@ class ToysItem(ToysCategory, DonationItem):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'AnyValue']} })
+    material: Optional[ToysMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Operationally relevant under EU Toy Safety Directive 2009/48/EC Annex II (chemical restrictions in toy materials). See ToysMaterialEnum for full vocabulary, ontology grounding, and safety rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
+                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ToysCategory',
+                       'CategoryMixin']} })
     age_range: Optional[ToyAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
   BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
@@ -5514,7 +6011,9 @@ class ToysItem(ToysCategory, DonationItem):
                        'ToysCategory',
                        'SportsCategory',
                        'StationeryCategory']} })
-    has_small_parts: Optional[bool] = Field(default=None, description="""Whether the item contains small parts posing a choking hazard. UC block: has_small_parts=true → age_range must exclude age_0_to_3. Implements EU Toy Safety Directive 2009/48/EC.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ToysCategory']} })
+    has_small_parts: Optional[bool] = Field(default=None, description="""Whether the item contains small parts posing a choking hazard. UC block: has_small_parts=true → age_range must exclude age_0_to_3. Implements EU Toy Safety Directive 2009/48/EC.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Enthält Kleinteile'},
+                         'label_en': {'tag': 'label_en', 'value': 'Has Small Parts'}},
+         'domain_of': ['ToysCategory']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
   new item, no defects           → like_new
@@ -5577,15 +6076,6 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
-    material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
-                         'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
-                       'FurnitureCategory',
-                       'HouseholdCategory',
-                       'CategoryMixin']} })
 
 
 class SportsItem(SportsCategory, DonationItem):
@@ -5716,14 +6206,15 @@ class SportsItem(SportsCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -5830,14 +6321,15 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -5945,14 +6437,15 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -6048,14 +6541,15 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -6150,14 +6644,15 @@ class MobilityAidsItem(MobilityAidsCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 
@@ -6264,7 +6759,9 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
                          'label_en': {'tag': 'label_en',
                                       'value': 'Includes original accessories'}},
          'domain_of': ['BabyInfantCategory']} })
-    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this item provides meaningful warmth in cold conditions. Required for sleeping_bags (UC-enforced) — a summer-weight baby sleeping bag in cold-weather distribution is a safety risk. Thermal rating (e.g. \"2.5 tog\", \"0°C comfort limit\") may be noted in sorting_notes.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ClothingCategory',
+    is_winter_suitable: Optional[bool] = Field(default=None, description="""Whether this item provides meaningful warmth in cold conditions. Required for sleeping_bags (UC-enforced) — a summer-weight baby sleeping bag in cold-weather distribution is a safety risk. Thermal rating (e.g. \"2.5 tog\", \"0°C comfort limit\") may be noted in sorting_notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Wintertauglich'},
+                         'label_en': {'tag': 'label_en', 'value': 'Winter Suitable'}},
+         'domain_of': ['ClothingCategory',
                        'FootwearCategory',
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
@@ -6337,14 +6834,15 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
          'domain_of': ['DonationItem']} })
     created_at: datetime  = Field(default=..., description="""Timestamp when the entity was created.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource', 'DonationCollection', 'DonationItem']} })
     updated_at: datetime  = Field(default=..., description="""Timestamp when the entity record was last modified.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    notes: Optional[str] = Field(default=None, description="""Optional free-text notes.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
-                         'label_en': {'tag': 'label_en', 'value': 'Notes'}},
-         'domain_of': ['DonationCollection', 'CategoryMixin']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
-         'domain_of': ['AccessoriesCategory',
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
                        'FurnitureCategory',
+                       'BeddingTextilesCategory',
                        'HouseholdCategory',
+                       'ToysCategory',
                        'CategoryMixin']} })
 
 

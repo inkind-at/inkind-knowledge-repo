@@ -105,7 +105,7 @@ classes:
     description: >-
       Abstract mixin base for all category classes except FoodCategory.
 
-      Provides shared slots (notes, material) available to all categories.
+      Provides shared slots (material) available to all categories.
       Does NOT declare a condition rule — each category type handles condition
       differently (see schema description above for full rationale).
 
@@ -119,7 +119,6 @@ classes:
       along with category-specific slots, UC rules, VM rules, and
       completeness tier annotations.
     slots:
-      - notes
       - material
 
 

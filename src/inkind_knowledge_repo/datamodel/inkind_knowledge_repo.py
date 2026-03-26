@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-03-25T23:13:49
+# Generation date: 2026-03-26T11:00:06
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -685,10 +685,9 @@ class ClothingItem(DonationItem):
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
-    notes: Optional[str] = None
-    material: Optional[str] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    material: Optional[Union[str, "ClothingMaterialEnum"]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     size: Optional[Union[str, "ClothingSizeEnum"]] = None
@@ -701,17 +700,14 @@ class ClothingItem(DonationItem):
         if not isinstance(self.id, ClothingItemId):
             self.id = ClothingItemId(self.id)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
-
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
+
+        if self.material is not None and not isinstance(self.material, ClothingMaterialEnum):
+            self.material = ClothingMaterialEnum(self.material)
 
         if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
             self.is_winter_suitable = Bool(self.is_winter_suitable)
@@ -765,9 +761,8 @@ class AccessoriesItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "AccessoriesSubcategoryEnum"] = None
-    notes: Optional[str] = None
     demographic: Optional[Union[str, "AccessoriesDemographicEnum"]] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "AccessoriesMaterialEnum"]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
@@ -781,14 +776,11 @@ class AccessoriesItem(DonationItem):
         if not isinstance(self.subcategory, AccessoriesSubcategoryEnum):
             self.subcategory = AccessoriesSubcategoryEnum(self.subcategory)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
         if self.demographic is not None and not isinstance(self.demographic, AccessoriesDemographicEnum):
             self.demographic = AccessoriesDemographicEnum(self.demographic)
 
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, AccessoriesMaterialEnum):
+            self.material = AccessoriesMaterialEnum(self.material)
 
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
@@ -821,9 +813,8 @@ class FootwearItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FootwearSubcategoryEnum"] = None
-    notes: Optional[str] = None
-    material: Optional[str] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    material: Optional[Union[str, "FootwearMaterialEnum"]] = None
     is_pair_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
@@ -842,14 +833,11 @@ class FootwearItem(DonationItem):
         if not isinstance(self.subcategory, FootwearSubcategoryEnum):
             self.subcategory = FootwearSubcategoryEnum(self.subcategory)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
-
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
+        if self.material is not None and not isinstance(self.material, FootwearMaterialEnum):
+            self.material = FootwearMaterialEnum(self.material)
 
         if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
             self.is_pair_complete = Bool(self.is_pair_complete)
@@ -903,7 +891,6 @@ class FurnitureItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
     assessment_result: Union[str, "FurnitureAssessmentEnum"] = None
-    notes: Optional[str] = None
     material: Optional[Union[str, "FurnitureMaterialEnum"]] = None
     dimensions: Optional[str] = None
     style: Optional[str] = None
@@ -923,9 +910,6 @@ class FurnitureItem(DonationItem):
             self.MissingRequiredField("assessment_result")
         if not isinstance(self.assessment_result, FurnitureAssessmentEnum):
             self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, FurnitureMaterialEnum):
             self.material = FurnitureMaterialEnum(self.material)
@@ -972,8 +956,7 @@ class BeddingTextilesItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
     assessment_result: Union[str, "BeddingAssessmentEnum"] = None
-    notes: Optional[str] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "BeddingMaterialEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
 
@@ -993,11 +976,8 @@ class BeddingTextilesItem(DonationItem):
         if not isinstance(self.assessment_result, BeddingAssessmentEnum):
             self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
+            self.material = BeddingMaterialEnum(self.material)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -1033,8 +1013,7 @@ class HouseholdItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "HouseholdSubcategoryEnum"] = None
-    notes: Optional[str] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "HouseholdMaterialEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
@@ -1049,11 +1028,8 @@ class HouseholdItem(DonationItem):
         if not isinstance(self.subcategory, HouseholdSubcategoryEnum):
             self.subcategory = HouseholdSubcategoryEnum(self.subcategory)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, HouseholdMaterialEnum):
+            self.material = HouseholdMaterialEnum(self.material)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -1094,7 +1070,6 @@ class ElectronicsItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "ElectronicsSubcategoryEnum"] = None
     assessment_result: Union[str, "ElectronicsAssessmentEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     includes_charger: Optional[Union[bool, Bool]] = None
     includes_original_packaging: Optional[Union[bool, Bool]] = None
@@ -1114,9 +1089,6 @@ class ElectronicsItem(DonationItem):
             self.MissingRequiredField("assessment_result")
         if not isinstance(self.assessment_result, ElectronicsAssessmentEnum):
             self.assessment_result = ElectronicsAssessmentEnum(self.assessment_result)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1155,8 +1127,7 @@ class ToysItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "ToysSubcategoryEnum"] = None
-    notes: Optional[str] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "ToysMaterialEnum"]] = None
     age_range: Optional[Union[str, "ToyAgeRangeEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     has_small_parts: Optional[Union[bool, Bool]] = None
@@ -1173,11 +1144,8 @@ class ToysItem(DonationItem):
         if not isinstance(self.subcategory, ToysSubcategoryEnum):
             self.subcategory = ToysSubcategoryEnum(self.subcategory)
 
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, ToysMaterialEnum):
+            self.material = ToysMaterialEnum(self.material)
 
         if self.age_range is not None and not isinstance(self.age_range, ToyAgeRangeEnum):
             self.age_range = ToyAgeRangeEnum(self.age_range)
@@ -1224,7 +1192,6 @@ class SportsItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "SportsSubcategoryEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     assessment_result: Optional[Union[str, "SportsProtectiveAssessmentEnum"]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
@@ -1242,9 +1209,6 @@ class SportsItem(DonationItem):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, SportsSubcategoryEnum):
             self.subcategory = SportsSubcategoryEnum(self.subcategory)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1291,7 +1255,6 @@ class BooksItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BooksSubcategoryEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     language: Optional[str] = None
     age_range: Optional[Union[str, "BookAgeRangeEnum"]] = None
@@ -1307,9 +1270,6 @@ class BooksItem(DonationItem):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, BooksSubcategoryEnum):
             self.subcategory = BooksSubcategoryEnum(self.subcategory)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1351,7 +1311,6 @@ class StationeryItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "StationerySubcategoryEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
@@ -1366,9 +1325,6 @@ class StationeryItem(DonationItem):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, StationerySubcategoryEnum):
             self.subcategory = StationerySubcategoryEnum(self.subcategory)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1414,7 +1370,6 @@ class PersonalCareItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "PersonalCareSubcategoryEnum"] = None
     is_sealed: Union[bool, Bool] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
 
@@ -1433,9 +1388,6 @@ class PersonalCareItem(DonationItem):
             self.MissingRequiredField("is_sealed")
         if not isinstance(self.is_sealed, Bool):
             self.is_sealed = Bool(self.is_sealed)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1477,7 +1429,6 @@ class MobilityAidsItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
     assessment_result: Union[str, "MobilityAssessmentEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
@@ -1495,9 +1446,6 @@ class MobilityAidsItem(DonationItem):
             self.MissingRequiredField("assessment_result")
         if not isinstance(self.assessment_result, MobilityAssessmentEnum):
             self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1547,7 +1495,6 @@ class BabyInfantItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BabyInfantSubcategoryEnum"] = None
-    notes: Optional[str] = None
     material: Optional[str] = None
     assessment_result: Optional[Union[str, "BabyEquipmentAssessmentEnum"]] = None
     manufacture_year: Optional[int] = None
@@ -1567,9 +1514,6 @@ class BabyInfantItem(DonationItem):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, BabyInfantSubcategoryEnum):
             self.subcategory = BabyInfantSubcategoryEnum(self.subcategory)
-
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
@@ -1904,8 +1848,8 @@ class Campaign(YAMLRoot):
 class CategoryMixin(YAMLRoot):
     """
     Abstract mixin base for all category classes except FoodCategory.
-    Provides shared slots (notes, material) available to all categories. Does NOT declare a condition rule — each
-    category type handles condition differently (see schema description above for full rationale).
+    Provides shared slots (material) available to all categories. Does NOT declare a condition rule — each category
+    type handles condition differently (see schema description above for full rationale).
     FoodCategory does not extend this mixin because food safety assessment uses packaging_intact + expiry_date rather
     than condition_grade or assessment_result. Extending CategoryMixin would pull in slots that are semantically
     incorrect for food items.
@@ -1919,13 +1863,9 @@ class CategoryMixin(YAMLRoot):
     class_name: ClassVar[str] = "CategoryMixin"
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.CategoryMixin
 
-    notes: Optional[str] = None
     material: Optional[str] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
-        if self.notes is not None and not isinstance(self.notes, str):
-            self.notes = str(self.notes)
-
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
 
@@ -1948,7 +1888,7 @@ class AccessoriesCategory(CategoryMixin):
 
     subcategory: Union[str, "AccessoriesSubcategoryEnum"] = None
     demographic: Optional[Union[str, "AccessoriesDemographicEnum"]] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "AccessoriesMaterialEnum"]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
@@ -1960,8 +1900,8 @@ class AccessoriesCategory(CategoryMixin):
         if self.demographic is not None and not isinstance(self.demographic, AccessoriesDemographicEnum):
             self.demographic = AccessoriesDemographicEnum(self.demographic)
 
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, AccessoriesMaterialEnum):
+            self.material = AccessoriesMaterialEnum(self.material)
 
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
@@ -1989,6 +1929,7 @@ class ClothingCategory(CategoryMixin):
 
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    material: Optional[Union[str, "ClothingMaterialEnum"]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     size: Optional[Union[str, "ClothingSizeEnum"]] = None
@@ -2001,6 +1942,9 @@ class ClothingCategory(CategoryMixin):
 
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
+
+        if self.material is not None and not isinstance(self.material, ClothingMaterialEnum):
+            self.material = ClothingMaterialEnum(self.material)
 
         if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
             self.is_winter_suitable = Bool(self.is_winter_suitable)
@@ -2037,6 +1981,7 @@ class FootwearCategory(CategoryMixin):
 
     subcategory: Union[str, "FootwearSubcategoryEnum"] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    material: Optional[Union[str, "FootwearMaterialEnum"]] = None
     is_pair_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
@@ -2052,6 +1997,9 @@ class FootwearCategory(CategoryMixin):
 
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
+        if self.material is not None and not isinstance(self.material, FootwearMaterialEnum):
+            self.material = FootwearMaterialEnum(self.material)
 
         if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
             self.is_pair_complete = Bool(self.is_pair_complete)
@@ -2136,6 +2084,7 @@ class BeddingTextilesCategory(CategoryMixin):
 
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
     assessment_result: Union[str, "BeddingAssessmentEnum"] = None
+    material: Optional[Union[str, "BeddingMaterialEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
 
@@ -2149,6 +2098,9 @@ class BeddingTextilesCategory(CategoryMixin):
             self.MissingRequiredField("assessment_result")
         if not isinstance(self.assessment_result, BeddingAssessmentEnum):
             self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
+
+        if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
+            self.material = BeddingMaterialEnum(self.material)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -2173,7 +2125,7 @@ class HouseholdCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.HouseholdCategory
 
     subcategory: Union[str, "HouseholdSubcategoryEnum"] = None
-    material: Optional[str] = None
+    material: Optional[Union[str, "HouseholdMaterialEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
@@ -2183,8 +2135,8 @@ class HouseholdCategory(CategoryMixin):
         if not isinstance(self.subcategory, HouseholdSubcategoryEnum):
             self.subcategory = HouseholdSubcategoryEnum(self.subcategory)
 
-        if self.material is not None and not isinstance(self.material, str):
-            self.material = str(self.material)
+        if self.material is not None and not isinstance(self.material, HouseholdMaterialEnum):
+            self.material = HouseholdMaterialEnum(self.material)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -2248,6 +2200,7 @@ class ToysCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ToysCategory
 
     subcategory: Union[str, "ToysSubcategoryEnum"] = None
+    material: Optional[Union[str, "ToysMaterialEnum"]] = None
     age_range: Optional[Union[str, "ToyAgeRangeEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     has_small_parts: Optional[Union[bool, Bool]] = None
@@ -2258,6 +2211,9 @@ class ToysCategory(CategoryMixin):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, ToysSubcategoryEnum):
             self.subcategory = ToysSubcategoryEnum(self.subcategory)
+
+        if self.material is not None and not isinstance(self.material, ToysMaterialEnum):
+            self.material = ToysMaterialEnum(self.material)
 
         if self.age_range is not None and not isinstance(self.age_range, ToyAgeRangeEnum):
             self.age_range = ToyAgeRangeEnum(self.age_range)
@@ -3198,6 +3154,62 @@ class AccessoriesSubcategoryEnum(EnumDefinitionImpl):
         description="""Fashion and personal accessories subcategories. Deliberately separate from ClothingSubcategoryEnum to enable clean progressive disclosure in the sorting UI. Grounded in Product Types Ontology (pto:) terms.""",
     )
 
+class AccessoriesMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can
+    identify quickly. Not all accessories have a single primary material — a watch has a metal case, leather strap,
+    and glass face; record the most prominent element.
+    Grounded in Product Types Ontology (pto:) for individual fibres and common materials, and schema:material as the
+    overarching property anchor. Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml) for the
+    fibre values (leather, wool, cotton, silk) for consistency.
+    Two redistribution-relevant uses:
+    1. Allergen filtering — wool (scarves, hats, gloves) and nickel
+    (base metal jewellery, belt buckles) sensitivities.
+    2. Care requirement matching — leather requires conditioning; silk
+    is dry-clean only; metal jewellery requires anti-tarnish storage.
+    """
+    leather = PermissibleValue(
+        text="leather",
+        description="""Genuine or faux leather (PU/synthetic leather). Predominant material for bags, belts, wallets, and some gloves and watch straps. Requires specialist conditioning care.""")
+    wool = PermissibleValue(
+        text="wool",
+        description="""Wool, merino, cashmere, or wool-dominant blend. Primary material for scarves, hats, and gloves. Allergen signal for wool-sensitive beneficiaries.""")
+    cotton = PermissibleValue(
+        text="cotton",
+        description="""Cotton or cotton-dominant woven fabric. Common in fabric hats, canvas bags, and some gloves and scarves. All-season versatile.""")
+    silk = PermissibleValue(
+        text="silk",
+        description="""Silk or silk-blend. Typical for elegant scarves and ties. Requires specialist care (hand wash or dry clean).""")
+    metal = PermissibleValue(
+        text="metal",
+        description="""Metal (gold, silver, base metal, stainless steel, or alloy). Predominant for jewellery, watch cases, belt buckles, and eyewear frames. Nickel in base metal alloys is a common allergen.""")
+    plastic = PermissibleValue(
+        text="plastic",
+        description="""Plastic or acrylic. Common for sunglasses frames, costume jewellery, and some bags. Wide range of types — record specifics in sorting_notes if relevant (e.g. recycled plastic, BPA-free for baby accessories).""")
+    synthetic = PermissibleValue(
+        text="synthetic",
+        description="""Synthetic fabric or material — nylon, polyester, or other man-made fibres. Common in nylon bags, polyester scarves, and synthetic gloves. Distinct from leather_faux_leather (which mimics leather texture).""")
+    natural_fibre = PermissibleValue(
+        text="natural_fibre",
+        description="""Natural plant-based fibres other than cotton — straw, raffia, jute, bamboo, rattan, wicker. Common in summer hats and baskets.""")
+    glass_crystal = PermissibleValue(
+        text="glass_crystal",
+        description="""Glass or crystal elements. Common in costume jewellery (glass beads, crystal pendants) and some decorative accessories.""")
+    other = PermissibleValue(
+        text="other",
+        description="Materials not covered above. Record the specific material in sorting_notes when known.")
+
+    _defn = EnumDefinition(
+        name="AccessoriesMaterialEnum",
+        description="""Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can identify quickly. Not all accessories have a single primary material — a watch has a metal case, leather strap, and glass face; record the most prominent element.
+Grounded in Product Types Ontology (pto:) for individual fibres and common materials, and schema:material as the overarching property anchor. Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml) for the fibre values (leather, wool, cotton, silk) for consistency.
+Two redistribution-relevant uses:
+  1. Allergen filtering — wool (scarves, hats, gloves) and nickel
+     (base metal jewellery, belt buckles) sensitivities.
+  2. Care requirement matching — leather requires conditioning; silk
+     is dry-clean only; metal jewellery requires anti-tarnish storage.""",
+    )
+
 class AccessoriesDemographicEnum(EnumDefinitionImpl):
     """
     Simplified age-group demographic for accessories. Gender split not modelled — gender is not a meaningful dimension
@@ -3382,6 +3394,94 @@ class ClothingSizeEnum(EnumDefinitionImpl):
         description="""Clothing sizes covering infant, children's, and adult sizing. Grounded in schema.org wearable size groups and CPI ClothingSize. Valid values per demographic are constrained by vm-size-* rules.""",
     )
 
+class ClothingMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary fibre or fabric composition of a clothing item. Records the predominant material; for blended fabrics
+    (e.g. 60% cotton / 40% polyester), select the dominant fibre or use synthetic_blend when no single synthetic
+    dominates and a more specific value does not apply.
+    Grounded in:
+    Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
+    concepts, consistent with pto:Wood in FurnitureMaterialEnum.
+    http://www.productontology.org/id/
+    schema:material — overarching property on schema:Product, first-class
+    since GoodRelations was absorbed into schema.org in 2012.
+    https://schema.org/material
+    Used as see_also anchor for values that have no discrete pto: IRI
+    (synthetic_blend, other).
+
+    Three uses at sorting time:
+    1. Allergen filtering — wool, latex, and nickel sensitivities;
+    requires intact_labels=true for highest confidence;
+    exact percentages may be recorded in sorting_notes.
+    2. Seasonality hinting by the fragment compiler
+    (wool/fleece/down → pre-fill is_winter_suitable=true;
+    linen/silk → pre-fill is_winter_suitable=false).
+    Sorter override always takes precedence.
+    3. Care requirement matching — silk and leather indicate specialist
+    care needs that the match engine can surface.
+    """
+    cotton = PermissibleValue(
+        text="cotton",
+        description="""Cotton or cotton-dominant blend (>50% cotton). The most common natural fibre. All-season versatile; thermal weight varies by weave and weight (a thin cotton t-shirt vs. a heavy flannel shirt).""")
+    wool = PermissibleValue(
+        text="wool",
+        description="""Wool, merino, lambswool, cashmere, or wool-dominant blend. Primary natural indicator of winter suitability.""")
+    linen = PermissibleValue(
+        text="linen",
+        description="Linen (flax) fabric. Lightweight and breathable natural fibre. Primarily summer-weight.")
+    silk = PermissibleValue(
+        text="silk",
+        description="""Silk or silk-blend. Lightweight natural fibre; typically summer or formal wear. Requires specialist care (dry clean or hand wash). Fragment compiler may pre-fill is_winter_suitable=false.""")
+    denim = PermissibleValue(
+        text="denim",
+        description="""Denim (woven cotton twill). Used for jeans, jackets, and skirts. Seasonality varies by weight — standard denim is spring_autumn; heavy or lined denim may be winter-suitable. Sorter decides.""")
+    leather = PermissibleValue(
+        text="leather",
+        description="""Leather or leather-look (genuine, PU, or faux leather). Primarily for outerwear (jackets, coats). Typically spring_autumn or winter-suitable depending on lining. Requires specialist care.""")
+    fleece = PermissibleValue(
+        text="fleece",
+        description="""Polar fleece or other synthetic-pile insulating fabric. Warm and lightweight. Fragment compiler may pre-fill is_winter_suitable=true. This value covers synthetic-pile fleece only — use wool for merino or lambswool fleece.""")
+    down = PermissibleValue(
+        text="down",
+        description="""Down-filled or feather-filled insulating garments (puffer jackets, gilets, down coats). Fragment compiler may pre-fill is_winter_suitable=true.""")
+    polyester = PermissibleValue(
+        text="polyester",
+        description="""Polyester or polyester-dominant synthetic. Common in sportswear, activewear, and everyday garments. All-season; thermal weight varies by fabric construction.""")
+    nylon = PermissibleValue(
+        text="nylon",
+        description="""Nylon (polyamide) fabric. Common in sportswear, windbreakers, and tights. Strong, lightweight, and moisture-resistant.""")
+    synthetic_blend = PermissibleValue(
+        text="synthetic_blend",
+        description="""Mixed synthetic fibres or a synthetic + natural blend where no single fibre dominates and a more specific value does not apply. Examples: polyester/spandex (activewear), nylon/cotton blends, acrylic/polyester blends.""")
+    other = PermissibleValue(
+        text="other",
+        description="""Materials not covered above — e.g. viscose/rayon, bamboo, modal, technical fabrics, specialty textiles. Record the specific material in sorting_notes when known and intact_labels=true.""")
+
+    _defn = EnumDefinition(
+        name="ClothingMaterialEnum",
+        description="""Primary fibre or fabric composition of a clothing item. Records the predominant material; for blended fabrics (e.g. 60% cotton / 40% polyester), select the dominant fibre or use synthetic_blend when no single synthetic dominates and a more specific value does not apply.
+Grounded in:
+  Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
+    concepts, consistent with pto:Wood in FurnitureMaterialEnum.
+    http://www.productontology.org/id/
+  schema:material — overarching property on schema:Product, first-class
+    since GoodRelations was absorbed into schema.org in 2012.
+    https://schema.org/material
+    Used as see_also anchor for values that have no discrete pto: IRI
+    (synthetic_blend, other).
+
+Three uses at sorting time:
+  1. Allergen filtering — wool, latex, and nickel sensitivities;
+     requires intact_labels=true for highest confidence;
+     exact percentages may be recorded in sorting_notes.
+  2. Seasonality hinting by the fragment compiler
+     (wool/fleece/down → pre-fill is_winter_suitable=true;
+      linen/silk → pre-fill is_winter_suitable=false).
+     Sorter override always takes precedence.
+  3. Care requirement matching — silk and leather indicate specialist
+     care needs that the match engine can surface.""",
+    )
+
 class FootwearSubcategoryEnum(EnumDefinitionImpl):
     """
     Footwear subcategories. Grounded in Product Types Ontology. is_winter_suitable is the sorter's call — subcategory
@@ -3410,6 +3510,72 @@ class FootwearSubcategoryEnum(EnumDefinitionImpl):
     _defn = EnumDefinition(
         name="FootwearSubcategoryEnum",
         description="""Footwear subcategories. Grounded in Product Types Ontology. is_winter_suitable is the sorter's call — subcategory alone is insufficient (a lightweight canvas boot is not winter-suitable; a fleece-lined boot is). Fragment compiler provides UI hints.""",
+    )
+
+class FootwearMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary upper-material of a footwear item — the dominant outer fabric or surface visible on the shoe upper
+    (excluding the sole, which is rubber or synthetic in almost all footwear).
+    Grounded in Product Types Ontology (pto:) where distinct IRIs exist, and schema:material as the overarching
+    property anchor for values without a discrete pto: IRI. Aligned with ClothingMaterialEnum for shared values
+    (leather, suede, wool).
+    Three redistribution-relevant uses:
+    1. Care requirement matching — leather needs conditioning; suede
+    needs specialist brushing and waterproofing; canvas is typically
+    machine-washable; rubber boots can be wiped clean.
+    2. Allergen filtering — latex rubber (natural rubber) is a known
+    allergen; most modern Wellington boots use synthetic rubber but
+    natural rubber is still used in premium lines.
+    3. Seasonality hinting — canvas and synthetic_mesh are typical
+    summer/spring-autumn materials; wool_felt is associated with
+    warm indoor slippers. Fragment compiler MAY use material as a
+    supplementary UI pre-fill hint (secondary to subcategory-based
+    hints). Sorter always overrides.
+    """
+    leather = PermissibleValue(
+        text="leather",
+        description="""Genuine or polished leather upper. The most common material for dress shoes, leather boots, loafers, and classic Oxford shoes. Requires conditioning and polishing; not machine-washable.""")
+    suede = PermissibleValue(
+        text="suede",
+        description="""Suede or nubuck upper. Brushed, napped leather surface. Common for ankle boots, desert boots, and casual shoes. Requires specialist suede brush and waterproofing spray.""")
+    synthetic_leather = PermissibleValue(
+        text="synthetic_leather",
+        description="""PU or synthetic leather (faux leather) upper. Common in budget shoes, trainers, and fashion boots. Easier care than genuine leather but less durable over time.""")
+    canvas = PermissibleValue(
+        text="canvas",
+        description="""Canvas or cotton-based textile upper. Typical for casual trainers (e.g. classic low-top sneakers), espadrilles, and deck shoes. Usually machine-washable. Primarily spring-autumn or summer use.""")
+    synthetic_mesh = PermissibleValue(
+        text="synthetic_mesh",
+        description="""Breathable synthetic mesh or knit upper. Standard material for running shoes, athletic trainers, and performance footwear. Lightweight and quick-drying. Primarily spring-autumn or summer.""")
+    rubber = PermissibleValue(
+        text="rubber",
+        description="""Rubber or PVC. Primary material for Wellington boots, rain boots, and some sandal soles. Fully waterproof; can be wiped clean. Natural rubber is a known allergen — record in sorting_notes if identifiable as natural rubber (often marked on the boot).""")
+    wool_felt = PermissibleValue(
+        text="wool_felt",
+        description="""Wool, felt, or boiled-wool upper. Most common in warm indoor slippers and some traditional boots. Allergen signal for wool-sensitive beneficiaries.""")
+    textile = PermissibleValue(
+        text="textile",
+        description="""Woven or knitted textile upper that is not canvas or synthetic mesh — e.g. fabric mules, woven espadrille-style shoes, textile slip-ons.""")
+    other = PermissibleValue(
+        text="other",
+        description="""Materials not covered above (e.g. cork, wood clogs, exotic leather). Record the specific material in sorting_notes when known.""")
+
+    _defn = EnumDefinition(
+        name="FootwearMaterialEnum",
+        description="""Primary upper-material of a footwear item — the dominant outer fabric or surface visible on the shoe upper (excluding the sole, which is rubber or synthetic in almost all footwear).
+Grounded in Product Types Ontology (pto:) where distinct IRIs exist, and schema:material as the overarching property anchor for values without a discrete pto: IRI. Aligned with ClothingMaterialEnum for shared values (leather, suede, wool).
+Three redistribution-relevant uses:
+  1. Care requirement matching — leather needs conditioning; suede
+     needs specialist brushing and waterproofing; canvas is typically
+     machine-washable; rubber boots can be wiped clean.
+  2. Allergen filtering — latex rubber (natural rubber) is a known
+     allergen; most modern Wellington boots use synthetic rubber but
+     natural rubber is still used in premium lines.
+  3. Seasonality hinting — canvas and synthetic_mesh are typical
+     summer/spring-autumn materials; wool_felt is associated with
+     warm indoor slippers. Fragment compiler MAY use material as a
+     supplementary UI pre-fill hint (secondary to subcategory-based
+     hints). Sorter always overrides.""",
     )
 
 class ShoeSizeSystemEnum(EnumDefinitionImpl):
@@ -3522,6 +3688,71 @@ class FurnitureMaterialEnum(EnumDefinitionImpl):
         description="""Primary furniture construction material. Grounded in schema:material (schema.org property on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty). Valid values per subcategory constrained by vm-material-* rules.""",
     )
 
+class BeddingMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend
+    when no single synthetic dominates (e.g. a polyester/cotton blend duvet cover).
+    Grounded in Product Types Ontology (pto:) for individual fibres and schema:material as the overarching property
+    anchor. Values for natural fibres (cotton, wool, linen, silk, down_feather) are aligned with ClothingMaterialEnum
+    (clothing.yaml) for consistency across all textile category material enums.
+    Three redistribution-relevant uses:
+    1. Allergen filtering — wool (blankets, duvets) for wool-sensitive
+    beneficiaries; down/feather (duvets, pillows) for feather-allergy
+    or asthma sufferers.
+    2. Winter suitability hinting — the fragment compiler MAY pre-fill
+    is_winter_suitable=true for wool, fleece, and down_feather, and
+    false for linen and silk. Sorter always overrides.
+    The winter_hint annotation on individual values carries this signal.
+    3. Care requirement matching — wool requires gentle/hand-wash;
+    silk requires dry-clean; down requires low-heat tumble drying.
+    """
+    cotton = PermissibleValue(
+        text="cotton",
+        description="""Cotton or cotton-dominant. The most common natural fibre for sheets, pillowcases, and towels. All-season versatile; thermal weight varies by thread count and weave.""")
+    polyester = PermissibleValue(
+        text="polyester",
+        description="""Polyester or polyester-dominant synthetic. Common in budget blankets, pillows, and duvet covers. All-season; easy-care.""")
+    wool = PermissibleValue(
+        text="wool",
+        description="""Wool, merino, or wool-dominant blend. Primary signal of winter suitability in blankets and duvets. Fragment compiler may pre-fill is_winter_suitable=true. Allergen signal for wool-sensitive beneficiaries.""")
+    linen = PermissibleValue(
+        text="linen",
+        description="""Linen (flax) fabric. Lightweight and breathable. Typical for summer-weight sheets and tablecloths. Fragment compiler may pre-fill is_winter_suitable=false.""")
+    fleece = PermissibleValue(
+        text="fleece",
+        description="""Polar fleece or other synthetic-pile fabric. Common in lightweight throws and entry-level blankets. Warm for its weight. Fragment compiler may pre-fill is_winter_suitable=true.""")
+    down_feather = PermissibleValue(
+        text="down_feather",
+        description="""Down-filled or feather-filled duvets and pillows. Classic winter-weight fill. Fragment compiler may pre-fill is_winter_suitable=true. Allergen signal for feather/down allergy and asthma sufferers. Requires low-heat tumble drying.""")
+    silk = PermissibleValue(
+        text="silk",
+        description="""Silk. Lightweight and temperature-regulating. Common in premium bedding sets. Requires dry-clean or specialist gentle wash. Fragment compiler may pre-fill is_winter_suitable=false.""")
+    microfibre = PermissibleValue(
+        text="microfibre",
+        description="""Microfibre (ultra-fine synthetic) fabric. Common in microfibre towels, soft sheets, and lightweight blankets. Quick-drying and easy-care.""")
+    synthetic_blend = PermissibleValue(
+        text="synthetic_blend",
+        description="""Mixed synthetic fibres or a synthetic + natural blend where no single fibre dominates. Covers polyester/cotton blends (polycotton), acrylic blends, and other mixed compositions.""")
+    other = PermissibleValue(
+        text="other",
+        description="Materials not covered above. Record the specific material in sorting_notes when known.")
+
+    _defn = EnumDefinition(
+        name="BeddingMaterialEnum",
+        description="""Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend when no single synthetic dominates (e.g. a polyester/cotton blend duvet cover).
+Grounded in Product Types Ontology (pto:) for individual fibres and schema:material as the overarching property anchor. Values for natural fibres (cotton, wool, linen, silk, down_feather) are aligned with ClothingMaterialEnum (clothing.yaml) for consistency across all textile category material enums.
+Three redistribution-relevant uses:
+  1. Allergen filtering — wool (blankets, duvets) for wool-sensitive
+     beneficiaries; down/feather (duvets, pillows) for feather-allergy
+     or asthma sufferers.
+  2. Winter suitability hinting — the fragment compiler MAY pre-fill
+     is_winter_suitable=true for wool, fleece, and down_feather, and
+     false for linen and silk. Sorter always overrides.
+     The winter_hint annotation on individual values carries this signal.
+  3. Care requirement matching — wool requires gentle/hand-wash;
+     silk requires dry-clean; down requires low-heat tumble drying.""",
+    )
+
 class BeddingAssessmentEnum(EnumDefinitionImpl):
     """
     Structured hygiene and condition assessment for bedding and textiles. Replaces former boolean slots
@@ -3587,6 +3818,73 @@ class BeddingTextilesSubcategoryEnum(EnumDefinitionImpl):
     _defn = EnumDefinition(
         name="BeddingTextilesSubcategoryEnum",
         description="""Bedding and household textiles subcategories. Aligned with COICOP 05.2. is_winter_suitable is meaningful for the first five subcategories; suppressed by the fragment compiler for the last three.""",
+    )
+
+class HouseholdMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary construction material of a household or kitchen item. Records the dominant material; use mixed when no
+    single material dominates (e.g. a saucepan with a stainless steel body and plastic handle).
+    Grounded in Product Types Ontology (pto:) for discrete material types and schema:material as the overarching
+    property anchor (schema.org property on schema:Product, superseding GoodRelations
+    gr:qualitativeProductOrServiceProperty). pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
+    Two redistribution-relevant uses:
+    1. Allergen filtering — nickel in stainless steel cutlery (relevant for
+    nickel contact dermatitis, though most modern stainless steel is
+    safe); copper cookware (rare sensitivity).
+    2. Care requirement matching — cast iron requires seasoning and
+    cannot be soaked; copper requires specialist polishing; wood
+    requires periodic oiling; non-stick coatings need specific
+    cleaning instructions.
+    """
+    stainless_steel = PermissibleValue(
+        text="stainless_steel",
+        description="Stainless steel. Most common material for cutlery, pots, pans, kettles, and small appliances.")
+    wood = PermissibleValue(
+        text="wood",
+        description="""Solid wood or wood-composite (including bamboo, which is functionally similar). Common for utensils, chopping boards, salad bowls, and home decor. Requires periodic oiling; not dishwasher-safe.""")
+    ceramic = PermissibleValue(
+        text="ceramic",
+        description="""Ceramic, earthenware, stoneware, or porcelain. Predominant for crockery (plates, bowls, mugs), baking dishes, and decorative items. May include a glazed finish.""")
+    glass = PermissibleValue(
+        text="glass",
+        description="""Glass (borosilicate or soda-lime). Used for drinking glasses, storage jars, glass baking dishes, and glass decor items. Fragility relevant to packaging during storage and distribution.""")
+    cast_iron = PermissibleValue(
+        text="cast_iron",
+        description="""Cast iron cookware (frying pans, casseroles, trivets). Requires seasoning and cannot be soaked or put in the dishwasher. Heavy — relevant for storage slot load-bearing assessment.""")
+    copper = PermissibleValue(
+        text="copper",
+        description="Copper or copper-clad cookware and decor. Requires specialist polishing to prevent tarnishing.")
+    aluminium = PermissibleValue(
+        text="aluminium",
+        description="""Aluminium cookware and baking trays. Lightweight and common in baking trays, roasting pans, and budget cookware.""")
+    non_stick = PermissibleValue(
+        text="non_stick",
+        description="""Non-stick coated cookware (PTFE/Teflon or ceramic-coated pans). Requires specific care: no metal utensils, hand-wash only. Record the base material in sorting_notes when visible (typically aluminium or stainless steel with non-stick coating).""")
+    plastic = PermissibleValue(
+        text="plastic",
+        description="""Plastic (various types). Common for containers, food storage boxes, some appliances, and kitchen organisation items.""")
+    silicone = PermissibleValue(
+        text="silicone",
+        description="""Silicone. Used for baking molds, spatulas, oven gloves, and ice cube trays. Heat-resistant and dishwasher-safe.""")
+    mixed = PermissibleValue(
+        text="mixed",
+        description="""Mixed or composite materials where no single material dominates — e.g. a saucepan with a stainless steel body and plastic handle.""")
+    other = PermissibleValue(
+        text="other",
+        description="Materials not covered above. Record the specific material in sorting_notes when known.")
+
+    _defn = EnumDefinition(
+        name="HouseholdMaterialEnum",
+        description="""Primary construction material of a household or kitchen item. Records the dominant material; use mixed when no single material dominates (e.g. a saucepan with a stainless steel body and plastic handle).
+Grounded in Product Types Ontology (pto:) for discrete material types and schema:material as the overarching property anchor (schema.org property on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty). pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
+Two redistribution-relevant uses:
+  1. Allergen filtering — nickel in stainless steel cutlery (relevant for
+     nickel contact dermatitis, though most modern stainless steel is
+     safe); copper cookware (rare sensitivity).
+  2. Care requirement matching — cast iron requires seasoning and
+     cannot be soaked; copper requires specialist polishing; wood
+     requires periodic oiling; non-stick coatings need specific
+     cleaning instructions.""",
     )
 
 class HouseholdSubcategoryEnum(EnumDefinitionImpl):
@@ -3700,6 +3998,72 @@ class ElectronicsSubcategoryEnum(EnumDefinitionImpl):
     _defn = EnumDefinition(
         name="ElectronicsSubcategoryEnum",
         description="Electronics subcategories. Grounded in Product Types Ontology.",
+    )
+
+class ToysMaterialEnum(EnumDefinitionImpl):
+    """
+    Primary construction material of a toy or game item. Operationally relevant under the EU Toy Safety Directive
+    2009/48/EC Annex II (Chemical properties), which restricts hazardous substances in toy materials. Recording
+    material type enables targeted awareness:
+    - Old plastic (pre-2000) → potential lead paint or cadmium concern.
+    Sorters should note in sorting_notes for age-apparent vintage items.
+    - PVC plastic → potential phthalate concern for toys aimed at
+    children under 3 (Directive Annex II, point 45).
+    - Rubber/natural rubber → latex allergen signal (teething rings,
+    bath toys). Fragment compiler may surface allergen note when
+    material=rubber and age_range=age_0_to_3.
+    - Wood → durability and repairability signal; matches demand for
+    natural-material toys.
+    - Fabric_plush → allergen signal for dustmite sensitivity.
+    Laundering before redistribution is good practice.
+
+    Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and schema:material as the overarching property
+    anchor for the remainder.
+    """
+    plastic = PermissibleValue(
+        text="plastic",
+        description="""Plastic (various types — ABS, PP, HDPE, PVC). The most common primary toy material. PVC is of particular concern under the Directive (phthalate restrictions for toys for under-3s). Sorters should note in sorting_notes if item appears to be vintage PVC (typically pre-2005 soft plastic with characteristic flexibility and smell).""")
+    wood = PermissibleValue(
+        text="wood",
+        description="""Solid wood or wood composite. Positive signal for durability and repairability. Common in building blocks, puzzles, pull toys, and wooden vehicles. Supports demand matching for natural-material toy preferences.""")
+    fabric_plush = PermissibleValue(
+        text="fabric_plush",
+        description="""Soft fabric or plush textile. Primary material for stuffed animals, cloth dolls, fabric books, and cloth puzzles. Dust-mite allergen signal — laundering before redistribution is recommended best practice. Check that soft toys do not have small detachable decorative parts (choking hazard for age_0_to_3 — see has_small_parts).""")
+    rubber_silicone = PermissibleValue(
+        text="rubber_silicone",
+        description="""Rubber or silicone. Common in bath toys, teething rings, and some bouncy balls. Natural rubber is a known latex allergen — relevant for teething rings and squeeze toys for very young children (age_0_to_3). Synthetic rubber (TPR, TPE, silicone) is latex-free. Record in sorting_notes if natural rubber is identifiable.""")
+    metal = PermissibleValue(
+        text="metal",
+        description="""Metal (steel, aluminium, tin, die-cast alloy). Common in die-cast model vehicles, metal construction toys, and some board game pieces. Older die-cast toys may contain lead alloys — sorters should note in sorting_notes for visibly very old metal toys.""")
+    cardboard_paper = PermissibleValue(
+        text="cardboard_paper",
+        description="""Cardboard or paper. Primary material for board games, jigsaw puzzles, card games, memory games, and paper craft kits. Condition signal: check for water damage, missing pieces.""")
+    foam = PermissibleValue(
+        text="foam",
+        description="""Foam (EVA, polyurethane, or other foam). Common in foam building blocks, play mats, foam sports toys, and puzzle mats. Check for crumbling or deterioration — degraded foam can produce small particles.""")
+    mixed = PermissibleValue(
+        text="mixed",
+        description="""Mixed or composite materials where no single material dominates — e.g. a board game with a cardboard board, plastic pieces, and paper cards.""")
+    other = PermissibleValue(
+        text="other",
+        description="Materials not covered above. Record the specific material in sorting_notes when known.")
+
+    _defn = EnumDefinition(
+        name="ToysMaterialEnum",
+        description="""Primary construction material of a toy or game item. Operationally relevant under the EU Toy Safety Directive 2009/48/EC Annex II (Chemical properties), which restricts hazardous substances in toy materials. Recording material type enables targeted awareness:
+  - Old plastic (pre-2000) → potential lead paint or cadmium concern.
+    Sorters should note in sorting_notes for age-apparent vintage items.
+  - PVC plastic → potential phthalate concern for toys aimed at
+    children under 3 (Directive Annex II, point 45).
+  - Rubber/natural rubber → latex allergen signal (teething rings,
+    bath toys). Fragment compiler may surface allergen note when
+    material=rubber and age_range=age_0_to_3.
+  - Wood → durability and repairability signal; matches demand for
+    natural-material toys.
+  - Fabric_plush → allergen signal for dustmite sensitivity.
+    Laundering before redistribution is good practice.
+
+Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and schema:material as the overarching property anchor for the remainder.""",
     )
 
 class ToysSubcategoryEnum(EnumDefinitionImpl):
@@ -4665,7 +5029,7 @@ slots.AccessoriesCategory_demographic = Slot(uri=INKIND_KNOWLEDGE_REPO.demograph
                    model_uri=INKIND_KNOWLEDGE_REPO.AccessoriesCategory_demographic, domain=None, range=Optional[Union[str, "AccessoriesDemographicEnum"]])
 
 slots.AccessoriesCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="AccessoriesCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.AccessoriesCategory_material, domain=None, range=Optional[str])
+                   model_uri=INKIND_KNOWLEDGE_REPO.AccessoriesCategory_material, domain=None, range=Optional[Union[str, "AccessoriesMaterialEnum"]])
 
 slots.AccessoriesCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="AccessoriesCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.AccessoriesCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
@@ -4685,6 +5049,9 @@ slots.ClothingCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_wi
 slots.ClothingCategory_season = Slot(uri=INKIND_KNOWLEDGE_REPO.season, name="ClothingCategory_season", curie=INKIND_KNOWLEDGE_REPO.curie('season'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_season, domain=None, range=Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]])
 
+slots.ClothingCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="ClothingCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_material, domain=None, range=Optional[Union[str, "ClothingMaterialEnum"]])
+
 slots.ClothingCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="ClothingCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
 
@@ -4699,6 +5066,9 @@ slots.FootwearCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_wi
 
 slots.FootwearCategory_season = Slot(uri=INKIND_KNOWLEDGE_REPO.season, name="FootwearCategory_season", curie=INKIND_KNOWLEDGE_REPO.curie('season'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FootwearCategory_season, domain=None, range=Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]])
+
+slots.FootwearCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="FootwearCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.FootwearCategory_material, domain=None, range=Optional[Union[str, "FootwearMaterialEnum"]])
 
 slots.FootwearCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="FootwearCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FootwearCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
@@ -4718,11 +5088,17 @@ slots.BeddingTextilesCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subca
 slots.BeddingTextilesCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BeddingTextilesCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_assessment_result, domain=None, range=Union[str, "BeddingAssessmentEnum"])
 
+slots.BeddingTextilesCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="BeddingTextilesCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_material, domain=None, range=Optional[Union[str, "BeddingMaterialEnum"]])
+
 slots.BeddingTextilesCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_winter_suitable, name="BeddingTextilesCategory_is_winter_suitable", curie=INKIND_KNOWLEDGE_REPO.curie('is_winter_suitable'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_is_winter_suitable, domain=None, range=Optional[Union[bool, Bool]])
 
 slots.HouseholdCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="HouseholdCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.HouseholdCategory_subcategory, domain=None, range=Union[str, "HouseholdSubcategoryEnum"])
+
+slots.HouseholdCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="HouseholdCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.HouseholdCategory_material, domain=None, range=Optional[Union[str, "HouseholdMaterialEnum"]])
 
 slots.HouseholdCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="HouseholdCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.HouseholdCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
@@ -4738,6 +5114,9 @@ slots.ToysCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, nam
 
 slots.ToysCategory_age_range = Slot(uri=INKIND_KNOWLEDGE_REPO.age_range, name="ToysCategory_age_range", curie=INKIND_KNOWLEDGE_REPO.curie('age_range'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ToysCategory_age_range, domain=None, range=Optional[Union[str, "ToyAgeRangeEnum"]])
+
+slots.ToysCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="ToysCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.ToysCategory_material, domain=None, range=Optional[Union[str, "ToysMaterialEnum"]])
 
 slots.ToysCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="ToysCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ToysCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])

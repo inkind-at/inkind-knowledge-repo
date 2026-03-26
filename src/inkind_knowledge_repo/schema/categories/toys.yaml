@@ -11,8 +11,29 @@ description: >-
   Ontology grounding:
     Product Types Ontology — pto:Toy, pto:Construction_toy, pto:Doll,
     pto:Board_game, pto:Puzzle, pto:Ride-on_toy, pto:Educational_toy,
-    pto:Stuffed_animal
+    pto:Stuffed_animal, pto:Wood, pto:Rubber
       http://www.productontology.org/id/Toy
+    schema:material — overarching property on schema:Product, used as
+      see_also anchor for values without a discrete pto: IRI (plastic, metal,
+      cardboard, foam, fabric_plush).
+      https://schema.org/material
+
+  Material model:
+    ToysMaterialEnum records the primary construction material. Operationally
+    relevant under the EU Toy Safety Directive 2009/48/EC Annex II (Chemical
+    properties — restrictions on hazardous substances in toy materials):
+      1. Old plastic toys (pre-2000) may contain lead-based paints or cadmium
+         — flagging material=plastic and usage=used triggers a sorter awareness
+         note. The schema cannot detect individual chemicals, but material type
+         + age awareness can guide triage.
+      2. Old PVC toys may contain DEHP/phthalate plasticisers (restricted under
+         Directive Annex II, point 45 — phthalates in toys for children under 3).
+         Sorters should note in sorting_notes if item appears to be vintage PVC.
+      3. Rubber/natural rubber — latex allergen signal. Relevant for teething
+         rings and bath toys.
+      4. Wood — positive signal for durability and repairability. Supports
+         demand signal matching for organisations seeking natural-material toys.
+    Material is in the detailed completeness tier.
 
   Age grading standards:
     EU Toy Safety Directive 2009/48/EC (primary reference):
@@ -37,19 +58,21 @@ description: >-
   Completeness tiers:
     minimal:  subcategory, usage
     standard: subcategory, age_range, is_set_complete, usage, condition_grade
-    detailed: subcategory, age_range, is_set_complete, has_small_parts,
-              usage, condition_grade
+    detailed: subcategory, material, age_range, is_set_complete,
+              has_small_parts, usage, condition_grade
 
 license: MIT
 see_also:
   - http://www.productontology.org/id/Toy
   - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
   - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://schema.org/material
 
 prefixes:
   inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
   linkml: https://w3id.org/linkml/
   pto: http://www.productontology.org/id/
+  schema: http://schema.org/
 
 default_prefix: inkind_knowledge_repo
 default_range: string
@@ -75,6 +98,7 @@ classes:
       - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
     slots:
       - subcategory
+      - material
       - age_range
       - is_set_complete
       - has_small_parts
@@ -86,13 +110,21 @@ classes:
       age_range:
         range: ToyAgeRangeEnum
         required: false
+      material:
+        range: ToysMaterialEnum
+        required: false
+        description: >-
+          Primary construction material. Optional — detailed completeness tier.
+          Operationally relevant under EU Toy Safety Directive 2009/48/EC
+          Annex II (chemical restrictions in toy materials). See ToysMaterialEnum
+          for full vocabulary, ontology grounding, and safety rationale.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
     annotations:
       completeness_minimal:  "subcategory, usage"
       completeness_standard: "subcategory, age_range, is_set_complete, usage, condition_grade"
-      completeness_detailed: "subcategory, age_range, is_set_complete, has_small_parts, usage, condition_grade"
+      completeness_detailed: "subcategory, material, age_range, is_set_complete, has_small_parts, usage, condition_grade"
       coicop_division: "09.3"
       regulatory_reference: "EU Toy Safety Directive 2009/48/EC; ASTM F963"
     rules:
@@ -138,9 +170,127 @@ slots:
       Whether the item contains small parts posing a choking hazard.
       UC block: has_small_parts=true → age_range must exclude age_0_to_3.
       Implements EU Toy Safety Directive 2009/48/EC.
+    annotations:
+      label_en: "Has Small Parts"
+      label_de: "Enthält Kleinteile"
 
 
 enums:
+
+  ToysMaterialEnum:
+    description: >-
+      Primary construction material of a toy or game item.
+      Operationally relevant under the EU Toy Safety Directive 2009/48/EC
+      Annex II (Chemical properties), which restricts hazardous substances
+      in toy materials. Recording material type enables targeted awareness:
+        - Old plastic (pre-2000) → potential lead paint or cadmium concern.
+          Sorters should note in sorting_notes for age-apparent vintage items.
+        - PVC plastic → potential phthalate concern for toys aimed at
+          children under 3 (Directive Annex II, point 45).
+        - Rubber/natural rubber → latex allergen signal (teething rings,
+          bath toys). Fragment compiler may surface allergen note when
+          material=rubber and age_range=age_0_to_3.
+        - Wood → durability and repairability signal; matches demand for
+          natural-material toys.
+        - Fabric_plush → allergen signal for dustmite sensitivity.
+          Laundering before redistribution is good practice.
+
+      Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and
+      schema:material as the overarching property anchor for the remainder.
+    see_also:
+      - schema:material
+      - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    permissible_values:
+      plastic:
+        description: >-
+          Plastic (various types — ABS, PP, HDPE, PVC). The most common
+          primary toy material. PVC is of particular concern under the
+          Directive (phthalate restrictions for toys for under-3s). Sorters
+          should note in sorting_notes if item appears to be vintage PVC
+          (typically pre-2005 soft plastic with characteristic flexibility
+          and smell).
+        see_also: [schema:material]
+        annotations:
+          label_en: "Plastic"
+          label_de: "Kunststoff"
+      wood:
+        description: >-
+          Solid wood or wood composite. Positive signal for durability and
+          repairability. Common in building blocks, puzzles, pull toys,
+          and wooden vehicles. Supports demand matching for natural-material
+          toy preferences.
+        see_also: [pto:Wood]
+        annotations:
+          label_en: "Wood"
+          label_de: "Holz"
+      fabric_plush:
+        description: >-
+          Soft fabric or plush textile. Primary material for stuffed animals,
+          cloth dolls, fabric books, and cloth puzzles. Dust-mite allergen
+          signal — laundering before redistribution is recommended best practice.
+          Check that soft toys do not have small detachable decorative parts
+          (choking hazard for age_0_to_3 — see has_small_parts).
+        see_also: [schema:material]
+        annotations:
+          label_en: "Fabric / Plush"
+          label_de: "Stoff / Plüsch"
+      rubber_silicone:
+        description: >-
+          Rubber or silicone. Common in bath toys, teething rings, and some
+          bouncy balls. Natural rubber is a known latex allergen — relevant
+          for teething rings and squeeze toys for very young children
+          (age_0_to_3). Synthetic rubber (TPR, TPE, silicone) is latex-free.
+          Record in sorting_notes if natural rubber is identifiable.
+        see_also: [pto:Rubber]
+        annotations:
+          label_en: "Rubber / Silicone"
+          label_de: "Gummi / Silikon"
+      metal:
+        description: >-
+          Metal (steel, aluminium, tin, die-cast alloy). Common in die-cast
+          model vehicles, metal construction toys, and some board game
+          pieces. Older die-cast toys may contain lead alloys — sorters
+          should note in sorting_notes for visibly very old metal toys.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Metal"
+          label_de: "Metall"
+      cardboard_paper:
+        description: >-
+          Cardboard or paper. Primary material for board games, jigsaw
+          puzzles, card games, memory games, and paper craft kits.
+          Condition signal: check for water damage, missing pieces.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Cardboard / Paper"
+          label_de: "Pappe / Papier"
+      foam:
+        description: >-
+          Foam (EVA, polyurethane, or other foam). Common in foam building
+          blocks, play mats, foam sports toys, and puzzle mats.
+          Check for crumbling or deterioration — degraded foam can
+          produce small particles.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Foam"
+          label_de: "Schaum"
+      mixed:
+        description: >-
+          Mixed or composite materials where no single material dominates
+          — e.g. a board game with a cardboard board, plastic pieces, and
+          paper cards.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Mixed"
+          label_de: "Gemischt"
+      other:
+        description: >-
+          Materials not covered above. Record the specific material in
+          sorting_notes when known.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   ToysSubcategoryEnum:
     description: Toys subcategories. Grounded in Product Types Ontology.

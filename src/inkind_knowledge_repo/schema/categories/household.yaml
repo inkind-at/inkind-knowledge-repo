@@ -18,8 +18,25 @@ description: >-
   Ontology grounding:
     Product Types Ontology — pto:Household_goods, pto:Cookware, pto:Tableware,
     pto:Cutlery, pto:Glassware, pto:Home_appliance, pto:Decorative_arts,
-    pto:Garden_tool
+    pto:Garden_tool, pto:Wood, pto:Stainless_steel, pto:Ceramic, pto:Cast_iron,
+    pto:Silicone, pto:Copper
       http://www.productontology.org/id/Household_goods
+    schema:material — overarching property on schema:Product, used as
+      see_also anchor for values without a discrete pto: IRI (aluminium,
+      non_stick, plastic, mixed).
+      https://schema.org/material
+
+  Material model:
+    HouseholdMaterialEnum records the primary construction material. Two
+    redistribution-relevant uses:
+      1. Allergen filtering — nickel in stainless steel (small percentage
+         of stainless steel alloys may contain nickel; relevant for cutlery);
+         copper in copper cookware (rare sensitivity).
+      2. Care requirement matching — cast iron requires seasoning; copper
+         requires specialist polishing; wood requires oiling; non-stick
+         coatings require specific cleaning instructions.
+    Material is in the detailed completeness tier — already reflected in the
+    annotations.
 
   Assessment: condition_grade (wear grade). Wear grade is appropriate here
   because the redistribution signal for cookware, appliances, and decor is
@@ -35,11 +52,13 @@ license: MIT
 see_also:
   - http://www.productontology.org/id/Household_goods
   - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  - https://schema.org/material
 
 prefixes:
   inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
   linkml: https://w3id.org/linkml/
   pto: http://www.productontology.org/id/
+  schema: http://schema.org/
 
 default_prefix: inkind_knowledge_repo
 default_range: string
@@ -70,6 +89,14 @@ classes:
       subcategory:
         range: HouseholdSubcategoryEnum
         required: true
+      material:
+        range: HouseholdMaterialEnum
+        required: false
+        description: >-
+          Primary construction material. Optional — detailed completeness tier.
+          Record the dominant material; use mixed when no single material
+          dominates. See HouseholdMaterialEnum for full vocabulary and
+          ontology grounding.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -81,6 +108,131 @@ classes:
 
 
 enums:
+
+  HouseholdMaterialEnum:
+    description: >-
+      Primary construction material of a household or kitchen item.
+      Records the dominant material; use mixed when no single material
+      dominates (e.g. a saucepan with a stainless steel body and plastic handle).
+
+      Grounded in Product Types Ontology (pto:) for discrete material types and
+      schema:material as the overarching property anchor (schema.org property
+      on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty).
+      pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
+
+      Two redistribution-relevant uses:
+        1. Allergen filtering — nickel in stainless steel cutlery (relevant for
+           nickel contact dermatitis, though most modern stainless steel is
+           safe); copper cookware (rare sensitivity).
+        2. Care requirement matching — cast iron requires seasoning and
+           cannot be soaked; copper requires specialist polishing; wood
+           requires periodic oiling; non-stick coatings need specific
+           cleaning instructions.
+    see_also:
+      - schema:material
+    permissible_values:
+      stainless_steel:
+        description: >-
+          Stainless steel. Most common material for cutlery, pots, pans,
+          kettles, and small appliances.
+        see_also: [pto:Stainless_steel]
+        annotations:
+          label_en: "Stainless Steel"
+          label_de: "Edelstahl"
+      wood:
+        description: >-
+          Solid wood or wood-composite (including bamboo, which is functionally
+          similar). Common for utensils, chopping boards, salad bowls, and
+          home decor. Requires periodic oiling; not dishwasher-safe.
+        see_also: [pto:Wood]
+        annotations:
+          label_en: "Wood / Bamboo"
+          label_de: "Holz / Bambus"
+      ceramic:
+        description: >-
+          Ceramic, earthenware, stoneware, or porcelain. Predominant for
+          crockery (plates, bowls, mugs), baking dishes, and decorative items.
+          May include a glazed finish.
+        see_also: [pto:Ceramic]
+        annotations:
+          label_en: "Ceramic / Porcelain"
+          label_de: "Keramik / Porzellan"
+      glass:
+        description: >-
+          Glass (borosilicate or soda-lime). Used for drinking glasses,
+          storage jars, glass baking dishes, and glass decor items.
+          Fragility relevant to packaging during storage and distribution.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Glass"
+          label_de: "Glas"
+      cast_iron:
+        description: >-
+          Cast iron cookware (frying pans, casseroles, trivets).
+          Requires seasoning and cannot be soaked or put in the dishwasher.
+          Heavy — relevant for storage slot load-bearing assessment.
+        see_also: [pto:Cast_iron]
+        annotations:
+          label_en: "Cast Iron"
+          label_de: "Gusseisen"
+      copper:
+        description: >-
+          Copper or copper-clad cookware and decor. Requires specialist
+          polishing to prevent tarnishing.
+        see_also: [pto:Copper]
+        annotations:
+          label_en: "Copper"
+          label_de: "Kupfer"
+      aluminium:
+        description: >-
+          Aluminium cookware and baking trays. Lightweight and common in
+          baking trays, roasting pans, and budget cookware.
+        see_also: [pto:Aluminium]
+        annotations:
+          label_en: "Aluminium"
+          label_de: "Aluminium"
+      non_stick:
+        description: >-
+          Non-stick coated cookware (PTFE/Teflon or ceramic-coated pans).
+          Requires specific care: no metal utensils, hand-wash only.
+          Record the base material in sorting_notes when visible (typically
+          aluminium or stainless steel with non-stick coating).
+        see_also: [schema:material]
+        annotations:
+          label_en: "Non-Stick Coated"
+          label_de: "Antihaftbeschichtet"
+      plastic:
+        description: >-
+          Plastic (various types). Common for containers, food storage
+          boxes, some appliances, and kitchen organisation items.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Plastic"
+          label_de: "Kunststoff"
+      silicone:
+        description: >-
+          Silicone. Used for baking molds, spatulas, oven gloves, and
+          ice cube trays. Heat-resistant and dishwasher-safe.
+        see_also: [pto:Silicone]
+        annotations:
+          label_en: "Silicone"
+          label_de: "Silikon"
+      mixed:
+        description: >-
+          Mixed or composite materials where no single material dominates
+          — e.g. a saucepan with a stainless steel body and plastic handle.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Mixed"
+          label_de: "Gemischt"
+      other:
+        description: >-
+          Materials not covered above. Record the specific material in
+          sorting_notes when known.
+        see_also: [schema:material]
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   HouseholdSubcategoryEnum:
     description: >-
