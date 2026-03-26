@@ -142,41 +142,59 @@ enums:
           Powers on; all features operate correctly; cosmetic condition
           good or better. Ready for redistribution.
           Appropriate for new items with no observed defects.
+        annotations:
+          label_en: "Fully Functional"
+          label_de: "Voll funktionsfähig"
       functional_minor_cosmetic:
         description: >-
           Fully functional but with minor cosmetic issues (light scratches,
           small scuffs) that do not affect operation. Redistributable.
+        annotations:
+          label_en: "Functional (Minor Cosmetic)"
+          label_de: "Funktional (Geringe kosmetische Defekte)"
       functional_significant_cosmetic:
         description: >-
           Fully functional but with significant cosmetic damage (cracked bezel,
           major scratches, missing casing components). Functional but appearance
           notably affected.
+        annotations:
+          label_en: "Functional (Significant Cosmetic)"
+          label_de: "Funktional (Erhebliche kosmetische Defekte)"
       functional_with_issues:
         description: >-
           Powers on but has functional issues (cracked screen still displays,
           missing key, camera not working, port not functioning). Redistributable
           with explicit description — sorting_notes required.
+        annotations:
+          label_en: "Functional (With Issues)"
+          label_de: "Funktional (Mit Problemen)"
       non_functional:
         description: >-
           Does not power on, or major functionality failure rendering it unusable.
           action: warn — sorting_notes required. Consider repair referral or
           electronics recycling.
+        annotations:
+          label_en: "Non-Functional"
+          label_de: "Nicht funktionsfähig"
       untested:
         description: >-
           Not yet tested. Valid only at received state — blocked at sorted state
           by lc-sorted-electronics-not-untested rule in donation_item.yaml.
+        annotations:
+          label_en: "Untested"
+          label_de: "Ungetestet"
 
   ElectronicsSubcategoryEnum:
     description: Electronics subcategories. Grounded in Product Types Ontology.
     permissible_values:
-      smartphones:       {description: "Mobile phones and smartphones.", see_also: [pto:Smartphone]}
-      tablets:           {description: "Tablet computers and e-readers.", see_also: [pto:Tablet_computer]}
-      laptops:           {description: "Laptop and notebook computers.", see_also: [pto:Laptop]}
-      desktop_computers: {description: "Desktop computers and all-in-ones.", see_also: [pto:Desktop_computer]}
-      monitors:          {description: "Computer monitors and display screens.", see_also: [pto:Computer_monitor]}
-      cameras:           {description: "Digital cameras and camcorders.", see_also: [pto:Camera]}
-      audio:             {description: "Headphones, speakers, radios, MP3 players.", see_also: [pto:Audio_equipment]}
-      cables_chargers:   {description: "USB cables, charging adapters, power banks, extension leads."}
-      peripherals:       {description: "Keyboards, mice, printers, webcams.", see_also: [pto:Computer_hardware]}
-      gaming:            {description: "Gaming consoles, controllers, handheld gaming devices.", see_also: [pto:Video_game_console]}
-      other:             {description: "Electronics not fitting above subcategories."}
+      smartphones:       {description: "Mobile phones and smartphones.", see_also: [pto:Smartphone], annotations: {label_en: "Smartphones", label_de: "Smartphones"}}
+      tablets:           {description: "Tablet computers and e-readers.", see_also: [pto:Tablet_computer], annotations: {label_en: "Tablets", label_de: "Tablets"}}
+      laptops:           {description: "Laptop and notebook computers.", see_also: [pto:Laptop], annotations: {label_en: "Laptops", label_de: "Laptops"}}
+      desktop_computers: {description: "Desktop computers and all-in-ones.", see_also: [pto:Desktop_computer], annotations: {label_en: "Desktop Computers", label_de: "Desktop-Computer"}}
+      monitors:          {description: "Computer monitors and display screens.", see_also: [pto:Computer_monitor], annotations: {label_en: "Monitors", label_de: "Monitore"}}
+      cameras:           {description: "Digital cameras and camcorders.", see_also: [pto:Camera], annotations: {label_en: "Cameras", label_de: "Kameras"}}
+      audio:             {description: "Headphones, speakers, radios, MP3 players.", see_also: [pto:Audio_equipment], annotations: {label_en: "Audio", label_de: "Audio"}}
+      cables_chargers:   {description: "USB cables, charging adapters, power banks, extension leads.", annotations: {label_en: "Cables & Chargers", label_de: "Kabel & Ladegeräte"}}
+      peripherals:       {description: "Keyboards, mice, printers, webcams.", see_also: [pto:Computer_hardware], annotations: {label_en: "Peripherals", label_de: "Peripheriegeräte"}}
+      gaming:            {description: "Gaming consoles, controllers, handheld gaming devices.", see_also: [pto:Video_game_console], annotations: {label_en: "Gaming", label_de: "Gaming"}}
+      other:             {description: "Electronics not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Andere"}}

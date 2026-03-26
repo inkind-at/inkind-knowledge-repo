@@ -34,7 +34,7 @@ description: >-
     uc-underwear-condition-block  — underwear must be new or like_new condition
     uc-underwear-adult-used-block — adult underwear (adult_male/adult_female)
                                     must have usage=new
-    vm-underwear-no-unisex        — underwear excludes unisex demographic
+    vm-demographic-underwear      — restricts underwear to the four gender-specific demographics
 
   VM constraints (size value maps):
     vm-size-baby   — baby demographic → baby sizes only
@@ -128,13 +128,13 @@ classes:
     see_also:
       - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
     slots:
+      - condition_grade
       - subcategory
+      - is_winter_suitable
       - demographic
       - size
-      - is_winter_suitable
       - season
       - intact_labels
-      - condition_grade
     slot_usage:
       subcategory:
         range: ClothingSubcategoryEnum
@@ -199,7 +199,6 @@ classes:
               none_of:
                 - equals_string: stored
                 - equals_string: distributed
-
       - title: uc-underwear-adult-used-block
         description: >-
           Used adult underwear (adult_male or adult_female demographic) must
@@ -214,15 +213,38 @@ classes:
               any_of:
                 - equals_string: adult_male
                 - equals_string: adult_female
+            usage:
+              equals_string: used
         postconditions:
           slot_conditions:
-            usage:
-              equals_string: new
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
 
-      - title: vm-underwear-no-unisex
+      # ── UC: condition ─────────────────────────────────────────────────────
+      - title: uc-poor-condition-block
         description: >-
-          Underwear subcategory does not support unisex demographic.
-          action: block (invalid combination).
+          Items in poor condition should not be distributed.
+          action: block, suggest: disposal.
+        preconditions:
+          slot_conditions:
+            condition_grade:
+              equals_string: poor
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      # ── VM: demographic value map ─────────────────────────────────────────
+      - title: vm-demographic-underwear
+        description: >-
+          Underwear subcategory restricts demographic to baby, child,
+          adult_male, adult_female. Unisex is not a valid demographic
+          for underwear — underwear is always gender-specific at the
+          redistribution level.
         preconditions:
           slot_conditions:
             subcategory:
@@ -230,9 +252,12 @@ classes:
         postconditions:
           slot_conditions:
             demographic:
-              none_of:
-                - equals_string: unisex
-
+              any_of:
+                - equals_string: baby
+                - equals_string: child
+                - equals_string: adult_male
+                - equals_string: adult_female
+ 
       # ── VM: size maps ─────────────────────────────────────────────────────
       - title: vm-size-baby
         description: baby demographic constrains size to infant size codes.
@@ -260,16 +285,11 @@ classes:
           slot_conditions:
             size:
               any_of:
-                - equals_string: child_2T
-                - equals_string: child_3T
-                - equals_string: child_4T
-                - equals_string: child_5
-                - equals_string: child_6
-                - equals_string: child_7
-                - equals_string: child_8
-                - equals_string: child_10
-                - equals_string: child_12
-                - equals_string: child_14
+                - equals_string: child_2_3T
+                - equals_string: child_4_5T
+                - equals_string: child_6_7
+                - equals_string: child_8_10
+                - equals_string: child_12_14
 
       - title: vm-size-adult
         description: adult/unisex demographics constrain size to adult size codes.
@@ -284,13 +304,9 @@ classes:
           slot_conditions:
             size:
               any_of:
-                - equals_string: xs
-                - equals_string: s
-                - equals_string: m
-                - equals_string: l
-                - equals_string: xl
-                - equals_string: xxl
-                - equals_string: xxxl
+                - equals_string: xs_s
+                - equals_string: m_l
+                - equals_string: xl_plus
                 - equals_string: one_size
 
       # ── VM: season → is_winter_suitable auto-derivation ───────────────────
@@ -306,6 +322,20 @@ classes:
           slot_conditions:
             is_winter_suitable:
               equals_string: "true"
+
+      - title: vm-season-not-winter-suitable
+        description: >-
+          is_winter_suitable = false implies that season cannot be winter and all season.
+        preconditions:
+          slot_conditions:
+            is_winter_suitable:
+              equals_string: "false"
+        postconditions:
+          slot_conditions:
+            season:
+              any_of:
+                - equals_string: summer
+                - equals_string: spring_autumn
 
       - title: vm-season-summer
         description: >-
@@ -381,6 +411,9 @@ slots:
       all_season. spring_autumn leaves is_winter_suitable to the sorter.
     see_also:
       - schema:itemCondition
+    annotations:
+      label_en: "Season"
+      label_de: "Saison"
 
   intact_labels:
     range: boolean
@@ -390,6 +423,8 @@ slots:
       (e.g. allergy to certain materials). Detailed completeness tier.
     annotations:
       show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear]"
+      label_en: "Intact care and composition labels"
+      label_de: "Unversehrte Pflege- und Materialetiketten"
 
 enums:
 
@@ -416,16 +451,25 @@ enums:
           Primarily suitable for cold weather. Implies is_winter_suitable=true.
           Examples: heavy winter coat, thermal base layer, fleece-lined trousers,
           woollen jumper, ski jacket.
+        annotations:
+          label_en: "Winter"
+          label_de: "Winter"
       spring_autumn:
         description: >-
           Suitable for mild transitional seasons. Thermal weight between
           winter and summer. is_winter_suitable is sorter's call.
           Examples: light jacket, cardigan, jeans, hoodie, trench coat.
+        annotations:
+          label_en: "Spring/Autumn"
+          label_de: "Frühling/Herbst"
       summer:
         description: >-
           Suitable for warm weather; not appropriate for cold conditions.
           Implies is_winter_suitable=false.
           Examples: t-shirt, shorts, sundress, swimwear, linen top.
+        annotations:
+          label_en: "Summer"
+          label_de: "Sommer"
       all_season:
         description: >-
           No meaningful seasonal constraint — appropriate across all seasons
@@ -433,6 +477,9 @@ enums:
           (all-season items are by definition usable in winter).
           Examples: underwear, plain cotton t-shirt used as a base layer,
           school uniform shirt.
+        annotations:
+          label_en: "All Season"
+          label_de: "Alle Jahreszeiten"
 
   ClothingSubcategoryEnum:
     description: >-
@@ -448,32 +495,53 @@ enums:
           is_winter_suitable varies widely — a linen shirt and a wool jumper
           are both tops. Sorter must set explicitly.
         see_also: [cpi:ClothingAndAccessories]
+        annotations:
+          label_en: "Tops"
+          label_de: "Oberteile"
       bottoms:
         description: >-
           Trousers, skirts, shorts, leggings, lower-body garments.
           is_winter_suitable varies — shorts are summer; thermal leggings are winter.
+        annotations:
+          label_en: "Bottoms"
+          label_de: "Unterteile"
       outerwear:
         description: >-
           Jackets, coats, outer layers. Fragment compiler may pre-fill
           is_winter_suitable=true; sorter can override for summer-weight jackets.
         see_also: [pto:Coat]
+        annotations:
+          label_en: "Outerwear"
+          label_de: "Oberbekleidung"
       underwear:
         description: >-
           Underwear and intimate apparel. UC constraints apply.
           Thermal underwear should be tagged is_winter_suitable=true.
           Standard underwear → all_season / is_winter_suitable=true (base layer).
+        annotations:
+          label_en: "Underwear"
+          label_de: "Unterhose"
       nightwear:
         description: >-
           Pyjamas, nightgowns, dressing gowns, sleep sets.
           Seasonal weight varies — lightweight vs. fleece nightwear.
+        annotations:
+          label_en: "Nightwear"
+          label_de: "Nachtanzüge"
       sportswear:
         description: >-
           Athletic wear, gym tops, leggings, swimwear, base layers.
           Non-specialist — specialist sports clothing (wetsuits, cycling
           jerseys) belongs in SportsItem. Fragment compiler may pre-fill
           is_winter_suitable=false for swimwear subcategory context.
+        annotations:
+          label_en: "Sportswear"
+          label_de: "Sportartikel"
       other:
         description: Clothing garments not fitting above subcategories.
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   DemographicEnum:
     description: >-
@@ -487,20 +555,35 @@ enums:
       baby:
         description: "Baby (0-24 months). Valid sizes: baby_0_3m through baby_18_24m."
         see_also: [schema:WearableSizeGroupBaby]
+        annotations:
+          label_en: "Baby"
+          label_de: "Baby"
       child:
         description: "Child (2-14 years). Valid sizes: child_2T through child_14."
         see_also: [schema:WearableSizeGroupChildrens]
+        annotations:
+          label_en: "Child"
+          label_de: "Kind"
       adult_male:
         description: "Adult male / menswear. Valid sizes: xs through one_size."
         see_also: [schema:WearableSizeGroupAdult]
+        annotations:
+          label_en: "Adult Male"
+          label_de: "Erwachsener Mann"
       adult_female:
         description: "Adult female / womenswear. Valid sizes: xs through one_size."
         see_also: [schema:WearableSizeGroupAdult]
+        annotations:
+          label_en: "Adult Female"
+          label_de: "Erwachsene Frau"
       unisex:
         description: >-
           Unisex / gender-neutral adult. Valid sizes: xs through one_size.
           Not valid for underwear subcategory.
         see_also: [schema:WearableSizeGroupAdult]
+        annotations:
+          label_en: "Unisex"
+          label_de: "Unisex"
 
   ClothingSizeEnum:
     description: >-
@@ -511,26 +594,17 @@ enums:
       - cpi:ClothingSize
       - schema:WearableSizeSystemEU
     permissible_values:
-      baby_0_3m:   {description: "Baby 0-3 months",   see_also: [schema:WearableSizeGroupBaby]}
-      baby_3_6m:   {description: "Baby 3-6 months",   see_also: [schema:WearableSizeGroupBaby]}
-      baby_6_12m:  {description: "Baby 6-12 months",  see_also: [schema:WearableSizeGroupBaby]}
-      baby_12_18m: {description: "Baby 12-18 months", see_also: [schema:WearableSizeGroupBaby]}
-      baby_18_24m: {description: "Baby 18-24 months", see_also: [schema:WearableSizeGroupBaby]}
-      child_2T:    {description: "Toddler 2T",   see_also: [schema:WearableSizeGroupChildrens]}
-      child_3T:    {description: "Toddler 3T",   see_also: [schema:WearableSizeGroupChildrens]}
-      child_4T:    {description: "Toddler 4T",   see_also: [schema:WearableSizeGroupChildrens]}
-      child_5:     {description: "Child size 5",  see_also: [schema:WearableSizeGroupChildrens]}
-      child_6:     {description: "Child size 6",  see_also: [schema:WearableSizeGroupChildrens]}
-      child_7:     {description: "Child size 7",  see_also: [schema:WearableSizeGroupChildrens]}
-      child_8:     {description: "Child size 8",  see_also: [schema:WearableSizeGroupChildrens]}
-      child_10:    {description: "Child size 10", see_also: [schema:WearableSizeGroupChildrens]}
-      child_12:    {description: "Child size 12", see_also: [schema:WearableSizeGroupChildrens]}
-      child_14:    {description: "Child size 14", see_also: [schema:WearableSizeGroupChildrens]}
-      xs:          {description: "Extra small (adult)", see_also: [schema:WearableSizeGroupAdult]}
-      s:           {description: "Small (adult)",       see_also: [schema:WearableSizeGroupAdult]}
-      m:           {description: "Medium (adult)",      see_also: [schema:WearableSizeGroupAdult]}
-      l:           {description: "Large (adult)",       see_also: [schema:WearableSizeGroupAdult]}
-      xl:          {description: "Extra large (adult)", see_also: [schema:WearableSizeGroupAdult]}
-      xxl:         {description: "XXL (adult)",         see_also: [schema:WearableSizeGroupAdult]}
-      xxxl:        {description: "3XL (adult)",         see_also: [schema:WearableSizeGroupAdult]}
-      one_size:    {description: "One size fits most."}
+      baby_0_3m:   {description: "Baby 0-3 months",   see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "0-3 months", label_de: "0-3 Monate"}}
+      baby_3_6m:   {description: "Baby 3-6 months",   see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "3-6 months", label_de: "3-6 Monate"}}
+      baby_6_12m:  {description: "Baby 6-12 months",  see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "6-12 months", label_de: "6-12 Monate"}}
+      baby_12_18m: {description: "Baby 12-18 months", see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "12-18 months", label_de: "12-18 Monate"}}
+      baby_18_24m: {description: "Baby 18-24 months", see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "18-24 months", label_de: "18-24 Monate"}}
+      child_2_3T:    {description: "Toddler sizes 2 and 3",   see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "2-3", label_de: "2-3"}}
+      child_4_5T:    {description: "Toddler sizes 4 and 5",   see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "4-5", label_de: "4-5"}}
+      child_6_7:     {description: "Child sizes 6 and 7",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "6-7", label_de: "6-7"}}
+      child_8_10:     {description: "Child sizes 8-10",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "8-10", label_de: "8-10"}}
+      child_12_14:    {description: "Child sizes 12-14", see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "12-14", label_de: "12-14"}}
+      xs_s:          {description: "Extra small or Small (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XS/S", label_de: "XS/S"}}
+      m_l:           {description: "Medium or Large(adult)",      see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "M/L", label_de: "M/L"}}
+      xl_plus:          {description: "Extra large or XL+ (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XL+", label_de: "XL+"}}
+      one_size:    {description: "One size fits most.", annotations: {label_en: "One Size", label_de: "Einheitsgröße"}}

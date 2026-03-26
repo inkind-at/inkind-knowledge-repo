@@ -261,30 +261,48 @@ enums:
           Non-perishable dry staples: pasta, rice, flour, cereals, pulses.
           Storage: ambient or dry_cool.
         see_also: [foodon:00001256]
+        annotations:
+          label_en: "dry goods"
+          label_de: "Trockene Lebensmittel"
       canned_goods:
         description: >-
           Factory-sealed tins and cans. Shelf-stable at ambient temperature.
           Storage: ambient only.
         see_also: [foodon:00002403]
+        annotations:
+          label_en: "canned goods"
+          label_de: "Dosenlebensmittel"
       fresh_produce:
         description: >-
           Unprocessed fruit, vegetables, herbs. Perishable.
           packaging_intact rule applies.
         see_also: [foodon:00001015]
+        annotations:
+          label_en: "fresh produce"
+          label_de: "Frischprodukte"
       dairy:
         description: >-
           Milk, cheese, yoghurt, and dairy-based products. Perishable —
           requires refrigeration or freezing.
         see_also: [foodon:00001180]
+        annotations:
+          label_en: "dairy"
+          label_de: "Milchprodukte"
       frozen:
         description: >-
           Items requiring continuous frozen storage. Perishable — frozen
           storage is the only valid option. Breaking the cold chain makes
           refreezing unsafe.
         see_also: [foodon:00002253]
+        annotations:
+          label_en: "frozen"
+          label_de: "Gefroren"
       beverages:
         description: Bottled or packaged drinks (non-alcoholic).
         see_also: [foodon:00001062]
+        annotations:
+          label_en: "beverages"
+          label_de: "Getränke"
       baby_food:
         description: >-
           Commercially prepared infant formula and baby food. Perishable
@@ -293,11 +311,20 @@ enums:
           BabyInfantItem (baby_infant category); this value covers baby food
           donated as part of a food collection.
         see_also: [foodon:00002640]
+        annotations:
+          label_en: "baby food"
+          label_de: "Babynahrung"
       condiments:
         description: Sauces, spreads, oils, vinegars, and seasoning products.
         see_also: [foodon:00001139]
+        annotations:
+          label_en: "condiments"
+          label_de: "Konserven"
       other:
         description: Food items not fitting above categories.
+        annotations:
+          label_en: "other"
+          label_de: "Sonstiges"
 
   StorageRequirementEnum:
     description: >-
@@ -306,21 +333,33 @@ enums:
     permissible_values:
       ambient:
         description: "Room temperature (15-25°C), dry conditions. Standard pantry/warehouse shelf."
+        annotations:
+          label_en: "ambient"
+          label_de: "Raumtemperatur"
       refrigerated:
         description: "Refrigerated storage (0-4°C)."
+        annotations:
+          label_en: "refrigerated"
+          label_de: "Kühlen"
       frozen:
         description: "Frozen storage (-18°C or below)."
+        annotations:
+          label_en: "frozen"
+          label_de: "Gefroren"
       dry_cool:
         description: "Cool, dry conditions (8-15°C) — root vegetable or wine-cellar type."
+        annotations:
+          label_en: "dry cool"
+          label_de: "Trocken kühlen"
 
   FoodSubcategoryEnum:
     description: >-
       Optional subcategory for further food classification within a food_type.
       Used when more granular labelling is operationally useful.
     permissible_values:
-      vegetables:        {description: "Fresh vegetables.", see_also: [foodon:00001638]}
-      fruit:             {description: "Fresh fruit.", see_also: [foodon:00001032]}
-      bread_bakery:      {description: "Bread, rolls, and baked goods.", see_also: [foodon:00001112]}
-      meat_alternatives: {description: "Plant-based meat substitutes."}
-      ready_meals:       {description: "Prepared meals — ambient, refrigerated, or frozen."}
-      other:             {description: "Food subcategory not covered above."}
+      vegetables:        {description: "Fresh vegetables.", see_also: [foodon:00001638], annotations: {label_en: "vegetables", label_de: "Gemüse"}}
+      fruit:             {description: "Fresh fruit.", see_also: [foodon:00001032], annotations: {label_en: "fruit", label_de: "Obst"}}
+      bread_bakery:      {description: "Bread, rolls, and baked goods.", see_also: [foodon:00001112], annotations: {label_en: "bread/bakery", label_de: "Brot/Backwaren"}}
+      meat_alternatives: {description: "Plant-based meat substitutes.", annotations: {label_en: "meat alternatives", label_de: "Fleischalternativen"}}
+      ready_meals:       {description: "Prepared meals — ambient, refrigerated, or frozen.", annotations: {label_en: "ready meals", label_de: "Fertigkost"}}
+      other:             {description: "Food subcategory not covered above.", annotations: {label_en: "other", label_de: "Sonstiges"}}

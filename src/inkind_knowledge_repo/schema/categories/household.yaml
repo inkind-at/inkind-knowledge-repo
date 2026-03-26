@@ -88,13 +88,13 @@ enums:
       Bedding, towels, and curtains (COICOP 05.2) belong in
       BeddingTextilesSubcategoryEnum.
     permissible_values:
-      cookware:             {description: "Pots, pans, baking trays, woks, pressure cookers. COICOP 05.4.", see_also: [pto:Cookware]}
-      crockery:             {description: "Plates, bowls, mugs, cups, serving dishes. COICOP 05.4.", see_also: [pto:Tableware]}
-      cutlery:              {description: "Knives, forks, spoons, serving utensils. COICOP 05.4.", see_also: [pto:Cutlery]}
-      glassware:            {description: "Drinking glasses, jugs, functional glassware. COICOP 05.4.", see_also: [pto:Glassware]}
-      small_appliances:     {description: "Toasters, kettles, blenders, microwaves, irons, hairdryers. COICOP 05.3.", see_also: [pto:Home_appliance]}
-      cleaning:             {description: "Mops, brushes, buckets, vacuum cleaners, brooms. COICOP 05.6.", }
-      storage_organisation: {description: "Storage boxes, baskets, coat hangers, drawer organisers."}
-      home_decor:           {description: "Picture frames, vases, candles, mirrors, clocks, lamps.", see_also: [pto:Decorative_arts]}
-      garden_tools:         {description: "Spades, trowels, secateurs, watering cans. COICOP 05.5.", see_also: [pto:Garden_tool]}
-      other:                {description: "Household items not fitting above subcategories."}
+      cookware:             {description: "Pots, pans, baking trays, woks, pressure cookers. COICOP 05.4.", see_also: [pto:Cookware], annotations: {label_en: "Cookware", label_de: "Küchenware"}}
+      crockery:             {description: "Plates, bowls, mugs, cups, serving dishes. COICOP 05.4.", see_also: [pto:Tableware], annotations: {label_en: "Crockery", label_de: "Geschirr"}}
+      cutlery:              {description: "Knives, forks, spoons, serving utensils. COICOP 05.4.", see_also: [pto:Cutlery], annotations: {label_en: "Cutlery", label_de: "Besteck"}}
+      glassware:            {description: "Drinking glasses, jugs, functional glassware. COICOP 05.4.", see_also: [pto:Glassware], annotations: {label_en: "Glassware", label_de: "Glasware"}}
+      small_appliances:     {description: "Toasters, kettles, blenders, microwaves, irons, hairdryers. COICOP 05.3.", see_also: [pto:Home_appliance], annotations: {label_en: "Small Appliances", label_de: "Kleine Haushaltsgeräte"}}
+      cleaning:             {description: "Mops, brushes, buckets, vacuum cleaners, brooms. COICOP 05.6.", annotations: {label_en: "Cleaning", label_de: "Reinigung"}}
+      storage_organisation: {description: "Storage boxes, baskets, coat hangers, drawer organisers.", annotations: {label_en: "Storage Organisation", label_de: "Lagernorganisation"}}
+      home_decor:           {description: "Picture frames, vases, candles, mirrors, clocks, lamps.", see_also: [pto:Decorative_arts], annotations: {label_en: "Home Decor", label_de: "Wohnen Dekoration"}}
+      garden_tools:         {description: "Spades, trowels, secateurs, watering cans. COICOP 05.5.", see_also: [pto:Garden_tool], annotations: {label_en: "Garden Tools", label_de: "Gartenwerkzeuge"}}
+      other:                {description: "Household items not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Sonstiges"}}

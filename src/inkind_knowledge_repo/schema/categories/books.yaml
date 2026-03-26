@@ -102,22 +102,22 @@ enums:
   BooksSubcategoryEnum:
     description: Books and educational materials subcategories.
     permissible_values:
-      fiction:               {description: "Novels, short stories, graphic novels, comics.", see_also: [pto:Fiction]}
-      non_fiction:           {description: "Biographies, history, science, self-help, cookbooks.", see_also: [pto:Non-fiction]}
-      childrens_books:       {description: "Picture books, board books, early readers."}
-      textbooks:             {description: "School and university textbooks, reference books.", see_also: [pto:Textbook]}
-      language_learning:     {description: "Language learning books, dictionaries, phrasebooks."}
-      religious:             {description: "Religious texts and devotional books."}
-      educational_materials: {description: "Workbooks, flashcards, educational posters, school supplies."}
-      other:                 {description: Books and educational materials not fitting above subcategories.}
+      fiction:               {description: "Novels, short stories, graphic novels, comics.", see_also: [pto:Fiction], annotations: {label_en: "Fiction", label_de: "Belletristik"}}
+      non_fiction:           {description: "Biographies, history, science, self-help, cookbooks.", see_also: [pto:Non-fiction], annotations: {label_en: "Non-Fiction", label_de: "Nicht-Fiktion"}}
+      childrens_books:       {description: "Picture books, board books, early readers.", annotations: {label_en: "Children's Books", label_de: "Kinderbücher"}}
+      textbooks:             {description: "School and university textbooks, reference books.", see_also: [pto:Textbook], annotations: {label_en: "Textbooks", label_de: "Lehrbücher"}}
+      language_learning:     {description: "Language learning books, dictionaries, phrasebooks.", annotations: {label_en: "Language Learning", label_de: "Sprachenlernen"}}
+      religious:             {description: "Religious texts and devotional books.", annotations: {label_en: "Religious", label_de: "Religiös"}}
+      educational_materials: {description: "Workbooks, flashcards, educational posters, school supplies.", annotations: {label_en: "Educational Materials", label_de: "Bildungsmaterialien"}}
+      other:                 {description: "Books and educational materials not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Sonstige"}}
 
   BookAgeRangeEnum:
     description: >-
       Age suitability for books. Broader and non-gendered compared to
       DemographicEnum — content suitability does not require gender split.
     permissible_values:
-      children_0_5:  {description: "Picture books, board books, early learning (0-5 years)"}
-      children_6_12: {description: "Middle-grade readers, chapter books (6-12 years)"}
-      young_adult:   {description: "Young adult (13-17 years)"}
-      adult:         {description: Adult readership}
-      all_ages:      {description: Suitable for all ages}
+      children_0_5:  {description: "Picture books, board books, early learning (0-5 years)", annotations: {label_en: "Children (0-5)", label_de: "Kinder (0-5)"}}
+      children_6_12: {description: "Middle-grade readers, chapter books (6-12 years)", annotations: {label_en: "Children (6-12)", label_de: "Kinder (6-12)"}}
+      young_adult:   {description: "Young adult (13-17 years)", annotations: {label_en: "Young Adult", label_de: "Jugendliche (13-17)"}}
+      adult:         {description: "Adult readership", annotations: {label_en: "Adult", label_de: "Erwachsene"}}
+      all_ages:      {description: "Suitable for all ages", annotations: {label_en: "All Ages", label_de: "Alle Altersgruppen"}}

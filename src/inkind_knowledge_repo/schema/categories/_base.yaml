@@ -138,11 +138,17 @@ slots:
       - schema:WearableSizeGroupBaby
       - schema:WearableSizeGroupChildrens
       - schema:WearableSizeGroupAdult
+    annotations:
+      label_en: "Demographic"
+      label_de: "Demografie"
 
   is_set_complete:
     range: boolean
     description: >-
       Whether all components of the set are present. Optional — standard completeness tier.
+    annotations:
+      label_en: "Set Complete"
+      label_de: "Set vollständig"
 
   age_range:
     range: string
@@ -150,6 +156,9 @@ slots:
       Age suitability. Range overridden per class:
         ToysItem  → ToyAgeRangeEnum
         BooksItem → BookAgeRangeEnum
+    annotations:
+      label_en: "Age Range"
+      label_de: "Altersbereich"
 
   expiry_date:
     range: date
@@ -159,6 +168,8 @@ slots:
       uc_action: block
       uc_suggest: disposal
       uc_note: "Dynamic date comparison — runtime enforcement"
+      label_en: "Expiry Date"
+      label_de: "Ablaufdatum"
 
   is_sealed:
     range: boolean
@@ -166,3 +177,6 @@ slots:
       Whether the item's original packaging/seal is intact.
       UC block for most consumable subcategories when false.
       Primary safety signal for personal care items — replaces condition_grade.
+    annotations:
+      label_en: "Sealed Packaging"
+      label_de: "Versiegelte Verpackung"

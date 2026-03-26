@@ -145,16 +145,16 @@ enums:
   ToysSubcategoryEnum:
     description: Toys subcategories. Grounded in Product Types Ontology.
     permissible_values:
-      construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy]}
-      dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll]}
-      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game]}
-      puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle]}
-      outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys."}
-      ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy]}
-      arts_crafts:      {description: "Colouring books, craft kits, modelling clay, paint sets."}
-      educational:      {description: "Educational games and learning toys.", see_also: [pto:Educational_toy]}
-      plush:            {description: "Soft toys and stuffed animals.", see_also: [pto:Stuffed_animal]}
-      other:            {description: Toys not fitting above subcategories.}
+      construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy], annotations: {label_en: "Construction toys", label_de: "Konstruktionsspielzeug"}}
+      dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll], annotations: {label_en: "Dolls & figures", label_de: "Puppen & Figuren"}}
+      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game], annotations: {label_en: "Board games", label_de: "Brettspiele"}}
+      puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle], annotations: {label_en: "Puzzles", label_de: "Puzzles"}}
+      outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys.", annotations: {label_en: "Outdoor toys", label_de: "Draußen-Spielzeug"}}
+      ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy], annotations: {label_en: "Ride-on toys", label_de: "Rutschfahrzeuge"}}
+      arts_crafts:      {description: "Colouring books, craft kits, modelling clay, paint sets.", annotations: {label_en: "Arts & Crafts", label_de: "Kunst & Basteln"}}
+      educational:      {description: "Educational games and learning toys.", see_also: [pto:Educational_toy], annotations: {label_en: "Educational toys", label_de: "Lernspielzeug"}}
+      plush:            {description: "Soft toys and stuffed animals.", see_also: [pto:Stuffed_animal], annotations: {label_en: "Plush toys", label_de: "Plüschtiere"}}
+      other:            {description: "Toys not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Sonstiges"}}
 
   ToyAgeRangeEnum:
     description: >-
@@ -164,9 +164,9 @@ enums:
     see_also:
       - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
     permissible_values:
-      age_0_to_3:  {description: "0-3 years. MUST NOT have small parts (EU Toy Safety Directive 2009/48/EC)."}
-      age_3_to_6:  {description: "3-6 years."}
-      age_6_to_12: {description: "6-12 years."}
-      age_12_plus: {description: "12 years and above."}
-      adult:       {description: "Adult games / collector items; not for children."}
-      all_ages:    {description: "Suitable for all ages."}
+      age_0_to_3:  {description: "0-3 years. MUST NOT have small parts (EU Toy Safety Directive 2009/48/EC).", annotations: {label_en: "0-3 years", label_de: "0-3 Jahre"}}
+      age_3_to_6:  {description: "3-6 years.", annotations: {label_en: "3-6 years", label_de: "3-6 Jahre"}}
+      age_6_to_12: {description: "6-12 years.", annotations: {label_en: "6-12 years", label_de: "6-12 Jahre"}}
+      age_12_plus: {description: "12 years and above.", annotations: {label_en: "12+ years", label_de: "12+ Jahre"}}
+      adult:       {description: "Adult games / collector items; not for children.", annotations: {label_en: "Adult", label_de: "Erwachsene"}}
+      all_ages:    {description: "Suitable for all ages.", annotations: {label_en: "All ages", label_de: "Alle Altersgruppen"}}

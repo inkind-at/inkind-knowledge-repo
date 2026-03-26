@@ -92,15 +92,15 @@ enums:
   StationerySubcategoryEnum:
     description: Stationery and office supply subcategories.
     permissible_values:
-      pens_pencils:           {description: "Ballpoint pens, pencils, felt-tips, highlighters, markers.", see_also: [pto:Pen]}
-      writing_sets:           {description: "Pencil cases, pen sets, calligraphy sets."}
-      notebooks_paper:        {description: "Notebooks, exercise books, loose-leaf paper, drawing pads.", see_also: [pto:Notebook]}
-      envelopes_cards:        {description: "Envelopes, postcards, greeting cards."}
-      folders_binders:        {description: "Ring binders, lever arch files, document wallets.", see_also: [pto:Binder]}
-      organisers:             {description: "Desk organisers, filing trays, clipboards, planners, diaries."}
-      art_supplies:           {description: "Paints, brushes, colouring pencils, pastels, canvases.", see_also: [pto:Art_supply]}
-      craft_supplies:         {description: "Scissors, glue, tape, staplers, hole punches, rulers."}
-      calculators:            {description: "Scientific, graphing, and basic calculators.", see_also: [pto:Calculator]}
-      office_equipment_small: {description: "Staplers, hole punches, sharpeners, correction tape."}
-      storage_supplies:       {description: "Labels, sticky notes, index cards, dividers."}
-      other:                  {description: Stationery not fitting above subcategories.}
+      pens_pencils:           {description: "Ballpoint pens, pencils, felt-tips, highlighters, markers.", see_also: [pto:Pen], annotations: {label_en: "Pens and Pencils", label_de: "Stifte und Bleistifte"}}
+      writing_sets:           {description: "Pencil cases, pen sets, calligraphy sets.", annotations: {label_en: "Writing Sets", label_de: "Schreibsets"}}
+      notebooks_paper:        {description: "Notebooks, exercise books, loose-leaf paper, drawing pads.", see_also: [pto:Notebook], annotations: {label_en: "Notebooks and Paper", label_de: "Notizbücher und Papier"}}
+      envelopes_cards:        {description: "Envelopes, postcards, greeting cards.", annotations: {label_en: "Envelopes and Cards", label_de: "Briefumschläge und Karten"}}
+      folders_binders:        {description: "Ring binders, lever arch files, document wallets.", see_also: [pto:Binder], annotations: {label_en: "Folders and Binders", label_de: "Ordner und Mappen"}}
+      organisers:             {description: "Desk organisers, filing trays, clipboards, planners, diaries.", annotations: {label_en: "Organisers and Planners", label_de: "Organizer und Planer"}}
+      art_supplies:           {description: "Paints, brushes, colouring pencils, pastels, canvases.", see_also: [pto:Art_supply], annotations: {label_en: "Art Supplies", label_de: "Kunstbedarf"}}
+      craft_supplies:         {description: "Scissors, glue, tape, staplers, hole punches, rulers.", annotations: {label_en: "Craft Supplies", label_de: "Bastelbedarf"}}
+      calculators:            {description: "Scientific, graphing, and basic calculators.", see_also: [pto:Calculator], annotations: {label_en: "Calculators", label_de: "Taschenrechner"}}
+      office_equipment_small: {description: "Staplers, hole punches, sharpeners, correction tape.", annotations: {label_en: "Small Office Equipment", label_de: "Kleine Bürogeräte"}}
+      storage_supplies:       {description: "Labels, sticky notes, index cards, dividers.", annotations: {label_en: "Storage and Organisation Supplies", label_de: "Lager- und Organisationsbedarf"}}
+      other:                  {description: "Stationery not fitting above subcategories.", annotations: {label_en: "Other Stationery", label_de: "Sonstige Schreibwaren"}}

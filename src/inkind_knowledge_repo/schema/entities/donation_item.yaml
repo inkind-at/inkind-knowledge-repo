@@ -177,9 +177,9 @@ classes:
       - schema:Product
     slots:
       - id
+      - usage
       - category
       - lifecycle_state
-      - usage
       - attribute_completeness
       - source_collection
       - donation_source
@@ -189,7 +189,8 @@ classes:
       - updated_at
     slot_usage:
       category:
-        # designates_type: true
+        designates_type: true
+        range: string
         required: true
         notes:
           - Due to a limitation in LinkML, the designates_type annotation was removed because the range is an Enum and not a string.
@@ -211,7 +212,12 @@ classes:
       storage_unit:
         range: StorageLocation
         required: false
-
+    annotations:
+      completeness_minimal:  "category, usage"
+      completeness_standard: "category, usage, sorting_notes"
+      completeness_detailed: "category, usage, source_collection, donation_source, sorting_notes"
+      label_en: "Donation Item"
+      label_de: "Spendenartikel"
 
   # ════════════════════════════════════════════════════════════════════════════
   # APPAREL GROUP — COICOP Division 03 (Clothing and footwear)
@@ -238,20 +244,23 @@ classes:
         lc-sorted-clothing-size-required
     see_also:
       - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+    annotations:
+      label_en: "Clothing"
+      label_de: "Kleidung"
     rules:
-      - title: lc-sorted-clothing-condition-grade-required
-        description: >-
-          condition_grade required at sorted state regardless of usage.
-          New item with defect → grade fair or poor, not assumed like_new.
-          Sorters observe and record; they do not assume from the usage label.
-        preconditions:
-          slot_conditions:
-            lifecycle_state:
-              equals_string: sorted
-        postconditions:
-          slot_conditions:
-            condition_grade:
-              required: true
+      # - title: lc-sorted-clothing-condition-grade-required
+      #   description: >-
+      #     condition_grade required at sorted state regardless of usage.
+      #     New item with defect → grade fair or poor, not assumed like_new.
+      #     Sorters observe and record; they do not assume from the usage label.
+      #   preconditions:
+      #     slot_conditions:
+      #       lifecycle_state:
+      #         equals_string: sorted
+      #   postconditions:
+      #     slot_conditions:
+      #       condition_grade:
+      #         required: true
 
       - title: lc-sorted-clothing-is-winter-suitable-required
         description: >-
@@ -273,6 +282,20 @@ classes:
         postconditions:
           slot_conditions:
             is_winter_suitable:
+              required: true
+      
+      - title: lc-used-clothing-condition-grade-required
+        description: >-
+          For used clothing (usage = used), condition_grade is required.
+        preconditions:
+          slot_conditions:
+            usage:
+              equals_string: used
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
               required: true
 
       - title: lc-sorted-clothing-demographic-required
@@ -339,6 +362,9 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Fashion_accessory
+    annotations:
+      label_en: "Accessories"
+      label_de: "Accesoires"
     rules:
       - title: lc-sorted-accessories-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -365,6 +391,9 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Footwear
+    annotations:
+      label_en: "Footwear"
+      label_de: "Schuhe"
     rules:
       - title: lc-sorted-footwear-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -431,6 +460,9 @@ classes:
       flatpack furniture can have manufacturing defects or assembly issues.
     see_also:
       - http://www.productontology.org/id/Furniture
+    annotations:
+      label_en: "Furniture"
+      label_de: "Mebel"
     rules:
       - title: lc-sorted-furniture-assessment-required
         description: >-
@@ -474,6 +506,9 @@ classes:
     see_also:
       - http://www.productontology.org/id/Bedding
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    annotations:
+      label_en: "Bedding and Textiles"
+      label_de: "Bettwäsche und Textilien"
     rules:
       - title: lc-sorted-bedding-assessment-required
         description: >-
@@ -504,6 +539,9 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Household_goods
+    annotations:
+      label_en: "Household"
+      label_de: "Haustechnik"
     rules:
       - title: lc-sorted-household-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -541,6 +579,9 @@ classes:
       engine, not by a UC rule here.
     see_also:
       - http://www.productontology.org/id/Consumer_electronics
+    annotations:
+      label_en: "Electronics"
+      label_de: "Elektronik"
     rules:
       - title: lc-sorted-electronics-assessment-required
         description: >-
@@ -585,6 +626,9 @@ classes:
     see_also:
       - http://www.productontology.org/id/Toy
       - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    annotations:
+      label_en: "Toys and Games"
+      label_de: "Spielzeug und Spiele"
     rules:
       - title: lc-sorted-toys-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -618,6 +662,9 @@ classes:
         all other subcategories → condition_grade (wear grade)
     see_also:
       - http://www.productontology.org/id/Sporting_goods
+    annotations:
+      label_en: "Sports"
+      label_de: "Sport"
     rules:
       - title: lc-sorted-sports-subcategory-required
         description: >-
@@ -652,6 +699,9 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - schema:Book
+    annotations:
+      label_en: "Books"
+      label_de: "Bücher"
     rules:
       - title: lc-sorted-books-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -680,6 +730,9 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Stationery
+    annotations:
+      label_en: "Stationery"
+      label_de: "Schreibwaren"
     rules:
       - title: lc-sorted-stationery-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -721,6 +774,9 @@ classes:
       - http://www.productontology.org/id/Personal_hygiene
       - http://www.productontology.org/id/Cosmetics
       - https://company.auntbertha.com/openeligibility/
+    annotations:
+      label_en: "Personal Care"
+      label_de: "Personalhygiene"
     rules:
       - title: lc-sorted-personal-care-sealed-required
         description: >-
@@ -759,6 +815,9 @@ classes:
     see_also:
       - http://www.productontology.org/id/Assistive_technology
       - https://company.auntbertha.com/openeligibility/
+    annotations:
+      label_en: "Mobility Aids and Assistive Devices" 
+      label_de: "Mobilitätshilfen und Hilfsgeräte"
     rules:
       - title: lc-sorted-mobility-assessment-required
         description: >-
@@ -813,11 +872,14 @@ classes:
       - http://www.productontology.org/id/Infant_bed
       - https://company.auntbertha.com/openeligibility/
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    annotations:
+      label_en: "Baby and Infant Supplies"
+      label_de: "Baby- und Kleinkindausstattung"
     rules:
       - title: lc-sorted-baby-sleeping-bag-winter-required
         description: >-
           is_winter_suitable required at sorted state for baby sleeping bags.
-          A summer-weight baby sleeping bag (0.5–1.0 tog) issued in cold-
+          A summer-weight baby sleeping bag (0.5-1.0 tog) issued in cold-
           weather distribution is a safety risk — infants cannot regulate
           their own temperature. BabyInfantCategory also carries this rule;
           the lifecycle rule here ensures it is enforced at the sorted
@@ -846,6 +908,23 @@ classes:
             subcategory:
               required: true
 
+      - title: lc-manufacture-year-required
+        description: >-
+          Manufacture year is required for certain subcategories.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: cots_cribs
+                - equals_string: car_seats
+                - equals_string: pushchairs_prams
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            manufacture_year:
+              required: true
+
 
   FoodItem:
     is_a: DonationItem
@@ -868,7 +947,8 @@ classes:
       - foodon:00001006
       - http://purl.obolibrary.org/obo/foodon.owl
     annotations:
-      phase: Phase 1 stub
+      label_en: "Food"
+      label_de: "Essen"
     rules:
       - title: lc-sorted-food-storage-required
         description: storage_requirement required at sorted state.
@@ -895,6 +975,9 @@ classes:
       Use sparingly: if a new item type appears frequently in operations,
       it warrants a proper subclass with a category mixin and dedicated
       sorting fragment rather than accumulating in OtherItem.
+    annotations:
+      label_en: "Other"
+      label_de: "Sonstiges"
     rules:
       - title: lc-sorted-other-required-fields
         description: >-

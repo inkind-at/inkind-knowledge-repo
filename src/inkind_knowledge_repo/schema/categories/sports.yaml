@@ -232,12 +232,12 @@ enums:
   SportsSubcategoryEnum:
     description: Sports equipment subcategories. Grounded in Product Types Ontology.
     permissible_values:
-      balls:             {description: "Footballs, basketballs, tennis balls, rugby balls."}
-      rackets_bats:      {description: "Tennis/badminton rackets, cricket bats, ping-pong bats.", see_also: [pto:Racket]}
-      protective_gear:   {description: "Helmets, shin pads, knee pads, life jackets. Structured assessment required.", see_also: [pto:Protective_gear]}
-      fitness_equipment: {description: "Weights, resistance bands, yoga mats, exercise machines.", see_also: [pto:Exercise_equipment]}
-      bicycles:          {description: "Bicycles and cycling accessories. Domain convention — COICOP 07 (Transport).", see_also: [pto:Bicycle]}
-      water_sports:      {description: "Swimming goggles, snorkels, fins, wetsuits."}
-      winter_sports:     {description: "Skis, snowboards, ice skates, sleds.", see_also: [pto:Ski]}
-      camping_outdoor:   {description: "Tents, sleeping bags, backpacks, hiking poles.", see_also: [pto:Camping]}
-      other:             {description: Sports equipment not fitting above subcategories.}
+      balls:             {description: "Footballs, basketballs, tennis balls, rugby balls.", annotations: {label_en: "Balls", label_de: "Bälle"}}
+      rackets_bats:      {description: "Tennis/badminton rackets, cricket bats, ping-pong bats.", see_also: [pto:Racket], annotations: {label_en: "Rackets and Bats", label_de: "Schläger und Schläger"}}
+      protective_gear:   {description: "Helmets, shin pads, knee pads, life jackets. Structured assessment required.", see_also: [pto:Protective_gear], annotations: {label_en: "Protective Gear", label_de: "Schutzausrüstung"}}
+      fitness_equipment: {description: "Weights, resistance bands, yoga mats, exercise machines.", see_also: [pto:Exercise_equipment], annotations: {label_en: "Fitness Equipment", label_de: "Fitnessgeräte"}}
+      bicycles:          {description: "Bicycles and cycling accessories. Domain convention — COICOP 07 (Transport).", see_also: [pto:Bicycle], annotations: {label_en: "Bicycles and Cycling Equipment", label_de: "Fahrräder und Fahrradausrüstung"}}
+      water_sports:      {description: "Swimming goggles, snorkels, fins, wetsuits.", annotations: {label_en: "Water Sports Equipment", label_de: "Wassersportausrüstung"}}
+      winter_sports:     {description: "Skis, snowboards, ice skates, sleds.", see_also: [pto:Ski], annotations: {label_en: "Winter Sports Equipment", label_de: "Wintersportausrüstung"}}
+      camping_outdoor:   {description: "Tents, sleeping bags, backpacks, hiking poles.", see_also: [pto:Camping], annotations: {label_en: "Camping and Outdoor Equipment", label_de: "Camping- und Outdoor-Ausrüstung"}}
+      other:             {description: "Sports equipment not fitting above subcategories.", annotations: {label_en: "Other Sports Equipment", label_de: "Sonstige Sportausrüstung"}}

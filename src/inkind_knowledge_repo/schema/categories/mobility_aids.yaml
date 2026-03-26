@@ -172,42 +172,60 @@ enums:
           Structurally sound, fully functional (if powered), and clean.
           No hygiene concerns for body-contact items. Ready for redistribution.
           Appropriate for new items with no observed defects.
+        annotations:
+          label_en: "Safe to Redistribute"
+          label_de: "Sicher zur Weiterverteilung"
       safe_cosmetic_wear_only:
         description: >-
           Minor cosmetic wear but structurally sound and fully functional.
           Safe to redistribute.
+        annotations:
+          label_en: "Safe with Cosmetic Wear"
+          label_de: "Sicher mit kosmetischen Gebrauchsspuren"
       safe_after_cleaning:
         description: >-
           Body-contact item (hearing aid, orthotic) that is structurally sound
           but requires professional cleaning before redistribution.
           action: warn — sorting_notes required.
+        annotations:
+          label_en: "Safe After Cleaning"
+          label_de: "Nach Reinigung sicher" 
       non_functional:
         description: >-
           Powered device does not operate as expected. Consider repair referral.
           action: warn — sorting_notes required.
+        annotations:
+          label_en: "Non-Functional"
+          label_de: "Nicht funktionsfähig"  
       structurally_compromised:
         description: >-
           Load-bearing or structural components unsafe. Applies regardless of usage.
           action: block, suggest: disposal or specialist repair referral.
+        annotations:
+          label_en: "Structurally Compromised"
+          label_de: "Strukturell beeinträchtigt"
       specialist_referral_required:
         description: >-
           Cannot be assessed by a general sorter — specialist evaluation required
           (prosthetics, complex orthotics, specialised communication devices).
           action: block from normal redistribution; flag for specialist organisation.
+        annotations:
+          label_en: "Specialist Referral Required"
+          label_de: "Spezialistenbewertung erforderlich"  
 
   MobilityAidsSubcategoryEnum:
     description: >-
       Mobility aids and assistive devices subcategories.
       Grounded in Product Types Ontology and Open Eligibility taxonomy.
     permissible_values:
-      wheelchairs:          {description: "Manual and powered wheelchairs. Structural + functional assessment required.", see_also: [pto:Wheelchair]}
-      crutches:             {description: "Axillary and forearm crutches, walking sticks. Structural assessment.", see_also: [pto:Crutch]}
-      walking_frames:       {description: "Walking frames, Zimmer frames, wheeled walkers, rollators.", see_also: [pto:Walking_frame]}
-      mobility_scooters:    {description: "Electric mobility scooters. Full functional + structural assessment."}
-      hearing_aids:         {description: "In-ear and behind-ear hearing aids. Body-contact — safe_after_cleaning minimum.", see_also: [pto:Hearing_aid]}
-      visual_aids:          {description: "Reading glasses (non-prescription), magnifiers, white canes."}
-      orthotics:            {description: "Splints, braces, supports. Body-contact assessment applies.", see_also: [pto:Orthopedic_equipment]}
-      prosthetics:          {description: "Prosthetic limbs. Specialist referral required."}
-      daily_living_aids:    {description: "Grab rails, bath seats, reachers, adapted cutlery.", see_also: [pto:Assistive_technology]}
-      communication_devices: {description: "AAC devices, talking clocks, large-button phones. Functional assessment required.", see_also: [pto:Augmentative_and_alternative_communication]}
-      other:                {description: Mobility aids and assistive devices not fitting above subcategories.}
+      wheelchairs:          {description: "Manual and powered wheelchairs. Structural + functional assessment required.", see_also: [pto:Wheelchair], annotations: {label_en: "Wheelchairs", label_de: "Rollstühle"}}
+      crutches:             {description: "Axillary and forearm crutches, walking sticks. Structural assessment.", see_also: [pto:Crutch], annotations: {label_en: "Crutches and Walking Sticks", label_de: "Krücken und Gehstöcke"}}
+      walking_frames:       {description: "Walking frames, Zimmer frames, wheeled walkers, rollators.", see_also: [pto:Walking_frame], annotations: {label_en: "Walking Frames", label_de: "Gehgestelle"}}
+      mobility_scooters:    {description: "Electric mobility scooters. Full functional + structural assessment.", annotations: {label_en: "Mobility Scooters", label_de: "Mobilitätsscooter"}}
+      hearing_aids:         {description: "In-ear and behind-ear hearing aids. Body-contact — safe_after_cleaning minimum.", see_also: [pto:Hearing_aid], annotations: {label_en: "Hearing Aids", label_de: "Hörgeräte"}}
+      visual_aids:          {description: "Reading glasses (non-prescription), magnifiers, white canes.", annotations: {label_en: "Visual Aids", label_de: "Sehhilfen"}}
+      orthotics:            {description: "Splints, braces, supports. Body-contact assessment applies.", see_also: [pto:Orthopedic_equipment], annotations: {label_en: "Orthotics", label_de: "Orthesen"}}
+      prosthetics:          {description: "Prosthetic limbs. Specialist referral required.", annotations: {label_en: "Prosthetics", label_de: "Prothesen"}}
+      daily_living_aids:    {description: "Grab rails, bath seats, reachers, adapted cutlery.", see_also: [pto:Assistive_technology], annotations: {label_en: "Daily Living Aids", label_de: "Hilfsmittel für den Alltag"}}
+      communication_devices: {description: "AAC devices, talking clocks, large-button phones. Functional assessment required.", see_also: [pto:Augmentative_and_alternative_communication], annotations: {label_en: "Communication Devices", label_de: "Kommunikationshilfen"}}
+      other:                {description: "Mobility aids and assistive devices not fitting above subcategories.", annotations: {label_en: "Other Mobility Aids", label_de: "Sonstige Mobilitätshilfen"}}

@@ -188,19 +188,19 @@ enums:
       Personal care, hygiene, and health product subcategories.
       Covers COICOP 06.1 (medical products) and 12.1 (personal care).
     permissible_values:
-      soap_body_wash:       {description: "Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.", see_also: [pto:Soap]}
-      shampoo_conditioner:  {description: "Shampoo, conditioner, dry shampoo. Must be sealed.", see_also: [pto:Hair_care]}
-      dental:               {description: "Toothpaste, mouthwash, dental floss. Must be sealed. (Toothbrushes → personal_care_tools).", see_also: [pto:Oral_hygiene]}
-      deodorant:            {description: "Deodorant and antiperspirant. Must be sealed."}
-      sanitary_products:    {description: "Menstrual pads, tampons, menstrual cups. Must be sealed."}
-      nappies_incontinence: {description: "Baby nappies, adult incontinence products. Must be sealed.", see_also: [pto:Diaper]}
-      toilet_paper_tissue:  {description: "Toilet paper, facial tissue. Must be sealed/wrapped."}
-      personal_care_tools:  {description: "Toothbrushes, razors, nail clippers, tweezers, combs. UC block: used → never redistribute."}
-      skincare:             {description: "Moisturisers, sunscreen, face wash, lip balm. Must be sealed.", see_also: [pto:Skin_care]}
-      cosmetics:            {description: "Foundation, lipstick, mascara, nail polish. Must be sealed/unused.", see_also: [pto:Cosmetics]}
-      hair_styling:         {description: "Hair gel, mousse, hairspray, hair dye. Must be sealed."}
-      otc_medication:       {description: "OTC pain relief, vitamins, cold medicine. Sealed + expiry enforced. NO prescription medications.", see_also: [pto:Over-the-counter_drug]}
-      first_aid:            {description: "First aid kits, plasters, antiseptic, sterile dressings. Sealed required.", see_also: [pto:First_aid]}
-      medical_consumables:  {description: "Disposable gloves, masks, syringes (sealed). Sealed + expiry.", see_also: [pto:Medical_device]}
-      medical_devices_small: {description: "Thermometers, blood pressure monitors, reading glasses. Not durable aids (→ MobilityAidsItem)."}
-      other:                {description: "Personal care products not fitting above subcategories."}
+      soap_body_wash:       {description: "Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.", see_also: [pto:Soap], annotations: {label_en: "Soap and Body Wash", label_de: "Seife und Duschgel"}}
+      shampoo_conditioner:  {description: "Shampoo, conditioner, dry shampoo. Must be sealed.", see_also: [pto:Hair_care], annotations: {label_en: "Shampoo and Conditioner", label_de: "Shampoo und Conditioner"}}
+      dental:               {description: "Toothpaste, mouthwash, dental floss. Must be sealed. (Toothbrushes → personal_care_tools).", see_also: [pto:Oral_hygiene], annotations: {label_en: "Dental Care", label_de: "Zahnpflege"}}
+      deodorant:            {description: "Deodorant and antiperspirant. Must be sealed.", annotations: {label_en: "Deodorant", label_de: "Deodorant"}}
+      sanitary_products:    {description: "Menstrual pads, tampons, menstrual cups. Must be sealed.", annotations: {label_en: "Sanitary Products", label_de: "Damenhygieneprodukte"}}
+      nappies_incontinence: {description: "Baby nappies, adult incontinence products. Must be sealed.", see_also: [pto:Diaper], annotations: {label_en: "Nappies and Incontinence Products", label_de: "Windeln und Inkontinenzprodukte"}}
+      toilet_paper_tissue:  {description: "Toilet paper, facial tissue. Must be sealed/wrapped.", annotations: {label_en: "Toilet Paper and Facial Tissue", label_de: "Toilettenpapier und Taschentücher"}}
+      personal_care_tools:  {description: "Toothbrushes, razors, nail clippers, tweezers, combs. UC block: used → never redistribute.", annotations: {label_en: "Personal Care Tools", label_de: "Persönliche Pflegewerkzeuge"}}
+      skincare:             {description: "Moisturisers, sunscreen, face wash, lip balm. Must be sealed.", see_also: [pto:Skin_care], annotations: {label_en: "Skincare", label_de: "Hautpflege"}}
+      cosmetics:            {description: "Foundation, lipstick, mascara, nail polish. Must be sealed/unused.", see_also: [pto:Cosmetics], annotations: {label_en: "Cosmetics", label_de: "Kosmetik"}}
+      hair_styling:         {description: "Hair gel, mousse, hairspray, hair dye. Must be sealed.", annotations: {label_en: "Hair Styling", label_de: "Haarstyling"}}
+      otc_medication:       {description: "OTC pain relief, vitamins, cold medicine. Sealed + expiry enforced. NO prescription medications.", see_also: [pto:Over-the-counter_drug], annotations: {label_en: "Over-the-Counter Medication", label_de: "Freiverkäufliche Medikamente"}}
+      first_aid:            {description: "First aid kits, plasters, antiseptic, sterile dressings. Sealed required.", see_also: [pto:First_aid], annotations: {label_en: "First Aid Supplies", label_de: "Erste-Hilfe-Ausrüstung"}}
+      medical_consumables:  {description: "Disposable gloves, masks, syringes (sealed). Sealed + expiry.", see_also: [pto:Medical_device], annotations: {label_en: "Medical Consumables", label_de: "Medizinische Verbrauchsmaterialien"}}
+      medical_devices_small: {description: "Thermometers, blood pressure monitors, reading glasses. Not durable aids (→ MobilityAidsItem).", annotations: {label_en: "Small Medical Devices", label_de: "Kleine Medizinische Geräte"}}
+      other:                {description: "Personal care products not fitting above subcategories.", annotations: {label_en: "Other Personal Care", label_de: "Sonstige Körperpflege"}}

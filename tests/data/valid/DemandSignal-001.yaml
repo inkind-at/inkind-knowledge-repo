@@ -10,7 +10,7 @@ category: ClothingItem
 attributes:
   subcategory: tops
   demographic: unisex
-  size: m
+  size: m_l
 quantity_fulfilled: 0
 lifecycle_state: active
 registered_at: "2026-03-22T08:00:00Z"

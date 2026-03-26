@@ -2,7 +2,7 @@
 
 # On Windows the "sh" shell that comes with Git for Windows should be used.
 # If it is not on path, provide the path to the executable in the following line.
-#set windows-shell := ["C:/Program Files/Git/usr/bin/sh", "-cu"]
+# set windows-shell := ["C:/Program Files/Git/usr/bin/sh", "-cu"]
 
 # On WIndows to fix encoding issues
 export PYTHONUTF8 := "1"
@@ -130,6 +130,17 @@ gen-project:
 #    mkdir -p {{dest}}/owl ; \
 #  fi
 #  uv run gen-owl {{gen_owl_args}} {{source_schema_path}} > "{{dest}}/owl/{{schema_name}}.owl.ttl"
+
+# Generate per-category JSON schemas for UI validation
+[group('model development')]
+gen-category-jsonschemas:
+  mkdir -p project/jsonschema
+  # Generate full DonationItem schema
+  uv run gen-json-schema --top-class DonationItem src/inkind_knowledge_repo/schema/entities/donation_item.yaml > project/jsonschema/DonationItem.schema.json
+  # Generate per-category schemas from main schema for complete inheritance
+  for class in AccessoriesItem BabyInfantItem BeddingTextilesItem BooksItem ClothingItem ElectronicsItem FoodItem FootwearItem FurnitureItem HouseholdItem MobilityAidsItem PersonalCareItem SportsItem StationeryItem ToysItem; do \
+    uv run gen-json-schema --top-class $class {{source_schema_path}} > project/jsonschema/$class.schema.json ; \
+  done
 
 # ============== Migrations recipes for Copier ==============
 

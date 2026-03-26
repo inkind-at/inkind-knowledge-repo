@@ -19,7 +19,7 @@ updated_at: "2026-03-22T11:34:00Z"
 # ClothingItem category-specific slots — required at sorted state:
 subcategory: tops
 demographic: unisex
-size: m
+size: m_l
 intact_labels: true
 is_winter_suitable: false
 # sorting_notes absent — no additional notes needed

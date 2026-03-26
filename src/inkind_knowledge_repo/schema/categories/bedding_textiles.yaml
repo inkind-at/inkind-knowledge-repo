@@ -201,23 +201,38 @@ enums:
         description: >-
           Clearly unused/new with original packaging intact or no signs of
           previous use. No hygiene concerns.
+        annotations:
+          label_en: "Clean (Unused)"
+          label_de: "Sauber (Unbenutzt)"
       clean_washed:
         description: >-
           Previously used but confirmed laundered and clean. No staining,
           odour, or hygiene concerns. Fully redistributable.
+        annotations:
+          label_en: "Clean (Washed)"
+          label_de: "Sauber (Gewaschen)"
       clean_with_visible_staining:
         description: >-
           Clean and odour-free but with visible staining. Structurally sound.
           action: warn — sorting_notes required.
+        annotations:
+          label_en: "Clean (With Visible Staining)"
+          label_de: "Sauber (Mit sichtbaren Flecken)"
       used_not_confirmed_washed:
         description: >-
           Used item where laundering cannot be confirmed.
           action: warn — sorting_notes required.
+        annotations:
+          label_en: "Used (Not Confirmed Washed)"
+          label_de: "Verwendet (Nicht bestätigt)"
       hygiene_concern:
         description: >-
           Visible contamination, significant staining, odour, infestation,
           or other hygiene issue. Redistribution unsafe.
           action: block, suggest: disposal.
+        annotations:
+          label_en: "Hygiene Concern"
+          label_de: "Hygiene-Bedingung"
 
   BeddingTextilesSubcategoryEnum:
     description: >-
@@ -231,19 +246,31 @@ enums:
           is_winter_suitable required — a fleece blanket and a cotton
           throw serve very different needs in cold-weather distribution.
         see_also: [pto:Blanket]
+        annotations:
+          label_en: "Blankets"
+          label_de: "Decken"
       duvets_quilts:
         description: >-
           Duvets, quilts, continental quilts. is_winter_suitable required —
           tog rating (if legible) may be noted in sorting_notes.
         see_also: [pto:Duvet]
+        annotations:
+          label_en: "Duvets & Quilts"
+          label_de: "Bettdecken & Steppdecken"
       pillows:
         description: Pillows and sleeping cushions.
         see_also: [pto:Pillow]
+        annotations:
+          label_en: "Pillows"
+          label_de: "Kissen"
       mattresses:
         description: >-
           Single, double, children's mattresses. Hygiene UC applies.
           is_winter_suitable typically not meaningful — suppressed in UI.
         see_also: [pto:Mattress]
+        annotations:
+          label_en: "Mattresses"
+          label_de: "Matratzen"
       sleeping_bags:
         description: >-
           Adult and general sleeping bags and camping bedding.
@@ -256,19 +283,37 @@ enums:
           (subcategory: sleeping_bags). EN 16781:2018 applies — neck and
           armhole safety assessment required. Do not sort into this category.
         see_also: [pto:Sleeping_bag]
+        annotations:
+          label_en: "Sleeping Bags"
+          label_de: "Schlafsäcke"
       bedsheets:
         description: Fitted sheets, flat sheets, pillowcases, duvet covers.
+        annotations:
+          label_en: "Bedsheets"
+          label_de: "Bettwäsche"
       towels:
         description: >-
           Bath, hand, face, beach towels. is_winter_suitable not meaningful
           — suppressed by fragment compiler.
         see_also: [pto:Towel]
+        annotations:
+          label_en: "Towels"
+          label_de: "Handtücher"
       curtains_blinds:
         description: >-
           Curtains, net curtains, roller blinds. is_winter_suitable not
           meaningful at item level — suppressed by fragment compiler.
         see_also: [pto:Curtain]
+        annotations:
+          label_en: "Curtains & Blinds"
+          label_de: "Vorhänge & Jalousien"
       tablecloths_napkins:
         description: Tablecloths, placemats, cloth napkins. Seasonal not applicable.
+        annotations:
+          label_en: "Tablecloths & Napkins"
+          label_de: "Tischdecken & Servietten"
       other:
         description: Household textiles not fitting above subcategories.
+        annotations:
+          label_en: "Other"
+          label_de: "Sonstige"

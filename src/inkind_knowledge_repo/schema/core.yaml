@@ -216,11 +216,17 @@ slots:
       to dispatch to the correct subclass schema and valid slot set.
       For other entities (DemandSignal, StorageLocation) the range is
       overridden via slot_usage to CategoryEnum.
+    annotations:
+      label_en: "Item Type"
+      label_de: "Artikeltyp"
 
   # ── Notes / sorting notes ────────────────────────────────────────────────────
   notes:
     range: string
     description: Optional free-text notes.
+    annotations:
+      label_en: "Notes"
+      label_de: "Notizen"
 
   sorting_notes:
     range: string
@@ -228,11 +234,19 @@ slots:
       Free-text notes recorded by the sorter during sorting.
       Required by UC warn rules to capture explicit sorter confirmation
       (e.g. incomplete pair, body-contact item, inconclusive assessment).
+    annotations:
+      label_en: "Notes"
+      label_de: "Notizen"
+
 
   # ── Material ──────────────────────────────────────────────────────────────────
   material:
     range: string
     description: Primary material composition. Range overridden per class.
+    annotations:
+      label_en: "Material"
+      label_de: "Material"
+
 
   # ── Subcategory ───────────────────────────────────────────────────────────────
   subcategory:
@@ -240,6 +254,9 @@ slots:
     description: >-
       Subcategory within the item type. Overridden via slot_usage in each
       concrete DonationItem subclass to a category-specific enum.
+    annotations:
+      label_en: "Subcategory"
+      label_de: "Unterkategorie"
 
   # ── CONDITION DIMENSION 1: Provenance ────────────────────────────────────────
   usage:
@@ -256,6 +273,9 @@ slots:
       - schema:OfferItemCondition
       - schema:NewCondition
       - schema:UsedCondition
+    annotations:
+      label_en: "Provenance"
+      label_de: "Provenance"
 
   # ── CONDITION DIMENSION 2a: Wear grade ───────────────────────────────────────
   condition_grade:
@@ -281,6 +301,9 @@ slots:
       - schema:LikeNewCondition
       - schema:DamagedCondition
       - schema:itemCondition
+    annotations:
+      label_en: "Wear Grade"
+      label_de: "Abnutzungsgrad"
 
   # ── CONDITION DIMENSION 2b: Structured assessment ─────────────────────────
   assessment_result:
@@ -296,6 +319,9 @@ slots:
       Required regardless of usage — new items can have manufacturing defects.
     see_also:
       - schema:OfferItemCondition
+    annotations:
+      label_en: "Assessment Result"
+      label_de: "Bewertungsergebnis"
 
   # ── Attribute completeness ────────────────────────────────────────────────────
   attribute_completeness:
@@ -332,10 +358,16 @@ enums:
           manufacturing defects or transit damage are possible.
           Assessment must still be performed.
         meaning: schema:NewCondition
+        annotations:
+          label_en: "New"
+          label_de: "Neu"
       used:
         description: >-
           Previously used before donation. Assessment required.
         meaning: schema:UsedCondition
+        annotations:
+          label_en: "Used"
+          label_de: "Verwendet"
 
   UsedConditionGradeEnum:
     description: >-
@@ -355,22 +387,34 @@ enums:
           Appropriate for new items with no observed defects, or used items
           showing no signs of wear.
         meaning: schema:LikeNewCondition
+        annotations:
+          label_en: "Like New"
+          label_de: "Wie Neu"
       good:
         description: >-
           Minor wear; fully functional; no significant defects.
           Most common grade for used items in acceptable condition.
         see_also:
           - schema:itemCondition
+        annotations:
+          label_en: "Good"
+          label_de: "Gut"
       fair:
         description: >-
           Visible wear, minor defects, or manufacturing issues.
           Still suitable for redistribution with appropriate beneficiary matching.
+        annotations:
+          label_en: "Fair"
+          label_de: "Akzeptabel"
       poor:
         description: >-
           Significant wear or defects. Redistribution subject to
           category-specific UC rules — some categories block, others warn
           and require explicit sorter confirmation.
         meaning: schema:DamagedCondition
+        annotations:
+          label_en: "Poor"
+          label_de: "Schlecht"
 
   # ── Attribute completeness ────────────────────────────────────────────────────
 

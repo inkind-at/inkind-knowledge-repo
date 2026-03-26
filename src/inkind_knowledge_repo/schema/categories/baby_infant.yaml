@@ -329,12 +329,17 @@ slots:
       (EN 1888) to verify age of safety-relevant components.
     annotations:
       show_if: "subcategory in [car_seats, cots_cribs, pushchairs_prams]"
+      label_en: "Manufacture year"
+      label_de: "Herstellungsjahr"
 
   includes_original_accessories:
     range: boolean
     description: >-
       Whether standard accessories/components are included (e.g. pushchair
       includes rain cover and harness; cot includes mattress and side rails).
+    annotations:
+      label_en: "Includes original accessories"
+      label_de: "Enthält Originalzubehör"
 
 
 
@@ -371,45 +376,58 @@ enums:
           Structurally sound; all components present; manufacture date within
           acceptable range; no safety concerns. Ready for redistribution.
           Appropriate for new items with no observed defects.
+        annotations:
+          label_en: "Safe to redistribute"
+          label_de: "Sicher zur Weiterverteilung"
       safe_minor_wear:
         description: >-
           Minor cosmetic wear but structurally sound and all safety-relevant
           components intact. Safe to redistribute.
+        annotations:
+          label_en: "Safe to redistribute with minor wear"
+          label_de: "Sicher zur Weiterverteilung mit geringem Verschleiß"
       requires_specialist_check:
         description: >-
           Appears functional but sorter cannot fully verify safety (unknown
           locking mechanism, unfamiliar harness system, unclear provenance).
           action: warn — redistribution only after specialist confirmation.
+        annotations:
+          label_en: "Requires specialist check"
+          label_de: "Benötigt Spezialistenprüfung"
       structural_concern:
         description: >-
           Visible structural damage, cracked components, bent frame, broken
           harness buckle. Applies to new (manufacturing defect) and used items.
           action: block.
+        annotations:
+          label_en: "Structural concern — do not redistribute"
+          label_de: "Strukturelles Problem — nicht weiterverteilen"
       do_not_redistribute:
         description: >-
           Must not be redistributed: car seat over 10 years old or confirmed
           post-collision (EN 14344), EU-banned dropside cot (EN 716), recalled
           model, missing critical safety components.
           action: block.
+        annotations:
+          label_en: "Do not redistribute"
+          label_de: "Nicht weiterverteilen"
 
   BabyInfantSubcategoryEnum:
     description: >-
       Baby and infant supplies subcategories. Grounded in Product Types
       Ontology. Baby clothing belongs in ClothingItem (demographic=baby).
     permissible_values:
-      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport]}
-      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat]}
-      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed]}
-      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport]}
-      infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula]}
-      feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350)."}
-      baby_food:             {description: "Prepared baby food. Must be sealed + within expiry.", see_also: [pto:Baby_food]}
-      breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers."}
-      bath_equipment:        {description: "Baby baths, bath seats, bath thermometers."}
-      changing:              {description: "Changing mats, nappy bags, changing bags."}
-      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor]}
-      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms."}
-      high_chairs:           {description: "High chairs and booster feeding seats. Structural assessment required.", see_also: [pto:High_chair]}
+      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pushchair/pram/stroller", label_de: "Kinderwagen/Pram/Stroller"}}
+      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car seat/booster seat", label_de: "Autositz/Booster-Sitz"}}
+      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot/crib/moses basket", label_de: "Kinderbett/Crib/Moseskorb"}}
+      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier/sling/wrap", label_de: "Baby-Trager/Hängematte/Umhängetuch"}}
+      infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula], annotations: {label_en: "Infant formula", label_de: "Säuglingsnahrung"}}
+      feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Feeding bottle/teat", label_de: "Fütterungsglas/Flasche"}}
+      breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Brustpflegeartikel"}}
+      bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badeausrüstung"}}
+      changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Veränderungsausrüstung"}}
+      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Baby-Überwachungskamera"}}
+      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "Bouncer/swing/rocker/play gym", label_de: "Kinderwippe/Schaukel/Rocker/Spielgerät"}}
       sleeping_bags:
         description: >-
           Baby sleeping bags for home use (0-24 months). Track 1 — structured
@@ -424,4 +442,7 @@ enums:
           Adult and camping sleeping bags → BeddingTextilesItem.
         see_also:
           - pto:Sleeping_bag
-      other:                 {description: Baby and infant supplies not fitting above subcategories.}
+        annotations:
+          label_en: "Baby sleeping bag"
+          label_de: "Baby-Schlafsack"
+      other: {description: "Baby and infant supplies not fitting above subcategories.", annotations: {label_en: "Other baby/infant item", label_de: "Sonstiger Baby-/Kleinkindartikel"}}

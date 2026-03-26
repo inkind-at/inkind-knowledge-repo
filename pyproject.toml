@@ -18,6 +18,9 @@ dependencies = [
   "linkml-runtime >=1.9.4",
 ]
 
+[project.entry-points."linkml.generators"]
+gen-ui-descriptor = "inkind_knowledge_repo.generators.ui_descriptor:UiDescriptorGenerator"
+
 [dependency-groups]
 dev = [
     "linkml>=1.9.3",

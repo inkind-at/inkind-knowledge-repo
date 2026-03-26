@@ -115,31 +115,58 @@ enums:
       hats_headwear:
         description: Hats, caps, beanies, headscarves, berets.
         see_also: [pto:Hat]
+        annotations:
+          label_en: "Headwear"
+          label_de: "Kopfbedeckungen"
       scarves:
         description: Scarves and shawls worn at neck or shoulders.
         see_also: [pto:Scarf]
+        annotations:
+          label_en: "Scarves"
+          label_de: "Schal"
       gloves_mittens:
         description: Gloves and mittens (all ages).
         see_also: [pto:Glove]
+        annotations:
+          label_en: "Gloves"
+          label_de: "Handschuhe"
       belts:
         description: Belts, braces, and waist accessories.
         see_also: [pto:Belt]
+        annotations:
+          label_en: "Belts"
+          label_de: "Gürtel"
       bags_luggage:
         description: >-
           Handbags, tote bags, backpacks, shoulder bags, wallets, purses,
           clutch bags, small luggage items.
         see_also: [pto:Bag]
+        annotations:
+          label_en: "Bags"
+          label_de: "Taschen"
       jewellery:
         description: Necklaces, bracelets, rings, earrings, brooches.
         see_also: [pto:Jewellery]
+        annotations:
+          label_en: "Jewellery"
+          label_de: "Schmuck"
       sunglasses:
         description: Sunglasses and fashion spectacle frames.
         see_also: [pto:Sunglasses]
+        annotations:
+          label_en: "Sunglasses"
+          label_de: "Sonnenbrillen"
       watches:
         description: Wristwatches and pocket watches.
         see_also: [pto:Watch]
+        annotations:
+          label_en: "Watches"
+          label_de: "Uhren"
       other:
         description: Accessories not fitting above subcategories.
+        annotations:
+          label_en: "Other"
+          label_de: "Sonstiges"
 
   AccessoriesDemographicEnum:
     description: >-
@@ -152,9 +179,21 @@ enums:
     permissible_values:
       baby:
         description: "Baby (0-24 months). e.g. baby hats, scratch mittens."
+        annotations:
+          label_en: "Baby (0-24 months)"
+          label_de: "Baby (0-24 Monate)"
       child:
         description: "Child (2-14 years). e.g. children's hats, gloves."
+        annotations:
+          label_en: "Child (2-14 years)"
+          label_de: "Kind (2-14 Jahre)"
       adult:
         description: "Adult. Default for most accessories when demographic matters."
+        annotations:
+          label_en: "Adult"
+          label_de: "Erwachsene"
       all_ages:
         description: "Suitable for all ages or demographic not applicable."
+        annotations:
+          label_en: "All"
+          label_de: "Alle"  

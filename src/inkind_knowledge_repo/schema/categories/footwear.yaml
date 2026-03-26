@@ -71,14 +71,14 @@ classes:
     see_also:
       - http://www.productontology.org/id/Footwear
     slots:
+      - condition_grade
       - subcategory
+      - is_pair_complete
+      - is_winter_suitable
       - demographic
       - shoe_size
       - shoe_size_system
-      - is_pair_complete
-      - is_winter_suitable
       - season
-      - condition_grade
     slot_usage:
       subcategory:
         range: FootwearSubcategoryEnum
@@ -173,16 +173,25 @@ slots:
     description: >-
       Shoe size as a string. Use with shoe_size_system to disambiguate
       (e.g. "42" with system "EU", "8" with system "UK").
+    annotations:
+      label_en: "shoe size"
+      label_de: "Schuhgröße"
 
   shoe_size_system:
     range: ShoeSizeSystemEnum
     description: Sizing system for the shoe_size value.
+    annotations:
+      label_en: "shoe size system"
+      label_de: "Schuhgrößen-System"
 
   is_pair_complete:
     range: boolean
     description: >-
       Whether both shoes of the pair are present.
       UC warn if false — sorting_notes required.
+    annotations:
+      label_en: "is pair complete"
+      label_de: "Ist das Paar vollständig?"
 
 
 enums:
@@ -200,35 +209,53 @@ enums:
           is_winter_suitable varies — trainers are spring_autumn/summer;
           leather Oxford shoes can be all_season.
         see_also: [pto:Shoe]
+        annotations:
+          label_en: "shoes"
+          label_de: "Schuhe"
       boots:
         description: >-
           Ankle boots, knee-high boots, work boots, winter boots.
           Fragment compiler pre-fills is_winter_suitable=true; sorter
           overrides for summer ankle boots, fashion boots without insulation.
         see_also: [pto:Boot]
+        annotations:
+          label_en: "boots"
+          label_de: "Stiefel"
       sandals:
         description: >-
           Open sandals and flip-flops. Fragment compiler pre-fills
           is_winter_suitable=false.
         see_also: [pto:Sandal]
+        annotations:
+          label_en: "sandals"
+          label_de: "Sandalen"
       slippers:
         description: >-
           Indoor slippers and house shoes. Typically all_season
           (indoor use, climate-controlled environment).
+        annotations:
+          label_en: "slippers"
+          label_de: "Hausschuhe"
       sports_footwear:
         description: >-
           Football boots, running shoes, cleats, cycling shoes.
           Specialist sports footwear.
         see_also: [cpi:SportShoes]
+        annotations:
+          label_en: "sports footwear"
+          label_de: "Sportschuhe"
       other:
         description: Footwear not fitting above subcategories.
+        annotations:
+          label_en: "other"
+          label_de: "Sonstige"
 
   ShoeSizeSystemEnum:
     description: >-
       Shoe size measurement system. Multiple systems in common use across
       European, UK, US, and children's sizing conventions.
     permissible_values:
-      EU: {description: "European sizing (e.g. 36, 38, 42, 46)"}
-      UK: {description: "UK sizing (e.g. 3, 5, 8, 11)"}
-      US: {description: "US sizing (e.g. 6, 7.5, 9, 12)"}
-      CM: {description: "Foot length in centimetres — used for infant sizing"}
+      EU: {description: "European sizing (e.g. 36, 38, 42, 46)", annotations: {label_en: "EU", label_de: "EU"}}
+      UK: {description: "UK sizing (e.g. 3, 5, 8, 11)", annotations: {label_en: "UK", label_de: "UK"}}
+      US: {description: "US sizing (e.g. 6, 7.5, 9, 12)", annotations: {label_en: "US", label_de: "US"}}
+      CM: {description: "Foot length in centimetres — used for infant sizing", annotations: {label_en: "CM", label_de: "CM"}}

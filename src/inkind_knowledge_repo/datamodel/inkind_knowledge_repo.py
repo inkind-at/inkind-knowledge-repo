@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-03-23T18:09:06
+# Generation date: 2026-03-25T23:13:49
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -579,9 +579,9 @@ class DonationItem(YAMLRoot):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.DonationItem
 
     id: Union[str, DonationItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     attribute_completeness: Optional[Union[str, "AttributeCompletenessEnum"]] = None
@@ -596,20 +596,19 @@ class DonationItem(YAMLRoot):
         if not isinstance(self.id, DonationItemId):
             self.id = DonationItemId(self.id)
 
+        if self._is_empty(self.usage):
+            self.MissingRequiredField("usage")
+        if not isinstance(self.usage, ItemUsageEnum):
+            self.usage = ItemUsageEnum(self.usage)
+
         if self._is_empty(self.category):
             self.MissingRequiredField("category")
-        if not isinstance(self.category, CategoryEnum):
-            self.category = CategoryEnum(self.category)
+        self.category = str(self.class_name)
 
         if self._is_empty(self.lifecycle_state):
             self.MissingRequiredField("lifecycle_state")
         if not isinstance(self.lifecycle_state, ItemLifecycleStateEnum):
             self.lifecycle_state = ItemLifecycleStateEnum(self.lifecycle_state)
-
-        if self._is_empty(self.usage):
-            self.MissingRequiredField("usage")
-        if not isinstance(self.usage, ItemUsageEnum):
-            self.usage = ItemUsageEnum(self.usage)
 
         if self._is_empty(self.created_at):
             self.MissingRequiredField("created_at")
@@ -637,6 +636,26 @@ class DonationItem(YAMLRoot):
             self.sorting_notes = str(self.sorting_notes)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
+
+
+    def __new__(cls, *args, **kwargs):
+
+        type_designator = "category"
+        if not type_designator in kwargs:
+            return super().__new__(cls,*args,**kwargs)
+        else:
+            type_designator_value = kwargs[type_designator]
+            target_cls = cls._class_for("class_name", type_designator_value)
+
+
+            if target_cls is None:
+                raise ValueError(f"Wrong type designator value: class {cls.__name__} "
+                                 f"has no subclass with ['class_name']='{kwargs[type_designator]}'")
+            return super().__new__(target_cls,*args,**kwargs)
+
 
 
 @dataclass(repr=False)
@@ -661,20 +680,20 @@ class ClothingItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ClothingItem
 
     id: Union[str, ClothingItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     notes: Optional[str] = None
     material: Optional[str] = None
+    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     size: Optional[Union[str, "ClothingSizeEnum"]] = None
-    is_winter_suitable: Optional[Union[bool, Bool]] = None
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
     intact_labels: Optional[Union[bool, Bool]] = None
-    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -688,17 +707,20 @@ class ClothingItem(DonationItem):
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
 
+        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
+            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
+
+        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
+            self.is_winter_suitable = Bool(self.is_winter_suitable)
 
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
 
         if self.size is not None and not isinstance(self.size, ClothingSizeEnum):
             self.size = ClothingSizeEnum(self.size)
-
-        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
-            self.is_winter_suitable = Bool(self.is_winter_suitable)
 
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
@@ -707,10 +729,10 @@ class ClothingItem(DonationItem):
         if self.intact_labels is not None and not isinstance(self.intact_labels, Bool):
             self.intact_labels = Bool(self.intact_labels)
 
-        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
-            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
-
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -737,9 +759,9 @@ class AccessoriesItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.AccessoriesItem
 
     id: Union[str, AccessoriesItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "AccessoriesSubcategoryEnum"] = None
@@ -772,6 +794,9 @@ class AccessoriesItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -790,21 +815,21 @@ class FootwearItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FootwearItem
 
     id: Union[str, FootwearItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FootwearSubcategoryEnum"] = None
     notes: Optional[str] = None
     material: Optional[str] = None
+    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    is_pair_complete: Optional[Union[bool, Bool]] = None
+    is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     shoe_size: Optional[str] = None
     shoe_size_system: Optional[Union[str, "ShoeSizeSystemEnum"]] = None
-    is_pair_complete: Optional[Union[bool, Bool]] = None
-    is_winter_suitable: Optional[Union[bool, Bool]] = None
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
-    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -823,6 +848,15 @@ class FootwearItem(DonationItem):
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
 
+        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
+            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
+        if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
+            self.is_pair_complete = Bool(self.is_pair_complete)
+
+        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
+            self.is_winter_suitable = Bool(self.is_winter_suitable)
+
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
 
@@ -832,20 +866,14 @@ class FootwearItem(DonationItem):
         if self.shoe_size_system is not None and not isinstance(self.shoe_size_system, ShoeSizeSystemEnum):
             self.shoe_size_system = ShoeSizeSystemEnum(self.shoe_size_system)
 
-        if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
-            self.is_pair_complete = Bool(self.is_pair_complete)
-
-        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
-            self.is_winter_suitable = Bool(self.is_winter_suitable)
-
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
         self.season = [v if isinstance(v, SeasonEnum) else SeasonEnum(v) for v in self.season]
 
-        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
-            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
-
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -868,9 +896,9 @@ class FurnitureItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FurnitureItem
 
     id: Union[str, FurnitureItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
@@ -909,6 +937,9 @@ class FurnitureItem(DonationItem):
             self.style = str(self.style)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -934,9 +965,9 @@ class BeddingTextilesItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BeddingTextilesItem
 
     id: Union[str, BeddingTextilesItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
@@ -975,6 +1006,9 @@ class BeddingTextilesItem(DonationItem):
             self.is_winter_suitable = Bool(self.is_winter_suitable)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -993,9 +1027,9 @@ class HouseholdItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.HouseholdItem
 
     id: Union[str, HouseholdItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "HouseholdSubcategoryEnum"] = None
@@ -1028,6 +1062,9 @@ class HouseholdItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1050,9 +1087,9 @@ class ElectronicsItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ElectronicsItem
 
     id: Union[str, ElectronicsItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "ElectronicsSubcategoryEnum"] = None
@@ -1091,6 +1128,9 @@ class ElectronicsItem(DonationItem):
             self.includes_original_packaging = Bool(self.includes_original_packaging)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1109,9 +1149,9 @@ class ToysItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ToysItem
 
     id: Union[str, ToysItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "ToysSubcategoryEnum"] = None
@@ -1152,6 +1192,9 @@ class ToysItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1175,9 +1218,9 @@ class SportsItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.SportsItem
 
     id: Union[str, SportsItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "SportsSubcategoryEnum"] = None
@@ -1222,6 +1265,9 @@ class SportsItem(DonationItem):
             self.is_set_complete = Bool(self.is_set_complete)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1239,9 +1285,9 @@ class BooksItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BooksItem
 
     id: Union[str, BooksItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BooksSubcategoryEnum"] = None
@@ -1278,6 +1324,9 @@ class BooksItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1296,9 +1345,9 @@ class StationeryItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.StationeryItem
 
     id: Union[str, StationeryItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "StationerySubcategoryEnum"] = None
@@ -1331,6 +1380,9 @@ class StationeryItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1355,9 +1407,9 @@ class PersonalCareItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.PersonalCareItem
 
     id: Union[str, PersonalCareItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "PersonalCareSubcategoryEnum"] = None
@@ -1392,6 +1444,9 @@ class PersonalCareItem(DonationItem):
             self.expiry_date = XSDDate(self.expiry_date)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1415,9 +1470,9 @@ class MobilityAidsItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.MobilityAidsItem
 
     id: Union[str, MobilityAidsItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
@@ -1448,6 +1503,9 @@ class MobilityAidsItem(DonationItem):
             self.material = str(self.material)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1483,9 +1541,9 @@ class BabyInfantItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BabyInfantItem
 
     id: Union[str, BabyInfantItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BabyInfantSubcategoryEnum"] = None
@@ -1538,6 +1596,9 @@ class BabyInfantItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1561,9 +1622,9 @@ class FoodItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FoodItem
 
     id: Union[str, FoodItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     food_type: Union[str, "FoodTypeEnum"] = None
@@ -1600,6 +1661,9 @@ class FoodItem(DonationItem):
             self.quantity = int(self.quantity)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1617,9 +1681,9 @@ class OtherItem(DonationItem):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.OtherItem
 
     id: Union[str, OtherItemId] = None
-    category: Union[str, "CategoryEnum"] = None
-    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     usage: Union[str, "ItemUsageEnum"] = None
+    category: str = None
+    lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     item_description: str = None
@@ -1640,6 +1704,9 @@ class OtherItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
@@ -1920,17 +1987,23 @@ class ClothingCategory(CategoryMixin):
     class_name: ClassVar[str] = "ClothingCategory"
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ClothingCategory
 
+    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     size: Optional[Union[str, "ClothingSizeEnum"]] = None
-    is_winter_suitable: Optional[Union[bool, Bool]] = None
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
     intact_labels: Optional[Union[bool, Bool]] = None
-    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
+        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
+            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
+
+        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
+            self.is_winter_suitable = Bool(self.is_winter_suitable)
 
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
@@ -1938,18 +2011,12 @@ class ClothingCategory(CategoryMixin):
         if self.size is not None and not isinstance(self.size, ClothingSizeEnum):
             self.size = ClothingSizeEnum(self.size)
 
-        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
-            self.is_winter_suitable = Bool(self.is_winter_suitable)
-
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
         self.season = [v if isinstance(v, SeasonEnum) else SeasonEnum(v) for v in self.season]
 
         if self.intact_labels is not None and not isinstance(self.intact_labels, Bool):
             self.intact_labels = Bool(self.intact_labels)
-
-        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
-            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
 
@@ -1969,19 +2036,28 @@ class FootwearCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FootwearCategory
 
     subcategory: Union[str, "FootwearSubcategoryEnum"] = None
+    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    is_pair_complete: Optional[Union[bool, Bool]] = None
+    is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     shoe_size: Optional[str] = None
     shoe_size_system: Optional[Union[str, "ShoeSizeSystemEnum"]] = None
-    is_pair_complete: Optional[Union[bool, Bool]] = None
-    is_winter_suitable: Optional[Union[bool, Bool]] = None
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
-    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.subcategory):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, FootwearSubcategoryEnum):
             self.subcategory = FootwearSubcategoryEnum(self.subcategory)
+
+        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
+            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
+        if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
+            self.is_pair_complete = Bool(self.is_pair_complete)
+
+        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
+            self.is_winter_suitable = Bool(self.is_winter_suitable)
 
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
@@ -1992,18 +2068,9 @@ class FootwearCategory(CategoryMixin):
         if self.shoe_size_system is not None and not isinstance(self.shoe_size_system, ShoeSizeSystemEnum):
             self.shoe_size_system = ShoeSizeSystemEnum(self.shoe_size_system)
 
-        if self.is_pair_complete is not None and not isinstance(self.is_pair_complete, Bool):
-            self.is_pair_complete = Bool(self.is_pair_complete)
-
-        if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
-            self.is_winter_suitable = Bool(self.is_winter_suitable)
-
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
         self.season = [v if isinstance(v, SeasonEnum) else SeasonEnum(v) for v in self.season]
-
-        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
-            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
 
@@ -3282,57 +3349,30 @@ class ClothingSizeEnum(EnumDefinitionImpl):
     baby_18_24m = PermissibleValue(
         text="baby_18_24m",
         description="Baby 18-24 months")
-    child_2T = PermissibleValue(
-        text="child_2T",
-        description="Toddler 2T")
-    child_3T = PermissibleValue(
-        text="child_3T",
-        description="Toddler 3T")
-    child_4T = PermissibleValue(
-        text="child_4T",
-        description="Toddler 4T")
-    child_5 = PermissibleValue(
-        text="child_5",
-        description="Child size 5")
-    child_6 = PermissibleValue(
-        text="child_6",
-        description="Child size 6")
-    child_7 = PermissibleValue(
-        text="child_7",
-        description="Child size 7")
-    child_8 = PermissibleValue(
-        text="child_8",
-        description="Child size 8")
-    child_10 = PermissibleValue(
-        text="child_10",
-        description="Child size 10")
-    child_12 = PermissibleValue(
-        text="child_12",
-        description="Child size 12")
-    child_14 = PermissibleValue(
-        text="child_14",
-        description="Child size 14")
-    xs = PermissibleValue(
-        text="xs",
-        description="Extra small (adult)")
-    s = PermissibleValue(
-        text="s",
-        description="Small (adult)")
-    m = PermissibleValue(
-        text="m",
-        description="Medium (adult)")
-    l = PermissibleValue(
-        text="l",
-        description="Large (adult)")
-    xl = PermissibleValue(
-        text="xl",
-        description="Extra large (adult)")
-    xxl = PermissibleValue(
-        text="xxl",
-        description="XXL (adult)")
-    xxxl = PermissibleValue(
-        text="xxxl",
-        description="3XL (adult)")
+    child_2_3T = PermissibleValue(
+        text="child_2_3T",
+        description="Toddler sizes 2 and 3")
+    child_4_5T = PermissibleValue(
+        text="child_4_5T",
+        description="Toddler sizes 4 and 5")
+    child_6_7 = PermissibleValue(
+        text="child_6_7",
+        description="Child sizes 6 and 7")
+    child_8_10 = PermissibleValue(
+        text="child_8_10",
+        description="Child sizes 8-10")
+    child_12_14 = PermissibleValue(
+        text="child_12_14",
+        description="Child sizes 12-14")
+    xs_s = PermissibleValue(
+        text="xs_s",
+        description="Extra small or Small (adult)")
+    m_l = PermissibleValue(
+        text="m_l",
+        description="Medium or Large(adult)")
+    xl_plus = PermissibleValue(
+        text="xl_plus",
+        description="Extra large or XL+ (adult)")
     one_size = PermissibleValue(
         text="one_size",
         description="One size fits most.")
@@ -3406,7 +3446,9 @@ class FurnitureAssessmentEnum(EnumDefinitionImpl):
         description="""All load-bearing components intact; no cracks, wobbling, or unsafe instability. Safe for redistribution without qualification. Appropriate for new items with no observed defects.""")
     minor_cosmetic_damage = PermissibleValue(
         text="minor_cosmetic_damage",
-        description="""Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable.""")
+        description="""Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable. annotations:
+  label_en: \"Minor Cosmetic Damage\"
+  label_de: \"Geringe Kosmetische Schäden\"""")
     significant_cosmetic_damage = PermissibleValue(
         text="significant_cosmetic_damage",
         description="""Visible staining, discolouration, or notable surface damage. Structurally sound but appearance significantly affected. action: warn for seating/beds — sorting_notes required.""")
@@ -4114,9 +4156,6 @@ class BabyInfantSubcategoryEnum(EnumDefinitionImpl):
     feeding_bottles_teats = PermissibleValue(
         text="feeding_bottles_teats",
         description="Feeding bottles and teats. Must be sealed + unused (EN 14350).")
-    baby_food = PermissibleValue(
-        text="baby_food",
-        description="Prepared baby food. Must be sealed + within expiry.")
     breastfeeding = PermissibleValue(
         text="breastfeeding",
         description="Breast pumps, nursing pads, sterilisers.")
@@ -4132,9 +4171,6 @@ class BabyInfantSubcategoryEnum(EnumDefinitionImpl):
     bouncers_swings = PermissibleValue(
         text="bouncers_swings",
         description="Baby bouncers, swings, rockers, play gyms.")
-    high_chairs = PermissibleValue(
-        text="high_chairs",
-        description="High chairs and booster feeding seats. Structural assessment required.")
     sleeping_bags = PermissibleValue(
         text="sleeping_bags",
         description="""Baby sleeping bags for home use (0-24 months). Track 1 — structured safety assessment required per EN 16781:2018. Sorter must verify:
@@ -4578,7 +4614,7 @@ slots.DonationCollection_parent = Slot(uri=INKIND_KNOWLEDGE_REPO.parent, name="D
                    model_uri=INKIND_KNOWLEDGE_REPO.DonationCollection_parent, domain=DonationCollection, range=Optional[Union[str, DonationCollectionId]])
 
 slots.DonationItem_category = Slot(uri=SCHEMA.additionalType, name="DonationItem_category", curie=SCHEMA.curie('additionalType'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_category, domain=DonationItem, range=Union[str, "CategoryEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_category, domain=DonationItem, range=str)
 
 slots.DonationItem_lifecycle_state = Slot(uri=INKIND_KNOWLEDGE_REPO.lifecycle_state, name="DonationItem_lifecycle_state", curie=INKIND_KNOWLEDGE_REPO.curie('lifecycle_state'),
                    model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_lifecycle_state, domain=DonationItem, range=Union[str, "ItemLifecycleStateEnum"])
