@@ -224,7 +224,7 @@ _test-examples: _ensure_examples_output
 # Annotation objects).  See gen_yaml_fixed.py for full details.
 _gen-yaml:
   -mkdir -p {{distrib_schema_path}}
-  uv run python gen_yaml_fixed.py {{source_schema_path}} > {{distrib_schema_path}}/{{schema_name}}.yaml
+  uv run python src/inkind_knowledge_repo/generators/gen_yaml_fixed.py {{source_schema_path}} > {{distrib_schema_path}}/{{schema_name}}.yaml
 
 # Overridable recipe to add project-specific artifacts to the distribution schema path
 _add-artifacts:
