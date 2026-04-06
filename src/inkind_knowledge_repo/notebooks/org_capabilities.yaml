@@ -1,0 +1,186 @@
+---
+# instances/orgs/capabilities/
+# ── OrgCapabilityRecord instances ────────────────────────────────────────────
+#
+# These are Level 3 instance data: org-specific capability declarations.
+# The engine loads these at startup and uses them to build the feasible
+# process path candidate set for each org.
+#
+# Each org file declares which OrgCapabilityEnum values are active.
+# Absent capabilities default to is_active: false.
+#
+# The config JSON blob carries capability-specific parameters (endpoint URLs,
+# thresholds, scanner types) — the engine reads these when activating the
+# capability at episode launch.
+#
+# File: instances/orgs/capabilities/org_capabilities.yaml
+# (In production, split into one file per org: org_a_capabilities.yaml, etc.)
+
+org_capabilities:
+
+  # ── Org A: Haus der Frau St. Pölten (co-creation partner, Year 1) ─────────
+  # Typical volunteer-heavy social organisation.
+  # No ML model yet — collecting training data. Camera enabled for photos.
+  # Operates on mobile devices only.
+
+  - org_id: org-a
+    capability: photo_enabled
+    is_active: true
+    config: '{"device_type": "mobile", "max_photos_per_item": 3}'
+
+  - org_id: org-a
+    capability: audio_capture
+    is_active: true
+    config: '{"max_duration_seconds": 60}'
+
+  - org_id: org-a
+    capability: ml_model_trained
+    is_active: false
+    config: null
+    # Absent: ml_assisted paths are infeasible for org-a.
+    # Engine candidate set for org-a:
+    #   manual_assessment paths (all categories) — always feasible
+    #   rapid_triage — always feasible
+    #   ml_assisted paths — EXCLUDED (hard requirement not met)
+    #   barcode_first paths — EXCLUDED (barcode_scanner not active)
+
+  - org_id: org-a
+    capability: barcode_scanner
+    is_active: false
+    config: null
+
+  - org_id: org-a
+    capability: trained_staff
+    is_active: true
+    config: '{"staff_count": 2}'
+    # Soft capability: staff-mode fragments available for 2 staff actors.
+    # Volunteer-mode fragments used for all other actors.
+
+  - org_id: org-a
+    capability: data_wipe_station
+    is_active: false
+    config: null
+    # Absent: electronics with data_wipe_required=true cannot be redistributed.
+    # Engine must surface this as a blocking constraint at the
+    # assess_condition_electronics step when data_wipe_required is set.
+
+
+  # ── Org B: Rotes Kreuz Niederösterreich (Year 1, second deployment) ───────
+  # Larger org, dedicated sorters, barcode scanner available.
+  # Food bank operations — barcode_first paths highly valuable.
+  # No ML yet but barcode scanning covers the priority use case.
+
+  - org_id: org-b
+    capability: photo_enabled
+    is_active: true
+    config: '{"device_type": "mobile", "max_photos_per_item": 5}'
+
+  - org_id: org-b
+    capability: audio_capture
+    is_active: false
+    config: null
+    # Disabled: sorting floor is noisy. Audio notes would be unusable.
+    # Engine auto-skips take_audio_note steps for org-b.
+
+  - org_id: org-b
+    capability: barcode_scanner
+    is_active: true
+    config: >-
+      {
+        "scanner_type": "bluetooth",
+        "gs1_enabled": true,
+        "open_food_facts_enabled": true,
+        "open_library_enabled": true,
+        "internal_registry_enabled": false,
+        "lookup_timeout_seconds": 5,
+        "fallback_on_timeout": "manual"
+      }
+    # Active: barcode_first paths (sort_barcode_food, sort_barcode_books)
+    # are NOW feasible for org-b. These enter the candidate set.
+    # For food items, sort_barcode_food has preferred affinity
+    # → it will typically win the net-value comparison vs sort_manual_food.
+
+  - org_id: org-b
+    capability: ml_model_trained
+    is_active: false
+    config: null
+
+  - org_id: org-b
+    capability: trained_staff
+    is_active: true
+    config: '{"staff_count": 6}'
+
+  - org_id: org-b
+    capability: data_wipe_station
+    is_active: true
+    config: >-
+      {
+        "wipe_method": "factory_reset",
+        "certification_body": null,
+        "station_location": "back_office"
+      }
+    # Active: electronics with data_wipe_required=true can be redistributed.
+    # perform_data_wipe step becomes executable for org-b.
+
+
+  # ── Org C: Hypothetical Year 2 tech-forward org (ML deployed) ────────────
+  # Full capability stack. All path types feasible.
+  # ML model trained on 800+ items from orgs A and B.
+
+  - org_id: org-c
+    capability: photo_enabled
+    is_active: true
+    config: '{"device_type": "mobile_and_desktop", "max_photos_per_item": 5}'
+
+  - org_id: org-c
+    capability: audio_capture
+    is_active: true
+    config: '{"max_duration_seconds": 90, "stt_enabled": true, "stt_language": "de"}'
+
+  - org_id: org-c
+    capability: ml_model_trained
+    is_active: true
+    config: >-
+      {
+        "endpoint_url": "https://ml.inkind.at/v1/infer",
+        "model_version": "inkind-v1.2-clothing-electronics",
+        "confidence_threshold": 0.82,
+        "categories_covered": ["clothing", "electronics", "furniture", "accessories"],
+        "fallback_on_low_confidence": "manual_assessment",
+        "timeout_seconds": 10
+      }
+    # Active: ml_assisted paths (sort_ml_electronics, sort_ml_clothing)
+    # enter the candidate set for org-c.
+    # Note categories_covered: ml paths for food and books still excluded
+    # because the model is not trained on those categories.
+
+  - org_id: org-c
+    capability: barcode_scanner
+    is_active: true
+    config: >-
+      {
+        "scanner_type": "camera",
+        "gs1_enabled": true,
+        "open_food_facts_enabled": true,
+        "open_library_enabled": true,
+        "internal_registry_enabled": true,
+        "internal_registry_url": "https://registry.org-c.at/api",
+        "lookup_timeout_seconds": 3,
+        "fallback_on_timeout": "manual"
+      }
+
+  - org_id: org-c
+    capability: trained_staff
+    is_active: true
+    config: '{"staff_count": 12}'
+
+  - org_id: org-c
+    capability: data_wipe_station
+    is_active: true
+    config: >-
+      {
+        "wipe_method": "certified_wipe",
+        "certification_body": "Blancco",
+        "station_location": "electronics_area",
+        "gdpr_record_auto_generated": true
+      }

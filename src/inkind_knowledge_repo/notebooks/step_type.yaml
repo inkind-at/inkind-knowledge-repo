@@ -1,0 +1,1071 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/step_type
+name: step_type
+title: Step Type Schema
+description: >-
+  The catalogue of available step types — the atomic operations that appear in
+  process templates.  An organisation cannot invent new step types; it
+  assembles sequences from this catalogue.
+
+  ── Ontology alignment ──────────────────────────────────────────────────────
+
+  p-plan:Activity — each StepType is a plan component (a class of actions
+    that a process template composes). Runtime executions are pplan:Activity
+    instances linked to their StepType via pplan:wasAssociatedWith.
+    http://purl.org/net/p-plan#Activity
+
+  PROV-O prov:Activity — the runtime Provenance record carries prov:Activity
+    semantics; the StepType is the prov:Plan-level descriptor.
+
+  SIO:000006 (process step) — Scientific Information Object ontology provides
+    a lightweight class for named process steps:
+    http://semanticscience.org/resource/SIO_000006
+
+  BPMN 2.0 Task types — the input_modality annotation on each StepType maps
+    to BPMN task types:
+      manual_task   → human actor without tool assistance
+      user_task     → human actor via software UI form
+      service_task  → automated action (ML inference, barcode lookup)
+      send_task     → data capture with peripheral device
+
+  ── Step organisation ───────────────────────────────────────────────────────
+
+  Steps are grouped into three functional families:
+
+  A. Data capture steps — populate observation attributes on the item.
+     These either collect human judgements (condition, category) or
+     instrument readings (barcode, photo, audio).
+
+  B. Process control steps — gate progression through the lifecycle.
+     These do not capture new item attributes but change lifecycle state
+     or enforce review of prior observations.
+
+  C. Terminal steps — produce a final lifecycle state; episode ends here.
+
+  ── Phase notes ─────────────────────────────────────────────────────────────
+
+  Phase 1: all steps marked without phase annotation are active in Phase 1.
+  Phase 2 stubs: collection management steps (create_sub_collection,
+    move_to_collection, merge_collections, assign_to_stock) declared here to
+    reserve vocabulary; engine skips them if not referenced by any template.
+
+license: MIT
+see_also:
+  - http://purl.org/net/p-plan#Activity
+  - http://semanticscience.org/resource/SIO_000006
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pplan: http://purl.org/net/p-plan#
+  prov: http://www.w3.org/ns/prov#
+  sio: http://semanticscience.org/resource/
+  bpmn: http://www.omg.org/spec/BPMN/20100524/MODEL/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Classes
+# ════════════════════════════════════════════════════════════════════════════
+
+classes:
+
+  StepType:
+    description: >-
+      An atomic operation in a process template.  Step types are defined in
+      the knowledge repo; they cannot be modified by organisations.
+
+      External grounding:
+        class_uri: pplan:Activity — the StepType is the Plan-level descriptor
+          of what a step does; runtime executions instantiate it.
+        sio:SIO_000006 — process step
+    class_uri: pplan:Activity
+    slots:
+      - id
+      - label
+      - description
+      - input_modality
+      - step_family
+      - produces_observations
+      - requires_observations        # pre-conditions on prior steps
+      - postcondition
+      - default_cost
+      - fragment_bindings
+      - category_scope               # if set, step only appears in matching categories
+      - bpmn_task_type
+    see_also:
+      - pplan:Activity
+      - sio:SIO_000006
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Slots
+# ════════════════════════════════════════════════════════════════════════════
+
+slots:
+
+  input_modality:
+    range: InputModalityEnum
+    required: true
+    description: >-
+      The primary physical modality through which the actor captures data in
+      this step.  Used by the fragment engine to select the correct UI widget
+      type (camera, form, scanner, etc.) and by analytics to compute
+      per-modality throughput statistics.
+
+  step_family:
+    range: StepFamilyEnum
+    required: true
+    description: >-
+      High-level functional family for grouping and display.
+      data_capture | process_control | terminal.
+
+  produces_observations:
+    range: string
+    multivalued: true
+    description: >-
+      Names of the attribute slots this step populates (e.g., `category`,
+      `condition`, `photo_ref`).  The fragment engine validates that these
+      slots are writable on the current entity type.
+
+  requires_observations:
+    range: string
+    multivalued: true
+    description: >-
+      Attribute slots that MUST already be populated before this step can
+      begin.  The engine enforces this pre-condition at runtime.
+      Example: `assess_condition_electronics` requires `category` and
+      `assessment_result` to be absent (i.e. not yet assessed).
+
+  postcondition:
+    range: ItemLifecycleStateEnum
+    description: >-
+      Entity lifecycle state produced on completion.  Null for intermediate
+      steps; set for terminal steps (e.g., `stored` for assign_storage).
+
+  default_cost:
+    range: float
+    required: true
+    description: >-
+      Estimated cost in minutes — used when the org has no StepCost override
+      configured.
+
+  fragment_bindings:
+    range: UIFragmentBinding
+    multivalued: true
+    description: >-
+      Inverse relation — UIFragmentBindings that reference this step type.
+
+  category_scope:
+    range: string
+    multivalued: true
+    description: >-
+      If populated, this step is only eligible for inclusion in process
+      templates that target items in one of the listed categories.
+      Empty list means universally applicable.
+      Values match category schema names: clothing, electronics, food,
+      furniture, household, books, toys, personal_care, mobility_aids, etc.
+
+  bpmn_task_type:
+    range: BpmnTaskTypeEnum
+    description: >-
+      BPMN 2.0 task type mapping.  Informational — used by process
+      documentation generators and workflow engine connectors.
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Enumerations
+# ════════════════════════════════════════════════════════════════════════════
+
+enums:
+
+  StepFamilyEnum:
+    description: >-
+      Functional family of a step type.  Used for UI grouping and template
+      validation (a template must end with exactly one terminal step).
+    permissible_values:
+      data_capture:
+        description: >-
+          Step captures new observation data about the entity.
+          Examples: take_photo, assign_category, barcode_scan.
+        annotations: {label_en: "Data Capture", label_de: "Datenerfassung"}
+      process_control:
+        description: >-
+          Step gates or reviews progression; does not capture new attributes.
+          Examples: review_ml_result, confirm_disposal.
+        annotations: {label_en: "Process Control", label_de: "Prozesssteuerung"}
+      terminal:
+        description: >-
+          Step produces a final lifecycle state; episode ends here.
+          Examples: assign_storage, mark_disposal, publish_demand_signal.
+        annotations: {label_en: "Terminal", label_de: "Abschluss"}
+
+  InputModalityEnum:
+    description: >-
+      Physical modality through which an actor interacts with this step.
+
+      Alignment:
+        BPMN 2.0 task types — manual_task, user_task, service_task, send_task
+        ISO 9241 (Ergonomics of Human-System Interaction) — modality taxonomy
+    permissible_values:
+      form:
+        description: >-
+          Structured data entry via a UI form — dropdowns, checkboxes,
+          text fields.  The most common modality for classification and
+          condition assessment steps.
+        annotations:
+          label_en: "Form"
+          label_de: "Formular"
+          bpmn_equivalent: "UserTask"
+      camera_photo:
+        description: >-
+          Single or multiple still photo capture via device camera.
+          Used for item documentation, ML inference input, and storage
+          reference images.
+        annotations:
+          label_en: "Photo"
+          label_de: "Foto"
+          bpmn_equivalent: "SendTask"
+      camera_video:
+        description: >-
+          Short video clip capture.  Phase 2 modality — reserved for
+          function demonstration of electronics (e.g., proving a device
+          powers on and responds to input).
+        annotations:
+          label_en: "Video"
+          label_de: "Video"
+          bpmn_equivalent: "SendTask"
+          phase: "2"
+      audio:
+        description: >-
+          Audio recording or audio-guided input.  Used for voice notes
+          on item condition, or for accessibility-oriented guided sorting
+          workflows where the actor listens to prompts.
+        annotations:
+          label_en: "Audio"
+          label_de: "Audio"
+          bpmn_equivalent: "SendTask"
+      barcode_scan:
+        description: >-
+          Barcode or QR-code scan via device camera or dedicated scanner.
+          Produces a barcode string that is resolved against a product
+          catalogue (GS1 registry or internal registry).
+        annotations:
+          label_en: "Barcode Scan"
+          label_de: "Barcode-Scan"
+          bpmn_equivalent: "SendTask"
+          gs1_reference: "https://www.gs1.org/standards/barcodes"
+      nfc_rfid:
+        description: >-
+          NFC tap or RFID read.  Phase 2 modality — for organisations
+          that tag storage bins or incoming pallets with RFID.
+        annotations:
+          label_en: "NFC / RFID"
+          label_de: "NFC / RFID"
+          bpmn_equivalent: "SendTask"
+          phase: "2"
+      automated:
+        description: >-
+          No actor interaction — the step is executed by the engine
+          automatically (e.g. ML inference call, lookup, derived value).
+        annotations:
+          label_en: "Automated"
+          label_de: "Automatisch"
+          bpmn_equivalent: "ServiceTask"
+      confirmation:
+        description: >-
+          A single-tap acknowledgement step.  The actor reviews displayed
+          information and confirms or rejects it.  Used for ML result review
+          and constraint override acknowledgement.
+        annotations:
+          label_en: "Confirmation"
+          label_de: "Bestätigung"
+          bpmn_equivalent: "UserTask"
+
+  BpmnTaskTypeEnum:
+    description: BPMN 2.0 task type classification for documentation purposes.
+    permissible_values:
+      manual_task:
+        description: Human action without software assistance.
+      user_task:
+        description: Human action via a software UI.
+      service_task:
+        description: Automated system action.
+      send_task:
+        description: Data capture via a peripheral device (camera, scanner).
+      business_rule_task:
+        description: Rule evaluation step (constraint check, ML review gate).
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Step Type Instance Catalogue
+# ════════════════════════════════════════════════════════════════════════════
+#
+# These are INSTANCES of StepType, declared inline as LinkML instances.
+# In the generated Pydantic package they are loaded as a registry dict
+# keyed by `id` slug.
+#
+# Grouped by family:
+#   §A  Universal data capture steps
+#   §B  Category-specific condition assessment steps
+#   §C  Process control steps
+#   §D  Terminal steps
+#   §E  Phase 2 stubs
+# ════════════════════════════════════════════════════════════════════════════
+
+# ── §A  Universal data capture steps ────────────────────────────────────────
+
+instances:
+
+  - id: inkind_knowledge_repo:step_type/take_photo
+    label: Take Photo
+    description: >-
+      Capture one or more still photographs of the item.  Serves three
+      purposes: (1) permanent documentation for audit trail; (2) ML inference
+      input for automated category and condition suggestion; (3) beneficiary-
+      facing item card image when dignity-centred display is enabled.
+
+      The step produces a `photo_ref` — a storage reference to the captured
+      image asset.  Photo capture is always performed before ML inference.
+
+      Guidance for actors: photograph the item laid flat on a clean neutral
+      background.  Capture front, back, and any visible damage.  For clothing,
+      include the care label if intact_labels assessment is needed.
+    input_modality: camera_photo
+    step_family: data_capture
+    produces_observations:
+      - photo_ref
+    default_cost: 0.75
+    annotations:
+      label_de: "Foto aufnehmen"
+      prov_note: >-
+        Each photo_ref is stored in the provenance record's observations.
+        Multiple photo refs are allowed (front, back, detail).
+
+  - id: inkind_knowledge_repo:step_type/take_audio_note
+    label: Record Audio Note
+    description: >-
+      Record a short voice note (max 60 s) as a condition annotation.
+      Intended for accessibility workflows and for fast throughput
+      scenarios where typing is impractical.
+
+      The transcription (if STT is configured) is stored alongside the
+      audio_ref in the provenance observations.  Transcription is async
+      and does not block episode progression.
+
+      Use cases:
+        - Describing visible damage that is difficult to photograph
+        - Multilingual actor support (transcription language auto-detected)
+        - High-throughput triage: actor speaks condition rating aloud
+    input_modality: audio
+    step_family: data_capture
+    produces_observations:
+      - audio_note_ref
+      - audio_note_transcript   # may be null if STT not configured
+    default_cost: 0.5
+    annotations:
+      label_de: "Audionotiz aufnehmen"
+      phase: "1"
+      accessibility_note: >-
+        Replaces or supplements text condition notes for actors who prefer
+        voice input.
+
+  - id: inkind_knowledge_repo:step_type/barcode_scan
+    label: Scan Barcode / QR Code
+    description: >-
+      Scan an item's barcode (EAN-13, UPC-A, QR, DataMatrix) using the
+      device camera or a paired Bluetooth scanner.  The engine resolves
+      the scanned code against:
+        1. The internal item registry (previously processed donations)
+        2. The GS1 product registry (https://www.gs1.org/services/gepir)
+        3. Open Food Facts (for food items, https://world.openfoodfacts.org/)
+
+      On a successful lookup the engine pre-fills `category`, `subcategory`,
+      and (for food) `food_type` and `expiry_date` from registry metadata.
+      The actor reviews and confirms pre-filled values in the subsequent
+      `review_ml_result` step.
+
+      If no match is found the barcode_value is stored as a raw observation
+      and the actor proceeds manually.
+    input_modality: barcode_scan
+    step_family: data_capture
+    produces_observations:
+      - barcode_value
+      - barcode_lookup_result   # resolved metadata JSON or null
+    default_cost: 0.25
+    annotations:
+      label_de: "Barcode / QR-Code scannen"
+      gs1_reference: "https://www.gs1.org/standards/barcodes"
+      open_food_facts: "https://world.openfoodfacts.org/data"
+
+  - id: inkind_knowledge_repo:step_type/assign_category
+    label: Assign Category
+    description: >-
+      The actor selects the item's top-level category and subcategory from a
+      guided dropdown.  This is the primary routing step: the selected category
+      determines which subsequent condition assessment fragment is loaded.
+
+      The fragment compiler exposes only the categories the org has enabled.
+      If a barcode_scan step preceded this step and a lookup succeeded, the
+      category field is pre-filled and the actor confirms rather than selects.
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - category
+      - subcategory
+    default_cost: 0.5
+    annotations:
+      label_de: "Kategorie zuweisen"
+
+  - id: inkind_knowledge_repo:step_type/ml_recognition
+    label: ML Category / Condition Recognition
+    description: >-
+      Submit the previously captured photo to the ML inference service.
+      The service returns:
+        - ml_category_suggestion: predicted category slug
+        - ml_subcategory_suggestion: predicted subcategory slug
+        - ml_condition_suggestion: predicted condition grade
+        - ml_confidence: float 0–1
+
+      This is a service task — no actor interaction.  The engine calls the
+      inference endpoint asynchronously and proceeds to `review_ml_result`
+      when the response arrives.  Timeout (default 10 s) results in a null
+      suggestion; the episode continues without ML assistance.
+
+      Requires: photo_ref must be populated.
+    input_modality: automated
+    step_family: data_capture
+    requires_observations:
+      - photo_ref
+    produces_observations:
+      - ml_category_suggestion
+      - ml_subcategory_suggestion
+      - ml_condition_suggestion
+      - ml_confidence
+    default_cost: 0.1   # engine cost only; wall-clock latency separate
+    annotations:
+      label_de: "KI-Erkennung"
+      bpmn_equivalent: "ServiceTask"
+
+  - id: inkind_knowledge_repo:step_type/review_ml_result
+    label: Review ML / Barcode Result
+    description: >-
+      The actor reviews ML inference or barcode lookup suggestions and
+      accepts, adjusts, or overrides each field.  Pre-filled values are
+      displayed with a visual 'suggested' indicator.  The actor submits
+      confirmed values; adjusted values are flagged as actor_override=true
+      in the provenance observations.
+
+      This step unifies the review interface for both ML and barcode
+      pre-fills, reducing the number of fragment types required.
+    input_modality: confirmation
+    step_family: process_control
+    requires_observations:
+      - ml_category_suggestion   # at least one suggestion source required
+    produces_observations:
+      - category        # confirmed or overridden
+      - subcategory     # confirmed or overridden
+      - condition       # confirmed or overridden (if ML provided)
+      - actor_override_flag
+    default_cost: 0.4
+    annotations:
+      label_de: "KI-Ergebnis prüfen"
+
+  # ── §B  Category-specific condition assessment steps ──────────────────────
+  #
+  # Each category uses a different assessment vocabulary and UI fragment.
+  # Rather than a single `manual_condition_assessment` step that tries to
+  # serve all categories, we define one step type per assessment model.
+  # This makes template composition explicit: the template for clothing
+  # includes `assess_condition_clothing`; the template for electronics
+  # includes `assess_condition_electronics`.
+  #
+  # The step_family is data_capture for all condition assessment steps.
+  # category_scope restricts each step to its target categories.
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_clothing
+    label: Assess Clothing Condition
+    description: >-
+      Clothing-specific condition and attribute assessment.
+
+      Assessment vocabulary (condition_grade, from _base.yaml):
+        new         — tags intact, unworn, original packaging optional
+        like_new    — worn ≤ 3 times, no visible wear
+        good        — light wear, no damage
+        fair        — moderate wear or minor repairs acceptable
+        poor        — significant wear; redistribution only if no better option
+        rejected    — holes, severe stains, structural damage → mark for
+                      disposal or textile recycling
+
+      Key observations captured:
+        - condition_grade       (required)
+        - usage                 (new | used)
+        - intact_labels         (boolean — can care label be read?)
+        - is_winter_suitable    (boolean — standard tier)
+        - season                (SeasonEnum — detailed tier, optional)
+        - material              (ClothingMaterialEnum — detailed tier, optional)
+        - sorting_notes         (free text — optional)
+
+      UC constraints enforced by engine during this step:
+        uc-underwear-condition-block: underwear must be new or like_new
+        uc-underwear-adult-used-block: adult underwear must have usage=new
+
+      Sorter guidance:
+        1. Hold item up and check for visible damage, stains, missing buttons.
+        2. Check care label for material info if time allows.
+        3. Assign condition_grade using the rubric above.
+        4. Note: for sportswear, check for odour — reject if persistent.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - clothing
+      - accessories
+    produces_observations:
+      - condition_grade
+      - usage
+      - intact_labels
+      - is_winter_suitable
+      - season
+      - material
+      - sorting_notes
+    default_cost: 1.5
+    annotations:
+      label_de: "Kleidungszustand bewerten"
+      rubric_reference: "categories/clothing.yaml — ConditionGradeEnum"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_electronics
+    label: Assess Electronics Condition
+    description: >-
+      Electronics-specific functional + cosmetic assessment.
+
+      Assessment vocabulary (ElectronicsAssessmentEnum, from electronics.yaml):
+        fully_functional   — powers on, all features work, cosmetically good
+        functional_damaged — powers on and works, cosmetic damage (scratches,
+                             cracked case but not cracked screen impeding use)
+        screen_damaged     — powers on, screen cracked or significantly scratched
+                             but still readable
+        functional_unknown — powers on but full functionality unverified
+                             (missing accessories, no SIM, etc.)
+        not_powering_on    — fails to power on with available charger;
+                             may be battery fault or deeper damage
+        untested           — not yet powered on; valid at received state only;
+                             blocked at sorted state by lifecycle rule
+        for_parts_only     — does not power on; redistributable only for
+                             component salvage
+
+      Additional observations:
+        - includes_charger            (boolean)
+        - includes_original_packaging (boolean — detailed tier)
+        - data_wipe_required          (boolean — always true for smartphones/tablets)
+        - sorting_notes               (free text)
+
+      Data wiping note:
+        data_wipe_required is assessed here but the actual wipe is performed
+        in the dedicated `perform_data_wipe` step later in the template.
+        This separation keeps assessment and process action distinct.
+
+      Sorter guidance:
+        1. Plug in charger if available. Wait 30 s.
+        2. Note whether device powers on and responds to touch/buttons.
+        3. Inspect screen and casing for damage.
+        4. Check for included charger and packaging.
+        5. NEVER attempt to access or read stored data — flag for data wipe.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - electronics
+    produces_observations:
+      - assessment_result
+      - includes_charger
+      - includes_original_packaging
+      - data_wipe_required
+      - sorting_notes
+    default_cost: 2.5
+    annotations:
+      label_de: "Elektronik bewerten"
+      rubric_reference: "categories/electronics.yaml — ElectronicsAssessmentEnum"
+      data_protection_note: >-
+        Sorters must not attempt to access user data on any device.
+        data_wipe_required is set to true by default for smartphones and tablets
+        regardless of visual assessment result.
+
+  - id: inkind_knowledge_repo:step_type/perform_data_wipe
+    label: Perform Data Wipe
+    description: >-
+      Guided data erasure for smartphones, tablets, and laptops.
+      The actor follows on-screen instructions to perform a factory reset
+      or certified wipe (depending on device type and org configuration).
+
+      The step records:
+        - data_wipe_method    (factory_reset | certified_wipe | not_applicable)
+        - data_wipe_confirmed (boolean — actor attestation)
+
+      This step is only included in templates where data_wipe_required
+      can be true (i.e. electronics templates).  The engine skips it
+      automatically if data_wipe_required=false on the current item
+      (via skip_condition on the ProcessTemplateStep).
+
+      GDPR relevance: the provenance record for this step serves as the
+      erasure record required under GDPR Art. 17 / Art. 5(1)(e).
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - electronics
+    requires_observations:
+      - assessment_result   # must have been assessed before wipe
+    produces_observations:
+      - data_wipe_method
+      - data_wipe_confirmed
+    default_cost: 3.0
+    annotations:
+      label_de: "Datenlöschung durchführen"
+      gdpr_reference: "GDPR Art. 17 — Right to erasure"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_food
+    label: Assess Food Safety
+    description: >-
+      Food safety assessment — binary pass/fail model.
+
+      Unlike clothing and electronics, food condition is not graded.
+      The complete assessment is:
+        - packaging_intact  (boolean): Is the packaging undamaged and sealed?
+        - expiry_date       (date):    Best-before or use-by date from packaging.
+        - storage_requirement (FoodStorageEnum): ambient | dry_cool |
+                             refrigerated | frozen
+
+      Redistribution gate (enforced by engine):
+        packaging_intact=false AND food_type IN [fresh_produce, dairy, frozen]
+          → item is auto-rejected; actor is shown disposal guidance.
+        expiry_date < today + 2 days
+          → engine raises warning; actor confirms or rejects.
+        expiry_date < today
+          → item is auto-rejected.
+
+      Sorter guidance:
+        1. Check packaging for tears, punctures, broken seals.
+        2. Read the best-before / use-by date.  Enter YYYY-MM-DD.
+        3. Identify the required storage temperature from packaging symbols.
+        4. Do not open sealed packaging to inspect contents.
+        5. If item smells or shows mould through transparent packaging → reject.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - food
+    produces_observations:
+      - packaging_intact
+      - expiry_date
+      - storage_requirement
+      - sorting_notes
+    default_cost: 0.75
+    annotations:
+      label_de: "Lebensmittel prüfen"
+      food_safety_reference: >-
+        Lebensmittelsicherheits- und Verbraucherschutzgesetz (LMSVG), AT.
+        EU Regulation 178/2002 — general principles of food law.
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_furniture
+    label: Assess Furniture Condition
+    description: >-
+      Furniture-specific condition assessment, with structural integrity
+      as the primary signal.
+
+      Assessment vocabulary (condition_grade):
+        new         — unused, in original packaging or clearly unassembled
+        like_new    — minimal use, no scratches or structural issues
+        good        — light surface wear, fully functional
+        fair        — moderate wear, minor scratches, stable structure
+        poor        — significant wear; functional but visually degraded
+        rejected    — structural damage (broken joints, missing legs,
+                      major upholstery tears); safety risk → disposal
+
+      Additional observations:
+        - material           (FurnitureMaterialEnum — wood/metal/plastic/etc.)
+        - is_flat_pack       (boolean — still in flat-pack state?)
+        - has_instructions   (boolean — assembly instructions present?)
+        - missing_parts      (boolean — any hardware/fittings missing?)
+        - sorting_notes      (free text)
+
+      Sorter guidance:
+        1. Check all joints for stability. Sit on chairs; open drawers.
+        2. Note surface scratches (acceptable) vs. structural damage (reject).
+        3. For upholstered items: check for rips, stains, odour, pest signs.
+        4. If self-assembly: confirm all visible hardware packets are present.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - furniture
+    produces_observations:
+      - condition_grade
+      - material
+      - is_flat_pack
+      - has_instructions
+      - missing_parts
+      - sorting_notes
+    default_cost: 2.0
+    annotations:
+      label_de: "Möbelzustand bewerten"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_books
+    label: Assess Book / Media Condition
+    description: >-
+      Books and printed media condition assessment.
+
+      Assessment vocabulary (condition_grade):
+        new         — unread, dust jacket intact
+        like_new    — read once, no markings
+        good        — some wear, possible minor pencil notes
+        fair        — cover wear, pen markings, yellowing acceptable
+        poor        — significant damage but text readable
+        rejected    — missing pages, severe water damage, illegible → disposal
+
+      Additional observations:
+        - language           (ISO 639-1 code — relevant for demand matching)
+        - has_writing        (boolean — handwritten notes/highlighting present?)
+        - sorting_notes
+
+      Sorter guidance:
+        1. Fan pages to check for missing sections.
+        2. Check spine for cracking.
+        3. Note language from title page if not obvious from cover.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - books
+    produces_observations:
+      - condition_grade
+      - language
+      - has_writing
+      - sorting_notes
+    default_cost: 0.5
+    annotations:
+      label_de: "Buch / Medien bewerten"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_toys
+    label: Assess Toy / Game Safety
+    description: >-
+      Toys and games condition assessment, with age-appropriateness and
+      safety as primary signals.
+
+      Assessment vocabulary (condition_grade):
+        new         — sealed in original packaging
+        like_new    — played with rarely, all pieces present, no damage
+        good        — normal play wear, all pieces present
+        fair        — some wear, all pieces present, no safety hazard
+        poor        — significant wear but safe; missing minor pieces
+        rejected    — sharp edges, broken parts, small detached parts
+                      (choking hazard), strong chemical smell → disposal
+
+      Additional observations:
+        - age_group          (ToyAgeGroupEnum — 0-3 | 3-6 | 6-12 | 12+)
+        - is_complete        (boolean — all pieces/cards/parts present?)
+        - battery_included   (boolean — if battery-powered)
+        - battery_functional (boolean — if battery_included)
+        - sorting_notes
+
+      Safety note:
+        Toys for children under 3 years must comply with EN 71 (toy safety).
+        Sorters MUST reject any item with parts that could detach and pose
+        a choking hazard if targeted at 0-3 age group.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - toys
+    produces_observations:
+      - condition_grade
+      - age_group
+      - is_complete
+      - battery_included
+      - battery_functional
+      - sorting_notes
+    default_cost: 1.0
+    annotations:
+      label_de: "Spielzeug / Spiel bewerten"
+      safety_reference: "EN 71 Toy Safety Standard (EU)"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_personal_care
+    label: Assess Personal Care Item
+    description: >-
+      Personal care items assessment — sealed/unsealed and expiry.
+
+      Assessment vocabulary: binary (no condition grade).
+        - is_sealed      (boolean): packaging intact and unopened
+        - expiry_date    (date):    expiry or best-before date if present
+        - sorting_notes
+
+      Redistribution gate:
+        is_sealed=false → item rejected (hygiene standard).
+        expiry_date < today → item rejected.
+
+      Sorter guidance:
+        1. Confirm packaging is fully sealed (no broken tape, intact shrink wrap).
+        2. Check for expiry date on base or cap.
+        3. Reject if any sign of previous use.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - personal_care
+    produces_observations:
+      - is_sealed
+      - expiry_date
+      - sorting_notes
+    default_cost: 0.5
+    annotations:
+      label_de: "Körperpflege bewerten"
+
+  - id: inkind_knowledge_repo:step_type/assess_condition_mobility_aids
+    label: Assess Mobility Aid Condition
+    description: >-
+      Mobility aids condition assessment — safety-critical category.
+
+      Assessment vocabulary (condition_grade):
+        good        — fully functional, all components present, no damage
+        fair        — minor cosmetic wear, all safety-critical parts intact
+        poor        — degraded but functional; needs cleaning or minor repair
+        rejected    — structural damage, missing safety components (brakes,
+                      footrests), corrosion on load-bearing parts → quarantine
+                      for assessment by a qualified technician
+
+      Additional observations:
+        - aid_type           (MobilityAidTypeEnum — wheelchair | crutches |
+                              walker | rollator | cane | other)
+        - is_adjustable      (boolean — adjustable height/armrests?)
+        - missing_components (boolean)
+        - requires_cleaning  (boolean — triggers cleaning workflow)
+        - sorting_notes
+
+      IMPORTANT: Sorters MUST NOT approve poor-condition mobility aids for
+      redistribution without org-configured technician review.  The engine
+      enforces this via a UC constraint when condition_grade=poor for
+      mobility_aids category.
+    input_modality: form
+    step_family: data_capture
+    category_scope:
+      - mobility_aids
+    produces_observations:
+      - condition_grade
+      - aid_type
+      - is_adjustable
+      - missing_components
+      - requires_cleaning
+      - sorting_notes
+    default_cost: 3.0
+    annotations:
+      label_de: "Mobilitätshilfe bewerten"
+      safety_note: >-
+        Safety-critical category. All poor-condition items require
+        technician sign-off before redistribution.
+
+  # ── §C  Process control steps ────────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:step_type/confirm_disposal
+    label: Confirm Disposal
+    description: >-
+      The actor reviews the rejection reason and confirms the item is
+      directed to the appropriate disposal stream:
+        - textile_recycling  (clothing, fabric items)
+        - e_waste_recycling  (electronics)
+        - general_waste      (non-recyclable items)
+        - food_bank_compost  (food items — if org composting available)
+        - specialist_repair  (mobility aids, high-value items with repair potential)
+
+      The actor selects the disposal_stream and confirms.  The engine
+      transitions the item to the `rejected` lifecycle state.
+    input_modality: confirmation
+    step_family: process_control
+    produces_observations:
+      - disposal_stream
+      - disposal_confirmed
+    default_cost: 0.3
+    annotations:
+      label_de: "Entsorgung bestätigen"
+
+  - id: inkind_knowledge_repo:step_type/flag_for_specialist_review
+    label: Flag for Specialist Review
+    description: >-
+      Mark the item for review by a specialist (technician, appraiser,
+      food safety officer) before the sort episode can be completed.
+      Episode enters a `pending_review` sub-state; a notification is
+      sent to the configured reviewer role.
+
+      Used for:
+        - Mobility aids in poor condition requiring technician sign-off
+        - High-value electronics needing professional valuation
+        - Ambiguous food items near expiry needing food safety officer decision
+    input_modality: form
+    step_family: process_control
+    produces_observations:
+      - specialist_review_reason
+      - specialist_review_role   # technician | appraiser | food_safety_officer
+    default_cost: 0.5
+    annotations:
+      label_de: "Zur Fachprüfung markieren"
+
+  # ── §D  Terminal steps ───────────────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:step_type/assign_storage
+    label: Assign to Storage Location
+    description: >-
+      Assign the item to a storage unit.  The actor selects from available
+      storage locations filtered by:
+        - category compatibility (org-configured)
+        - available capacity
+        - temperature requirements (for food items)
+
+      On completion the item lifecycle state transitions to `stored`.
+    input_modality: form
+    step_family: terminal
+    produces_observations:
+      - storage_unit
+    postcondition: stored
+    default_cost: 0.5
+    annotations:
+      label_de: "Lagerplatz zuweisen"
+
+  - id: inkind_knowledge_repo:step_type/mark_disposal
+    label: Mark for Disposal
+    description: >-
+      Terminal step for rejected items.  Records the disposal_stream
+      (if not already set in `confirm_disposal`) and transitions the
+      item to the `rejected` lifecycle state.
+    input_modality: confirmation
+    step_family: terminal
+    produces_observations:
+      - disposal_stream
+    postcondition: rejected
+    default_cost: 0.2
+    annotations:
+      label_de: "Zur Entsorgung markieren"
+
+  # ── Demand signal terminal steps ─────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:step_type/set_category
+    label: Set Demand Signal Category
+    description: Select the category this demand signal targets.
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - category
+    default_cost: 0.3
+    annotations:
+      label_de: "Bedarfskategorie festlegen"
+
+  - id: inkind_knowledge_repo:step_type/set_signal_type
+    label: Set Signal Type
+    description: >-
+      Set whether this signal represents a standing (ongoing) need
+      or a campaign (time-bounded) need.
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - signal_type
+    default_cost: 0.2
+    annotations:
+      label_de: "Signaltyp festlegen"
+
+  - id: inkind_knowledge_repo:step_type/set_attributes
+    label: Set Demand Signal Attributes
+    description: >-
+      Set the attribute filters for a demand signal (size, demographic,
+      condition grade minimum, etc.).  Terminal — activates the signal.
+    input_modality: form
+    step_family: terminal
+    produces_observations:
+      - attributes
+    postcondition: active
+    default_cost: 0.5
+    annotations:
+      label_de: "Bedarfsattribute festlegen"
+
+  - id: inkind_knowledge_repo:step_type/assess_need
+    label: Assess Need Urgency
+    description: >-
+      Evaluate urgency tier and context of a specific demand signal.
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - urgency_tier
+      - context_note
+    default_cost: 1.0
+    annotations:
+      label_de: "Bedarf einschätzen"
+
+  - id: inkind_knowledge_repo:step_type/set_priority
+    label: Set Priority and Deadline
+    description: >-
+      Set urgency tier and deadline. Terminal — activates the signal.
+    input_modality: form
+    step_family: terminal
+    produces_observations:
+      - urgency_tier
+      - deadline
+    postcondition: active
+    default_cost: 0.5
+    annotations:
+      label_de: "Priorität und Frist festlegen"
+
+  # ── §E  Phase 2 vocabulary stubs ─────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:step_type/create_sub_collection
+    label: Create Sub-Collection
+    description: >-
+      Phase 2 stub. Create a child DonationCollection within the current
+      collection (e.g. split an arrival batch into category sub-batches).
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - sub_collection_id
+    default_cost: 1.0
+    annotations:
+      label_de: "Teilkollektion erstellen"
+      phase: "2"
+
+  - id: inkind_knowledge_repo:step_type/move_to_collection
+    label: Move to Collection
+    description: >-
+      Phase 2 stub. Move the current item or sub-collection to a target
+      collection (e.g. from triage → category stock).
+    input_modality: form
+    step_family: data_capture
+    produces_observations:
+      - target_collection_id
+    default_cost: 0.5
+    annotations:
+      label_de: "In Kollektion verschieben"
+      phase: "2"
+
+  - id: inkind_knowledge_repo:step_type/merge_collections
+    label: Merge Collections
+    description: >-
+      Phase 2 stub. Merge two or more collections into one (e.g.
+      consolidate partial pallets of the same category before storage).
+    input_modality: form
+    step_family: process_control
+    produces_observations:
+      - merged_collection_id
+    default_cost: 1.0
+    annotations:
+      label_de: "Kollektionen zusammenführen"
+      phase: "2"
+
+  - id: inkind_knowledge_repo:step_type/assign_to_stock
+    label: Assign to Stock
+    description: >-
+      Phase 2 stub. Assign a sorted item directly to a named stock
+      collection (campaign fulfilment, standing demand stock, etc.).
+    input_modality: form
+    step_family: terminal
+    produces_observations:
+      - stock_collection_id
+    postcondition: stored
+    default_cost: 0.5
+    annotations:
+      label_de: "Bestand zuweisen"
+      phase: "2"
+...

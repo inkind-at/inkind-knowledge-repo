@@ -1,0 +1,1056 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/ui/fragment_binding
+name: fragment_binding
+title: UI Fragment Binding Schema
+description: >-
+  Fragment routing configuration — the resolution table loaded into the
+  inference engine's in-memory routing index at startup.
+
+  ── Resolution dimensions ───────────────────────────────────────────────────
+
+  The engine resolves a fragment binding across FIVE dimensions (previously
+  four). The new fifth dimension, process_path_type, is required because
+  the same step type now appears in multiple process paths and may require
+  different rendering. For example, `review_ml_result` in a barcode_first
+  path should show "barcode lookup result" language, while in an ml_assisted
+  path it shows "ML suggestion" language — same step, different fragment.
+
+  Resolution order (most specific → least specific):
+    1. (step_type, category, role, path_type, org_id)   — org override
+    2. (step_type, category, role, path_type, null)      — shared path+category
+    3. (step_type, category, role, null,      null)      — shared category
+    4. (step_type, null,     role, null,      null)      — role catch-all
+    5. (step_type, null,     null, null,      null)      — universal catch-all
+
+  The engine evaluates bindings top-down and returns the first match.
+  Null in a slot means "matches any value".
+
+  ── Relationship to process_template ────────────────────────────────────────
+
+  A ProcessTemplate defines WHICH steps run and WHEN (sequence, conditions,
+  capability preconditions). A UIFragmentBinding defines HOW each step
+  renders to the actor (template, fields, guidance text, mode).
+
+  The engine links them at episode launch:
+    ProcessTemplate.steps[n].step_type
+      → resolve UIFragmentBinding(step_type, category, role, path_type, org)
+      → serve fragment_binding.template_ref with fragment_binding.required_fields
+
+  This separation means:
+  - Templates can reference the same step type but get different fragments
+    depending on path_type (e.g., barcode vs ML review fragments)
+  - The same fragment can be reused across templates for identical rendering
+  - Org overrides are possible at the fragment level without touching templates
+
+  ── Completeness tiers and field density ────────────────────────────────────
+
+  Fragments for the same step may expose different fields based on the
+  template's completeness_tier. The engine passes completeness_tier as
+  context when serving the fragment; the template uses it to show/hide
+  optional detailed-tier fields.
+
+  This avoids a combinatorial explosion of fragment bindings: one binding
+  per (step, category, role) handles all completeness tiers through a
+  single parameterised template.
+
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+
+classes:
+
+  UIFragmentBinding:
+    description: >-
+      A single row in the fragment resolution table.
+
+      The engine evaluates bindings in specificity order — more specific
+      bindings (more non-null dimensions) take priority over catch-all
+      bindings. Org-specific bindings always override shared ones.
+    slots:
+      - id
+      - label
+      - step_type_slug
+      - binding_category
+      - binding_process_path_type
+      - actor_role
+      - precondition_state
+      - postcondition_state
+      - template_ref
+      - required_fields
+      - optional_fields
+      - guidance_text
+      - emits_event
+      - fragment_mode
+      - completeness_tiers_served
+
+
+slots:
+
+  step_type_slug:
+    range: string
+    required: true
+    description: >-
+      Slug reference to the StepType this binding serves.
+      Must exactly match a StepType.id in step_type.yaml.
+
+  binding_category:
+    range: CategoryEnum
+    description: >-
+      Category this binding applies to. Null = catch-all.
+      Category-specific bindings take priority over null.
+
+  binding_process_path_type:
+    range: ProcessPathTypeEnum
+    description: >-
+      Process path type this binding is specialised for. Null = applies to
+      all path types.
+
+      Non-null values are used when the same step type requires different
+      rendering in different path contexts. Primary use case:
+        review_ml_result in barcode_first path → barcode_review fragment
+        review_ml_result in ml_assisted path  → ml_review fragment
+      Both step types are structurally identical (show suggestions, let
+      actor confirm or override) but use different labels and context text.
+
+  actor_role:
+    range: ActorRoleEnum
+    required: true
+    description: >-
+      Actor role this binding applies to. Required — all bindings must
+      explicitly target a role (volunteer or staff). There is no role
+      catch-all because the mode distinction is architecturally mandatory:
+      volunteers always see guided mode; staff may see expert mode.
+      Use separate bindings for each role rather than a null catch-all.
+
+  precondition_state:
+    range: string
+    required: true
+    description: >-
+      Entity lifecycle state required before this fragment may be served.
+      Format: `<entity_type>:<state>`, e.g. `item:received`.
+      The engine enforces this as a sequencing constraint (SQ).
+
+  postcondition_state:
+    range: string
+    required: true
+    description: >-
+      Entity lifecycle state the engine sets when the actor submits this
+      fragment successfully. For intermediate steps this is typically
+      unchanged (e.g., `item:sorting_in_progress`); for terminal steps
+      it is the final state (e.g., `item:stored`).
+
+  template_ref:
+    range: string
+    required: true
+    description: >-
+      Relative path to the Django/HTMX template file, e.g.
+      `fragments/sort_clothing_guided.html`.
+      Path is relative to the template root configured in Django settings.
+
+  required_fields:
+    range: string
+    multivalued: true
+    required: true
+    description: >-
+      Slot names the actor MUST fill in. The server-side POST handler
+      validates that all required_fields are present and non-null before
+      creating the ProvenanceRecord. The fragment template renders these
+      as mandatory form fields.
+
+  optional_fields:
+    range: string
+    multivalued: true
+    description: >-
+      Slot names the actor MAY fill in. Rendered as non-mandatory form
+      fields. The completeness_tier of the parent template determines
+      which optional fields are shown (detailed-tier fields are hidden in
+      standard-tier fragments).
+
+  guidance_text:
+    range: string
+    description: >-
+      Helper text shown in guided mode (volunteer role bindings).
+      Null for expert-mode bindings. May contain Markdown.
+      The HTMX fragment conditionally renders this block.
+
+  emits_event:
+    range: DomainEventEnum
+    description: >-
+      Domain event emitted when the actor submits this fragment.
+      Null for intermediate steps. Event bus deferred to Year 2;
+      declared here to reserve the vocabulary and enable the L3 engine
+      to emit events without schema changes when the bus is activated.
+
+  fragment_mode:
+    range: FragmentModeEnum
+    description: >-
+      Informational — matches actor_role convention: guided for volunteer,
+      expert for staff. Drives CSS class and field density in the template.
+
+  completeness_tiers_served:
+    range: CompletenessTierEnum
+    multivalued: true
+    description: >-
+      Completeness tiers this fragment is designed to serve. Used by the
+      engine to select the correct binding when a process template has a
+      specific completeness_tier. A fragment serving [standard, detailed]
+      will show optional detailed-tier fields when the template requests
+      detailed completeness. A fragment serving [minimal] only shows
+      mandatory fields.
+      Null = serves all tiers (catch-all).
+
+
+enums:
+
+  FragmentModeEnum:
+    description: Fragment rendering mode.
+    permissible_values:
+      guided:
+        description: More fields, guidance text visible. Default for volunteer role.
+      expert:
+        description: Minimal fields, fast-path layout. Default for staff role.
+
+  ProcessPathTypeEnum:
+    description: >-
+      Mirror of ProcessPathTypeEnum from process_template.yaml.
+      Duplicated here to avoid a cross-schema import cycle; values must
+      remain in sync. TODO: extract to core.yaml in a future refactor.
+    permissible_values:
+      manual_assessment:
+        description: Human-only path. No technology preconditions.
+      ml_assisted:
+        description: Photo → ML inference → human review.
+      barcode_first:
+        description: Barcode scan → registry lookup → review.
+      rapid_triage:
+        description: Minimal steps for high-volume events.
+      demand_signal_standard:
+        description: Standard demand signal registration.
+      demand_signal_urgent:
+        description: Urgent demand signal fast-path.
+
+  CompletenessTierEnum:
+    description: >-
+      Mirror of CompletenessTierEnum from process_template.yaml.
+      Same sync requirement as ProcessPathTypeEnum above.
+    permissible_values:
+      minimal:
+        description: Category + binary condition only.
+      standard:
+        description: Full condition + key attributes.
+      detailed:
+        description: Full assessment including material, language, completeness.
+
+  DomainEventEnum:
+    description: >-
+      Domain events emitted on process step completion.
+      Event bus deferred to Year 2; declared here to reserve vocabulary.
+    permissible_values:
+      collection_received:
+        description: An arrival DonationCollection was received and opened.
+      item_sorted:
+        description: A DonationItem completed the sort process.
+      item_stored:
+        description: A DonationItem was assigned to a StorageLocation.
+      collection_fulfilled:
+        description: A DonationCollection was closed as fully processed.
+      stock_collection_updated:
+        description: A stock DonationCollection's item count changed.
+      demand_signal_registered:
+        description: A new DemandSignal was registered.
+      demand_signal_fulfilled:
+        description: A DemandSignal reached the fulfilled lifecycle state.
+      campaign_launched:
+        description: A Campaign transitioned to active state.
+      campaign_completed:
+        description: A Campaign reached completed state.
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Fragment Binding Instances
+#
+# Naming convention: fb_{step_slug}_{category|all}_{role}_{path_type|all}
+#
+# These are the shared (Level 2) bindings loaded by all orgs.
+# Org-specific overrides live in instances/orgs/{org_id}.yaml as
+# FragmentBindingOverride records.
+#
+# Sections:
+#   §A  Universal step bindings (all categories, all path types)
+#   §B  Category-specific condition assessment bindings
+#   §C  Path-type-specific review bindings
+#   §D  Demand signal bindings
+# ════════════════════════════════════════════════════════════════════════════
+
+instances:
+
+  # ── §A  UNIVERSAL STEP BINDINGS ──────────────────────────────────────────
+  # These steps are structurally identical regardless of category or path type.
+  # One guided + one expert binding per step covers all templates.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_take_photo_all_volunteer
+    label: Take photo — volunteer (all categories)
+    step_type_slug: take_photo
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/take_photo_guided.html
+    required_fields: [photo_ref]
+    optional_fields: []
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Place the item on a flat, well-lit surface. Take 1–3 photos:
+      front, back, and any visible damage. The photo will be used for
+      item documentation and may be shown to beneficiaries.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_take_photo_all_staff
+    label: Take photo — staff (all categories)
+    step_type_slug: take_photo
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/take_photo_expert.html
+    required_fields: [photo_ref]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_take_audio_note_all_volunteer
+    label: Record audio note — volunteer
+    step_type_slug: take_audio_note
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/audio_note_guided.html
+    required_fields: []
+    optional_fields: [audio_note_ref, audio_note_transcript]
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Tap the microphone to record a short voice note (up to 60 seconds).
+      Describe anything about the item that is difficult to capture in the
+      form — damage details, unusual features, or special care requirements.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_take_audio_note_all_staff
+    label: Record audio note — staff
+    step_type_slug: take_audio_note
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/audio_note_expert.html
+    required_fields: []
+    optional_fields: [audio_note_ref, audio_note_transcript]
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assign_category_all_volunteer
+    label: Assign category — volunteer
+    step_type_slug: assign_category
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assign_category_guided.html
+    required_fields: [category]
+    optional_fields: [subcategory]
+    fragment_mode: guided
+    completeness_tiers_served: [minimal, standard, detailed]
+    guidance_text: >-
+      Select the best matching category for this item. If you are unsure,
+      choose the closest option — the next step will guide you through the
+      details. Subcategory helps with better matching but is not required.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assign_category_all_staff
+    label: Assign category — staff
+    step_type_slug: assign_category
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assign_category_expert.html
+    required_fields: [category, subcategory]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [minimal, standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_ml_recognition_all
+    label: ML recognition — automated (all roles)
+    step_type_slug: ml_recognition
+    binding_category: null
+    binding_process_path_type: ml_assisted
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/ml_recognition_loading.html
+    required_fields: []
+    optional_fields: [ml_category_suggestion, ml_condition_suggestion, ml_confidence]
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Analysing your photo — this takes a few seconds.
+      You will review the suggestions on the next screen.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_barcode_scan_all_volunteer
+    label: Scan barcode — volunteer
+    step_type_slug: barcode_scan
+    binding_category: null
+    binding_process_path_type: barcode_first
+    actor_role: volunteer
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/barcode_scan_guided.html
+    required_fields: [barcode_value]
+    optional_fields: [barcode_lookup_result]
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Point the camera at the barcode on the item's packaging.
+      Hold steady until the barcode is detected.
+      If there is no barcode, tap "Skip — no barcode" to continue manually.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_barcode_scan_all_staff
+    label: Scan barcode — staff
+    step_type_slug: barcode_scan
+    binding_category: null
+    binding_process_path_type: barcode_first
+    actor_role: staff
+    precondition_state: item:received
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/barcode_scan_expert.html
+    required_fields: [barcode_value]
+    optional_fields: [barcode_lookup_result]
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_confirm_disposal_all_volunteer
+    label: Confirm disposal — volunteer
+    step_type_slug: confirm_disposal
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/confirm_disposal_guided.html
+    required_fields: [disposal_stream, disposal_confirmed]
+    optional_fields: []
+    fragment_mode: guided
+    completeness_tiers_served: [minimal, standard, detailed]
+    guidance_text: >-
+      This item cannot be redistributed. Please confirm the correct
+      disposal route. If you are unsure, ask a staff member before confirming.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_confirm_disposal_all_staff
+    label: Confirm disposal — staff
+    step_type_slug: confirm_disposal
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/confirm_disposal_expert.html
+    required_fields: [disposal_stream, disposal_confirmed]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [minimal, standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_flag_specialist_all_volunteer
+    label: Flag for specialist review — volunteer
+    step_type_slug: flag_for_specialist_review
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/flag_specialist_guided.html
+    required_fields: [specialist_review_reason, specialist_review_role]
+    optional_fields: []
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      This item needs to be checked by a specialist before it can be
+      passed on. Describe what you noticed and select the type of specialist
+      needed. The item will be set aside until reviewed.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_flag_specialist_all_staff
+    label: Flag for specialist review — staff
+    step_type_slug: flag_for_specialist_review
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/flag_specialist_expert.html
+    required_fields: [specialist_review_reason, specialist_review_role]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assign_storage_all_volunteer
+    label: Assign storage — volunteer
+    step_type_slug: assign_storage
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:stored
+    template_ref: fragments/assign_storage_guided.html
+    required_fields: [storage_unit]
+    optional_fields: []
+    fragment_mode: guided
+    emits_event: item_stored
+    completeness_tiers_served: [minimal, standard, detailed]
+    guidance_text: >-
+      Select the storage location from the list. The available options are
+      filtered to locations that match this item's category. If you see no
+      suitable location, ask a staff member.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assign_storage_all_staff
+    label: Assign storage — staff
+    step_type_slug: assign_storage
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:stored
+    template_ref: fragments/assign_storage_expert.html
+    required_fields: [storage_unit]
+    optional_fields: []
+    fragment_mode: expert
+    emits_event: item_stored
+    completeness_tiers_served: [minimal, standard, detailed]
+
+
+  # ── §B  CATEGORY-SPECIFIC CONDITION ASSESSMENT BINDINGS ──────────────────
+  # One guided + one expert binding per assess_condition_{category} step.
+  # required_fields = minimal tier; optional_fields = standard+detailed tiers.
+  # The template uses completeness_tier context to show/hide optional fields.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_clothing_volunteer
+    label: Assess clothing condition — volunteer
+    step_type_slug: assess_condition_clothing
+    binding_category: clothing
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_clothing_guided.html
+    required_fields: [condition_grade, usage]
+    optional_fields: [intact_labels, is_winter_suitable, season, material, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Check the item for visible damage, stains, and missing parts.
+      Hold it up to the light to spot thin patches or holes.
+      For underwear: only accept items that are new or like-new.
+      Check the care label if you need material information.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_clothing_staff
+    label: Assess clothing condition — staff
+    step_type_slug: assess_condition_clothing
+    binding_category: clothing
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_clothing_expert.html
+    required_fields: [condition_grade, usage, intact_labels, is_winter_suitable]
+    optional_fields: [season, material, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_electronics_volunteer
+    label: Assess electronics — volunteer
+    step_type_slug: assess_condition_electronics
+    binding_category: electronics
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_electronics_guided.html
+    required_fields: [assessment_result]
+    optional_fields: [includes_charger, data_wipe_required, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Plug in the charger if available and wait 30 seconds.
+      Does the device power on? Does the screen respond to touch?
+      Note any cracks or damage to the screen and casing.
+      IMPORTANT: Do not attempt to access any stored data or files.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_electronics_staff
+    label: Assess electronics — staff
+    step_type_slug: assess_condition_electronics
+    binding_category: electronics
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_electronics_expert.html
+    required_fields: [assessment_result, data_wipe_required]
+    optional_fields: [includes_charger, includes_original_packaging, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_perform_data_wipe_staff
+    label: Perform data wipe — staff only
+    step_type_slug: perform_data_wipe
+    binding_category: electronics
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/data_wipe_expert.html
+    required_fields: [data_wipe_method, data_wipe_confirmed]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: null  # staff only — no guidance text
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_perform_data_wipe_volunteer
+    label: Perform data wipe — volunteer (supervised)
+    step_type_slug: perform_data_wipe
+    binding_category: electronics
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/data_wipe_guided.html
+    required_fields: [data_wipe_method, data_wipe_confirmed]
+    optional_fields: []
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Follow the on-screen steps carefully to erase all data from this
+      device. Do not skip any step. If you are unsure, stop and ask a
+      staff member. Your confirmation will be recorded for GDPR compliance.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_food_volunteer
+    label: Assess food safety — volunteer
+    step_type_slug: assess_condition_food
+    binding_category: food
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_food_guided.html
+    required_fields: [packaging_intact, expiry_date]
+    optional_fields: [storage_requirement, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Check that the packaging has no tears, holes, or broken seals.
+      Find the best-before or use-by date and enter it exactly as printed.
+      If the date has passed, the item must be disposed of — do not store it.
+      Do not open sealed packaging to check the contents.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_food_staff
+    label: Assess food safety — staff
+    step_type_slug: assess_condition_food
+    binding_category: food
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_food_expert.html
+    required_fields: [packaging_intact, expiry_date, storage_requirement]
+    optional_fields: [sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_furniture_volunteer
+    label: Assess furniture — volunteer
+    step_type_slug: assess_condition_furniture
+    binding_category: furniture
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_furniture_guided.html
+    required_fields: [condition_grade]
+    optional_fields: [material, is_flat_pack, has_instructions, missing_parts, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Check all joints — do they feel stable? Open and close drawers.
+      Sit on chairs to test stability. Note surface scratches (acceptable)
+      vs. broken joints or missing legs (not acceptable — reject).
+      For flat-pack items: check that all hardware packets are present.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_furniture_staff
+    label: Assess furniture — staff
+    step_type_slug: assess_condition_furniture
+    binding_category: furniture
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_furniture_expert.html
+    required_fields: [condition_grade, material]
+    optional_fields: [is_flat_pack, has_instructions, missing_parts, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_books_volunteer
+    label: Assess books — volunteer
+    step_type_slug: assess_condition_books
+    binding_category: books
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_books_guided.html
+    required_fields: [condition_grade]
+    optional_fields: [language, has_writing, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Fan through the pages to check for missing sections. Check the spine
+      for cracking. Note the language from the title page if it is not
+      obvious from the cover.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_books_staff
+    label: Assess books — staff
+    step_type_slug: assess_condition_books
+    binding_category: books
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_books_expert.html
+    required_fields: [condition_grade, language]
+    optional_fields: [has_writing, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_toys_volunteer
+    label: Assess toys — volunteer
+    step_type_slug: assess_condition_toys
+    binding_category: toys
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_toys_guided.html
+    required_fields: [condition_grade, age_group, is_complete]
+    optional_fields: [battery_included, battery_functional, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Check that all pieces are present. Look for sharp edges, broken
+      parts, or pieces that could detach — these are a choking hazard
+      for children under 3 and the item must be rejected.
+      Test batteries if the item is battery-powered.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_toys_staff
+    label: Assess toys — staff
+    step_type_slug: assess_condition_toys
+    binding_category: toys
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_toys_expert.html
+    required_fields: [condition_grade, age_group, is_complete]
+    optional_fields: [battery_included, battery_functional, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_mobility_aids_volunteer
+    label: Assess mobility aids — volunteer
+    step_type_slug: assess_condition_mobility_aids
+    binding_category: mobility_aids
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_mobility_guided.html
+    required_fields: [condition_grade, aid_type]
+    optional_fields: [is_adjustable, missing_components, requires_cleaning, sorting_notes]
+    fragment_mode: guided
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      Check that wheels roll freely, brakes engage firmly, and the frame
+      shows no cracks. Test any adjustable parts. If anything seems unsafe
+      or broken, select "poor" condition — a technician will review it before
+      this item is passed on. Do not approve damaged mobility aids yourself.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_mobility_aids_staff
+    label: Assess mobility aids — staff
+    step_type_slug: assess_condition_mobility_aids
+    binding_category: mobility_aids
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/assess_mobility_expert.html
+    required_fields: [condition_grade, aid_type, missing_components]
+    optional_fields: [is_adjustable, requires_cleaning, sorting_notes]
+    fragment_mode: expert
+    emits_event: item_sorted
+    completeness_tiers_served: [standard, detailed]
+
+
+  # ── §C  PATH-TYPE-SPECIFIC REVIEW BINDINGS ───────────────────────────────
+  # review_ml_result appears in both ml_assisted and barcode_first paths.
+  # The two paths need different labels and context text; they share the
+  # same structural behaviour (show suggestions, let actor confirm/override).
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_review_ml_ml_path_volunteer
+    label: Review ML suggestions — volunteer (ml_assisted path)
+    step_type_slug: review_ml_result
+    binding_category: null
+    binding_process_path_type: ml_assisted
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/review_ml_guided.html
+    required_fields: [category, actor_override_flag]
+    optional_fields: [subcategory, condition, ml_confidence]
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      The AI has suggested a category and condition based on your photo.
+      Check whether the suggestion looks correct. You can accept it or
+      change it — your judgement is what counts.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_review_ml_ml_path_staff
+    label: Review ML suggestions — staff (ml_assisted path)
+    step_type_slug: review_ml_result
+    binding_category: null
+    binding_process_path_type: ml_assisted
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/review_ml_expert.html
+    required_fields: [category, subcategory, actor_override_flag]
+    optional_fields: [condition, ml_confidence]
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_review_barcode_volunteer
+    label: Review barcode lookup — volunteer (barcode_first path)
+    step_type_slug: review_ml_result
+    binding_category: null
+    binding_process_path_type: barcode_first
+    actor_role: volunteer
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/review_barcode_guided.html
+    required_fields: [category, actor_override_flag]
+    optional_fields: [subcategory, barcode_lookup_result]
+    fragment_mode: guided
+    completeness_tiers_served: [standard, detailed]
+    guidance_text: >-
+      We found product information from the barcode. Check whether it
+      matches the item you are holding. You can change any field if
+      something looks wrong.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_review_barcode_staff
+    label: Review barcode lookup — staff (barcode_first path)
+    step_type_slug: review_ml_result
+    binding_category: null
+    binding_process_path_type: barcode_first
+    actor_role: staff
+    precondition_state: item:sorting_in_progress
+    postcondition_state: item:sorting_in_progress
+    template_ref: fragments/review_barcode_expert.html
+    required_fields: [category, subcategory, actor_override_flag]
+    optional_fields: [barcode_lookup_result]
+    fragment_mode: expert
+    completeness_tiers_served: [standard, detailed]
+
+
+  # ── §D  DEMAND SIGNAL BINDINGS ────────────────────────────────────────────
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_category_demand_volunteer
+    label: Set signal category — volunteer
+    step_type_slug: set_category
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_set_category_guided.html
+    required_fields: [category]
+    optional_fields: [subcategory]
+    fragment_mode: guided
+    completeness_tiers_served: [minimal, standard]
+    guidance_text: Select the category of item your organisation needs.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_category_demand_staff
+    label: Set signal category — staff
+    step_type_slug: set_category
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_set_category_expert.html
+    required_fields: [category, subcategory]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [minimal, standard]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_signal_type_volunteer
+    label: Set signal type — volunteer
+    step_type_slug: set_signal_type
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_set_type_guided.html
+    required_fields: [signal_type]
+    optional_fields: []
+    fragment_mode: guided
+    completeness_tiers_served: [minimal, standard]
+    guidance_text: >-
+      Standing need: you need this category of item on an ongoing basis.
+      Campaign need: you need items for a specific event or deadline.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_signal_type_staff
+    label: Set signal type — staff
+    step_type_slug: set_signal_type
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_set_type_expert.html
+    required_fields: [signal_type]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [minimal, standard]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_need_volunteer
+    label: Assess need urgency — volunteer
+    step_type_slug: assess_need
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_assess_need_guided.html
+    required_fields: [urgency_tier]
+    optional_fields: [context_note]
+    fragment_mode: guided
+    completeness_tiers_served: [standard]
+    guidance_text: >-
+      How urgent is this need? Immediate means within 1–3 days.
+      Moderate means within 2 weeks. Standing means ongoing.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_assess_need_staff
+    label: Assess need urgency — staff
+    step_type_slug: assess_need
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:draft
+    template_ref: fragments/demand_assess_need_expert.html
+    required_fields: [urgency_tier, context_note]
+    optional_fields: []
+    fragment_mode: expert
+    completeness_tiers_served: [standard]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_attributes_volunteer
+    label: Set demand attributes — volunteer
+    step_type_slug: set_attributes
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: volunteer
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:active
+    template_ref: fragments/demand_set_attributes_guided.html
+    required_fields: [attributes]
+    optional_fields: []
+    fragment_mode: guided
+    emits_event: demand_signal_registered
+    completeness_tiers_served: [minimal, standard]
+    guidance_text: >-
+      Specify the details of what you need — size, condition, any other
+      requirements. The more specific you are, the better the matches will be.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_attributes_staff
+    label: Set demand attributes — staff
+    step_type_slug: set_attributes
+    binding_category: null
+    binding_process_path_type: null
+    actor_role: staff
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:active
+    template_ref: fragments/demand_set_attributes_expert.html
+    required_fields: [attributes]
+    optional_fields: []
+    fragment_mode: expert
+    emits_event: demand_signal_registered
+    completeness_tiers_served: [minimal, standard]
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_priority_volunteer
+    label: Set priority — volunteer
+    step_type_slug: set_priority
+    binding_category: null
+    binding_process_path_type: demand_signal_urgent
+    actor_role: volunteer
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:active
+    template_ref: fragments/demand_set_priority_guided.html
+    required_fields: [urgency_tier, deadline]
+    optional_fields: []
+    fragment_mode: guided
+    emits_event: demand_signal_registered
+    completeness_tiers_served: [minimal]
+    guidance_text: >-
+      When do you need this by? Enter the deadline date and select how
+      urgent this request is. This will be visible to other organisations
+      who may have matching items.
+
+  - id: inkind_knowledge_repo:fragment_binding/fb_set_priority_staff
+    label: Set priority — staff
+    step_type_slug: set_priority
+    binding_category: null
+    binding_process_path_type: demand_signal_urgent
+    actor_role: staff
+    precondition_state: demand_signal:draft
+    postcondition_state: demand_signal:active
+    template_ref: fragments/demand_set_priority_expert.html
+    required_fields: [urgency_tier, deadline]
+    optional_fields: []
+    fragment_mode: expert
+    emits_event: demand_signal_registered
+    completeness_tiers_served: [minimal]
+...

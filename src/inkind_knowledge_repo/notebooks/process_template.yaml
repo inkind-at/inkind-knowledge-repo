@@ -1,0 +1,604 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/process_template
+name: process_template
+title: Process Template Schema
+description: >-
+  Named, complete process path definitions evaluated by the engine as
+  candidate paths p in the net-value optimisation:
+
+    net-value(i, b, p) = Σ ω_s(λ) · v_λ(i, b, p) − C_s(p)
+
+  The path p is the optimisation variable, not just a means to the match.
+  Two paths for the same item produce different net values because they
+  determine: (1) which attributes are observable at the match step,
+  (2) what the path cost C_s(p) is, and (3) what rewards are producible.
+
+  ── Feasibility: capability_requirements ────────────────────────────────────
+
+  Each template carries a list of technology and operational capability
+  preconditions. The engine checks OrgCapabilityRecord entries before
+  admitting a template to the candidate set. An unsatisfied HARD requirement
+  excludes the template entirely. This replaces the previous opaque "tier"
+  system with explicit, queryable preconditions.
+
+  ── Affinity: category_affinity ─────────────────────────────────────────────
+
+  Category affinity is an expected-value hint encoding which categories
+  a path is designed for. Affinity is NOT a hard constraint — it shapes
+  the engine's prior when multiple feasible paths exist.
+
+  Key design insight: barcode_first is preferred for food and books but
+  DISCOURAGED for clothing and furniture (barcodes absent or non-informative).
+  ML-assisted is preferred for electronics and clothing but DISCOURAGED for
+  food (binary assessment not improved by ML).
+
+  ── Template naming convention ───────────────────────────────────────────────
+
+  {path_type}_{category} — e.g. sort_manual_clothing, sort_ml_electronics.
+  Templates sharing path_type but differing in category are variants
+  (variant_of points to the canonical instance for admin UI grouping).
+
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  pplan: http://purl.org/net/p-plan#
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+
+classes:
+
+  ProcessTemplate:
+    description: >-
+      A complete process path definition. A candidate path p evaluated
+      by the engine. Only feasible paths (all hard capability_requirements
+      satisfied for the org) are admitted to the candidate set.
+    class_uri: pplan:Plan
+    slots:
+      - id
+      - label
+      - description
+      - process_path_type
+      - entity_type
+      - launchable_from_states
+      - capability_requirements
+      - category_affinity
+      - steps
+      - is_default
+      - variant_of
+      - completeness_tier
+      - estimated_duration_minutes
+    see_also:
+      - pplan:Plan
+
+  ProcessTemplateStep:
+    description: A single ordered step within a process path.
+    attributes:
+      step_type:
+        range: StepType
+        required: true
+      sequence:
+        range: integer
+        required: true
+      is_optional:
+        range: boolean
+        required: true
+      skip_condition:
+        range: AttributeCondition
+        description: Auto-skip condition evaluated before presenting the step.
+      branch_condition:
+        range: AttributeCondition
+        description: Condition under which this step is dynamically inserted.
+
+  AttributeCondition:
+    description: >-
+      Phase 1: simple equality (attribute + equals | in_values).
+      Phase 2: full expression (CEL / JSONLogic stub).
+    attributes:
+      attribute:
+        range: string
+      equals:
+        range: string
+      in_values:
+        range: string
+        multivalued: true
+      expression:
+        range: string
+        description: Phase 2 stub.
+
+  CapabilityRequirement:
+    description: >-
+      A technology or operational capability that gates path feasibility.
+      is_required=true: hard gate — path excluded if capability absent.
+      is_required=false: soft preference — path feasible but degraded.
+    attributes:
+      capability:
+        range: OrgCapabilityEnum
+        required: true
+      is_required:
+        range: boolean
+        required: true
+
+  CategoryAffinityEntry:
+    description: >-
+      Expected-value hint for a specific item category.
+      preferred: highest-value path for this category (engine weights up).
+      neutral: applicable, no adjustment.
+      discouraged: sub-optimal for this category (engine weights down,
+        UI shows guidance note).
+    attributes:
+      category:
+        range: string
+        required: true
+      affinity:
+        range: CategoryAffinityEnum
+        required: true
+      rationale:
+        range: string
+
+  OrgCapabilityRecord:
+    description: >-
+      Org-level declaration of active capabilities, checked at episode launch.
+      Stored in Django OrgCapability model; compiled into engine index at startup.
+    attributes:
+      org_id:
+        range: string
+        required: true
+      capability:
+        range: OrgCapabilityEnum
+        required: true
+      is_active:
+        range: boolean
+        required: true
+      config:
+        range: string
+        description: JSON blob with capability-specific config (endpoint URLs, thresholds, etc.)
+
+slots:
+
+  process_path_type:
+    range: ProcessPathTypeEnum
+    required: true
+
+  capability_requirements:
+    range: CapabilityRequirement
+    multivalued: true
+    inlined_as_list: true
+
+  category_affinity:
+    range: CategoryAffinityEntry
+    multivalued: true
+    inlined_as_list: true
+
+  variant_of:
+    range: string
+    description: >-
+      ID of the template this is a category-specific variant of.
+      Used only for admin UI grouping — does not affect engine logic.
+
+  completeness_tier:
+    range: CompletenessTierEnum
+    required: true
+    description: >-
+      Observation completeness level produced by this path. Determines
+      which v_λ scoring functions are available at the match step.
+
+  estimated_duration_minutes:
+    range: float
+
+  is_default:
+    range: boolean
+    required: true
+
+  entity_type:
+    range: EntityTypeEnum
+    required: true
+
+  launchable_from_states:
+    range: string
+    multivalued: true
+    required: true
+
+  steps:
+    range: ProcessTemplateStep
+    multivalued: true
+    required: true
+    inlined_as_list: true
+    see_also:
+      - pplan:wasGeneratedBy
+
+enums:
+
+  ProcessPathTypeEnum:
+    permissible_values:
+      manual_assessment:
+        description: Human-only path. No technology preconditions. Always feasible.
+      ml_assisted:
+        description: Photo → ML inference → human review. Requires ml_model_trained.
+      barcode_first:
+        description: Barcode scan → registry lookup → review. Requires barcode_scanner.
+      rapid_triage:
+        description: Minimal steps for high-volume events. No preconditions.
+      demand_signal_standard:
+        description: Standard demand signal registration path.
+      demand_signal_urgent:
+        description: Fast-path for urgent or campaign demand signals.
+
+  OrgCapabilityEnum:
+    description: >-
+      Named capabilities checked against OrgCapabilityRecord at episode launch.
+    permissible_values:
+      ml_model_trained:
+        description: Deployed ML inference endpoint for visual item recognition.
+        annotations:
+          label_en: "Trained ML model"
+          label_de: "Trainiertes KI-Modell"
+      barcode_scanner:
+        description: Barcode scanning configured (camera or Bluetooth). Sub-capabilities in config JSON.
+        annotations:
+          label_en: "Barcode scanner"
+          label_de: "Barcode-Scanner"
+      audio_capture:
+        description: Audio recording enabled. Soft requirement — absence auto-skips audio steps.
+        annotations:
+          label_en: "Audio capture"
+          label_de: "Audioaufnahme"
+          is_soft: "true"
+      trained_staff:
+        description: Org has staff actors (enables expert-mode shorter forms).
+        annotations:
+          label_en: "Trained staff"
+          label_de: "Geschultes Personal"
+          is_soft: "true"
+      data_wipe_station:
+        description: Designated data wiping workstation. Required for electronics redistribution.
+        annotations:
+          label_en: "Data wipe station"
+          label_de: "Datenlöschstation"
+      photo_enabled:
+        description: Camera photo capture enabled. Soft requirement — absence auto-skips photo steps.
+        annotations:
+          label_en: "Photo capture"
+          label_de: "Fotoerfassung"
+          is_soft: "true"
+
+  CategoryAffinityEnum:
+    permissible_values:
+      preferred:
+        description: Highest-value path for this category. Engine weights up.
+      neutral:
+        description: Path applicable. No affinity adjustment.
+      discouraged:
+        description: Sub-optimal for this category. Engine weights down, UI shows note.
+
+  CompletenessTierEnum:
+    permissible_values:
+      minimal:
+        description: Category + binary condition only. v_λ scoring limited at match step.
+      standard:
+        description: Full condition + key attributes. All v_λ dimensions available.
+      detailed:
+        description: Full assessment including material, language, accessory completeness.
+
+  EntityTypeEnum:
+    permissible_values:
+      donation_item:
+        description: A DonationItem entity.
+      demand_signal:
+        description: A DemandSignal entity.
+      donation_collection:
+        description: A DonationCollection entity.
+      storage_unit:
+        description: A StorageLocation entity.
+
+# ════════════════════════════════════════════════════════════════════════════
+# Process Template Instances
+# Sections: §1 manual_assessment  §2 ml_assisted  §3 barcode_first
+#           §4 rapid_triage       §5 demand_signal
+# ════════════════════════════════════════════════════════════════════════════
+
+instances:
+
+  # §1 MANUAL ASSESSMENT — no capability preconditions, always feasible
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_clothing
+    label: Manual sort — clothing & accessories
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 3.25
+    capability_requirements: []
+    category_affinity:
+      - {category: clothing,   affinity: preferred, rationale: "Visual+tactile primary; no registry data from barcodes; ML marginal uplift low."}
+      - {category: accessories, affinity: preferred, rationale: "Same as clothing."}
+      - {category: bedding_textiles, affinity: neutral, rationale: "No better path without ML."}
+    variant_of: null
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,               sequence: 1, is_optional: true,  skip_condition: {attribute: photo_enabled, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,          sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_clothing, sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/take_audio_note,          sequence: 4, is_optional: true,  skip_condition: {attribute: audio_capture, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,         sequence: 5, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,           sequence: 6, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_electronics
+    label: Manual sort — electronics
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 4.5
+    capability_requirements: []
+    category_affinity:
+      - {category: electronics, affinity: neutral, rationale: "Feasible baseline; ml_assisted preferred when ml_model_trained available."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,                    sequence: 1, is_optional: true,  skip_condition: {attribute: photo_enabled, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,               sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_electronics,  sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/perform_data_wipe,             sequence: 4, is_optional: true,  branch_condition: {attribute: data_wipe_required, equals: "true"}}
+      - {step_type: inkind_knowledge_repo:step_type/flag_for_specialist_review,    sequence: 5, is_optional: true,  branch_condition: {attribute: assessment_result, in_values: [for_parts_only, not_powering_on]}}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,              sequence: 6, is_optional: true,  branch_condition: {attribute: assessment_result, equals: for_parts_only}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,                sequence: 7, is_optional: false, skip_condition: {attribute: assessment_result, equals: for_parts_only}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_food
+    label: Manual sort — food
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 1.5
+    capability_requirements: []
+    category_affinity:
+      - {category: food, affinity: neutral, rationale: "Feasible; barcode_first preferred for packaged food (expiry from registry). Manual needed for loose/unpackaged produce."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,       sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_food,  sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,       sequence: 3, is_optional: true,  branch_condition: {attribute: packaging_intact, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,         sequence: 4, is_optional: false, skip_condition: {attribute: packaging_intact, equals: "false"}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_furniture
+    label: Manual sort — furniture
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 3.5
+    capability_requirements: []
+    category_affinity:
+      - {category: furniture, affinity: preferred, rationale: "Structural integrity is tactile; no barcodes; ML marginal. Manual is always best for furniture."}
+      - {category: household, affinity: neutral}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,               sequence: 1, is_optional: true,  skip_condition: {attribute: photo_enabled, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,          sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_furniture,sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/take_audio_note,          sequence: 4, is_optional: true,  skip_condition: {attribute: audio_capture, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,         sequence: 5, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,           sequence: 6, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_books
+    label: Manual sort — books & media
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 1.25
+    capability_requirements: []
+    category_affinity:
+      - {category: books, affinity: neutral, rationale: "Fallback when barcode absent or ISBN damaged; barcode_first preferred."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,      sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_books,sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,      sequence: 3, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,        sequence: 4, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_toys
+    label: Manual sort — toys & games
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 1.75
+    capability_requirements: []
+    category_affinity:
+      - {category: toys, affinity: preferred, rationale: "EN 71 safety and completeness check require physical handling. Manual always best."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,    sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_toys,sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,   sequence: 3, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,     sequence: 4, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  - id: inkind_knowledge_repo:process_template/sort_manual_mobility_aids
+    label: Manual sort — mobility aids
+    process_path_type: manual_assessment
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 5.0
+    capability_requirements: []
+    category_affinity:
+      - {category: mobility_aids, affinity: preferred, rationale: "Safety-critical physical assessment. No ML or barcode can substitute. Manual always required."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,                    sequence: 1, is_optional: true,  skip_condition: {attribute: photo_enabled, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_category,               sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_mobility_aids,sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/flag_for_specialist_review,    sequence: 4, is_optional: true,  branch_condition: {attribute: condition_grade, equals: poor}}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,              sequence: 5, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,                sequence: 6, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  # §2 ML-ASSISTED — requires ml_model_trained + photo_enabled
+
+  - id: inkind_knowledge_repo:process_template/sort_ml_electronics
+    label: ML-assisted sort — electronics
+    process_path_type: ml_assisted
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: detailed
+    is_default: false
+    estimated_duration_minutes: 3.5
+    capability_requirements:
+      - {capability: ml_model_trained, is_required: true}
+      - {capability: photo_enabled, is_required: true}
+    category_affinity:
+      - {category: electronics, affinity: preferred, rationale: "Functional state is visual; ML detects screen/case damage reliably. Photo enables item card (dignity value). ML confidence feeds provenance (Years 3-4 learning)."}
+      - {category: clothing,    affinity: neutral,   rationale: "ML can pre-fill subcategory but material+intact_labels still need forms. Marginal over manual."}
+      - {category: furniture,   affinity: neutral,   rationale: "Photo valuable for documentation; ML marginal on structural integrity."}
+      - {category: food,        affinity: discouraged, rationale: "Binary assessment; ML adds latency with no observation gain. barcode_first or manual_food always better."}
+      - {category: books,       affinity: discouraged, rationale: "barcode_first retrieves language reliably; ML on cover photos misses internal damage."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_electronics
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,                    sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/ml_recognition,                sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/review_ml_result,              sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_electronics,  sequence: 4, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/perform_data_wipe,             sequence: 5, is_optional: true,  branch_condition: {attribute: data_wipe_required, equals: "true"}}
+      - {step_type: inkind_knowledge_repo:step_type/flag_for_specialist_review,    sequence: 6, is_optional: true,  branch_condition: {attribute: assessment_result, in_values: [for_parts_only, not_powering_on]}}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,              sequence: 7, is_optional: true,  branch_condition: {attribute: assessment_result, equals: for_parts_only}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,                sequence: 8, is_optional: false, skip_condition: {attribute: assessment_result, equals: for_parts_only}}
+
+  - id: inkind_knowledge_repo:process_template/sort_ml_clothing
+    label: ML-assisted sort — clothing
+    process_path_type: ml_assisted
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: detailed
+    is_default: false
+    estimated_duration_minutes: 3.65
+    capability_requirements:
+      - {capability: ml_model_trained, is_required: true}
+      - {capability: photo_enabled, is_required: true}
+    category_affinity:
+      - {category: clothing, affinity: neutral, rationale: "ML pre-fills subcategory. Net uplift depends on model accuracy (prefer when confidence_threshold > 0.85 for clothing)."}
+      - {category: accessories, affinity: neutral}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_clothing
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/take_photo,               sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/ml_recognition,           sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/review_ml_result,         sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_clothing, sequence: 4, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,         sequence: 5, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,           sequence: 6, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  # §3 BARCODE-FIRST — requires barcode_scanner
+
+  - id: inkind_knowledge_repo:process_template/sort_barcode_food
+    label: Barcode-first sort — food
+    process_path_type: barcode_first
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: detailed
+    is_default: false
+    estimated_duration_minutes: 1.25
+    capability_requirements:
+      - {capability: barcode_scanner, is_required: true}
+    category_affinity:
+      - {category: food,         affinity: preferred,    rationale: "EAN codes on packaged food → Open Food Facts returns expiry date format + storage requirements. Cheaper AND better than manual for packaged goods."}
+      - {category: personal_care, affinity: preferred,   rationale: "GS1 lookup provides expiry date. Same benefit as food."}
+      - {category: household,    affinity: neutral,       rationale: "Registry data quality varies. Useful when barcodes present."}
+      - {category: clothing,     affinity: discouraged,  rationale: "Retail price-tag barcodes carry no useful condition data. Step costs 0.25 min with zero observation benefit."}
+      - {category: furniture,    affinity: discouraged,  rationale: "Typically no barcodes. Even flat-pack internal codes not in GS1 registry."}
+      - {category: mobility_aids, affinity: discouraged, rationale: "Medical equipment registries not configured Phase 1. Safety assessment cannot be delegated to registry data."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_food
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/barcode_scan,        sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/review_ml_result,    sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_food,sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,    sequence: 4, is_optional: true,  branch_condition: {attribute: packaging_intact, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,      sequence: 5, is_optional: false, skip_condition: {attribute: packaging_intact, equals: "false"}}
+
+  - id: inkind_knowledge_repo:process_template/sort_barcode_books
+    label: Barcode-first sort — books & media
+    process_path_type: barcode_first
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: detailed
+    is_default: false
+    estimated_duration_minutes: 0.85
+    capability_requirements:
+      - {capability: barcode_scanner, is_required: true}
+    category_affinity:
+      - {category: books,       affinity: preferred, rationale: "ISBN-13 universal on books → Open Library returns title+author+language. Language detection unreliable manually for foreign books. Cheaper AND better."}
+      - {category: electronics, affinity: neutral,   rationale: "New-in-box electronics carry EAN → product metadata. Not useful for used devices."}
+      - {category: clothing,    affinity: discouraged, rationale: "No useful registry data."}
+    variant_of: inkind_knowledge_repo:process_template/sort_manual_books
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/barcode_scan,         sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/review_ml_result,     sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_condition_books,sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/confirm_disposal,     sequence: 4, is_optional: true,  branch_condition: {attribute: condition_grade, equals: rejected}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,       sequence: 5, is_optional: false, skip_condition: {attribute: condition_grade, equals: rejected}}
+
+  # §4 RAPID TRIAGE — no preconditions, minimal observations
+
+  - id: inkind_knowledge_repo:process_template/sort_rapid_triage
+    label: Rapid triage (all categories)
+    process_path_type: rapid_triage
+    entity_type: donation_item
+    launchable_from_states: [received]
+    completeness_tier: minimal
+    is_default: false
+    estimated_duration_minutes: 1.25
+    capability_requirements: []
+    category_affinity:
+      - {category: clothing,      affinity: neutral,     rationale: "Usable during high-volume events. Re-sort recommended."}
+      - {category: food,          affinity: discouraged, rationale: "packaging_intact and expiry_date are non-optional food safety observations. sort_manual_food (1.5 min) must be used instead."}
+      - {category: mobility_aids, affinity: discouraged, rationale: "Safety-critical. Un-assessed mobility aids cannot be redistributed regardless of event volume."}
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/assign_category, sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/take_audio_note, sequence: 2, is_optional: true, skip_condition: {attribute: audio_capture, equals: "false"}}
+      - {step_type: inkind_knowledge_repo:step_type/assign_storage,  sequence: 3, is_optional: false}
+
+  # §5 DEMAND SIGNAL
+
+  - id: inkind_knowledge_repo:process_template/register_demand_signal
+    label: Register demand signal
+    process_path_type: demand_signal_standard
+    entity_type: demand_signal
+    launchable_from_states: [draft]
+    completeness_tier: standard
+    is_default: true
+    estimated_duration_minutes: 2.0
+    capability_requirements: []
+    category_affinity: []
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/set_category,   sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/set_signal_type,sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/assess_need,    sequence: 3, is_optional: true}
+      - {step_type: inkind_knowledge_repo:step_type/set_attributes, sequence: 4, is_optional: false}
+
+  - id: inkind_knowledge_repo:process_template/register_demand_signal_urgent
+    label: Register urgent demand signal
+    process_path_type: demand_signal_urgent
+    entity_type: demand_signal
+    launchable_from_states: [draft]
+    completeness_tier: minimal
+    is_default: false
+    estimated_duration_minutes: 1.0
+    capability_requirements: []
+    category_affinity: []
+    variant_of: inkind_knowledge_repo:process_template/register_demand_signal
+    steps:
+      - {step_type: inkind_knowledge_repo:step_type/set_category,   sequence: 1, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/set_signal_type,sequence: 2, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/set_priority,   sequence: 3, is_optional: false}
+      - {step_type: inkind_knowledge_repo:step_type/set_attributes, sequence: 4, is_optional: false}
+...
