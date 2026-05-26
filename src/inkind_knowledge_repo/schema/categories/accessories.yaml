@@ -139,24 +139,32 @@ enums:
         annotations:
           label_en: "Headwear"
           label_de: "Kopfbedeckungen"
+          aliases_en: ["Hat", "Headwear", "Cap", "Beanie", "Headscarf", "Beret"]
+          aliases_de: ["Hut", "Kopfbedeckung", "Mütze", "Beanie", "Kopftuch", "Baretts", "Haube"]
       scarves:
         description: Scarves and shawls worn at neck or shoulders.
         see_also: [pto:Scarf]
         annotations:
           label_en: "Scarves"
           label_de: "Schal"
+          aliases_en: ["Scarf", "Shawl"]
+          aliases_de: ["Schal", "Schleier"]
       gloves_mittens:
         description: Gloves and mittens (all ages).
         see_also: [pto:Glove]
         annotations:
           label_en: "Gloves"
           label_de: "Handschuhe"
+          aliases_en: ["Gloves", "Mittens"]
+          aliases_de: ["Handschuhe", "Fäustlinge"]
       belts:
         description: Belts, braces, and waist accessories.
         see_also: [pto:Belt]
         annotations:
           label_en: "Belts"
           label_de: "Gürtel"
+          aliases_en: ["Belt", "Braces", "Waist Accessory", "Suspenders"]
+          aliases_de: ["Gürtel", "Hosenträger", "Taillenzubehör", "Hosengürtel"]
       bags_luggage:
         description: >-
           Handbags, tote bags, backpacks, shoulder bags, wallets, purses,
@@ -165,29 +173,39 @@ enums:
         annotations:
           label_en: "Bags"
           label_de: "Taschen"
+          aliases_en: ["Handbag", "Tote Bag", "Backpack", "Shoulder Bag", "Wallet", "Purse", "Clutch Bag", "Luggage", "Wallet", "Purse", "Clutch", "Briefcase", "Satchel"]
+          aliases_de: ["Handtasche", "Tasche", "Rucksack", "Schultertasche", "Brieftasche", "Purse", "Clutch-Tasche", "Reisegepäck", "Geldbörse", "Portemonnaie", "Clutch", "Aktentasche", "Umhängetasche"]
       jewellery:
         description: Necklaces, bracelets, rings, earrings, brooches.
         see_also: [pto:Jewellery]
         annotations:
           label_en: "Jewellery"
           label_de: "Schmuck"
+          aliases_en: ["Necklace", "Bracelet", "Ring", "Earring", "Brooch"]
+          aliases_de: ["Halskette", "Armband", "Ring", "Ohrring", "Brosche"]
       sunglasses:
         description: Sunglasses and fashion spectacle frames.
         see_also: [pto:Sunglasses]
         annotations:
           label_en: "Sunglasses"
           label_de: "Sonnenbrillen"
+          aliases_en: ["Sunglasses", "Spectacle Frames"]
+          aliases_de: ["Sonnenbrille", "Brillenfassung"]
       watches:
         description: Wristwatches and pocket watches.
         see_also: [pto:Watch]
         annotations:
           label_en: "Watches"
           label_de: "Uhren"
+          aliases_en: ["Watch", "Wristwatch", "Pocket watch"]
+          aliases_de: ["Uhr", "Armbanduhr", "Brieftaschen Uhr"]
       other:
         description: Accessories not fitting above subcategories.
         annotations:
           label_en: "Other"
           label_de: "Sonstiges"
+          aliases_en: ["Other", "Miscellaneous", "Unknown"]
+          aliases_de: ["Sonstiges", "Verschiedenes", "Unbekannt"]
 
   AccessoriesMaterialEnum:
     description: >-
@@ -218,6 +236,8 @@ enums:
         annotations:
           label_en: "Leather / Faux Leather"
           label_de: "Leder / Kunstleder"
+          aliases_en: ["Leather", "Faux Leather", "PU Leather", "Synthetic Leather"]
+          aliases_de: ["Leder", "Kunstleder", "PU Leder", "Synthetisches Leder"]
       wool:
         description: >-
           Wool, merino, cashmere, or wool-dominant blend. Primary material for
@@ -226,6 +246,8 @@ enums:
         annotations:
           label_en: "Wool"
           label_de: "Wolle"
+          aliases_en: ["Wool", "Merino", "Cashmere"]
+          aliases_de: ["Wolle", "Merino", "Camel"]
       cotton:
         description: >-
           Cotton or cotton-dominant woven fabric. Common in fabric hats,
@@ -234,6 +256,8 @@ enums:
         annotations:
           label_en: "Cotton / Canvas Fabric"
           label_de: "Baumwolle / Segeltuch"
+          aliases_en: ["Cotton", "Canvas Fabric"]
+          aliases_de: ["Baumwolle", "Segeltuch"]
       silk:
         description: >-
           Silk or silk-blend. Typical for elegant scarves and ties.
@@ -242,6 +266,8 @@ enums:
         annotations:
           label_en: "Silk"
           label_de: "Seide"
+          aliases_en: ["Silk"]
+          aliases_de: ["Seide"]
       metal:
         description: >-
           Metal (gold, silver, base metal, stainless steel, or alloy).
@@ -251,6 +277,8 @@ enums:
         annotations:
           label_en: "Metal"
           label_de: "Metall"
+          aliases_en: ["Metal", "Gold", "Silver", "Stainless Steel", "Alloy"]
+          aliases_de: ["Metall", "Gold", "Silber", "Edelstahl", "Legierung"]
       plastic:
         description: >-
           Plastic or acrylic. Common for sunglasses frames, costume jewellery,
@@ -260,6 +288,8 @@ enums:
         annotations:
           label_en: "Plastic"
           label_de: "Kunststoff"
+          aliases_en: ["Plastic", "Acrylic"]
+          aliases_de: ["Kunststoff", "Acryl"]
       synthetic:
         description: >-
           Synthetic fabric or material — nylon, polyester, or other man-made
@@ -269,6 +299,8 @@ enums:
         annotations:
           label_en: "Synthetic"
           label_de: "Synthetisch"
+          aliases_en: ["Synthetic", "Nylon", "Polyester"]
+          aliases_de: ["Synthetisch", "Nylon", "Polyester"]
       natural_fibre:
         description: >-
           Natural plant-based fibres other than cotton — straw, raffia,
@@ -277,6 +309,8 @@ enums:
         annotations:
           label_en: "Natural Fibre (Straw / Raffia / Wicker)"
           label_de: "Naturfaser (Stroh / Bast / Weide)"
+          aliases_en: ["Natural Fibre", "Straw", "Raffia", "Wicker"]
+          aliases_de: ["Naturfaser", "Stroh", "Bast", "Weide"]
       glass_crystal:
         description: >-
           Glass or crystal elements. Common in costume jewellery (glass beads,
@@ -285,6 +319,8 @@ enums:
         annotations:
           label_en: "Glass / Crystal"
           label_de: "Glas / Kristall"
+          aliases_en: ["Glass", "Crystal"]
+          aliases_de: ["Glas", "Kristall"]
       other:
         description: >-
           Materials not covered above. Record the specific material in
@@ -293,6 +329,8 @@ enums:
         annotations:
           label_en: "Other"
           label_de: "Andere"
+          aliases_en: ["Other", "Miscellaneous", "Unknown"]
+          aliases_de: ["Sonstige", "Verschiedenes", "Unbekannt"]]
 
   AccessoriesDemographicEnum:
     description: >-
@@ -308,18 +346,26 @@ enums:
         annotations:
           label_en: "Baby (0-24 months)"
           label_de: "Baby (0-24 Monate)"
+          aliases_en: ["Baby", "Infant", "Newborn"]
+          aliases_de: ["Baby", "Säugling", "Neugeborenes"]
       child:
         description: "Child (2-14 years). e.g. children's hats, gloves."
         annotations:
           label_en: "Child (2-14 years)"
           label_de: "Kind (2-14 Jahre)"
+          aliases_en: ["Child", "Minor"]
+          aliases_de: ["Kind", "Minderjähriger"]
       adult:
         description: "Adult. Default for most accessories when demographic matters."
         annotations:
           label_en: "Adult"
           label_de: "Erwachsene"
+          aliases_en: ["Adult", "General"]
+          aliases_de: ["Erwachsene", "Allgemein"]
       all_ages:
         description: "Suitable for all ages or demographic not applicable."
         annotations:
           label_en: "All"
           label_de: "Alle"  
+          aliases_en: ["All", "Universal", "Unisex"]
+          aliases_de: ["Alle", "Universell", "Unisex"]

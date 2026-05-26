@@ -25,6 +25,8 @@ import sys
 import os
 import traceback
 
+sys.path.append(os.path.abspath("src"))
+
 env = {**os.environ, 'PYTHONIOENCODING': 'utf-8'}
 schema = 'src/inkind_knowledge_repo/schema/inkind_knowledge_repo.yaml'
 
@@ -45,12 +47,8 @@ except Exception as e:
 # ── gen-project (subprocess with PYTHONIOENCODING=utf-8) ─────────────────────
 print()
 print("=== gen-project ===")
-gen_exe = os.path.join('.venv', 'Scripts', 'gen-project.exe')
-if not os.path.exists(gen_exe):
-    gen_exe = os.path.join('.venv', 'Scripts', 'gen-project')
-
 result = subprocess.run(
-    [gen_exe, '--config-file', 'config.yaml', '-d', 'project', schema],
+    ['uv', 'run', 'gen-project', '--config-file', 'config.yaml', '-d', 'project', schema],
     capture_output=True,
     text=True,
     encoding='utf-8',
@@ -71,3 +69,15 @@ else:
     ]
     if warnings:
         print("Warnings:\n" + '\n'.join(warnings[:20]))
+
+# ── alias-generator (Custom generator for locale-specific aliases) ───────────
+print()
+print("=== alias-generator ===")
+try:
+    from inkind_knowledge_repo.generators.alias_generator import AliasGenerator
+    gen = AliasGenerator(schema)
+    gen.serialize(output_dir='project')
+    print(f"SUCCESS: Generated locale-specific aliases in project/")
+except Exception as e:
+    print("ERROR:", e)
+    traceback.print_exc()

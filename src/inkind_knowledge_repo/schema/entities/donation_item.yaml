@@ -247,6 +247,8 @@ classes:
     annotations:
       label_en: "Clothing"
       label_de: "Kleidung"
+      aliases_en: ["clothing", "clothes", "garment", "apparel"]
+      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel"]
     rules:
       # - title: lc-sorted-clothing-condition-grade-required
       #   description: >-
@@ -365,6 +367,8 @@ classes:
     annotations:
       label_en: "Accessories"
       label_de: "Accesoires"
+      aliases_en: ["accessories", "accessory", "fashion accessory"]
+      aliases_de: ["Accesoires", "Accessoire", "Modeaccessoire"]
     rules:
       - title: lc-sorted-accessories-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -394,6 +398,8 @@ classes:
     annotations:
       label_en: "Footwear"
       label_de: "Schuhe"
+      aliases_en: ["footwear", "shoes", "boots", "sandals", "slippers"]
+      aliases_de: ["Schuhe", "Stiefel", "Sandalen", "Hausschuhe"]
     rules:
       - title: lc-sorted-footwear-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -463,6 +469,8 @@ classes:
     annotations:
       label_en: "Furniture"
       label_de: "Mebel"
+      aliases_en: ["furniture", "furnishings"]
+      aliases_de: ["Möbel", "Einrichtung"]
     rules:
       - title: lc-sorted-furniture-assessment-required
         description: >-
@@ -509,6 +517,8 @@ classes:
     annotations:
       label_en: "Bedding and Textiles"
       label_de: "Bettwäsche und Textilien"
+      aliases_en: ["bedding", "textiles"]
+      aliases_de: ["Bettwäsche", "Textilien"]
     rules:
       - title: lc-sorted-bedding-assessment-required
         description: >-
@@ -542,6 +552,8 @@ classes:
     annotations:
       label_en: "Household"
       label_de: "Haustechnik"
+      aliases_en: ["household goods", "domestic items"]
+      aliases_de: ["Haushaltsgegenstände", "Domestikum"]
     rules:
       - title: lc-sorted-household-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -582,6 +594,8 @@ classes:
     annotations:
       label_en: "Electronics"
       label_de: "Elektronik"
+      aliases_en: ["electronic devices", "gadgets", "electronic"]
+      aliases_de: ["Elektronikgeräte", "Gadgets", "Elektronik"]
     rules:
       - title: lc-sorted-electronics-assessment-required
         description: >-
@@ -629,6 +643,8 @@ classes:
     annotations:
       label_en: "Toys and Games"
       label_de: "Spielzeug und Spiele"
+      aliases_en: ["toys", "games"]
+      aliases_de: ["Spielzeug", "Spiele"]
     rules:
       - title: lc-sorted-toys-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -665,6 +681,8 @@ classes:
     annotations:
       label_en: "Sports"
       label_de: "Sport"
+      aliases_en: ["sports", "fitness"]
+      aliases_de: ["Sport", "Fitness"]
     rules:
       - title: lc-sorted-sports-subcategory-required
         description: >-
@@ -702,6 +720,8 @@ classes:
     annotations:
       label_en: "Books"
       label_de: "Bücher"
+      aliases_en: ["books"]
+      aliases_de: ["Bücher"]
     rules:
       - title: lc-sorted-books-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -733,6 +753,8 @@ classes:
     annotations:
       label_en: "Stationery"
       label_de: "Schreibwaren"
+      aliases_en: ["stationery"]
+      aliases_de: ["Schreibwaren"]
     rules:
       - title: lc-sorted-stationery-condition-grade-required
         description: condition_grade required at sorted state regardless of usage.
@@ -777,6 +799,8 @@ classes:
     annotations:
       label_en: "Personal Care"
       label_de: "Personalhygiene"
+      aliases_en: ["personal care", "hygiene"]
+      aliases_de: ["Personalhygiene", "Hygiene"]
     rules:
       - title: lc-sorted-personal-care-sealed-required
         description: >-
@@ -818,6 +842,8 @@ classes:
     annotations:
       label_en: "Mobility Aids and Assistive Devices" 
       label_de: "Mobilitätshilfen und Hilfsgeräte"
+      aliases_en: ["mobility aids", "assistive devices"]
+      aliases_de: ["Mobilitätshilfen", "Hilfsgeräte"]
     rules:
       - title: lc-sorted-mobility-assessment-required
         description: >-
@@ -875,6 +901,8 @@ classes:
     annotations:
       label_en: "Baby and Infant Supplies"
       label_de: "Baby- und Kleinkindausstattung"
+      aliases_en: ["baby supplies", "infant supplies", "baby things", "infant things"]
+      aliases_de: ["Babyausstattung", "Kleinkindausstattung", "Babybedarf", "Kleinkindbedarf", "Baby sachen"]
     rules:
       - title: lc-sorted-baby-sleeping-bag-winter-required
         description: >-
@@ -949,6 +977,8 @@ classes:
     annotations:
       label_en: "Food"
       label_de: "Essen"
+      aliases_en: ["food", "food item"]
+      aliases_de: ["Essen", "Lebensmittel"]
     rules:
       - title: lc-sorted-food-storage-required
         description: storage_requirement required at sorted state.
@@ -978,6 +1008,8 @@ classes:
     annotations:
       label_en: "Other"
       label_de: "Sonstiges"
+      aliases_en: ["other"]
+      aliases_de: ["sonstiges"]
     rules:
       - title: lc-sorted-other-required-fields
         description: >-
