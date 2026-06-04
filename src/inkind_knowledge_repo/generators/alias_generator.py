@@ -33,41 +33,43 @@ class AliasGenerator(Generator):
         """
         # This will store locale-specific data
         locales_data = {
-            locale: {"classes": {}, "slots": {}, "enums": {}}
+            locale: {}
             for locale in self.SUPPORTED_LOCALES
         }
 
         sv = self.schemaview
 
         # Process Classes
-        for class_name, cls_def in sv.all_classes().items():
-            anns = getattr(cls_def, "annotations", {}) or {}
-            for locale in self.SUPPORTED_LOCALES:
-                aliases = self._get_aliases(anns, locale)
-                if aliases:
-                    locales_data[locale]["classes"][class_name] = aliases
+        for class_name, class_def in sv.all_classes().items():
+            self._process_element(class_name, class_def, locales_data)
 
         # Process Slots
-        for slot_name, slot_def in sv.all_slots().items():
-            anns = getattr(slot_def, "annotations", {}) or {}
-            for locale in self.SUPPORTED_LOCALES:
-                aliases = self._get_aliases(anns, locale)
-                if aliases:
-                    locales_data[locale]["slots"][slot_name] = aliases
+        for slot_name, slot_def in sv.all_slots().items(): # Only top-level slots
+            self._process_element(slot_name, slot_def, locales_data)
 
         # Process Enums
         for enum_name, enum_def in sv.all_enums().items():
             for locale in self.SUPPORTED_LOCALES:
-                enum_entry = {"permissible_values": {}}
-                pvs = getattr(enum_def, "permissible_values", {}) or {}
+                permissible_values_map = {}
+                # All permissible values are included, even if they don't have aliases
+                pvs = enum_def.permissible_values or {}
                 for pv_name, pv_def in pvs.items():
                     anns = getattr(pv_def, "annotations", {}) or {}
                     aliases = self._get_aliases(anns, locale)
-                    # permissible values are included even if empty
-                    enum_entry["permissible_values"][pv_name] = aliases
-                locales_data[locale]["enums"][enum_name] = enum_entry
+                    permissible_values_map[pv_name] = aliases
+                locales_data[locale][enum_name] = permissible_values_map
 
         return locales_data
+
+    def _process_element(self, name: str, element_def: Any, locales_data: Dict[str, Dict[str, Any]]):
+        """
+        Helper to process classes and slots, adding them only if aliases exist.
+        """
+        anns = getattr(element_def, "annotations", {}) or {}
+        for locale in self.SUPPORTED_LOCALES:
+            aliases = self._get_aliases(anns, locale)
+            if aliases:
+                locales_data[locale][name] = aliases
 
     def _get_aliases(self, annotations: Dict, locale: str) -> List[str]:
         """
@@ -79,7 +81,9 @@ class AliasGenerator(Generator):
         key = f"aliases_{locale}"
         ann = annotations.get(key)
         if ann is None:
-            return []
+            ann = annotations.get(f"label_{locale}")
+            if ann is None:
+                return []
 
         # Support both direct value and Annotation object
         val = getattr(ann, "value", ann)

@@ -417,17 +417,17 @@ enums:
       Baby and infant supplies subcategories. Grounded in Product Types
       Ontology. Baby clothing belongs in ClothingItem (demographic=baby).
     permissible_values:
-      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pushchair/pram/stroller", label_de: "Kinderwagen/Pram/Stroller"}}
-      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car seat/booster seat", label_de: "Autositz/Booster-Sitz"}}
-      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot/crib/moses basket", label_de: "Kinderbett/Crib/Moseskorb"}}
-      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier/sling/wrap", label_de: "Baby-Trager/Hängematte/Umhängetuch"}}
+      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pushchair/pram/stroller", label_de: "Kinderwagen/Pram/Stroller", aliases_en: ["pushchair", "pram", "stroller"], aliases_de: ["Kinderwagen", "Pram", "Stroller"]}}
+      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car seat/booster seat", label_de: "Autositz/Booster-Sitz", aliases_en: ["car seat", "booster seat", "Maxi-Cosi"], aliases_de: ["Autositz", "Booster-Sitz", "Maxi-Cosi", "Kindersitz"]}}
+      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot/crib/moses basket", label_de: "Kinderbett/Crib/Moseskorb", aliases_en: ["cot", "crib", "moses basket"], aliases_de: ["Kinderbett", "Crib", "Moseskorb", "Beistellbett", "Gitterbett"]}}
+      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier", label_de: "Baby-Trager", aliases_en: ["baby carrier", "baby sling", "baby wrap"], aliases_de: ["Baby-Trager", "Baby-Hängematte", "Baby-Umhängetuch"]}}
       infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula], annotations: {label_en: "Infant formula", label_de: "Säuglingsnahrung"}}
-      feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Feeding bottle/teat", label_de: "Fütterungsglas/Flasche"}}
-      breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Brustpflegeartikel"}}
-      bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badeausrüstung"}}
-      changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Veränderungsausrüstung"}}
-      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Baby-Überwachungskamera"}}
-      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "Bouncer/swing/rocker/play gym", label_de: "Kinderwippe/Schaukel/Rocker/Spielgerät"}}
+      feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Baby bottle", label_de: "Babyflasche", aliases_en: ["feeding bottle", "teat", "bottle and teat", "baby bottle"], aliases_de: ["Fütterungsglas", "Flasche und Sauger", "Flasche mit Sauger", "Babyflasche"]}}
+      breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Brustpflegeartikel", aliases_en: ["breastfeeding supplies", "breast pump", "nursing pads", "steriliser"], aliases_de: ["Brustpflegeartikel", "Brustpumpe", "Stilleinlagen", "Sterilisator"]}}
+      bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badeausrüstung", aliases_en: ["baby bath", "bath seat", "bath thermometer"], aliases_de: ["Babybadewanne", "Badsitz", "Badethermometer"]}}
+      changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Veränderungsausrüstung", aliases_en: ["changing mat", "nappy bag", "changing bag"], aliases_de: ["Wickelunterlage", "Windeltasche", "Wickeltasche"]}}
+      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Baby-Überwachungskamera", aliases_en: ["baby monitor", "audio monitor", "video monitor", "babyphone"], aliases_de: ["Baby-Überwachungskamera", "Audio-Monitor", "Video-Monitor", "Babyphone"]}}
+      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "play gym", label_de: "Spielgerät", aliases_en: ["bouncer", "swing", "rocker", "play gym"], aliases_de: ["Kinderwippe", "Schaukel", "Rocker", "Spielgerät"]}}
       sleeping_bags:
         description: >-
           Baby sleeping bags for home use (0-24 months). Track 1 — structured
@@ -445,4 +445,6 @@ enums:
         annotations:
           label_en: "Baby sleeping bag"
           label_de: "Baby-Schlafsack"
+          aliases_en: ["baby sleeping bag", "infant sleeping bag", "baby sleep sack", "infant sleep sack"]
+          aliases_de: ["Baby-Schlafsack", "Säuglings-Schlafsack", "Baby-Schlafsack mit Beinen", "Säuglings-Schlafsack mit Beinen"]
       other: {description: "Baby and infant supplies not fitting above subcategories.", annotations: {label_en: "Other baby/infant item", label_de: "Sonstiger Baby-/Kleinkindartikel"}}

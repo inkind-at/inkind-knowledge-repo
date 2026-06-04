@@ -254,11 +254,11 @@ enums:
   FurnitureSubcategoryEnum:
     description: Furniture subcategories. Grounded in Product Types Ontology.
     permissible_values:
-      seating:       {description: "Chairs, sofas, armchairs, benches.", see_also: [pto:Chair], annotations: {label_en: "Seating", label_de: "Sitzmöbel"}}
-      tables:        {description: "Dining tables, coffee tables, desks. dimensions required.", see_also: [pto:Table], annotations: {label_en: "Tables", label_de: "Tische"}}
-      beds:          {description: "Bed frames and divans. dimensions required.", see_also: [pto:Bed], annotations: {label_en: "Beds", label_de: "Betten"}}
-      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage Units", label_de: "Aufbewahrungseinheiten"}}
-      shelving:      {description: "Shelving units, bookcases, wall-mounted shelves.", annotations: {label_en: "Shelving", label_de: "Regale"}}
+      seating:       {description: "Chairs, sofas, armchairs, benches.", see_also: [pto:Chair], annotations: {label_en: "Seating", label_de: "Sitzmöbel", aliases_en: ["Seating", "Chair", "Sofa", "Armchair", "Bench"], aliases_de: ["Sitzmöbel", "Stuhl", "Sofa", "Sessel", "Bank"]}}
+      tables:        {description: "Dining tables, coffee tables, desks. dimensions required.", see_also: [pto:Table], annotations: {label_en: "Tables", label_de: "Tische", aliases_en: ["Tables", "Table"], aliases_de: ["Tische", "Tisch"]}}
+      beds:          {description: "Bed frames and divans. dimensions required.", see_also: [pto:Bed], annotations: {label_en: "Beds", label_de: "Betten", aliases_en: ["Beds", "Bed"], aliases_de: ["Betten", "Bett"]}}
+      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage Units", label_de: "Aufbewahrungseinheiten", aliases_en: ["Storage units", "Wardrobe", "Cabinet", "Chest of drawers"], aliases_de: ["Aufbewahrungseinheiten", "Kleiderschrank", "Schrank", "Kommode"]}}
+      shelving:      {description: "Shelving units, bookcases, wall-mounted shelves.", annotations: {label_en: "Shelving", label_de: "Regale", aliases_en: ["Shelving", "Bookcase", "Shelf"], aliases_de: ["Regale", "Bücherregal", "Regal"]}}
       other:         {description: "Furniture not fitting above subcategories.", annotations: {label_en: "Other Furniture", label_de: "Sonstige Möbel"}}
 
   FurnitureMaterialEnum:

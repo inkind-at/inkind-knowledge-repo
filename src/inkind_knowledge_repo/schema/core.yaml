@@ -390,6 +390,8 @@ enums:
         annotations:
           label_en: "Like New"
           label_de: "Wie Neu"
+          aliases_en: ["Like New", "Excellent"]
+          aliases_de: ["Wie Neu", "Ausgezeichnet", "Neuwertig"]
       good:
         description: >-
           Minor wear; fully functional; no significant defects.
@@ -399,6 +401,8 @@ enums:
         annotations:
           label_en: "Good"
           label_de: "Gut"
+          aliases_en: ["Good"]
+          aliases_de: ["Gut"]
       fair:
         description: >-
           Visible wear, minor defects, or manufacturing issues.
@@ -406,6 +410,8 @@ enums:
         annotations:
           label_en: "Fair"
           label_de: "Akzeptabel"
+          aliases_en: ["Fair", "Moderate"]
+          aliases_de: ["Akzeptabel", "Mäßig"]
       poor:
         description: >-
           Significant wear or defects. Redistribution subject to
@@ -415,6 +421,8 @@ enums:
         annotations:
           label_en: "Poor"
           label_de: "Schlecht"
+          aliases_en: ["Poor", "Heavily Used"]
+          aliases_de: ["Schlecht", "Stark Abgenutzt"]
 
   # ── Attribute completeness ────────────────────────────────────────────────────
 

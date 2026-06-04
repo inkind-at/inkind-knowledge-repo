@@ -295,15 +295,15 @@ enums:
   ToysSubcategoryEnum:
     description: Toys subcategories. Grounded in Product Types Ontology.
     permissible_values:
-      construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy], annotations: {label_en: "Construction toys", label_de: "Konstruktionsspielzeug"}}
-      dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll], annotations: {label_en: "Dolls & figures", label_de: "Puppen & Figuren"}}
-      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game], annotations: {label_en: "Board games", label_de: "Brettspiele"}}
-      puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle], annotations: {label_en: "Puzzles", label_de: "Puzzles"}}
-      outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys.", annotations: {label_en: "Outdoor toys", label_de: "Draußen-Spielzeug"}}
-      ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy], annotations: {label_en: "Ride-on toys", label_de: "Rutschfahrzeuge"}}
-      arts_crafts:      {description: "Colouring books, craft kits, modelling clay, paint sets.", annotations: {label_en: "Arts & Crafts", label_de: "Kunst & Basteln"}}
-      educational:      {description: "Educational games and learning toys.", see_also: [pto:Educational_toy], annotations: {label_en: "Educational toys", label_de: "Lernspielzeug"}}
-      plush:            {description: "Soft toys and stuffed animals.", see_also: [pto:Stuffed_animal], annotations: {label_en: "Plush toys", label_de: "Plüschtiere"}}
+      construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy], annotations: {label_en: "Construction toys", label_de: "Konstruktionsspielzeug", aliases_en: ["Construction Toy", "Building Blocks", "LEGO", "Construction Set"], aliases_de: ["Konstruktionsspielzeug", "Bausteine", "LEGO", "Konstruktionsset"]}}
+      dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll], annotations: {label_en: "Dolls & figures", label_de: "Puppen & Figuren", aliases_en: ["Doll", "Action Figure", "Puppet", "Plush Toy"], aliases_de: ["Puppe", "Actionfigur", "Puppe", "Plüschtier"]}}
+      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game], annotations: {label_en: "Board games", label_de: "Brettspiele", aliases_en: ["Board Game", "Card Game", "Dice Game"], aliases_de: ["Brettspiel", "Kartenspiel", "Würfelspiel"]}}
+      puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle], annotations: {label_en: "Puzzles", label_de: "Puzzles", aliases_en: ["Puzzle", "Jigsaw Puzzle", "3D Puzzle", "Shape Sorter"], aliases_de: ["Puzzle", "Puzzles", "3D-Puzzle", "Formen-Sortierer"]}}
+      outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys.", annotations: {label_en: "Outdoor toys", label_de: "Draußen-Spielzeug", aliases_en: ["Outdoor Toy", "Ball", "Kite", "Skipping Rope", "Sandpit Toy"], aliases_de: ["Draußen-Spielzeug", "Ball", "Drachen", "Springseil", "Sandspielzeug"]}}
+      ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy], annotations: {label_en: "Ride-on toys", label_de: "Rutschfahrzeuge", aliases_en: ["Ride-on Toy", "Tricycle", "Balance Bike", "Scooter", "Ride-on Car"], aliases_de: ["Rutschfahrzeug", "Dreirad", "Laufrad", "Roller", "Rutschauto"]}}
+      arts_crafts:      {description: "Colouring books, craft kits, modelling clay, paint sets.", annotations: {label_en: "Arts & Crafts", label_de: "Kunst & Basteln", aliases_en: ["Arts & Crafts", "Colouring Book", "Craft Kit", "Modelling Clay", "Paint Set"], aliases_de: ["Kunst & Basteln", "Malbuch", "Bastelset", "Modelliermasse", "Malkasten"]}}
+      educational:      {description: "Educational games and learning toys.", see_also: [pto:Educational_toy], annotations: {label_en: "Educational toys", label_de: "Lernspielzeug", aliases_en: ["Educational Toy", "Learning Toy", "Educational Game"], aliases_de: ["Lernspielzeug", "Lernspiel", "Lernspielzeug"]}}
+      plush:            {description: "Soft toys and stuffed animals.", see_also: [pto:Stuffed_animal], annotations: {label_en: "Plush toys", label_de: "Plüschtiere", aliases_en: ["Plush Toy", "Stuffed Animal", "Soft Toy"], aliases_de: ["Plüschtier", "Stofftier", "Weiches Spielzeug"]}}
       other:            {description: "Toys not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Sonstiges"}}
 
   ToyAgeRangeEnum:

@@ -248,7 +248,7 @@ classes:
       label_en: "Clothing"
       label_de: "Kleidung"
       aliases_en: ["clothing", "clothes", "garment", "apparel"]
-      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel"]
+      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel", "Gewand", "Kleidungsartikel"]
     rules:
       # - title: lc-sorted-clothing-condition-grade-required
       #   description: >-

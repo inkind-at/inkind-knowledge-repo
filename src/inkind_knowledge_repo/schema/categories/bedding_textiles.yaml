@@ -405,6 +405,8 @@ enums:
         annotations:
           label_en: "Blankets"
           label_de: "Decken"
+          aliases_en: ["blanket", "throw", "fleece cover"]
+          aliases_de: ["Decke", "Wurfdecke", "Fleecedecke"]
       duvets_quilts:
         description: >-
           Duvets, quilts, continental quilts. is_winter_suitable required —
@@ -413,12 +415,16 @@ enums:
         annotations:
           label_en: "Duvets & Quilts"
           label_de: "Bettdecken & Steppdecken"
+          aliases_en: ["duvet", "quilt", "continental quilt"]
+          aliases_de: ["Bettdecke", "Steppdecke", "Kontinentaldecke"]
       pillows:
         description: Pillows and sleeping cushions.
         see_also: [pto:Pillow]
         annotations:
           label_en: "Pillows"
           label_de: "Kissen"
+          aliases_en: ["pillow", "cushion", "sleeping cushion"]
+          aliases_de: ["Kissen", "Sitzkissen", "Schlafkissen"]
       mattresses:
         description: >-
           Single, double, children's mattresses. Hygiene UC applies.
@@ -427,6 +433,8 @@ enums:
         annotations:
           label_en: "Mattresses"
           label_de: "Matratzen"
+          aliases_en: ["mattress", "mat", "sleeping mat"]
+          aliases_de: ["Matratze", "Matte", "Schlafmatte"]
       sleeping_bags:
         description: >-
           Adult and general sleeping bags and camping bedding.
@@ -442,11 +450,15 @@ enums:
         annotations:
           label_en: "Sleeping Bags"
           label_de: "Schlafsäcke"
+          aliases_en: ["sleeping bag", "camping bedding"]
+          aliases_de: ["Schlafsack", "Camping-Bettwäsche"]
       bedsheets:
         description: Fitted sheets, flat sheets, pillowcases, duvet covers.
         annotations:
           label_en: "Bedsheets"
           label_de: "Bettwäsche"
+          aliases_en: ["bedsheet", "fitted sheet", "flat sheet"]
+          aliases_de: ["Bettwäsche", "Belegung", "Flachbettwäsche"]
       towels:
         description: >-
           Bath, hand, face, beach towels. is_winter_suitable not meaningful
@@ -455,6 +467,8 @@ enums:
         annotations:
           label_en: "Towels"
           label_de: "Handtücher"
+          aliases_en: ["towel", "bath towel", "hand towel"]
+          aliases_de: ["Handtuch", "Badehandtuch", "Handtücher"]
       curtains_blinds:
         description: >-
           Curtains, net curtains, roller blinds. is_winter_suitable not
@@ -463,11 +477,15 @@ enums:
         annotations:
           label_en: "Curtains & Blinds"
           label_de: "Vorhänge & Jalousien"
+          aliases_en: ["curtain", "net curtain", "roller blind"]
+          aliases_de: ["Vorhang", "Nettovorhang", "Rolljalousie"]
       tablecloths_napkins:
         description: Tablecloths, placemats, cloth napkins. Seasonal not applicable.
         annotations:
           label_en: "Tablecloths & Napkins"
           label_de: "Tischdecken & Servietten"
+          aliases_en: ["tablecloth", "placemat", "cloth napkin"]
+          aliases_de: ["Tischdecke", "Platzset", "Stoffserviette"]
       other:
         description: Household textiles not fitting above subcategories.
         annotations:

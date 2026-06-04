@@ -518,6 +518,8 @@ enums:
         annotations:
           label_en: "Winter"
           label_de: "Winter"
+          aliases_en: ["Winter", "Padded", "Warm"]
+          aliases_de: ["Winter", "Gefüttert", "Warm"]
       spring_autumn:
         description: >-
           Suitable for mild transitional seasons. Thermal weight between
@@ -526,6 +528,8 @@ enums:
         annotations:
           label_en: "Spring/Autumn"
           label_de: "Frühling/Herbst"
+          aliases_en: ["Spring", "Autumn", "Transitional"]
+          aliases_de: ["Frühling", "Herbst", "Übergang"]
       summer:
         description: >-
           Suitable for warm weather; not appropriate for cold conditions.
@@ -534,6 +538,8 @@ enums:
         annotations:
           label_en: "Summer"
           label_de: "Sommer"
+          aliases_en: ["Summer", "Leicht"]
+          aliases_de: ["Sommer", "Light"]
       all_season:
         description: >-
           No meaningful seasonal constraint — appropriate across all seasons
@@ -544,6 +550,8 @@ enums:
         annotations:
           label_en: "All Season"
           label_de: "Alle Jahreszeiten"
+          aliases_en: ["All Season", "Year-round"]
+          aliases_de: ["Alle Jahreszeiten", "Ganzjährig"]
 
   ClothingSubcategoryEnum:
     description: >-
@@ -562,6 +570,8 @@ enums:
         annotations:
           label_en: "Tops"
           label_de: "Oberteile"
+          aliases_en: ["Shirt", "Blouse", "T-shirt", "Sweater", "Hoodie", "Upper-body garments", "Top"]
+          aliases_de: ["Hemd", "Bluse", "T-Shirt", "Wollpullover", "Hoodie", "Oberkörperkleidung", "Oberteile", "Top", "Laibel"]
       bottoms:
         description: >-
           Trousers, skirts, shorts, leggings, lower-body garments.
@@ -569,6 +579,8 @@ enums:
         annotations:
           label_en: "Bottoms"
           label_de: "Unterteile"
+          aliases_en: ["Trousers", "Pants", "Skirt", "Shorts", "Leggings", "Lower-body garments", "Bottom"]
+          aliases_de: ["Hose", "Rock", "Shorts", "Leggings", "Unterkörperkleidung", "Unterteile", "Bottom"]
       outerwear:
         description: >-
           Jackets, coats, outer layers. Fragment compiler may pre-fill
@@ -577,6 +589,8 @@ enums:
         annotations:
           label_en: "Outerwear"
           label_de: "Oberbekleidung"
+          aliases_en: ["Jacket", "Coat", "Outer layer", "Outerwear"]
+          aliases_de: ["Jacke", "Mantel", "Oberbekleidung"]
       underwear:
         description: >-
           Underwear and intimate apparel. UC constraints apply.
@@ -585,6 +599,8 @@ enums:
         annotations:
           label_en: "Underwear"
           label_de: "Unterhose"
+          aliases_en: ["Underwear", "Undies", "Panties", "Bras"]
+          aliases_de: ["Unterhose", "Unterhosen", "BH", "BHs"]
       nightwear:
         description: >-
           Pyjamas, nightgowns, dressing gowns, sleep sets.
@@ -592,6 +608,8 @@ enums:
         annotations:
           label_en: "Nightwear"
           label_de: "Nachtanzüge"
+          aliases_en: ["Pyjamas", "Nightgown", "Dressing gown", "Sleep set"]
+          aliases_de: ["Pyjama", "Nachtanzug", "Bademantel", "Schlafset"]
       sportswear:
         description: >-
           Athletic wear, gym tops, leggings, swimwear, base layers.
@@ -601,6 +619,8 @@ enums:
         annotations:
           label_en: "Sportswear"
           label_de: "Sportartikel"
+          aliases_en: ["Athletic wear", "Gym top", "Leggings", "Swimwear", "Base layer"]
+          aliases_de: ["Sportbekleidung", "Sportartikel", "Schwimmbekleidung", "Sportleggings", "Sporttop"]
       other:
         description: Clothing garments not fitting above subcategories.
         annotations:
@@ -622,24 +642,32 @@ enums:
         annotations:
           label_en: "Baby"
           label_de: "Baby"
+          aliases_en: ["Infant", "Baby", "Newborn"]
+          aliases_de: ["Säugling", "Baby", "Neugeborenes"]
       child:
         description: "Child (2-14 years). Valid sizes: child_2T through child_14."
         see_also: [schema:WearableSizeGroupChildrens]
         annotations:
           label_en: "Child"
           label_de: "Kind"
+          aliases_en: ["Child", "Toddler", "Kid", "Girl", "Boy", "Junior"]
+          aliases_de: ["Kind", "Kleinkind", "Junior", "Mädchen", "Junge"]
       adult_male:
         description: "Adult male / menswear. Valid sizes: xs through one_size."
         see_also: [schema:WearableSizeGroupAdult]
         annotations:
           label_en: "Adult Male"
           label_de: "Erwachsener Mann"
+          aliases_en: ["Male", "Men", "Man", "Adult Male"]
+          aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann"]
       adult_female:
         description: "Adult female / womenswear. Valid sizes: xs through one_size."
         see_also: [schema:WearableSizeGroupAdult]
         annotations:
           label_en: "Adult Female"
           label_de: "Erwachsene Frau"
+          aliases_en: ["Female", "Women", "Woman", "Adult Female", "Ladies"]
+          aliases_de: ["Weiblich", "Frauen", "Frau", "Erwachsene Frau", "Damen"]
       unisex:
         description: >-
           Unisex / gender-neutral adult. Valid sizes: xs through one_size.
@@ -648,7 +676,8 @@ enums:
         annotations:
           label_en: "Unisex"
           label_de: "Unisex"
-
+          aliases_en: ["Unisex", "For all", "Adult"]
+          aliases_de: ["Unisex", "Für alle", "Erwachsene"]
   ClothingSizeEnum:
     description: >-
       Clothing sizes covering infant, children's, and adult sizing.
@@ -668,10 +697,10 @@ enums:
       child_6_7:     {description: "Child sizes 6 and 7",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "6-7", label_de: "6-7"}}
       child_8_10:     {description: "Child sizes 8-10",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "8-10", label_de: "8-10"}}
       child_12_14:    {description: "Child sizes 12-14", see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "12-14", label_de: "12-14"}}
-      xs_s:          {description: "Extra small or Small (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XS/S", label_de: "XS/S"}}
-      m_l:           {description: "Medium or Large(adult)",      see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "M/L", label_de: "M/L"}}
-      xl_plus:          {description: "Extra large or XL+ (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XL+", label_de: "XL+"}}
-      one_size:    {description: "One size fits most.", annotations: {label_en: "One Size", label_de: "Einheitsgröße"}}
+      xs_s:          {description: "Extra small or Small (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XS/S", label_de: "XS/S", aliases_en: ["XS", "S", "small", "extra small"], aliases_de: ["XS", "S", "klein", "extra klein"]}}
+      m_l:           {description: "Medium or Large(adult)",      see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "M/L", label_de: "M/L", aliases_en: ["M", "L", "medium", "large"], aliases_de: ["M", "L", "mittel", "groß"]}}
+      xl_plus:          {description: "Extra large or XL+ (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XL+", label_de: "XL+", aliases_en: ["XL", "XXL", "3XL", "4XL", "5XL", "extra large"], aliases_de: ["XL", "XXL", "3XL", "4XL", "5XL", "extra groß"]}}
+      one_size:    {description: "One size fits most.", annotations: {label_en: "One Size", label_de: "Einheitsgröße", aliases_en: ["One Size", "OS", "One Size Fits Most", "For all"], aliases_de: ["Einheitsgröße", "OS", "Einheitsgröße für die meisten", "Für alle"]}}
 
   ClothingMaterialEnum:
     description: >-

@@ -129,4 +129,36 @@ enums:
         description: All processing complete; collection is closed.
       archived:
         description: Collection has been archived for record-keeping.
-...
+
+  ItemCountRangeEnum:
+    description: >-
+      Categorical ranges for item counts in a collection or for defining the tracking tier.
+    permissible_values:
+      single:
+        description: A single, identifiable item
+        annotations:
+          label_en: "Single Item"
+          label_de: "Einzelner Artikel"
+          aliases_en: ["single item", "one item", "1 item", "one piece", "a thing"]
+          aliases_de: ["einzelner Artikel", "ein Artikel", "1 Artikel", "ein Stück", "eine Sache"]
+      small_pile:
+        description: 2-10 items
+        annotations:
+          label_en: "Small Pile"
+          label_de: "Kleiner Haufen"
+          aliases_en: ["small pile", "a few items", "several items", "2-10 items"]
+          aliases_de: ["kleiner Haufen", "ein paar Artikel", "2-10 Artikel", "ein paar"]
+      medium_pile:
+        description: 11-50 items
+        annotations:
+          label_en: "Medium Pile"
+          label_de: "Mittlerer Haufen"
+          aliases_en: ["medium pile", "a moderate number of items", "some items", "11-50 items"]
+          aliases_de: ["mittlerer Haufen",  "einige Artikel", "mittlere Grösse", "11-50 Artikel"]
+      large_pile:
+        description: 51+ items
+        annotations:
+          label_en: "Large Pile"
+          label_de: "Großer Haufen"
+          aliases_en: ["large pile", "a large number of items", "many items", "51+ items"]
+          aliases_de: ["großer Haufen", "eine große Anzahl von Artikel", "viele Artikel", "51+ Artikel"]

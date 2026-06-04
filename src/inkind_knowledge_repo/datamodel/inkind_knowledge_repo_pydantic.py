@@ -463,6 +463,28 @@ class CollectionLifecycleEnum(str, Enum):
     """
 
 
+class ItemCountRangeEnum(str, Enum):
+    """
+    Categorical ranges for item counts in a collection or for defining the tracking tier.
+    """
+    single = "single"
+    """
+    A single, identifiable item
+    """
+    small_pile = "small_pile"
+    """
+    2-10 items
+    """
+    medium_pile = "medium_pile"
+    """
+    11-50 items
+    """
+    large_pile = "large_pile"
+    """
+    51+ items
+    """
+
+
 class SeasonEnum(str, Enum):
     """
     Seasonal suitability of a clothing or footwear item. Used on ClothingCategory (season slot) and FootwearCategory (season slot).
@@ -5021,7 +5043,9 @@ class ClothingItem(ClothingCategory, DonationItem):
                                         'value': ['Kleidung',
                                                   'Bekleidung',
                                                   'Kleidungsstück',
-                                                  'Apparel']},
+                                                  'Apparel',
+                                                  'Gewand',
+                                                  'Kleidungsartikel']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['clothing',
                                                   'clothes',
