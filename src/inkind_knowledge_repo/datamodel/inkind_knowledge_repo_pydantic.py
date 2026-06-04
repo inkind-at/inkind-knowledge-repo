@@ -2521,7 +2521,11 @@ class FoodItem(DonationItem, FoodCategory):
     Phase 1 stub — fully declared to establish the schema; the sort_food process path is activated when food-bank organisations are onboarded.
     Assessment: packaging_intact + expiry_date (defined in FoodCategory). No condition_grade or assessment_result — food safety is binary: packaging intact or not, expired or not. FoodCategory does not extend CategoryMixin for this reason.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Essen'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Essen', 'Lebensmittel']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['food', 'food item']},
+                         'label_de': {'tag': 'label_de', 'value': 'Essen'},
                          'label_en': {'tag': 'label_en', 'value': 'Food'}},
          'class_uri': 'foodon:00001006',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -2591,7 +2595,9 @@ class OtherItem(DonationItem):
     """
     Catch-all for donation items not fitting any other category. No mixin — minimal slots only (item_description + condition_grade). Use sparingly: if a new item type appears frequently in operations, it warrants a proper subclass with a category mixin and dedicated sorting fragment rather than accumulating in OtherItem.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Sonstiges'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['sonstiges']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['other']},
+                         'label_de': {'tag': 'label_de', 'value': 'Sonstiges'},
                          'label_en': {'tag': 'label_en', 'value': 'Other'}},
          'class_uri': 'schema:Product',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5011,7 +5017,17 @@ class ClothingItem(ClothingCategory, DonationItem):
       lc-sorted-clothing-demographic-required
       lc-sorted-clothing-size-required
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kleidung'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Kleidung',
+                                                  'Bekleidung',
+                                                  'Kleidungsstück',
+                                                  'Apparel']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['clothing',
+                                                  'clothes',
+                                                  'garment',
+                                                  'apparel']},
+                         'label_de': {'tag': 'label_de', 'value': 'Kleidung'},
                          'label_en': {'tag': 'label_en', 'value': 'Clothing'}},
          'class_uri': 'cpi:ClothingAndAccessories',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5212,7 +5228,15 @@ class AccessoriesItem(AccessoriesCategory, DonationItem):
 
     Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Accesoires'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Accesoires',
+                                                  'Accessoire',
+                                                  'Modeaccessoire']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['accessories',
+                                                  'accessory',
+                                                  'fashion accessory']},
+                         'label_de': {'tag': 'label_de', 'value': 'Accesoires'},
                          'label_en': {'tag': 'label_en', 'value': 'Accessories'}},
          'class_uri': 'pto:Fashion_accessory',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5335,7 +5359,18 @@ class FootwearItem(FootwearCategory, DonationItem):
       - Pair-completeness is a footwear-specific assessment concern
     Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Schuhe'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Schuhe',
+                                                  'Stiefel',
+                                                  'Sandalen',
+                                                  'Hausschuhe']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['footwear',
+                                                  'shoes',
+                                                  'boots',
+                                                  'sandals',
+                                                  'slippers']},
+                         'label_de': {'tag': 'label_de', 'value': 'Schuhe'},
                          'label_en': {'tag': 'label_en', 'value': 'Footwear'}},
          'class_uri': 'pto:Footwear',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5505,7 +5540,11 @@ class FurnitureItem(FurnitureCategory, DonationItem):
 
     Assessment: FurnitureAssessmentEnum (structured structural assessment). Structural soundness is the primary redistribution signal for furniture — a scratched but solid chair is redistributable; a wobbly but clean one is not. assessment_result required regardless of usage because new flatpack furniture can have manufacturing defects or assembly issues.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mebel'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Möbel', 'Einrichtung']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['furniture', 'furnishings']},
+                         'label_de': {'tag': 'label_de', 'value': 'Mebel'},
                          'label_en': {'tag': 'label_en', 'value': 'Furniture'}},
          'class_uri': 'pto:Furniture',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5613,7 +5652,11 @@ class BeddingTextilesItem(BeddingTextilesCategory, DonationItem):
       https://emergency.unhcr.org/emergency-assistance/core-relief-items/
       kind-non-food-item-distribution
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Bettwäsche', 'Textilien']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['bedding', 'textiles']},
+                         'label_de': {'tag': 'label_de',
                                       'value': 'Bettwäsche und Textilien'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Bedding and Textiles'}},
@@ -5728,7 +5771,12 @@ class HouseholdItem(HouseholdCategory, DonationItem):
     """
     Household and kitchen goods: cookware, crockery, small appliances, cleaning tools, home decor, garden tools. COICOP 05.3 (household appliances), 05.4 (glassware, tableware, utensils), 05.5 (tools for house and garden). Note: bedding and textiles (COICOP 05.2) are BeddingTextilesItem, not HouseholdItem — separated per COICOP structure and UNHCR NFI practice. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Haustechnik'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Haushaltsgegenstände',
+                                                  'Domestikum']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['household goods', 'domestic items']},
+                         'label_de': {'tag': 'label_de', 'value': 'Haustechnik'},
                          'label_en': {'tag': 'label_en', 'value': 'Household'}},
          'class_uri': 'pto:Household_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5846,7 +5894,15 @@ class ElectronicsItem(ElectronicsCategory, DonationItem):
     Assessment: ElectronicsAssessmentEnum (functional and cosmetic state). Functional state is the primary redistribution signal for electronics — a cracked-screen phone that works is more useful than a pristine one that does not. assessment_result required regardless of usage because new devices can have factory defects or dead batteries.
     Data wiping is a process concern (fragment step in sort_electronics process path), not a schema constraint — it is enforced by the fragment engine, not by a UC rule here.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Elektronik'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Elektronikgeräte',
+                                                  'Gadgets',
+                                                  'Elektronik']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['electronic devices',
+                                                  'gadgets',
+                                                  'electronic']},
+                         'label_de': {'tag': 'label_de', 'value': 'Elektronik'},
                          'label_en': {'tag': 'label_en', 'value': 'Electronics'}},
          'class_uri': 'pto:Consumer_electronics',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -5956,7 +6012,11 @@ class ToysItem(ToysCategory, DonationItem):
       https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
     UC rule for small parts choking hazard also references ASTM F963 (US standard) for completeness. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Spielzeug', 'Spiele']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['toys', 'games']},
+                         'label_de': {'tag': 'label_de',
                                       'value': 'Spielzeug und Spiele'},
                          'label_en': {'tag': 'label_en', 'value': 'Toys and Games'}},
          'class_uri': 'pto:Toy',
@@ -6088,7 +6148,11 @@ class SportsItem(SportsCategory, DonationItem):
         helmet inner shell invisible under an intact outer shell).
       all other subcategories → condition_grade (wear grade)
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Sport'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Sport', 'Fitness']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['sports', 'fitness']},
+                         'label_de': {'tag': 'label_de', 'value': 'Sport'},
                          'label_en': {'tag': 'label_en', 'value': 'Sports'}},
          'class_uri': 'pto:Sporting_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -6222,7 +6286,9 @@ class BooksItem(BooksCategory, DonationItem):
     """
     Books and educational materials. COICOP 09.5 (newspapers, books, stationery). Grounded in schema:Book (schema.org has a first-class Book type distinct from generic Product). No demographic or clothing-style size dimension — age_range (BookAgeRangeEnum) is broader and non-gendered. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bücher'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['Bücher']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['books']},
+                         'label_de': {'tag': 'label_de', 'value': 'Bücher'},
                          'label_en': {'tag': 'label_en', 'value': 'Books'}},
          'class_uri': 'schema:Book',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -6337,7 +6403,9 @@ class StationeryItem(StationeryCategory, DonationItem):
     """
     Stationery and office supplies: pens, notebooks, art supplies, calculators. COICOP 09.5 (newspapers, books, stationery). Separated from BooksItem because published content (BooksItem) and consumable/office supplies have different sorting paths, condition vocabularies (partially-used pens are not \"poor condition books\"), and demand signal patterns (school supply drives vs. book donations). Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Schreibwaren'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['Schreibwaren']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['stationery']},
+                         'label_de': {'tag': 'label_de', 'value': 'Schreibwaren'},
                          'label_en': {'tag': 'label_en', 'value': 'Stationery'}},
          'class_uri': 'pto:Stationery',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -6457,7 +6525,11 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
     Merged because the operative safety rules are identical across both former categories: sealed required, used tools blocked, expiry enforced. Splitting them would duplicate all three rules with no semantic benefit.
     Assessment: is_sealed + expiry_date (no condition_grade or assessment_result). For personal care products, the relevant safety signals are hygiene integrity (sealed?) and freshness (not expired?). A wear grade is meaningless for a tube of toothpaste — it is either sealed or it is not.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de', 'value': 'Personalhygiene'},
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Personalhygiene', 'Hygiene']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['personal care', 'hygiene']},
+                         'label_de': {'tag': 'label_de', 'value': 'Personalhygiene'},
                          'label_en': {'tag': 'label_en', 'value': 'Personal Care'}},
          'class_uri': 'pto:Personal_hygiene',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -6560,7 +6632,12 @@ class MobilityAidsItem(MobilityAidsCategory, DonationItem):
 
     Assessment: MobilityAssessmentEnum (structured safety and hygiene). A single enum captures structural soundness, functional state, and body-contact hygiene (used hearing aids, orthotics) — replacing the former separate boolean structural_integrity + functional_status slots that generated the problematic annotation-based approach. assessment_result required regardless of usage — new mobility aids can have manufacturing defects.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Mobilitätshilfen', 'Hilfsgeräte']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['mobility aids',
+                                                  'assistive devices']},
+                         'label_de': {'tag': 'label_de',
                                       'value': 'Mobilitätshilfen und Hilfsgeräte'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Mobility Aids and Assistive Devices'}},
@@ -6677,7 +6754,18 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
       Track 3 — general baby gear (condition_grade):
         bath equipment, changing, monitors, bouncers.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'label_de': {'tag': 'label_de',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Babyausstattung',
+                                                  'Kleinkindausstattung',
+                                                  'Babybedarf',
+                                                  'Kleinkindbedarf',
+                                                  'Baby sachen']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['baby supplies',
+                                                  'infant supplies',
+                                                  'baby things',
+                                                  'infant things']},
+                         'label_de': {'tag': 'label_de',
                                       'value': 'Baby- und Kleinkindausstattung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Baby and Infant Supplies'}},

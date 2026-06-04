@@ -330,8 +330,7 @@ enums:
           label_en: "Other"
           label_de: "Andere"
           aliases_en: ["Other", "Miscellaneous", "Unknown"]
-          aliases_de: ["Sonstige", "Verschiedenes", "Unbekannt"]]
-
+          aliases_de: ["Sonstige", "Verschiedenes", "Unbekannt"]
   AccessoriesDemographicEnum:
     description: >-
       Simplified age-group demographic for accessories. Gender split not
