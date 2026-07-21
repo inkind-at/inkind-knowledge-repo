@@ -210,24 +210,39 @@ enums:
           Visually and physically intact; all components present (straps, buckles,
           padding); no signs of impact damage; appropriate for redistribution.
           Appropriate for new items with no observed defects.
+        annotations:
+          label_en: "Safe to redistribute"
+          label_de: "Sicher zum Weitergeben"
       safe_cosmetic_wear_only:
         description: >-
           Minor cosmetic wear (scratches, scuffs) but structurally sound with
           no impact damage. Safe to redistribute.
+        annotations:
+          label_en: "Safe with cosmetic wear only"
+          label_de: "Sicher mit kosmetischen Gebrauchsspuren"
       unknown_impact_history:
         description: >-
           No visible damage but impact history cannot be confirmed.
           action: warn — sorter must confirm; advise recipient that protective
           certification cannot be guaranteed.
+        annotations:
+          label_en: "Unknown impact history"
+          label_de: "Unbekannte Aufprallhistorie"
       visible_structural_damage:
         description: >-
           Cracks, dents, deformation, or compromised structural components.
           Must not be redistributed regardless of usage. action: block.
+        annotations:
+          label_en: "Visible structural damage"
+          label_de: "Sichtbare strukturelle Schäden"
       unsafe_do_not_redistribute:
         description: >-
           Definitively unsafe: confirmed post-impact, recalled model, expired
           certification, missing critical safety components.
           action: block — consider specialist recycling.
+        annotations:
+          label_en: "Unsafe — do not redistribute"
+          label_de: "Unsicher — nicht weitergeben"
 
   SportsSubcategoryEnum:
     description: Sports equipment subcategories. Grounded in Product Types Ontology.

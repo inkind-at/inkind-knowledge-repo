@@ -223,7 +223,7 @@ enums:
         description: >-
           Scratches, scuffs, minor surface damage. Structural integrity
           unaffected. Fully redistributable.
-          annotations:
+        annotations:
             label_en: "Minor Cosmetic Damage"
             label_de: "Geringe Kosmetische Schäden"
       significant_cosmetic_damage:

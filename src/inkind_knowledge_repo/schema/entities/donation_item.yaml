@@ -353,7 +353,7 @@ classes:
       COICOP; separated here for progressive UI disclosure and schema clarity).
 
       Separated from ClothingItem because:
-        - No demographic→size value map — accessories are not sized XS–XXL
+        - No demographic→size value map — accessories are not sized XS-XXL
         - Clothing UC rules (underwear condition) do not apply
         - Progressive disclosure: "clothing or accessory?" is a clean first
           branch in the sorting UI
@@ -468,7 +468,7 @@ classes:
       - http://www.productontology.org/id/Furniture
     annotations:
       label_en: "Furniture"
-      label_de: "Mebel"
+      label_de: "Möbel"
       aliases_en: ["furniture", "furnishings"]
       aliases_de: ["Möbel", "Einrichtung"]
     rules:
