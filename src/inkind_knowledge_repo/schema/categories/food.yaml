@@ -220,6 +220,10 @@ slots:
       taxonomy. Determines valid storage_requirement values via value map.
     see_also:
       - foodon:00001017
+    annotations:
+      labels_en: "food type"
+      labels_de: "Lebensmitteltyp"
+
 
   packaging_intact:
     range: boolean
@@ -231,6 +235,9 @@ slots:
       PersonalCareCategory.
     see_also:
       - foodon:00001043
+    annotations:
+      labels_en: "packaging intact"
+      labels_de: "Verpackung intakt"
 
   storage_requirement:
     range: StorageRequirementEnum
@@ -239,12 +246,18 @@ slots:
       Required storage condition. Valid values constrained by food_type
       via vm-storage-* rules. Set during sorting to enable correct
       storage slot assignment and demand signal matching.
+    annotations:
+      labels_en: "storage requirement"
+      labels_de: "Lagerungsanforderung"
 
   quantity:
     range: integer
     description: >-
       Quantity in natural units (items, cans, bags, kg, etc.). Optional —
       detailed completeness tier. Supports demand signal fulfilment tracking.
+    annotations:
+      labels_en: "quantity"
+      labels_de: "Menge"
 
 
 enums:
