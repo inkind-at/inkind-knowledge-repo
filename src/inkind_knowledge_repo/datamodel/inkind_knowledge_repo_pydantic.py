@@ -948,9 +948,7 @@ class FurnitureAssessmentEnum(str, Enum):
     """
     minor_cosmetic_damage = "minor_cosmetic_damage"
     """
-    Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable. annotations:
-      label_en: "Minor Cosmetic Damage"
-      label_de: "Geringe Kosmetische Schäden"
+    Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable.
     """
     significant_cosmetic_damage = "significant_cosmetic_damage"
     """
@@ -5242,7 +5240,7 @@ class AccessoriesItem(AccessoriesCategory, DonationItem):
     """
     Fashion and personal accessories: hats, scarves, gloves, belts, bags, jewellery, sunglasses, watches. COICOP 03.1 (grouped with clothing by COICOP; separated here for progressive UI disclosure and schema clarity).
     Separated from ClothingItem because:
-      - No demographic→size value map — accessories are not sized XS–XXL
+      - No demographic→size value map — accessories are not sized XS-XXL
       - Clothing UC rules (underwear condition) do not apply
       - Progressive disclosure: \"clothing or accessory?\" is a clean first
         branch in the sorting UI
@@ -5568,7 +5566,7 @@ class FurnitureItem(FurnitureCategory, DonationItem):
                                         'value': ['Möbel', 'Einrichtung']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['furniture', 'furnishings']},
-                         'label_de': {'tag': 'label_de', 'value': 'Mebel'},
+                         'label_de': {'tag': 'label_de', 'value': 'Möbel'},
                          'label_en': {'tag': 'label_en', 'value': 'Furniture'}},
          'class_uri': 'pto:Furniture',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',

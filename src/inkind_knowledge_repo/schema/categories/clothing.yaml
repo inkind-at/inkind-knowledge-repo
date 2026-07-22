@@ -174,9 +174,12 @@ classes:
     slots:
       - condition_grade
       - subcategory
+      - tops_subcategory
+      - bottoms_subcategory
       - material
       - is_winter_suitable
       - demographic
+      - is_maternity
       - size
       - season
       - intact_labels
@@ -185,11 +188,18 @@ classes:
         range: ClothingSubcategoryEnum
         required: false
         description: "Subcategory becomes a required field on DonationItem when item's lifecycle is sorted."
+      tops_subcategory:
+        range: TopsSubcategoryEnum
+        required: false
+      bottoms_subcategory:
+        range: BottomsSubcategoryEnum
+        required: false
       demographic:
         range: DemographicEnum
         required: false
       size:
         range: ClothingSizeEnum
+        multivalued: true
         required: false
       is_winter_suitable:
         range: boolean
@@ -223,9 +233,9 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, usage"
-      completeness_standard: "subcategory, demographic, size, is_winter_suitable, usage, condition_grade"
-      completeness_detailed: "subcategory, demographic, size, is_winter_suitable, season, material, usage, condition_grade, intact_labels"
+      completeness_minimal:  "subcategory, tops_subcategory, bottoms_subcategory, usage"
+      completeness_standard: "subcategory, tops_subcategory, bottoms_subcategory, demographic, is_maternity, size, is_winter_suitable, usage, condition_grade"
+      completeness_detailed: "subcategory, tops_subcategory, bottoms_subcategory, demographic, is_maternity, size, is_winter_suitable, season, material, usage, condition_grade, intact_labels"
       coicop_division: "03.1"
       material_winter_hint: >-
         Fragment compiler may pre-fill is_winter_suitable=true when
@@ -295,6 +305,30 @@ classes:
               none_of:
                 - equals_string: stored
                 - equals_string: distributed
+      # ── LC: tops_subcategory ─────────────────────────────────────────────────────
+      - title: lc-tops-subcategory-required
+        description: >-
+          Tops subcategory is required for tops items.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: tops
+        postconditions:
+          slot_conditions:
+            tops_subcategory:
+              required: true
+      # ── LC: bottoms_subcategory ─────────────────────────────────────────────────────
+      - title: lc-bottoms-subcategory-required
+        description: >-
+          Bottoms subcategory is required for bottoms items.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: bottoms
+        postconditions:
+          slot_conditions:
+            bottoms_subcategory:
+              required: true
 
       # ── VM: demographic value map ─────────────────────────────────────────
       - title: vm-demographic-underwear
@@ -327,11 +361,14 @@ classes:
           slot_conditions:
             size:
               any_of:
-                - equals_string: baby_0_3m
-                - equals_string: baby_3_6m
-                - equals_string: baby_6_12m
-                - equals_string: baby_12_18m
-                - equals_string: baby_18_24m
+                - equals_string: baby_50
+                - equals_string: baby_56
+                - equals_string: baby_62
+                - equals_string: baby_68
+                - equals_string: baby_74
+                - equals_string: baby_80
+                - equals_string: baby_86
+                - equals_string: baby_92
 
       - title: vm-size-child
         description: child demographic constrains size to children's size codes.
@@ -343,12 +380,19 @@ classes:
           slot_conditions:
             size:
               any_of:
-                - equals_string: child_2_3T
-                - equals_string: child_4_5T
-                - equals_string: child_6_7
-                - equals_string: child_8_10
-                - equals_string: child_12_14
-
+                - equals_string: child_98
+                - equals_string: child_104
+                - equals_string: child_110
+                - equals_string: child_116
+                - equals_string: child_122
+                - equals_string: child_128
+                - equals_string: child_134
+                - equals_string: child_140
+                - equals_string: child_146
+                - equals_string: child_152
+                - equals_string: child_158
+                - equals_string: child_164
+                - equals_string: child_170  
       - title: vm-size-adult
         description: adult/unisex demographics constrain size to adult size codes.
         preconditions:
@@ -362,10 +406,12 @@ classes:
           slot_conditions:
             size:
               any_of:
-                - equals_string: xs_s
-                - equals_string: m_l
-                - equals_string: xl_plus
-                - equals_string: one_size
+                - equals_string: size_xs
+                - equals_string: size_s
+                - equals_string: size_m
+                - equals_string: size_l
+                - equals_string: size_xl
+                - equals_string: size_xxl_plus
 
       # ── VM: season → is_winter_suitable auto-derivation ───────────────────
       - title: vm-season-winter
@@ -423,8 +469,49 @@ classes:
             is_winter_suitable:
               equals_string: "true"
 
+      # ── LC: maternity ─────────────────────────────────────────────────────
+      - title: lc-maternity-demographic-subcategory
+        description: >-
+          is_maternity is only meaningful for adult female wear and category tops, bottoms, outerwear.
+        preconditions:
+          slot_conditions:
+            demographic:
+              equals_string: adult_female
+            subcategory:
+              any_of:
+                - equals_string: tops
+                - equals_string: bottoms
+                - equals_string: outerwear
+        postconditions:
+          slot_conditions:
+            is_maternity:
+              required: true
 
 slots:
+
+  tops_subcategory:
+    range: TopsSubcategoryEnum
+    description: >-
+      Finer-grained garment type within tops (t-shirt, shirt/blouse, sweater,
+      etc.). Optional UI refinement only — not part of any completeness tier
+      and carries no UC/VM rules. Shown in the sorting UI only when
+      subcategory=tops.
+    annotations:
+      show_if: "subcategory in [tops]"
+      label_en: "Tops Type"
+      label_de: "Oberteil-Typ"
+
+  bottoms_subcategory:
+    range: BottomsSubcategoryEnum
+    description: >-
+      Finer-grained garment type within bottoms (trousers, shorts, skirt,
+      etc.). Optional UI refinement only — not part of any completeness tier
+      and carries no UC/VM rules. Shown in the sorting UI only when
+      subcategory=bottoms.
+    annotations:
+      show_if: "subcategory in [bottoms]"
+      label_en: "Bottoms Type"
+      label_de: "Unterteil-Typ"
 
   size:
     range: ClothingSizeEnum
@@ -489,6 +576,20 @@ slots:
       show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear]"
       label_en: "Intact care and composition labels"
       label_de: "Unversehrte Pflege- und Materialetiketten"
+
+  is_maternity:
+    range: boolean
+    description: >-
+      Whether this garment is cut for pregnancy (belly panel, stretch
+      waistband). Orthogonal to demographic and size — a maternity top
+      is still demographic=adult_female, size=m_l, is_maternity=true.
+      Optional, detailed completeness tier.
+    annotations:
+      show_if: "subcategory in [tops, bottoms, outerwear]"
+      label_en: "Maternity"
+      label_de: "Umstandsmode"
+      aliases_en: ["Maternity", "Pregnancy"]
+      aliases_de: ["Umstandsmode", "Schwangerschaft"]
 
 enums:
 
@@ -627,6 +728,75 @@ enums:
           label_en: "Other"
           label_de: "Andere"
 
+  TopsSubcategoryEnum:
+    description: >-
+      Finer-grained garment type within the tops subcategory. UI-only
+      refinement of ClothingSubcategoryEnum's tops value — not a separate
+      hierarchy level, no UC/VM rules reference it.
+    permissible_values:
+      t_shirt:
+        description: "T-shirts, tank tops."
+        annotations:
+          label_en: "T-Shirt"
+          label_de: "T-Shirt"
+          aliases_en: ["T-shirt", "Tank top"]
+          aliases_de: ["T-Shirt", "Tanktop"]
+      shirt_blouse:
+        description: "Button-up shirts, blouses."
+        annotations:
+          label_en: "Shirt / Blouse"
+          label_de: "Hemd / Bluse"
+          aliases_en: ["Shirt", "Blouse"]
+          aliases_de: ["Hemd", "Bluse"]
+      sweater_hoodie:
+        description: "Sweaters, jumpers, hoodies, sweatshirts."
+        annotations:
+          label_en: "Sweater / Hoodie"
+          label_de: "Pullover / Hoodie"
+          aliases_en: ["Sweater", "Jumper", "Hoodie", "Sweatshirt"]
+          aliases_de: ["Pullover", "Wollpullover", "Hoodie", "Sweatshirt"]
+      other:
+        description: "Tops not fitting above types."
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
+
+  BottomsSubcategoryEnum:
+    description: >-
+      Finer-grained garment type within the bottoms subcategory. UI-only
+      refinement of ClothingSubcategoryEnum's bottoms value — not a separate
+      hierarchy level, no UC/VM rules reference it.
+    permissible_values:
+      trousers:
+        description: "Trousers, pants, jeans."
+        annotations:
+          label_en: "Trousers"
+          label_de: "Hose"
+          aliases_en: ["Trousers", "Pants", "Jeans"]
+          aliases_de: ["Hose", "Jeans"]
+      shorts:
+        description: "Shorts."
+        annotations:
+          label_en: "Shorts"
+          label_de: "Shorts"
+      skirt:
+        description: "Skirts."
+        annotations:
+          label_en: "Skirt"
+          label_de: "Rock"
+      leggings:
+        description: "Leggings, tights."
+        annotations:
+          label_en: "Leggings"
+          label_de: "Leggings"
+          aliases_en: ["Leggings", "Tights"]
+          aliases_de: ["Leggings", "Strumpfhose"]
+      other:
+        description: "Bottoms not fitting above types."
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
+
   DemographicEnum:
     description: >-
       Combined age-and-gender demographic for clothing and footwear items.
@@ -638,7 +808,7 @@ enums:
     permissible_values:
       baby:
         description: "Baby (0-24 months). Valid sizes: baby_0_3m through baby_18_24m."
-        see_also: [schema:WearableSizeGroupBaby]
+        see_also: [schema:WearableSizeGroupInfants]
         annotations:
           label_en: "Baby"
           label_de: "Baby"
@@ -646,7 +816,7 @@ enums:
           aliases_de: ["Säugling", "Baby", "Neugeborenes"]
       child:
         description: "Child (2-14 years). Valid sizes: child_2T through child_14."
-        see_also: [schema:WearableSizeGroupChildrens]
+        see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys, schema:WearableSizeGroupGirls]
         annotations:
           label_en: "Child"
           label_de: "Kind"
@@ -654,7 +824,7 @@ enums:
           aliases_de: ["Kind", "Kleinkind", "Junior", "Mädchen", "Junge"]
       adult_male:
         description: "Adult male / menswear. Valid sizes: xs through one_size."
-        see_also: [schema:WearableSizeGroupAdult]
+        see_also: [schema:WearableSizeGroupMens]
         annotations:
           label_en: "Adult Male"
           label_de: "Erwachsener Mann"
@@ -662,7 +832,7 @@ enums:
           aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann"]
       adult_female:
         description: "Adult female / womenswear. Valid sizes: xs through one_size."
-        see_also: [schema:WearableSizeGroupAdult]
+        see_also: [ schema:WearableSizeGroupMisses, schema:WearableSizeGroupWomens]
         annotations:
           label_en: "Adult Female"
           label_de: "Erwachsene Frau"
@@ -672,7 +842,7 @@ enums:
         description: >-
           Unisex / gender-neutral adult. Valid sizes: xs through one_size.
           Not valid for underwear subcategory.
-        see_also: [schema:WearableSizeGroupAdult]
+        see_also: [schema:WearableSizeGroupMens, schema:WearableSizeGroupMisses, schema:WearableSizeGroupWomens]
         annotations:
           label_en: "Unisex"
           label_de: "Unisex"
@@ -687,16 +857,41 @@ enums:
       - cpi:ClothingSize
       - schema:WearableSizeSystemEU
     permissible_values:
-      baby_0_3m:   {description: "Baby 0-3 months",   see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "0-3 months", label_de: "0-3 Monate"}}
-      baby_3_6m:   {description: "Baby 3-6 months",   see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "3-6 months", label_de: "3-6 Monate"}}
-      baby_6_12m:  {description: "Baby 6-12 months",  see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "6-12 months", label_de: "6-12 Monate"}}
-      baby_12_18m: {description: "Baby 12-18 months", see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "12-18 months", label_de: "12-18 Monate"}}
-      baby_18_24m: {description: "Baby 18-24 months", see_also: [schema:WearableSizeGroupBaby], annotations: {label_en: "18-24 months", label_de: "18-24 Monate"}}
-      child_2_3T:    {description: "Toddler sizes 2 and 3",   see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "2-3", label_de: "2-3"}}
-      child_4_5T:    {description: "Toddler sizes 4 and 5",   see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "4-5", label_de: "4-5"}}
-      child_6_7:     {description: "Child sizes 6 and 7",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "6-7", label_de: "6-7"}}
-      child_8_10:     {description: "Child sizes 8-10",  see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "8-10", label_de: "8-10"}}
-      child_12_14:    {description: "Child sizes 12-14", see_also: [schema:WearableSizeGroupChildrens], annotations: {label_en: "12-14", label_de: "12-14"}}
+      baby_50:    {description: "Baby Size 45-50. Age Newborn.", annotations: {label_en: "50", label_de: "50"}}
+      baby_56:    {description: "Baby Size 51-56. Age 1 month.",  annotations: {label_en: "56", label_de: "56"}}
+      baby_62:    {description: "Baby Size 57-62. Age 2-4 months.", annotations: {label_en: "62", label_de: "62"}}
+      baby_68:    {description: "Baby Size 63-68. Age 5-7 months.",   annotations: {label_en: "68", label_de: "68"}}
+      baby_74:    {description: "Baby Size 69-74. Age 8-11 months.",  annotations: {label_en: "74", label_de: "74"}}
+      baby_80:    {description: "Baby Size 75-80. Age 12-15 months.",  annotations: {label_en: "80", label_de: "80"}}
+      baby_86:    {description: "Baby Size 81-86. Age 16-21 months.", annotations: {label_en: "86", label_de: "86"}}
+      baby_92:    {description: "Baby Size 87-92. Age 22-24 months.",  annotations: {label_en: "92", label_de: "92"}}
+      child_98:    {description: "Toddler 93-98. Age 2-3 years.", annotations: {label_en: "98", label_de: "98"}}
+      child_104:   {description: "Toddler 99-104. Age 3-4 years.", annotations: {label_en: "104", label_de: "104"}}
+      child_110:   {description: "Child 105-110. Age 4-5 years.", annotations: {label_en: "110", label_de: "110"}}
+      child_116:   {description: "Child 111-116. Age 5-6 years.", annotations: {label_en: "116", label_de: "116"}}
+      child_122:   {description: "Child 117-122. Age 6-7 years.", annotations: {label_en: "122", label_de: "122"}}
+      child_128:   {description: "Child 123-128. Age 7-8 years.", annotations: {label_en: "128", label_de: "128"}}
+      child_140:   {description: "Child 129-140. Age 8-10 years.", annotations: {label_en: "140", label_de: "140"}}
+      child_152:   {description: "Child 141-152. Age 10-12 years.", annotations: {label_en: "152", label_de: "152"}}
+      child_164:   {description: "Child 153-164. Age 12-14 years.", annotations: {label_en: "164", label_de: "164"}}
+      child_170:   {description: "Child 165-170. Age 14-16 years.", annotations: {label_en: "170", label_de: "170"}}
+      size_xs:        {description: "Adult Extra Small", annotations: {label_en: "XS", label_de: "XS"}}
+      size_s:         {description: "Adult Small", annotations: {label_en: "S", label_de: "S"}}
+      size_m:         {description: "Adult Medium", annotations: {label_en: "M", label_de: "M"}}
+      size_l:         {description: "Adult Large", annotations: {label_en: "L", label_de: "L"}}
+      size_xl:        {description: "Adult Extra Large", annotations: {label_en: "XL", label_de: "XL"}}
+      size_xxl_plus:       {description: "Adult Extra Extra Large and Plus", annotations: {label_en: "XXL+", label_de: "XXL+"}}
+
+      baby_0_3m:   {description: "Baby 0-3 months",   see_also: [schema:WearableSizeGroupInfants], annotations: {label_en: "0-3 months", label_de: "0-3 Monate"}}
+      baby_3_6m:   {description: "Baby 3-6 months",   see_also: [schema:WearableSizeGroupInfants], annotations: {label_en: "3-6 months", label_de: "3-6 Monate"}}
+      baby_6_12m:  {description: "Baby 6-12 months",  see_also: [schema:WearableSizeGroupInfants], annotations: {label_en: "6-12 months", label_de: "6-12 Monate"}}
+      baby_12_18m: {description: "Baby 12-18 months", see_also: [schema:WearableSizeGroupInfants], annotations: {label_en: "12-18 months", label_de: "12-18 Monate"}}
+      baby_18_24m: {description: "Baby 18-24 months", see_also: [schema:WearableSizeGroupInfants], annotations: {label_en: "18-24 months", label_de: "18-24 Monate"}}
+      child_2_3T:    {description: "Toddler sizes 2 and 3",   see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys], annotations: {label_en: "2-3", label_de: "2-3"}}
+      child_4_5T:    {description: "Toddler sizes 4 and 5",   see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys], annotations: {label_en: "4-5", label_de: "4-5"}}
+      child_6_7:     {description: "Child sizes 6 and 7",  see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys], annotations: {label_en: "6-7", label_de: "6-7"}}
+      child_8_10:     {description: "Child sizes 8-10",  see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys], annotations: {label_en: "8-10", label_de: "8-10"}}
+      child_12_14:    {description: "Child sizes 12-14", see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys], annotations: {label_en: "12-14", label_de: "12-14"}}
       xs_s:          {description: "Extra small or Small (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XS/S", label_de: "XS/S", aliases_en: ["XS", "S", "small", "extra small"], aliases_de: ["XS", "S", "klein", "extra klein"]}}
       m_l:           {description: "Medium or Large(adult)",      see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "M/L", label_de: "M/L", aliases_en: ["M", "L", "medium", "large"], aliases_de: ["M", "L", "mittel", "groß"]}}
       xl_plus:          {description: "Extra large or XL+ (adult)", see_also: [schema:WearableSizeGroupAdult], annotations: {label_en: "XL+", label_de: "XL+", aliases_en: ["XL", "XXL", "3XL", "4XL", "5XL", "extra large"], aliases_de: ["XL", "XXL", "3XL", "4XL", "5XL", "extra groß"]}}
