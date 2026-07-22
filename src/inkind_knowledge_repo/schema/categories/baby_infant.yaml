@@ -21,7 +21,7 @@ description: >-
   Ontology grounding:
     Product Types Ontology — pto:Baby_transport, pto:Child_safety_seat,
     pto:Infant_bed, pto:Infant_formula, pto:Baby_food, pto:Baby_monitor,
-    pto:High_chair
+    pto:High_chair, pto:Diaper
       http://www.productontology.org/id/Baby_transport
 
   Safety standards referenced in UC rules:
@@ -51,10 +51,18 @@ description: >-
       a safety risk.
 
     Track 2 — Consumables:
-      infant_formula, feeding_bottles_teats, baby_food
+      infant_formula, feeding_bottles_teats, baby_food, nappies
       Uses is_sealed + expiry_date (same pattern as PersonalCareCategory).
       Hygiene and safety are binary: sealed/not sealed, expired/not expired.
       Used feeding bottles/teats are blocked outright (EN 14350 hygiene).
+      Nappies moved here from PersonalCareCategory (previously
+      nappies_incontinence) — UNHCR NFI kit standards group nappies with
+      infant formula as core relief items, and BabyInfantItem is the more
+      accurate home for a baby-specific subcategory. Adult incontinence
+      products remain in PersonalCareCategory as incontinence_products.
+      Nappies additionally carry nappy_size (NappySizeEnum) — nappy fit is
+      weight-based, not age-based, so it is a distinct vocabulary from
+      ClothingCategory's age-banded size slot.
 
     Track 3 — General baby gear:
       bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding
@@ -108,6 +116,7 @@ classes:
       - is_sealed
       - expiry_date
       - condition_grade
+      - nappy_size
     slot_usage:
       subcategory:
         range: BabyInfantSubcategoryEnum
@@ -133,7 +142,7 @@ classes:
         description: >-
           Packaging/seal integrity for Track 2 consumables.
           Required when subcategory in [infant_formula, feeding_bottles_teats,
-          baby_food].
+          baby_food, nappies].
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -141,12 +150,19 @@ classes:
           Wear grade for Track 3 general baby gear.
           Required when subcategory in [bath_equipment, changing,
           baby_monitors, bouncers_swings, breastfeeding, other].
+      nappy_size:
+        range: NappySizeEnum
+        required: false
+        description: >-
+          Weight-banded nappy size. Required when subcategory=nappies.
+          Distinct from ClothingCategory's age-banded size slot — nappy fit
+          is determined by infant weight, not age.
     annotations:
       completeness_minimal:  "subcategory, usage"
-      completeness_standard: "subcategory, usage"
-      completeness_detailed: "subcategory, manufacture_year, is_complete_with_accessories, usage"
+      completeness_standard: "subcategory, usage, nappy_size"
+      completeness_detailed: "subcategory, nappy_size, manufacture_year, is_complete_with_accessories, usage"
       track_structural_subcategories: "pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags"
-      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food"
+      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food, nappies"
       track_general_subcategories:    "bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other"
       regulatory_references: "EN 1888, EN 716, EN 14344, EN 14350, EN 16781"
     rules:
@@ -247,6 +263,7 @@ classes:
                 - equals_string: infant_formula
                 - equals_string: feeding_bottles_teats
                 - equals_string: baby_food
+                - equals_string: nappies
         postconditions:
           slot_conditions:
             is_sealed:
@@ -263,6 +280,7 @@ classes:
                 - equals_string: infant_formula
                 - equals_string: feeding_bottles_teats
                 - equals_string: baby_food
+                - equals_string: nappies
             is_sealed:
               equals_string: "false"
         postconditions:
@@ -271,6 +289,20 @@ classes:
               none_of:
                 - equals_string: stored
                 - equals_string: distributed
+
+      - title: lc-baby-nappy-size-required
+        description: >-
+          Nappies require nappy_size. Weight-banded sizing is essential for
+          matching donated nappies to the recipient infant's needs — an
+          unsized nappy donation cannot be usefully distributed.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: nappies
+        postconditions:
+          slot_conditions:
+            nappy_size:
+              required: true
 
       - title: uc-baby-feeding-used-block
         description: >-
@@ -340,6 +372,19 @@ slots:
     annotations:
       label_en: "Includes original accessories"
       label_de: "Enthält Originalzubehör"
+
+  nappy_size:
+    range: NappySizeEnum
+    description: >-
+      Weight-banded nappy size, as printed on the pack. Required when
+      subcategory=nappies (uc-baby-nappy-size-required). Nappy fit is
+      determined by infant weight, not age, so this is a separate vocabulary
+      from ClothingCategory's age-banded size slot — a nappy and a garment
+      of the "same size" for a given infant are unrelated numbers.
+    annotations:
+      show_if: "subcategory in [nappies]"
+      label_en: "Nappy size"
+      label_de: "Windelgröße"
 
 
 
@@ -423,6 +468,7 @@ enums:
       baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier", label_de: "Baby-Trager", aliases_en: ["baby carrier", "baby sling", "baby wrap"], aliases_de: ["Baby-Trager", "Baby-Hängematte", "Baby-Umhängetuch"]}}
       infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula], annotations: {label_en: "Infant formula", label_de: "Säuglingsnahrung"}}
       feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Baby bottle", label_de: "Babyflasche", aliases_en: ["feeding bottle", "teat", "bottle and teat", "baby bottle"], aliases_de: ["Fütterungsglas", "Flasche und Sauger", "Flasche mit Sauger", "Babyflasche"]}}
+      nappies:               {description: "Baby nappies/diapers. Must be sealed. UNHCR NFI core item. nappy_size required.", see_also: [pto:Diaper], annotations: {label_en: "Nappies", label_de: "Windeln", aliases_en: ["nappy", "diaper", "nappies", "diapers"], aliases_de: ["Windel", "Windeln"]}}
       breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Brustpflegeartikel", aliases_en: ["breastfeeding supplies", "breast pump", "nursing pads", "steriliser"], aliases_de: ["Brustpflegeartikel", "Brustpumpe", "Stilleinlagen", "Sterilisator"]}}
       bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badeausrüstung", aliases_en: ["baby bath", "bath seat", "bath thermometer"], aliases_de: ["Babybadewanne", "Badsitz", "Badethermometer"]}}
       changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Veränderungsausrüstung", aliases_en: ["changing mat", "nappy bag", "changing bag"], aliases_de: ["Wickelunterlage", "Windeltasche", "Wickeltasche"]}}
@@ -448,3 +494,22 @@ enums:
           aliases_en: ["baby sleeping bag", "infant sleeping bag", "baby sleep sack", "infant sleep sack"]
           aliases_de: ["Baby-Schlafsack", "Säuglings-Schlafsack", "Baby-Schlafsack mit Beinen", "Säuglings-Schlafsack mit Beinen"]
       other: {description: "Baby and infant supplies not fitting above subcategories.", annotations: {label_en: "Other baby/infant item", label_de: "Sonstiger Baby-/Kleinkindartikel"}}
+
+  NappySizeEnum:
+    description: >-
+      Weight-banded nappy sizing, matching how nappies are sized and labeled
+      by manufacturers. Distinct from ClothingSizeEnum's age-banded baby
+      sizes, since nappy fit tracks infant weight rather than age. Bands are
+      approximate and vary slightly by brand — the weight range printed on
+      the pack is authoritative; sorters should match to the closest band.
+    see_also:
+      - pto:Diaper
+    permissible_values:
+      newborn:  {description: "Newborn, up to ~4kg.", annotations: {label_en: "Newborn", label_de: "Neugeboren", aliases_en: ["newborn", "size 0"], aliases_de: ["Neugeboren", "Größe 0"]}}
+      size_1:   {description: "Size 1, ~2-5kg.", annotations: {label_en: "Size 1", label_de: "Größe 1"}}
+      size_2:   {description: "Size 2, ~3-6kg.", annotations: {label_en: "Size 2", label_de: "Größe 2"}}
+      size_3:   {description: "Size 3, ~4-9kg.", annotations: {label_en: "Size 3", label_de: "Größe 3"}}
+      size_4:   {description: "Size 4, ~7-18kg.", annotations: {label_en: "Size 4", label_de: "Größe 4"}}
+      size_5:   {description: "Size 5, ~11-25kg.", annotations: {label_en: "Size 5", label_de: "Größe 5"}}
+      size_6:   {description: "Size 6, ~16kg and up.", annotations: {label_en: "Size 6", label_de: "Größe 6"}}
+      other:    {description: "Size not fitting the standard bands, or unlabeled/unknown.", annotations: {label_en: "Other/Unknown", label_de: "Andere/Unbekannt"}}
