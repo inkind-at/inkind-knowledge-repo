@@ -976,7 +976,7 @@ classes:
       - http://purl.obolibrary.org/obo/foodon.owl
     annotations:
       label_en: "Food"
-      label_de: "Essen"
+      label_de: "Lebensmittel"
       aliases_en: ["food", "food item"]
       aliases_de: ["Essen", "Lebensmittel"]
     rules:
