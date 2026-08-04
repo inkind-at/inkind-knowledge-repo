@@ -72,7 +72,7 @@ description: >-
         (not a meaningful signal for these subcategories)
 
   Completeness tiers:
-    minimal:  subcategory, assessment_result, usage
+    minimal:  subcategory, assessment_result
     standard: subcategory, is_set_complete, assessment_result,
               is_winter_suitable, usage
     detailed: subcategory, material, is_set_complete, assessment_result,
@@ -128,7 +128,7 @@ classes:
         required: true
       assessment_result:
         range: BeddingAssessmentEnum
-        required: true
+        required: false
         description: >-
           Hygiene and condition assessment. Required regardless of usage —
           new items may have packaging damage or factory soiling.
@@ -154,7 +154,7 @@ classes:
           cold-weather emergency is dangerous. Thermal rating in tog or
           season number may be noted in sorting_notes as free text.
     annotations:
-      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, is_set_complete, assessment_result, is_winter_suitable, usage"
       completeness_detailed: "subcategory, material, is_set_complete, assessment_result, is_winter_suitable, usage"
       material_winter_hint: >-

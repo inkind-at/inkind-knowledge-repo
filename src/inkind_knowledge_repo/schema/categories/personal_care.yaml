@@ -54,7 +54,7 @@ description: >-
     cannot prevent a sorter from incorrectly classifying a prescription item).
 
   Completeness tiers:
-    minimal:  subcategory, is_sealed, usage
+    minimal:  subcategory, is_sealed
     standard: subcategory, is_sealed, expiry_date, usage
     detailed: subcategory, is_sealed, expiry_date, usage
 
@@ -102,7 +102,7 @@ classes:
         range: PersonalCareSubcategoryEnum
         required: true
       is_sealed:
-        required: true
+        required: false
         description: >-
           Whether the item's original packaging/seal is intact.
           UC block for most consumable subcategories when false.
@@ -118,7 +118,7 @@ classes:
           uc_suggest: disposal
           uc_note: "Dynamic date comparison — runtime enforcement by Django model clean()"
     annotations:
-      completeness_minimal:  "subcategory, is_sealed, usage"
+      completeness_minimal:  "subcategory, is_sealed"
       completeness_standard: "subcategory, is_sealed, expiry_date, usage"
       completeness_detailed: "subcategory, is_sealed, expiry_date, usage"
       coicop_divisions: "06.1, 12.1"

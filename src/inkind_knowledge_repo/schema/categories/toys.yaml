@@ -56,7 +56,7 @@ description: >-
   is an attribute constraint, not a condition assessment).
 
   Completeness tiers:
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, age_range, is_set_complete, usage, condition_grade
     detailed: subcategory, material, age_range, is_set_complete,
               has_small_parts, usage, condition_grade
@@ -122,7 +122,7 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, usage"
+      completeness_minimal:  "subcategory"
       completeness_standard: "subcategory, age_range, is_set_complete, usage, condition_grade"
       completeness_detailed: "subcategory, material, age_range, is_set_complete, has_small_parts, usage, condition_grade"
       coicop_division: "09.3"

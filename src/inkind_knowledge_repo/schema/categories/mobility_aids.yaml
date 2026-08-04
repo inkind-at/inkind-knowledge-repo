@@ -41,7 +41,7 @@ description: >-
     lock is dangerous regardless of never having been used.
 
   Completeness tiers:
-    minimal:  subcategory, assessment_result, usage
+    minimal:  subcategory, assessment_result
     standard: subcategory, assessment_result, usage
     detailed: subcategory, assessment_result, usage
 
@@ -86,12 +86,12 @@ classes:
         required: true
       assessment_result:
         range: MobilityAssessmentEnum
-        required: true
+        required: false
         description: >-
           Safety and hygiene assessment. Required regardless of usage —
           new mobility aids can have manufacturing defects.
     annotations:
-      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, assessment_result, usage"
       completeness_detailed: "subcategory, assessment_result, usage"
       coicop_divisions: "06.1.3, 06.2"

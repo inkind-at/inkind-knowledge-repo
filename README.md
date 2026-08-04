@@ -28,6 +28,17 @@ Formal knowledge representation for in-kind donation coordination. Defines the d
 There are several pre-defined command-recipes available.
 They are written for the command runner [just](https://github.com/casey/just/). To list all pre-defined commands, run `just` or `just --list`.
 
+
+Generate ui descriptor file:
+```bash
+pytest tests/test_ui_descriptor.py
+```
+
+Generate aliases:
+```bash
+uv run run_gen.py
+```
+
 ## Credits
 
 This project uses the template [linkml-project-copier](https://github.com/dalito/linkml-project-copier) published as [doi:10.5281/zenodo.15163584](https://doi.org/10.5281/zenodo.15163584).

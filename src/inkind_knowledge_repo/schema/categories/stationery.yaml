@@ -35,7 +35,7 @@ description: >-
   good judgement for partially-used consumables.
 
   Completeness tiers:
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, is_set_complete, usage, condition_grade
     detailed: subcategory, is_set_complete, usage, condition_grade
 
@@ -81,7 +81,7 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, usage"
+      completeness_minimal:  "subcategory"
       completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
       completeness_detailed: "subcategory, is_set_complete, usage, condition_grade"
       coicop_division: "09.5"

@@ -181,7 +181,6 @@ classes:
       - category
       - lifecycle_state
       - attribute_completeness
-      - source_collection
       - donation_source
       - storage_unit
       - sorting_notes
@@ -199,7 +198,7 @@ classes:
         required: true
       usage:
         range: ItemUsageEnum
-        required: true
+        required: false
       attribute_completeness:
         range: AttributeCompletenessEnum
         required: false
@@ -209,13 +208,16 @@ classes:
       donation_source:
         range: DonationSource
         required: false
+        annotations:
+          label_en: "Donation Source"
+          label_de: "Spenderquelle"
       storage_unit:
         range: StorageLocation
         required: false
     annotations:
-      completeness_minimal:  "category, usage"
+      completeness_minimal:  "category"
       completeness_standard: "category, usage, sorting_notes"
-      completeness_detailed: "category, usage, source_collection, donation_source, sorting_notes"
+      completeness_detailed: "category, usage, donation_source, sorting_notes"
       label_en: "Donation Item"
       label_de: "Spendenartikel"
 

@@ -122,7 +122,7 @@ description: >-
                                tagged spring_autumn may still be winter_suitable)
 
   Completeness tiers (read by fragment compiler and match engine):
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, demographic, size, is_winter_suitable, usage,
               condition_grade
     detailed: subcategory, demographic, size, is_winter_suitable, season,
@@ -233,7 +233,7 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, tops_subcategory, bottoms_subcategory, usage"
+      completeness_minimal:  "subcategory, tops_subcategory, bottoms_subcategory"
       completeness_standard: "subcategory, tops_subcategory, bottoms_subcategory, demographic, is_maternity, size, is_winter_suitable, usage, condition_grade"
       completeness_detailed: "subcategory, tops_subcategory, bottoms_subcategory, demographic, is_maternity, size, is_winter_suitable, season, material, usage, condition_grade, intact_labels"
       coicop_division: "03.1"
@@ -386,11 +386,8 @@ classes:
                 - equals_string: child_116
                 - equals_string: child_122
                 - equals_string: child_128
-                - equals_string: child_134
                 - equals_string: child_140
-                - equals_string: child_146
                 - equals_string: child_152
-                - equals_string: child_158
                 - equals_string: child_164
                 - equals_string: child_170  
       - title: vm-size-adult

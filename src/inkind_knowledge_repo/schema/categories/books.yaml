@@ -31,7 +31,7 @@ description: >-
   integrity, well captured by the standard like_new/good/fair/poor scale.
 
   Completeness tiers:
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, age_range, usage, condition_grade
     detailed: subcategory, age_range, language, usage, condition_grade
 
@@ -81,7 +81,7 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, usage"
+      completeness_minimal:  "subcategory"
       completeness_standard: "subcategory, age_range, usage, condition_grade"
       completeness_detailed: "subcategory, age_range, language, usage, condition_grade"
       coicop_division: "09.5"

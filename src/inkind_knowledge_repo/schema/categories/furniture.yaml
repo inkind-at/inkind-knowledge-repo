@@ -41,7 +41,7 @@ description: >-
   dimensions required_if: subcategory in [tables, beds]
 
   Completeness tiers:
-    minimal:  subcategory, assessment_result, usage
+    minimal:  subcategory, assessment_result
     standard: subcategory, material, assessment_result, usage
     detailed: subcategory, material, assessment_result, dimensions, style, usage
 
@@ -92,12 +92,12 @@ classes:
         required: false
       assessment_result:
         range: FurnitureAssessmentEnum
-        required: true
+        required: false
         description: >-
           Structural and quality assessment. Required regardless of usage —
           new furniture can have manufacturing defects or assembly issues.
     annotations:
-      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, material, assessment_result, usage"
       completeness_detailed: "subcategory, material, assessment_result, dimensions, style, usage"
       coicop_division: "05.1"

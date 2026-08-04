@@ -39,7 +39,7 @@ description: >-
     on physical assessment and avoids conflating process steps with data constraints.
 
   Completeness tiers:
-    minimal:  subcategory, assessment_result, usage
+    minimal:  subcategory, assessment_result
     standard: subcategory, assessment_result, usage
     detailed: subcategory, assessment_result, includes_charger,
               includes_original_packaging, usage
@@ -90,7 +90,7 @@ classes:
           Functional and cosmetic assessment. Required regardless of usage —
           new devices can have factory defects or dead batteries.
     annotations:
-      completeness_minimal:  "subcategory, assessment_result, usage"
+      completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, assessment_result, usage"
       completeness_detailed: "subcategory, assessment_result, includes_charger, includes_original_packaging, usage"
       coicop_division: "09.1"

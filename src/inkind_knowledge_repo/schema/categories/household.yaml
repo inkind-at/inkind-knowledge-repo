@@ -44,7 +44,7 @@ description: >-
   checklist.
 
   Completeness tiers:
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, is_set_complete, usage, condition_grade
     detailed: subcategory, material, is_set_complete, usage, condition_grade
 
@@ -101,7 +101,7 @@ classes:
         range: UsedConditionGradeEnum
         required: false
     annotations:
-      completeness_minimal:  "subcategory, usage"
+      completeness_minimal:  "subcategory"
       completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
       completeness_detailed: "subcategory, material, is_set_complete, usage, condition_grade"
       coicop_divisions: "05.3, 05.4, 05.5"

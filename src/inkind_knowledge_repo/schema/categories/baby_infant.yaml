@@ -69,7 +69,7 @@ description: >-
       Uses condition_grade (wear grade) — appropriate for these items.
 
   Completeness tiers:
-    minimal:  subcategory, usage
+    minimal:  subcategory
     standard: subcategory, usage (track-specific assessment required)
     detailed: subcategory, manufacture_year, is_complete_with_accessories, usage
 
@@ -158,7 +158,7 @@ classes:
           Distinct from ClothingCategory's age-banded size slot — nappy fit
           is determined by infant weight, not age.
     annotations:
-      completeness_minimal:  "subcategory, usage"
+      completeness_minimal:  "subcategory"
       completeness_standard: "subcategory, usage, nappy_size"
       completeness_detailed: "subcategory, nappy_size, manufacture_year, is_complete_with_accessories, usage"
       track_structural_subcategories: "pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags"

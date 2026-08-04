@@ -64,7 +64,7 @@ description: >-
     uc-packaging-perishable-block    — packaging_intact=false + perishable → block
 
   Completeness tiers:
-    minimal:  food_type, packaging_intact, usage
+    minimal:  food_type, packaging_intact, storage_requirement
     standard: food_type, packaging_intact, storage_requirement, usage
     detailed: food_type, packaging_intact, storage_requirement,
               expiry_date, quantity, usage
@@ -117,9 +117,9 @@ classes:
       food_type:
         required: true
       packaging_intact:
-        required: true
+        required: false
       storage_requirement:
-        required: true
+        required: false
       expiry_date:
         description: >-
           Expiry or best-before date as printed on the packaging.
@@ -131,7 +131,7 @@ classes:
           uc_suggest: disposal
           uc_note: "Dynamic date comparison — runtime enforcement"
     annotations:
-      completeness_minimal:  "food_type, packaging_intact, usage"
+      completeness_minimal:  "food_type, packaging_intact, storage_requirement"
       completeness_standard: "food_type, packaging_intact, storage_requirement, usage"
       completeness_detailed: "food_type, packaging_intact, storage_requirement, expiry_date, quantity, usage"
       coicop_division: "01"
@@ -221,8 +221,8 @@ slots:
     see_also:
       - foodon:00001017
     annotations:
-      labels_en: "food type"
-      labels_de: "Lebensmitteltyp"
+      label_en: "food type"
+      label_de: "Lebensmitteltyp"
 
 
   packaging_intact:
@@ -236,8 +236,8 @@ slots:
     see_also:
       - foodon:00001043
     annotations:
-      labels_en: "packaging intact"
-      labels_de: "Verpackung intakt"
+      label_en: "packaging intact"
+      label_de: "Verpackung intakt"
 
   storage_requirement:
     range: StorageRequirementEnum
@@ -247,8 +247,8 @@ slots:
       via vm-storage-* rules. Set during sorting to enable correct
       storage slot assignment and demand signal matching.
     annotations:
-      labels_en: "storage requirement"
-      labels_de: "Lagerungsanforderung"
+      label_en: "storage requirement"
+      label_de: "Lagerungsanforderung"
 
   quantity:
     range: integer
@@ -256,8 +256,8 @@ slots:
       Quantity in natural units (items, cans, bags, kg, etc.). Optional —
       detailed completeness tier. Supports demand signal fulfilment tracking.
     annotations:
-      labels_en: "quantity"
-      labels_de: "Menge"
+      label_en: "quantity"
+      label_de: "Menge"
 
 
 enums:
