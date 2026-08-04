@@ -679,6 +679,14 @@ enums:
           label_de: "Unterteile"
           aliases_en: ["Trousers", "Pants", "Skirt", "Shorts", "Leggings", "Lower-body garments", "Bottom"]
           aliases_de: ["Hose", "Rock", "Shorts", "Leggings", "Unterkörperkleidung", "Unterteile", "Bottom"]
+      one_piece:
+        description: >-
+          One-piece garments: dresses, jumpsuits, rompers, overalls.
+        annotations:
+          label_en: "One-piece"
+          label_de: "Einteiler"
+          aliases_en: ["Dress", "Jumpsuit", "Romper", "Overall", "One-piece"]
+          aliases_de: ["Kleid", "Jumpsuit", "Overall", "Einteiler", "Strampler"]
       outerwear:
         description: >-
           Jackets, coats, outer layers. Fragment compiler may pre-fill
@@ -687,8 +695,8 @@ enums:
         annotations:
           label_en: "Outerwear"
           label_de: "Oberbekleidung"
-          aliases_en: ["Jacket", "Coat", "Outer layer", "Outerwear"]
-          aliases_de: ["Jacke", "Mantel", "Oberbekleidung"]
+          aliases_en: ["Jacket", "Coat", "Outer layer", "Outerwear", "Parka"]
+          aliases_de: ["Jacke", "Mantel", "Oberbekleidung", "Parka"]
       underwear:
         description: >-
           Underwear and intimate apparel. UC constraints apply.

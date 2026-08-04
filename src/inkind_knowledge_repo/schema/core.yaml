@@ -248,6 +248,33 @@ slots:
       label_de: "Material"
 
 
+  # ── Net content (single packaged item) ───────────────────────────────────────
+  net_content_value:
+    range: decimal
+    description: >-
+      Numeric net content of a single donated item, as printed on its
+      packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a
+      30-tablet box). Describes one unit, not a donated batch — how many
+      units were donated is tracked by the application, not this schema.
+      Paired with net_content_unit. Detailed completeness tier.
+    annotations:
+      label_en: "Net content"
+      label_de: "Nettoinhalt"
+
+  net_content_unit:
+    range: NetContentUnitEnum
+    description: >-
+      Unit of measure for net_content_value. Grounded in UN/CEFACT
+      Recommendation 20 unit-of-measure codes — the same code list
+      schema:unitCode and GS1's netContent property reference for
+      packaged goods. Detailed completeness tier.
+    see_also:
+      - https://schema.org/unitCode
+      - https://unece.org/trade/uncefact/cl-recommendations
+    annotations:
+      label_en: "Net content unit"
+      label_de: "Nettoinhalt-Einheit"
+
   # ── Subcategory ───────────────────────────────────────────────────────────────
   subcategory:
     range: string
@@ -423,6 +450,59 @@ enums:
           label_de: "Schlecht"
           aliases_en: ["Poor", "Heavily Used"]
           aliases_de: ["Schlecht", "Stark Abgenutzt"]
+
+  # ── Net content ────────────────────────────────────────────────────────────────
+
+  NetContentUnitEnum:
+    description: >-
+      Unit of measure for a single packaged item's net content (net_content_value).
+      Values correspond to UN/CEFACT Recommendation 20 unit-of-measure codes,
+      the same code list referenced by schema:unitCode and GS1's netContent
+      property for packaged goods.
+    see_also:
+      - https://unece.org/trade/uncefact/cl-recommendations
+      - https://schema.org/unitCode
+    permissible_values:
+      milliliter:
+        description: >-
+          Millilitres. UN/CEFACT code MLT. Liquids in small packaging
+          (shampoo, cough syrup, hand sanitiser).
+        annotations:
+          label_en: "ml"
+          label_de: "ml"
+      litre:
+        description: >-
+          Litres. UN/CEFACT code LTR. Liquids in larger packaging
+          (juice, laundry detergent).
+        annotations:
+          label_en: "l"
+          label_de: "l"
+      gram:
+        description: >-
+          Grams. UN/CEFACT code GRM. Solids in small packaging
+          (bar soap, spice sachet).
+        annotations:
+          label_en: "g"
+          label_de: "g"
+      kilogram:
+        description: >-
+          Kilograms. UN/CEFACT code KGM. Solids in larger packaging
+          (rice, flour, dry pet food).
+        annotations:
+          label_en: "kg"
+          label_de: "kg"
+      piece:
+        description: >-
+          Discrete count as printed on the pack. UN/CEFACT code H87.
+          Tablets, pads, sheets, rolls.
+        annotations:
+          label_en: "piece(s)"
+          label_de: "Stück"
+      other:
+        description: Unit not covered by the values above.
+        annotations:
+          label_en: "other"
+          label_de: "Andere"
 
   # ── Attribute completeness ────────────────────────────────────────────────────
 

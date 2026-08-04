@@ -151,6 +151,36 @@ class UsedConditionGradeEnum(str, Enum):
     """
 
 
+class NetContentUnitEnum(str, Enum):
+    """
+    Unit of measure for a single packaged item's net content (net_content_value). Values correspond to UN/CEFACT Recommendation 20 unit-of-measure codes, the same code list referenced by schema:unitCode and GS1's netContent property for packaged goods.
+    """
+    milliliter = "milliliter"
+    """
+    Millilitres. UN/CEFACT code MLT. Liquids in small packaging (shampoo, cough syrup, hand sanitiser).
+    """
+    litre = "litre"
+    """
+    Litres. UN/CEFACT code LTR. Liquids in larger packaging (juice, laundry detergent).
+    """
+    gram = "gram"
+    """
+    Grams. UN/CEFACT code GRM. Solids in small packaging (bar soap, spice sachet).
+    """
+    kilogram = "kilogram"
+    """
+    Kilograms. UN/CEFACT code KGM. Solids in larger packaging (rice, flour, dry pet food).
+    """
+    piece = "piece"
+    """
+    Discrete count as printed on the pack. UN/CEFACT code H87. Tablets, pads, sheets, rolls.
+    """
+    other = "other"
+    """
+    Unit not covered by the values above.
+    """
+
+
 class AttributeCompletenessEnum(str, Enum):
     """
     Data quality tier for a DonationItem's category-specific attributes. Set by the fragment engine on sorting step completion — not derived from field presence at the schema level.
@@ -530,6 +560,10 @@ class ClothingSubcategoryEnum(str, Enum):
     bottoms = "bottoms"
     """
     Trousers, skirts, shorts, leggings, lower-body garments. is_winter_suitable varies — shorts are summer; thermal leggings are winter.
+    """
+    one_piece = "one_piece"
+    """
+    One-piece garments: dresses, jumpsuits, rompers, overalls.
     """
     outerwear = "outerwear"
     """
@@ -2525,8 +2559,9 @@ class FoodCategory(ConfiguredBaseModel):
                                                    'value': 'food_type, '
                                                             'packaging_intact, '
                                                             'storage_requirement, '
-                                                            'expiry_date, quantity, '
-                                                            'usage'},
+                                                            'expiry_date, '
+                                                            'net_content_value, '
+                                                            'net_content_unit, usage'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
                                                   'value': 'food_type, '
                                                            'packaging_intact, '
@@ -2635,9 +2670,15 @@ class FoodCategory(ConfiguredBaseModel):
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
          'domain_of': ['FoodCategory']} })
-    quantity: Optional[int] = Field(default=None, description="""Quantity in natural units (items, cans, bags, kg, etc.). Optional — detailed completeness tier. Supports demand signal fulfilment tracking.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Menge'},
-                         'label_en': {'tag': 'label_en', 'value': 'quantity'}},
-         'domain_of': ['FoodCategory']} })
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Nettoinhalt-Einheit'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory'],
+         'see_also': ['https://schema.org/unitCode',
+                      'https://unece.org/trade/uncefact/cl-recommendations']} })
 
 
 class DonationItem(ConfiguredBaseModel):
@@ -2650,7 +2691,6 @@ class DonationItem(ConfiguredBaseModel):
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'abstract': True,
          'annotations': {'completeness_detailed': {'tag': 'completeness_detailed',
                                                    'value': 'category, usage, '
-                                                            'source_collection, '
                                                             'donation_source, '
                                                             'sorting_notes'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
@@ -2674,7 +2714,12 @@ class DonationItem(ConfiguredBaseModel):
                                                'string.'],
                                      'range': 'string',
                                      'required': True},
-                        'donation_source': {'name': 'donation_source',
+                        'donation_source': {'annotations': {'label_de': {'tag': 'label_de',
+                                                                         'value': 'Spenderquelle'},
+                                                            'label_en': {'tag': 'label_en',
+                                                                         'value': 'Donation '
+                                                                                  'Source'}},
+                                            'name': 'donation_source',
                                             'range': 'DonationSource',
                                             'required': False},
                         'lifecycle_state': {'name': 'lifecycle_state',
@@ -2721,8 +2766,9 @@ class DonationItem(ConfiguredBaseModel):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -2777,9 +2823,15 @@ class FoodItem(DonationItem, FoodCategory):
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
          'domain_of': ['FoodCategory']} })
-    quantity: Optional[int] = Field(default=None, description="""Quantity in natural units (items, cans, bags, kg, etc.). Optional — detailed completeness tier. Supports demand signal fulfilment tracking.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Menge'},
-                         'label_en': {'tag': 'label_en', 'value': 'quantity'}},
-         'domain_of': ['FoodCategory']} })
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Nettoinhalt-Einheit'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory'],
+         'see_also': ['https://schema.org/unitCode',
+                      'https://unece.org/trade/uncefact/cl-recommendations']} })
     id: str = Field(default=..., description="""A unique identifier for the entity.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation',
                        'Actor',
                        'StorageLocation',
@@ -2811,8 +2863,9 @@ class FoodItem(DonationItem, FoodCategory):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -2903,8 +2956,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -4756,7 +4810,9 @@ class PersonalCareCategory(CategoryMixin):
                                               'value': '06.1, 12.1'},
                          'completeness_detailed': {'tag': 'completeness_detailed',
                                                    'value': 'subcategory, is_sealed, '
-                                                            'expiry_date, usage'},
+                                                            'expiry_date, '
+                                                            'net_content_value, '
+                                                            'net_content_unit, usage'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
                                                   'value': 'subcategory, is_sealed'},
                          'completeness_standard': {'tag': 'completeness_standard',
@@ -4890,6 +4946,15 @@ class PersonalCareCategory(CategoryMixin):
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Nettoinhalt-Einheit'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory'],
+         'see_also': ['https://schema.org/unitCode',
+                      'https://unece.org/trade/uncefact/cl-recommendations']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
          'domain_of': ['ClothingCategory',
@@ -5553,8 +5618,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -5691,8 +5757,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -5872,8 +5939,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -5982,8 +6050,9 @@ class FurnitureItem(FurnitureCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6106,8 +6175,9 @@ Critical for sleeping bags — a summer sleeping bag issued in a cold-weather em
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6227,8 +6297,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6335,8 +6406,9 @@ class ElectronicsItem(ElectronicsCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6477,8 +6549,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6611,8 +6684,9 @@ class SportsItem(SportsCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6728,8 +6802,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6846,8 +6921,9 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -6923,6 +6999,15 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Nettoinhalt-Einheit'},
+                         'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
+         'domain_of': ['PersonalCareCategory', 'FoodCategory'],
+         'see_also': ['https://schema.org/unitCode',
+                      'https://unece.org/trade/uncefact/cl-recommendations']} })
     id: str = Field(default=..., description="""A unique identifier for the entity.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation',
                        'Actor',
                        'StorageLocation',
@@ -6954,8 +7039,9 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -7062,8 +7148,9 @@ class MobilityAidsItem(MobilityAidsCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},
@@ -7268,8 +7355,9 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
                        'DemandSignal',
                        'Campaign']} })
     attribute_completeness: Optional[AttributeCompletenessEnum] = Field(default=None, description="""Data quality tier set by the fragment engine on sorting completion. Not derived from field presence. Not a lifecycle gate. Used by the match engine to filter candidates by data quality tier. See AttributeCompletenessEnum for the relationship to lifecycle_state. Set by: fragment_engine. Read by: match_engine.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    source_collection: Optional[str] = Field(default=None, description="""FK — the DonationCollection (arrival type) this item was registered from. Null for items not arriving as part of a collection.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     storage_unit: Optional[str] = Field(default=None, description="""FK — set when lifecycle_state transitions to stored. Null until the item reaches stored state.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationItem']} })
     sorting_notes: Optional[str] = Field(default=None, description="""Free-text notes recorded by the sorter during sorting. Required by UC warn rules to capture explicit sorter confirmation (e.g. incomplete pair, body-contact item, inconclusive assessment).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Notizen'},

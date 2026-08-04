@@ -67,7 +67,7 @@ description: >-
     minimal:  food_type, packaging_intact, storage_requirement
     standard: food_type, packaging_intact, storage_requirement, usage
     detailed: food_type, packaging_intact, storage_requirement,
-              expiry_date, quantity, usage
+              expiry_date, net_content_value, net_content_unit, usage
 
 license: MIT
 see_also:
@@ -112,7 +112,8 @@ classes:
       - expiry_date
       - packaging_intact
       - storage_requirement
-      - quantity
+      - net_content_value
+      - net_content_unit
     slot_usage:
       food_type:
         required: true
@@ -133,7 +134,7 @@ classes:
     annotations:
       completeness_minimal:  "food_type, packaging_intact, storage_requirement"
       completeness_standard: "food_type, packaging_intact, storage_requirement, usage"
-      completeness_detailed: "food_type, packaging_intact, storage_requirement, expiry_date, quantity, usage"
+      completeness_detailed: "food_type, packaging_intact, storage_requirement, expiry_date, net_content_value, net_content_unit, usage"
       coicop_division: "01"
       phase: "Phase 1 stub"
     rules:
@@ -249,15 +250,6 @@ slots:
     annotations:
       label_en: "storage requirement"
       label_de: "Lagerungsanforderung"
-
-  quantity:
-    range: integer
-    description: >-
-      Quantity in natural units (items, cans, bags, kg, etc.). Optional —
-      detailed completeness tier. Supports demand signal fulfilment tracking.
-    annotations:
-      label_en: "quantity"
-      label_de: "Menge"
 
 
 enums:
