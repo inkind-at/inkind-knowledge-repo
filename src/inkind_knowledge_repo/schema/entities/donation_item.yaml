@@ -208,9 +208,6 @@ classes:
       donation_source:
         range: DonationSource
         required: false
-        annotations:
-          label_en: "Donation Source"
-          label_de: "Spenderquelle"
       storage_unit:
         range: StorageLocation
         required: false

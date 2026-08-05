@@ -562,7 +562,7 @@ class UiDescriptorGenerator(Generator):
             if getattr(slot, "designates_type", False):
                 if dispatch_map is None:
                     dispatch_map = {
-                        sub: f"{sub}.ui.json"
+                        sub: f"{sub}"
                         for sub in self._get_concrete_subclasses()
                     }
                 field_entry["dispatches_to"] = dispatch_map

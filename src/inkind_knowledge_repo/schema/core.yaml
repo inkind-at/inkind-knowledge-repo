@@ -191,6 +191,9 @@ slots:
     description: >-
       Reference to the DonationSource — privacy boundary between item records
       and donor identity. Concrete range applied via slot_usage.
+    annotations:
+          label_en: "Donation Source"
+          label_de: "Spenderquelle"
 
   # ── Status ───────────────────────────────────────────────────────────────────
   is_active:
