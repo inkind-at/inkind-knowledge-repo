@@ -1843,11 +1843,11 @@ class PersonalCareSubcategoryEnum(str, Enum):
     """
     soap_body_wash = "soap_body_wash"
     """
-    Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.
+    Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed. (Baby wash → BabyInfantItem, see baby_care subcategory.)
     """
     shampoo_conditioner = "shampoo_conditioner"
     """
-    Shampoo, conditioner, dry shampoo. Must be sealed.
+    Shampoo, conditioner, dry shampoo. Must be sealed. (Baby shampoo → BabyInfantItem, see baby_care subcategory.)
     """
     dental = "dental"
     """
@@ -1875,7 +1875,7 @@ class PersonalCareSubcategoryEnum(str, Enum):
     """
     skincare = "skincare"
     """
-    Moisturisers, sunscreen, face wash, lip balm. Must be sealed.
+    Moisturisers, sunscreen, face wash, lip balm. Must be sealed. (Baby lotion/oil/powder/rash cream/sunscreen → BabyInfantItem, see baby_care subcategory.)
     """
     cosmetics = "cosmetics"
     """
@@ -2060,6 +2060,10 @@ class BabyInfantSubcategoryEnum(str, Enum):
     nappies = "nappies"
     """
     Baby nappies/diapers. Must be sealed. UNHCR NFI core item. nappy_size required.
+    """
+    baby_care = "baby_care"
+    """
+    Baby wipes, powder, lotion, oil, wash, shampoo, diaper rash cream, teething gel, baby sunscreen. Must be sealed. (Adult-equivalent toiletries → PersonalCareItem.)
     """
     breastfeeding = "breastfeeding"
     """
@@ -2534,7 +2538,9 @@ class DonationCollection(ConfiguredBaseModel):
     collection_type: CollectionTypeEnum = Field(default=..., description="""Operational type of this collection.  Phase 1: `arrival` only. Phase 2+: working, sorted, stock, campaign, disposed.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection']} })
     label: str = Field(default=..., description="""Human-readable label for the entity.""", json_schema_extra = { "linkml_meta": {'domain_of': ['StorageLocation', 'DonationCollection']} })
     parent: Optional[str] = Field(default=None, description="""FK — null for arrival collections (root); set for all derived child collections.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation', 'StorageLocation', 'DonationCollection']} })
-    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationCollection', 'DonationItem'],
+    donation_source: Optional[str] = Field(default=None, description="""Reference to the DonationSource — privacy boundary between item records and donor identity. Concrete range applied via slot_usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Spenderquelle'},
+                         'label_en': {'tag': 'label_en', 'value': 'Donation Source'}},
+         'domain_of': ['DonationCollection', 'DonationItem'],
          'slot_uri': 'inkind_knowledge_repo:donation_source'} })
     lifecycle_state: CollectionLifecycleEnum = Field(default=..., description="""Current lifecycle state of the entity. Concrete enum range applied via slot_usage. Transitions enforced by Django model clean().""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource',
                        'DonationCollection',
@@ -2714,12 +2720,7 @@ class DonationItem(ConfiguredBaseModel):
                                                'string.'],
                                      'range': 'string',
                                      'required': True},
-                        'donation_source': {'annotations': {'label_de': {'tag': 'label_de',
-                                                                         'value': 'Spenderquelle'},
-                                                            'label_en': {'tag': 'label_en',
-                                                                         'value': 'Donation '
-                                                                                  'Source'}},
-                                            'name': 'donation_source',
+                        'donation_source': {'name': 'donation_source',
                                             'range': 'DonationSource',
                                             'required': False},
                         'lifecycle_state': {'name': 'lifecycle_state',
@@ -2746,8 +2747,8 @@ class DonationItem(ConfiguredBaseModel):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -2843,8 +2844,8 @@ class FoodItem(DonationItem, FoodCategory):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -2936,8 +2937,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -5100,7 +5101,8 @@ class BabyInfantCategory(CategoryMixin):
                                                             'value': 'infant_formula, '
                                                                      'feeding_bottles_teats, '
                                                                      'baby_food, '
-                                                                     'nappies'},
+                                                                     'nappies, '
+                                                                     'baby_care'},
                          'track_general_subcategories': {'tag': 'track_general_subcategories',
                                                          'value': 'bath_equipment, '
                                                                   'changing, '
@@ -5178,13 +5180,17 @@ class BabyInfantCategory(CategoryMixin):
                     'title': 'uc-baby-sleeping-bag-winter-required'},
                    {'description': 'Consumable baby items require sealed packaging. '
                                    'Nappies and formula are UNHCR NFI core relief '
-                                   'items — hygiene integrity is essential.',
+                                   'items — hygiene integrity is essential. baby_care '
+                                   '(wipes, powder, lotion, etc.) carries the same '
+                                   'hygiene requirement as the adult toiletries it '
+                                   'mirrors in PersonalCareCategory.',
                     'postconditions': {'slot_conditions': {'is_sealed': {'name': 'is_sealed',
                                                                          'required': True}}},
                     'preconditions': {'slot_conditions': {'subcategory': {'any_of': [{'equals_string': 'infant_formula'},
                                                                                      {'equals_string': 'feeding_bottles_teats'},
                                                                                      {'equals_string': 'baby_food'},
-                                                                                     {'equals_string': 'nappies'}],
+                                                                                     {'equals_string': 'nappies'},
+                                                                                     {'equals_string': 'baby_care'}],
                                                                           'name': 'subcategory'}}},
                     'title': 'uc-baby-consumable-sealed-required'},
                    {'description': 'Unsealed consumable baby items must not be '
@@ -5197,7 +5203,8 @@ class BabyInfantCategory(CategoryMixin):
                                                           'subcategory': {'any_of': [{'equals_string': 'infant_formula'},
                                                                                      {'equals_string': 'feeding_bottles_teats'},
                                                                                      {'equals_string': 'baby_food'},
-                                                                                     {'equals_string': 'nappies'}],
+                                                                                     {'equals_string': 'nappies'},
+                                                                                     {'equals_string': 'baby_care'}],
                                                                           'name': 'subcategory'}}},
                     'title': 'uc-baby-consumable-unsealed-block'},
                    {'description': 'Nappies require nappy_size. Weight-banded sizing '
@@ -5598,8 +5605,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -5737,8 +5744,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -5919,8 +5926,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6030,8 +6037,8 @@ class FurnitureItem(FurnitureCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6155,8 +6162,8 @@ Critical for sleeping bags — a summer sleeping bag issued in a cold-weather em
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6277,8 +6284,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6386,8 +6393,8 @@ class ElectronicsItem(ElectronicsCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6529,8 +6536,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6664,8 +6671,8 @@ class SportsItem(SportsCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6782,8 +6789,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -6901,8 +6908,8 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -7019,8 +7026,8 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -7128,8 +7135,8 @@ class MobilityAidsItem(MobilityAidsCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
@@ -7335,8 +7342,8 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Provenance'},
-                         'label_en': {'tag': 'label_en', 'value': 'Provenance'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['DonationItem'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',

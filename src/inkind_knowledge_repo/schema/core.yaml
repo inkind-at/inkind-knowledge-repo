@@ -304,8 +304,8 @@ slots:
       - schema:NewCondition
       - schema:UsedCondition
     annotations:
-      label_en: "Provenance"
-      label_de: "Provenance"
+      label_en: "Condition"
+      label_de: "Zustand"
 
   # ── CONDITION DIMENSION 2a: Wear grade ───────────────────────────────────────
   condition_grade:

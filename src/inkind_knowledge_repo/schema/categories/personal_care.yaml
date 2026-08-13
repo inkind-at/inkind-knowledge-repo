@@ -47,6 +47,17 @@ description: >-
     infant formula as core relief items. Only adult incontinence products
     remain here as incontinence_products.
 
+  Note on baby toiletries:
+    Baby-specific toiletries (baby wipes, baby powder, baby lotion/oil,
+    baby wash, baby shampoo, diaper rash cream, teething gel, baby
+    sunscreen) are NOT in PersonalCareSubcategoryEnum — they belong in
+    BabyInfantSubcategoryEnum's baby_care subcategory (baby_infant.yaml),
+    grouped alongside nappies as items donated, sorted, and requested
+    together. The is_sealed/expiry_date assessment is identical to the
+    adult toiletries below (skincare, soap_body_wash, shampoo_conditioner),
+    so this is purely a routing/UX decision, not a distinct vocabulary —
+    same rationale as the nappies move above.
+
   Note on OTC medications:
     Prescription medications must NEVER be accepted. If found, sorters must
     flag for safe pharmaceutical disposal, not sort into PersonalCareItem.
@@ -198,15 +209,15 @@ enums:
       Personal care, hygiene, and health product subcategories.
       Covers COICOP 06.1 (medical products) and 12.1 (personal care).
     permissible_values:
-      soap_body_wash:       {description: "Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.", see_also: [pto:Soap], annotations: {label_en: "Soap and Body Wash", label_de: "Seife und Duschgel", aliases_en: ["soap", "body wash", "hand sanitiser"], aliases_de: ["Seife", "Duschgel", "Handdesinfektionsmittel"]}}
-      shampoo_conditioner:  {description: "Shampoo, conditioner, dry shampoo. Must be sealed.", see_also: [pto:Hair_care], annotations: {label_en: "Shampoo and Conditioner", label_de: "Shampoo und Conditioner", aliases_en: ["Shampoo", "Conditioner", "Dry shampoo"], aliases_de: ["Shampoo", "Conditioner", "Trockenshampoo"]}}
+      soap_body_wash:       {description: "Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed. (Baby wash → BabyInfantItem, see baby_care subcategory.)", see_also: [pto:Soap], annotations: {label_en: "Soap and Body Wash", label_de: "Seife und Duschgel", aliases_en: ["soap", "body wash", "hand sanitiser"], aliases_de: ["Seife", "Duschgel", "Handdesinfektionsmittel"]}}
+      shampoo_conditioner:  {description: "Shampoo, conditioner, dry shampoo. Must be sealed. (Baby shampoo → BabyInfantItem, see baby_care subcategory.)", see_also: [pto:Hair_care], annotations: {label_en: "Shampoo and Conditioner", label_de: "Shampoo und Conditioner", aliases_en: ["Shampoo", "Conditioner", "Dry shampoo"], aliases_de: ["Shampoo", "Conditioner", "Trockenshampoo"]}}
       dental:               {description: "Toothpaste, mouthwash, dental floss. Must be sealed. (Toothbrushes → personal_care_tools).", see_also: [pto:Oral_hygiene], annotations: {label_en: "Dental Care", label_de: "Zahnpflege", aliases_en: ["toothpaste", "mouthwash", "dental floss"], aliases_de: ["Zahnpasta", "Mundspülung", "Zahnseide"]}}
       deodorant:            {description: "Deodorant and antiperspirant. Must be sealed.", annotations: {label_en: "Deodorant", label_de: "Deodorant", aliases_en: ["deodorant", "antiperspirant"], aliases_de: ["Deodorant", "Schweißhemmer"]}}
       sanitary_products:    {description: "Menstrual pads, tampons, menstrual cups. Must be sealed.", annotations: {label_en: "Sanitary Products", label_de: "Damenhygieneprodukte", aliases_en: ["sanitary pad", "tampon", "menstrual cup"], aliases_de: ["Damenhygiene", "Tampon", "Menstruationsbeutel", "Damenbinde"]}}
       incontinence_products: {description: "Adult incontinence pads, pull-ups, bed pads. Must be sealed. (Baby nappies → BabyInfantItem, see nappies subcategory.)", annotations: {label_en: "Incontinence Products", label_de: "Inkontinenzprodukte", aliases_en: ["incontinence product", "incontinence pad", "pull-up", "bed pad"], aliases_de: ["Inkontinenzprodukt", "Inkontinenzeinlage", "Inkontinenzhose", "Bettschutzeinlage"]}}
       toilet_paper_tissue:  {description: "Toilet paper, facial tissue. Must be sealed/wrapped.", annotations: {label_en: "Toilet Paper and Facial Tissue", label_de: "Toilettenpapier und Taschentücher", aliases_en: ["toilet paper", "facial tissue"], aliases_de: ["Toilettenpapier", "Taschentücher"]}}
       personal_care_tools:  {description: "Toothbrushes, razors, nail clippers, tweezers, combs. UC block: used → never redistribute.", annotations: {label_en: "Personal Care Tools", label_de: "Persönliche Pflegewerkzeuge", aliases_en: ["toothbrush", "razor", "nail clippers", "tweezers", "comb"], aliases_de: ["Zahnbürste", "Rasierer", "Nagelknipser", "Pinzette", "Kamm"]}}
-      skincare:             {description: "Moisturisers, sunscreen, face wash, lip balm. Must be sealed.", see_also: [pto:Skin_care], annotations: {label_en: "Skincare", label_de: "Hautpflege", aliases_en: ["skincare", "moisturiser", "sunscreen", "face wash", "lip balm"], aliases_de: ["Hautpflege", "Feuchtigkeitscreme", "Sonnencreme", "Gesichtsreiniger", "Lippenbalsam"]}}
+      skincare:             {description: "Moisturisers, sunscreen, face wash, lip balm. Must be sealed. (Baby lotion/oil/powder/rash cream/sunscreen → BabyInfantItem, see baby_care subcategory.)", see_also: [pto:Skin_care], annotations: {label_en: "Skincare", label_de: "Hautpflege", aliases_en: ["skincare", "moisturiser", "sunscreen", "face wash", "lip balm"], aliases_de: ["Hautpflege", "Feuchtigkeitscreme", "Sonnencreme", "Gesichtsreiniger", "Lippenbalsam"]}}
       cosmetics:            {description: "Foundation, lipstick, mascara, nail polish. Must be sealed/unused.", see_also: [pto:Cosmetics], annotations: {label_en: "Cosmetics", label_de: "Kosmetik", aliases_en: ["cosmetics", "foundation", "lipstick", "mascara", "nail polish"], aliases_de: ["Kosmetik", "Foundation", "Lippenstift", "Mascara", "Nagellack"]}}
       hair_styling:         {description: "Hair gel, mousse, hairspray, hair dye. Must be sealed.", annotations: {label_en: "Hair Styling", label_de: "Haarstyling", aliases_en: ["hair styling", "hair gel", "mousse", "hairspray", "hair dye"], aliases_de: ["Haarstyling", "Haar Gel", "Mousse", "Haarspray", "Haarfärbemittel"]}}
       otc_medication:       {description: "OTC pain relief, vitamins, cold medicine. Sealed + expiry enforced. NO prescription medications.", see_also: [pto:Over-the-counter_drug], annotations: {label_en: "Over-the-Counter Medication", label_de: "Freiverkäufliche Medikamente", aliases_en: ["OTC medication", "over-the-counter medication", "pain relief", "vitamins", "cold medicine"], aliases_de: ["Freiverkäufliche Medikamente", "Schmerzmittel", "Vitamine", "Erkältungsmedizin"]}}

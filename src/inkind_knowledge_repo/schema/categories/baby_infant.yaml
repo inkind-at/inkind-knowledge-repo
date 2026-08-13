@@ -51,7 +51,7 @@ description: >-
       a safety risk.
 
     Track 2 — Consumables:
-      infant_formula, feeding_bottles_teats, baby_food, nappies
+      infant_formula, feeding_bottles_teats, baby_food, nappies, baby_care
       Uses is_sealed + expiry_date (same pattern as PersonalCareCategory).
       Hygiene and safety are binary: sealed/not sealed, expired/not expired.
       Used feeding bottles/teats are blocked outright (EN 14350 hygiene).
@@ -63,6 +63,14 @@ description: >-
       Nappies additionally carry nappy_size (NappySizeEnum) — nappy fit is
       weight-based, not age-based, so it is a distinct vocabulary from
       ClothingCategory's age-banded size slot.
+      baby_care (wipes, powder, lotion, oil, wash, shampoo, diaper rash
+      cream, teething gel, baby sunscreen) is grouped here rather than in
+      PersonalCareCategory for the same "more accurate home" reasoning as
+      nappies: these items are donated, sorted, and requested together as
+      one "baby care" bundle, and the is_sealed/expiry_date assessment is
+      identical to their adult-toiletry equivalents so no separate
+      subcategory per item is needed — a sorter should not have to
+      context-switch into PersonalCareItem mid-box.
 
     Track 3 — General baby gear:
       bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding
@@ -162,7 +170,7 @@ classes:
       completeness_standard: "subcategory, usage, nappy_size"
       completeness_detailed: "subcategory, nappy_size, manufacture_year, is_complete_with_accessories, usage"
       track_structural_subcategories: "pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags"
-      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food, nappies"
+      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food, nappies, baby_care"
       track_general_subcategories:    "bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other"
       regulatory_references: "EN 1888, EN 716, EN 14344, EN 14350, EN 16781"
     rules:
@@ -256,6 +264,8 @@ classes:
         description: >-
           Consumable baby items require sealed packaging. Nappies and formula
           are UNHCR NFI core relief items — hygiene integrity is essential.
+          baby_care (wipes, powder, lotion, etc.) carries the same hygiene
+          requirement as the adult toiletries it mirrors in PersonalCareCategory.
         preconditions:
           slot_conditions:
             subcategory:
@@ -264,6 +274,7 @@ classes:
                 - equals_string: feeding_bottles_teats
                 - equals_string: baby_food
                 - equals_string: nappies
+                - equals_string: baby_care
         postconditions:
           slot_conditions:
             is_sealed:
@@ -281,6 +292,7 @@ classes:
                 - equals_string: feeding_bottles_teats
                 - equals_string: baby_food
                 - equals_string: nappies
+                - equals_string: baby_care
             is_sealed:
               equals_string: "false"
         postconditions:
@@ -462,17 +474,18 @@ enums:
       Baby and infant supplies subcategories. Grounded in Product Types
       Ontology. Baby clothing belongs in ClothingItem (demographic=baby).
     permissible_values:
-      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pushchair/pram/stroller", label_de: "Kinderwagen/Pram/Stroller", aliases_en: ["pushchair", "pram", "stroller"], aliases_de: ["Kinderwagen", "Pram", "Stroller"]}}
+      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pram", label_de: "Kinderwagen", aliases_en: ["pushchair", "pram", "stroller"], aliases_de: ["Kinderwagen", "Pram", "Stroller"]}}
       car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car seat/booster seat", label_de: "Autositz/Booster-Sitz", aliases_en: ["car seat", "booster seat", "Maxi-Cosi"], aliases_de: ["Autositz", "Booster-Sitz", "Maxi-Cosi", "Kindersitz"]}}
-      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot/crib/moses basket", label_de: "Kinderbett/Crib/Moseskorb", aliases_en: ["cot", "crib", "moses basket"], aliases_de: ["Kinderbett", "Crib", "Moseskorb", "Beistellbett", "Gitterbett"]}}
+      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot", label_de: "Kinderbett", aliases_en: ["cot", "crib", "moses basket"], aliases_de: ["Kinderbett", "Crib", "Moseskorb", "Beistellbett", "Gitterbett"]}}
       baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier", label_de: "Baby-Trager", aliases_en: ["baby carrier", "baby sling", "baby wrap"], aliases_de: ["Baby-Trager", "Baby-Hängematte", "Baby-Umhängetuch"]}}
       infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula], annotations: {label_en: "Infant formula", label_de: "Säuglingsnahrung"}}
       feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Baby bottle", label_de: "Babyflasche", aliases_en: ["feeding bottle", "teat", "bottle and teat", "baby bottle"], aliases_de: ["Fütterungsglas", "Flasche und Sauger", "Flasche mit Sauger", "Babyflasche"]}}
       nappies:               {description: "Baby nappies/diapers. Must be sealed. UNHCR NFI core item. nappy_size required.", see_also: [pto:Diaper], annotations: {label_en: "Nappies", label_de: "Windeln", aliases_en: ["nappy", "diaper", "nappies", "diapers"], aliases_de: ["Windel", "Windeln"]}}
+      baby_care:             {description: "Baby wipes, powder, lotion, oil, wash, shampoo, diaper rash cream, teething gel, baby sunscreen. Must be sealed. (Adult-equivalent toiletries → PersonalCareItem.)", annotations: {label_en: "Baby Care", label_de: "Babypflege", aliases_en: ["baby wipes", "wet wipes", "baby powder", "baby lotion", "baby oil", "baby wash", "baby shampoo", "diaper rash cream", "nappy cream", "teething gel", "baby sunscreen"], aliases_de: ["Feuchttücher", "Babypuder", "Babylotion", "Babyöl", "Baby-Waschlotion", "Baby-Shampoo", "Wundschutzcreme", "Zahnungsgel", "Baby-Sonnencreme"]}}
       breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Brustpflegeartikel", aliases_en: ["breastfeeding supplies", "breast pump", "nursing pads", "steriliser"], aliases_de: ["Brustpflegeartikel", "Brustpumpe", "Stilleinlagen", "Sterilisator"]}}
       bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badeausrüstung", aliases_en: ["baby bath", "bath seat", "bath thermometer"], aliases_de: ["Babybadewanne", "Badsitz", "Badethermometer"]}}
-      changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Veränderungsausrüstung", aliases_en: ["changing mat", "nappy bag", "changing bag"], aliases_de: ["Wickelunterlage", "Windeltasche", "Wickeltasche"]}}
-      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Baby-Überwachungskamera", aliases_en: ["baby monitor", "audio monitor", "video monitor", "babyphone"], aliases_de: ["Baby-Überwachungskamera", "Audio-Monitor", "Video-Monitor", "Babyphone"]}}
+      changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Wickelzubehör", aliases_en: ["changing mat", "nappy bag", "changing bag"], aliases_de: ["Wickelunterlage", "Windeltasche", "Wickeltasche", "Wickelzubehör"]}}
+      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Babyphone", aliases_en: ["baby monitor", "audio monitor", "video monitor", "babyphone"], aliases_de: ["Baby-Überwachungskamera", "Audio-Monitor", "Video-Monitor", "Babyphone"]}}
       bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "play gym", label_de: "Spielgerät", aliases_en: ["bouncer", "swing", "rocker", "play gym"], aliases_de: ["Kinderwippe", "Schaukel", "Rocker", "Spielgerät"]}}
       sleeping_bags:
         description: >-
