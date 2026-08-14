@@ -16,7 +16,8 @@ description: >-
       are genuinely different kinds of things, not the same thing with a
       different field value.
     - The closed-world assumption (CWA) enforces slot absence at no cost:
-      food_type does not exist on ClothingItem because it is not declared there.
+      packaging_intact does not exist on ClothingItem because it is not
+      declared there.
     - gen-json-schema, gen-pydantic, and linkml-validate all dispatch on
       category automatically, producing typed output without extra code.
 

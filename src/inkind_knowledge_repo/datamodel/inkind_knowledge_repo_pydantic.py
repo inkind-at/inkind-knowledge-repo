@@ -2142,6 +2142,22 @@ class FoodTypeEnum(str, Enum):
     """
     Primary food type classification. Grounded in FoodOn ontology (OBO Foundry). Each value maps to valid storage_requirement values via vm-storage-* rules.
     """
+    bread_bakery = "bread_bakery"
+    """
+    Bread, rolls, pastries, cakes, and other baked goods. Storage: ambient or frozen.
+    """
+    fruit_vegetables = "fruit_vegetables"
+    """
+    Fresh fruit, vegetables, and herbs. Perishable — packaging_intact rule applies. May be stored ambient, refrigerated, or frozen.
+    """
+    meat_fish = "meat_fish"
+    """
+    Fresh or frozen meat, poultry, sausage, fish, and seafood. Perishable — packaging_intact rule applies. Requires refrigerated or frozen storage.
+    """
+    dairy_eggs = "dairy_eggs"
+    """
+    Milk, cheese, yoghurt, and eggs. Perishable — requires refrigeration or freezing.
+    """
     dry_goods = "dry_goods"
     """
     Non-perishable dry staples: pasta, rice, flour, cereals, pulses. Storage: ambient or dry_cool.
@@ -2150,25 +2166,21 @@ class FoodTypeEnum(str, Enum):
     """
     Factory-sealed tins and cans. Shelf-stable at ambient temperature. Storage: ambient only.
     """
-    fresh_produce = "fresh_produce"
-    """
-    Unprocessed fruit, vegetables, herbs. Perishable. packaging_intact rule applies.
-    """
-    dairy = "dairy"
-    """
-    Milk, cheese, yoghurt, and dairy-based products. Perishable — requires refrigeration or freezing.
-    """
-    frozen = "frozen"
-    """
-    Items requiring continuous frozen storage. Perishable — frozen storage is the only valid option. Breaking the cold chain makes refreezing unsafe.
-    """
     beverages = "beverages"
     """
     Bottled or packaged drinks (non-alcoholic).
     """
+    confectionery_sweets = "confectionery_sweets"
+    """
+    Chocolate, sweets, candy, and desserts. Storage: ambient.
+    """
+    ready_meals = "ready_meals"
+    """
+    Prepared meals — ambient (shelf-stable), refrigerated, or frozen.
+    """
     baby_food = "baby_food"
     """
-    Commercially prepared infant formula and baby food. Perishable once opened — packaging_intact rule applies. Note: infant formula as a separate donation item belongs in BabyInfantItem (baby_infant category); this value covers baby food donated as part of a food collection.
+    Commercially prepared solid baby food (purées, jars, pouches). Perishable once opened — packaging_intact rule applies. Note: infant formula belongs in BabyInfantItem (subcategory=infant_formula), not here; this value covers baby food donated as part of a food collection.
     """
     condiments = "condiments"
     """
@@ -2182,7 +2194,7 @@ class FoodTypeEnum(str, Enum):
 
 class StorageRequirementEnum(str, Enum):
     """
-    Required storage condition for a food item. Valid values per food_type are constrained by vm-storage-* rules in FoodCategory.
+    Required storage condition for a food item. Valid values per subcategory are constrained by vm-storage-* rules in FoodCategory.
     """
     ambient = "ambient"
     """
@@ -2199,36 +2211,6 @@ class StorageRequirementEnum(str, Enum):
     dry_cool = "dry_cool"
     """
     Cool, dry conditions (8-15°C) — root vegetable or wine-cellar type.
-    """
-
-
-class FoodSubcategoryEnum(str, Enum):
-    """
-    Optional subcategory for further food classification within a food_type. Used when more granular labelling is operationally useful.
-    """
-    vegetables = "vegetables"
-    """
-    Fresh vegetables.
-    """
-    fruit = "fruit"
-    """
-    Fresh fruit.
-    """
-    bread_bakery = "bread_bakery"
-    """
-    Bread, rolls, and baked goods.
-    """
-    meat_alternatives = "meat_alternatives"
-    """
-    Plant-based meat substitutes.
-    """
-    ready_meals = "ready_meals"
-    """
-    Prepared meals — ambient, refrigerated, or frozen.
-    """
-    other = "other"
-    """
-    Food subcategory not covered above.
     """
 
 
@@ -2562,18 +2544,18 @@ class FoodCategory(ConfiguredBaseModel):
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'coicop_division': {'tag': 'coicop_division', 'value': '01'},
                          'completeness_detailed': {'tag': 'completeness_detailed',
-                                                   'value': 'food_type, '
+                                                   'value': 'subcategory, '
                                                             'packaging_intact, '
                                                             'storage_requirement, '
                                                             'expiry_date, '
                                                             'net_content_value, '
                                                             'net_content_unit, usage'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
-                                                  'value': 'food_type, '
+                                                  'value': 'subcategory, '
                                                            'packaging_intact, '
                                                            'storage_requirement'},
                          'completeness_standard': {'tag': 'completeness_standard',
-                                                   'value': 'food_type, '
+                                                   'value': 'subcategory, '
                                                             'packaging_intact, '
                                                             'storage_requirement, '
                                                             'usage'},
@@ -2587,13 +2569,14 @@ class FoodCategory(ConfiguredBaseModel):
                     'postconditions': {'slot_conditions': {'lifecycle_state': {'name': 'lifecycle_state',
                                                                                'none_of': [{'equals_string': 'stored'},
                                                                                            {'equals_string': 'distributed'}]}}},
-                    'preconditions': {'slot_conditions': {'food_type': {'any_of': [{'equals_string': 'fresh_produce'},
-                                                                                   {'equals_string': 'dairy'},
-                                                                                   {'equals_string': 'frozen'},
-                                                                                   {'equals_string': 'baby_food'}],
-                                                                        'name': 'food_type'},
-                                                          'packaging_intact': {'equals_string': 'false',
-                                                                               'name': 'packaging_intact'}}},
+                    'preconditions': {'slot_conditions': {'packaging_intact': {'equals_string': 'false',
+                                                                               'name': 'packaging_intact'},
+                                                          'subcategory': {'any_of': [{'equals_string': 'fruit_vegetables'},
+                                                                                     {'equals_string': 'dairy_eggs'},
+                                                                                     {'equals_string': 'meat_fish'},
+                                                                                     {'equals_string': 'baby_food'},
+                                                                                     {'equals_string': 'ready_meals'}],
+                                                                          'name': 'subcategory'}}},
                     'title': 'uc-packaging-perishable-block'},
                    {'annotations': {'enforcement': {'tag': 'enforcement',
                                                     'value': 'application_layer'},
@@ -2609,28 +2592,93 @@ class FoodCategory(ConfiguredBaseModel):
                                    'expressible as a static LinkML rule. Enforced by '
                                    'Django model clean() at save time.',
                     'title': 'uc-expiry-date-past-block'},
-                   {'description': 'Frozen food requires frozen storage only. Breaking '
-                                   'the cold chain makes frozen food unsafe to '
-                                   'refreeze. action: block invalid value.',
-                    'postconditions': {'slot_conditions': {'storage_requirement': {'equals_string': 'frozen',
+                   {'description': 'Bread and bakery goods are ambient or frozen — '
+                                   'never refrigerated.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'frozen'}],
                                                                                    'name': 'storage_requirement'}}},
-                    'preconditions': {'slot_conditions': {'food_type': {'equals_string': 'frozen',
-                                                                        'name': 'food_type'}}},
-                    'title': 'vm-storage-frozen'},
-                   {'description': 'Dairy requires refrigerated or frozen storage.',
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'bread_bakery',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-bread-bakery'},
+                   {'description': 'Fruit and vegetables may be stored ambient, '
+                                   'refrigerated, or frozen.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'refrigerated'},
+                                                                                              {'equals_string': 'frozen'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'fruit_vegetables',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-fruit-vegetables'},
+                   {'description': 'Meat and fish require refrigerated or frozen '
+                                   'storage — never ambient, for food safety.',
                     'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'refrigerated'},
                                                                                               {'equals_string': 'frozen'}],
                                                                                    'name': 'storage_requirement'}}},
-                    'preconditions': {'slot_conditions': {'food_type': {'equals_string': 'dairy',
-                                                                        'name': 'food_type'}}},
-                    'title': 'vm-storage-dairy'},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'meat_fish',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-meat-fish'},
+                   {'description': 'Dairy and eggs require refrigerated or frozen '
+                                   'storage.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'refrigerated'},
+                                                                                              {'equals_string': 'frozen'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'dairy_eggs',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-dairy-eggs'},
+                   {'description': 'Dry goods are shelf-stable — ambient or dry_cool '
+                                   'storage only.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'dry_cool'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'dry_goods',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-dry-goods'},
                    {'description': 'Canned goods are shelf-stable — ambient storage '
                                    'only.',
                     'postconditions': {'slot_conditions': {'storage_requirement': {'equals_string': 'ambient',
                                                                                    'name': 'storage_requirement'}}},
-                    'preconditions': {'slot_conditions': {'food_type': {'equals_string': 'canned_goods',
-                                                                        'name': 'food_type'}}},
-                    'title': 'vm-storage-canned'}],
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'canned_goods',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-canned'},
+                   {'description': 'Beverages are stored ambient or refrigerated.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'refrigerated'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'beverages',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-beverages'},
+                   {'description': 'Confectionery and sweets are shelf-stable — '
+                                   'ambient storage only.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'equals_string': 'ambient',
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'confectionery_sweets',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-confectionery-sweets'},
+                   {'description': 'Condiments are stored ambient or refrigerated '
+                                   '(once opened).',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'refrigerated'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'condiments',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-condiments'},
+                   {'description': 'Ready meals may be shelf-stable ambient, chilled, '
+                                   'or frozen, depending on preparation.',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'refrigerated'},
+                                                                                              {'equals_string': 'frozen'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'ready_meals',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-ready-meals'},
+                   {'description': 'Baby food is stored ambient or refrigerated (once '
+                                   'opened).',
+                    'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
+                                                                                              {'equals_string': 'refrigerated'}],
+                                                                                   'name': 'storage_requirement'}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'baby_food',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'vm-storage-baby-food'}],
          'see_also': ['foodon:00001006', 'http://purl.obolibrary.org/obo/foodon.owl'],
          'slot_usage': {'expiry_date': {'annotations': {'uc_action': {'tag': 'uc_action',
                                                                       'value': 'block'},
@@ -2650,15 +2698,44 @@ class FoodCategory(ConfiguredBaseModel):
                                                        'clean()).',
                                         'name': 'expiry_date',
                                         'see_also': ['foodon:00001043']},
-                        'food_type': {'name': 'food_type', 'required': True},
                         'packaging_intact': {'name': 'packaging_intact',
                                              'required': False},
                         'storage_requirement': {'name': 'storage_requirement',
-                                                'required': False}}})
+                                                'required': False},
+                        'subcategory': {'annotations': {'label_de': {'tag': 'label_de',
+                                                                     'value': 'Lebensmitteltyp'},
+                                                        'label_en': {'tag': 'label_en',
+                                                                     'value': 'food '
+                                                                              'type'}},
+                                        'description': 'Primary food type '
+                                                       'classification. Grounded in '
+                                                       'FoodOn food product taxonomy. '
+                                                       'Determines valid '
+                                                       'storage_requirement values via '
+                                                       'value map.',
+                                        'name': 'subcategory',
+                                        'range': 'FoodTypeEnum',
+                                        'required': True,
+                                        'see_also': ['foodon:00001017']}}})
 
-    food_type: FoodTypeEnum = Field(default=..., description="""Primary food type classification. Grounded in FoodOn food product taxonomy. Determines valid storage_requirement values via value map.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lebensmitteltyp'},
+    subcategory: FoodTypeEnum = Field(default=..., description="""Primary food type classification. Grounded in FoodOn food product taxonomy. Determines valid storage_requirement values via value map.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lebensmitteltyp'},
                          'label_en': {'tag': 'label_en', 'value': 'food type'}},
-         'domain_of': ['FoodCategory'],
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ElectronicsCategory',
+                       'ToysCategory',
+                       'SportsCategory',
+                       'BooksCategory',
+                       'StationeryCategory',
+                       'PersonalCareCategory',
+                       'MobilityAidsCategory',
+                       'BabyInfantCategory',
+                       'FoodCategory',
+                       'AnyValue'],
          'see_also': ['foodon:00001017']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date as printed on the packaging. UC block: expiry_date < today (runtime check by Django model clean()).""", json_schema_extra = { "linkml_meta": {'annotations': {'uc_action': {'tag': 'uc_action', 'value': 'block'},
                          'uc_note': {'tag': 'uc_note',
@@ -2667,11 +2744,11 @@ class FoodCategory(ConfiguredBaseModel):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable food_type → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by food_type via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Lagerungsanforderung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
@@ -2804,9 +2881,24 @@ class FoodItem(DonationItem, FoodCategory):
                     'title': 'lc-sorted-food-storage-required'}],
          'see_also': ['foodon:00001006', 'http://purl.obolibrary.org/obo/foodon.owl']})
 
-    food_type: FoodTypeEnum = Field(default=..., description="""Primary food type classification. Grounded in FoodOn food product taxonomy. Determines valid storage_requirement values via value map.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lebensmitteltyp'},
+    subcategory: FoodTypeEnum = Field(default=..., description="""Primary food type classification. Grounded in FoodOn food product taxonomy. Determines valid storage_requirement values via value map.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lebensmitteltyp'},
                          'label_en': {'tag': 'label_en', 'value': 'food type'}},
-         'domain_of': ['FoodCategory'],
+         'domain_of': ['ClothingCategory',
+                       'AccessoriesCategory',
+                       'FootwearCategory',
+                       'FurnitureCategory',
+                       'BeddingTextilesCategory',
+                       'HouseholdCategory',
+                       'ElectronicsCategory',
+                       'ToysCategory',
+                       'SportsCategory',
+                       'BooksCategory',
+                       'StationeryCategory',
+                       'PersonalCareCategory',
+                       'MobilityAidsCategory',
+                       'BabyInfantCategory',
+                       'FoodCategory',
+                       'AnyValue'],
          'see_also': ['foodon:00001017']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date as printed on the packaging. UC block: expiry_date < today (runtime check by Django model clean()).""", json_schema_extra = { "linkml_meta": {'annotations': {'uc_action': {'tag': 'uc_action', 'value': 'block'},
                          'uc_note': {'tag': 'uc_note',
@@ -2815,11 +2907,11 @@ class FoodItem(DonationItem, FoodCategory):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable food_type → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by food_type via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Lagerungsanforderung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
@@ -2991,6 +3083,7 @@ class AnyValue(ConfiguredBaseModel):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
@@ -3448,6 +3541,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     tops_subcategory: Optional[TopsSubcategoryEnum] = Field(default=None, description="""Finer-grained garment type within tops (t-shirt, shirt/blouse, sweater, etc.). Optional UI refinement only — not part of any completeness tier and carries no UC/VM rules. Shown in the sorting UI only when subcategory=tops.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Oberteil-Typ'},
                          'label_en': {'tag': 'label_en', 'value': 'Tops Type'},
@@ -3584,6 +3678,7 @@ class AccessoriesCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
@@ -3779,6 +3874,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[FootwearMaterialEnum] = Field(default=None, description="""Primary upper-material. Optional — detailed completeness tier. Record the dominant outer surface material. See FootwearMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -3928,6 +4024,7 @@ class FurnitureCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[FurnitureMaterialEnum] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -4108,6 +4205,7 @@ class BeddingTextilesCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[BeddingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Record the dominant fibre; use synthetic_blend when no single synthetic dominates. See BeddingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -4198,6 +4296,7 @@ class HouseholdCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[HouseholdMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Record the dominant material; use mixed when no single material dominates. See HouseholdMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -4304,6 +4403,7 @@ class ElectronicsCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: ElectronicsAssessmentEnum = Field(default=..., description="""Functional and cosmetic assessment. Required regardless of usage — new devices can have factory defects or dead batteries.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -4411,6 +4511,7 @@ class ToysCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[ToysMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Operationally relevant under EU Toy Safety Directive 2009/48/EC Annex II (chemical restrictions in toy materials). See ToysMaterialEnum for full vocabulary, ontology grounding, and safety rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -4579,6 +4680,7 @@ class SportsCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[SportsProtectiveAssessmentEnum] = Field(default=None, description="""Structured safety assessment for protective_gear subcategory only. Required when subcategory = protective_gear; absent otherwise.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -4679,6 +4781,7 @@ class BooksCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['BooksCategory']} })
     age_range: Optional[BookAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
@@ -4761,6 +4864,7 @@ class StationeryCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -4936,6 +5040,7 @@ class PersonalCareCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Versiegelte Verpackung'},
@@ -5057,6 +5162,7 @@ class MobilityAidsCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[MobilityAssessmentEnum] = Field(default=None, description="""Safety and hygiene assessment. Required regardless of usage — new mobility aids can have manufacturing defects.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -5100,7 +5206,6 @@ class BabyInfantCategory(CategoryMixin):
                          'track_consumable_subcategories': {'tag': 'track_consumable_subcategories',
                                                             'value': 'infant_formula, '
                                                                      'feeding_bottles_teats, '
-                                                                     'baby_food, '
                                                                      'nappies, '
                                                                      'baby_care'},
                          'track_general_subcategories': {'tag': 'track_general_subcategories',
@@ -5188,7 +5293,6 @@ class BabyInfantCategory(CategoryMixin):
                                                                          'required': True}}},
                     'preconditions': {'slot_conditions': {'subcategory': {'any_of': [{'equals_string': 'infant_formula'},
                                                                                      {'equals_string': 'feeding_bottles_teats'},
-                                                                                     {'equals_string': 'baby_food'},
                                                                                      {'equals_string': 'nappies'},
                                                                                      {'equals_string': 'baby_care'}],
                                                                           'name': 'subcategory'}}},
@@ -5202,7 +5306,6 @@ class BabyInfantCategory(CategoryMixin):
                                                                         'name': 'is_sealed'},
                                                           'subcategory': {'any_of': [{'equals_string': 'infant_formula'},
                                                                                      {'equals_string': 'feeding_bottles_teats'},
-                                                                                     {'equals_string': 'baby_food'},
                                                                                      {'equals_string': 'nappies'},
                                                                                      {'equals_string': 'baby_care'}],
                                                                           'name': 'subcategory'}}},
@@ -5281,8 +5384,7 @@ class BabyInfantCategory(CategoryMixin):
                                                      'Track 2 consumables. Required '
                                                      'when subcategory in '
                                                      '[infant_formula, '
-                                                     'feeding_bottles_teats, '
-                                                     'baby_food, nappies].',
+                                                     'feeding_bottles_teats, nappies].',
                                       'name': 'is_sealed',
                                       'required': False},
                         'is_winter_suitable': {'description': 'Whether this item '
@@ -5333,6 +5435,7 @@ class BabyInfantCategory(CategoryMixin):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[BabyEquipmentAssessmentEnum] = Field(default=None, description="""Structural/provenance assessment for Track 1 safety-critical equipment. Required when subcategory in [pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -5361,7 +5464,7 @@ class BabyInfantCategory(CategoryMixin):
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, baby_food, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Versiegelte Verpackung'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
@@ -5525,6 +5628,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     tops_subcategory: Optional[TopsSubcategoryEnum] = Field(default=None, description="""Finer-grained garment type within tops (t-shirt, shirt/blouse, sweater, etc.). Optional UI refinement only — not part of any completeness tier and carries no UC/VM rules. Shown in the sorting UI only when subcategory=tops.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Oberteil-Typ'},
                          'label_en': {'tag': 'label_en', 'value': 'Tops Type'},
@@ -5689,6 +5793,7 @@ class AccessoriesItem(AccessoriesCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
@@ -5868,6 +5973,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[FootwearMaterialEnum] = Field(default=None, description="""Primary upper-material. Optional — detailed completeness tier. Record the dominant outer surface material. See FootwearMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -6001,6 +6107,7 @@ class FurnitureItem(FurnitureCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[FurnitureMaterialEnum] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -6116,6 +6223,7 @@ class BeddingTextilesItem(BeddingTextilesCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[BeddingMaterialEnum] = Field(default=None, description="""Primary fibre or fabric composition. Optional — detailed completeness tier. Record the dominant fibre; use synthetic_blend when no single synthetic dominates. See BeddingMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -6233,6 +6341,7 @@ class HouseholdItem(HouseholdCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[HouseholdMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Record the dominant material; use mixed when no single material dominates. See HouseholdMaterialEnum for full vocabulary and ontology grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -6370,6 +6479,7 @@ class ElectronicsItem(ElectronicsCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: ElectronicsAssessmentEnum = Field(default=..., description="""Functional and cosmetic assessment. Required regardless of usage — new devices can have factory defects or dead batteries.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -6477,6 +6587,7 @@ class ToysItem(ToysCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     material: Optional[ToysMaterialEnum] = Field(default=None, description="""Primary construction material. Optional — detailed completeness tier. Operationally relevant under EU Toy Safety Directive 2009/48/EC Annex II (chemical restrictions in toy materials). See ToysMaterialEnum for full vocabulary, ontology grounding, and safety rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
@@ -6615,6 +6726,7 @@ class SportsItem(SportsCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[SportsProtectiveAssessmentEnum] = Field(default=None, description="""Structured safety assessment for protective_gear subcategory only. Required when subcategory = protective_gear; absent otherwise.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -6749,6 +6861,7 @@ class BooksItem(BooksCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['BooksCategory']} })
     age_range: Optional[BookAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
@@ -6867,6 +6980,7 @@ class StationeryItem(StationeryCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -6995,6 +7109,7 @@ class PersonalCareItem(PersonalCareCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Versiegelte Verpackung'},
@@ -7114,6 +7229,7 @@ class MobilityAidsItem(MobilityAidsCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[MobilityAssessmentEnum] = Field(default=None, description="""Safety and hygiene assessment. Required regardless of usage — new mobility aids can have manufacturing defects.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -7270,6 +7386,7 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
                        'PersonalCareCategory',
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
+                       'FoodCategory',
                        'AnyValue']} })
     assessment_result: Optional[BabyEquipmentAssessmentEnum] = Field(default=None, description="""Structural/provenance assessment for Track 1 safety-critical equipment. Required when subcategory in [pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Bewertungsergebnis'},
                          'label_en': {'tag': 'label_en', 'value': 'Assessment Result'}},
@@ -7298,7 +7415,7 @@ class BabyInfantItem(BabyInfantCategory, DonationItem):
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, baby_food, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
                                       'value': 'Versiegelte Verpackung'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })

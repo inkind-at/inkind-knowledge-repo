@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-03-26T11:00:06
+# Generation date: 2026-08-14T11:09:56
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -59,8 +59,8 @@ from rdflib import (
     URIRef
 )
 
-from linkml_runtime.linkml_model.types import Boolean, Date, Datetime, Float, Integer, String, Uriorcurie
-from linkml_runtime.utils.metamodelcore import Bool, URIorCURIE, XSDDate, XSDDateTime
+from linkml_runtime.linkml_model.types import Boolean, Date, Datetime, Decimal, Float, Integer, String, Uriorcurie
+from linkml_runtime.utils.metamodelcore import Bool, Decimal, URIorCURIE, XSDDate, XSDDateTime
 
 metamodel_version = "1.7.0"
 version = None
@@ -585,10 +585,10 @@ class DonationItem(YAMLRoot):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     attribute_completeness: Optional[Union[str, "AttributeCompletenessEnum"]] = None
-    source_collection: Optional[Union[str, DonationCollectionId]] = None
     donation_source: Optional[Union[str, DonationSourceId]] = None
     storage_unit: Optional[Union[str, StorageLocationId]] = None
     sorting_notes: Optional[str] = None
+    source_collection: Optional[Union[str, DonationCollectionId]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -623,9 +623,6 @@ class DonationItem(YAMLRoot):
         if self.attribute_completeness is not None and not isinstance(self.attribute_completeness, AttributeCompletenessEnum):
             self.attribute_completeness = AttributeCompletenessEnum(self.attribute_completeness)
 
-        if self.source_collection is not None and not isinstance(self.source_collection, DonationCollectionId):
-            self.source_collection = DonationCollectionId(self.source_collection)
-
         if self.donation_source is not None and not isinstance(self.donation_source, DonationSourceId):
             self.donation_source = DonationSourceId(self.donation_source)
 
@@ -634,6 +631,9 @@ class DonationItem(YAMLRoot):
 
         if self.sorting_notes is not None and not isinstance(self.sorting_notes, str):
             self.sorting_notes = str(self.sorting_notes)
+
+        if self.source_collection is not None and not isinstance(self.source_collection, DonationCollectionId):
+            self.source_collection = DonationCollectionId(self.source_collection)
 
         super().__post_init__(**kwargs)
         if self._is_empty(self.category):
@@ -687,10 +687,13 @@ class ClothingItem(DonationItem):
     updated_at: Union[str, XSDDateTime] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    tops_subcategory: Optional[Union[str, "TopsSubcategoryEnum"]] = None
+    bottoms_subcategory: Optional[Union[str, "BottomsSubcategoryEnum"]] = None
     material: Optional[Union[str, "ClothingMaterialEnum"]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
-    size: Optional[Union[str, "ClothingSizeEnum"]] = None
+    is_maternity: Optional[Union[bool, Bool]] = None
+    size: Optional[Union[Union[str, "ClothingSizeEnum"], list[Union[str, "ClothingSizeEnum"]]]] = empty_list()
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
     intact_labels: Optional[Union[bool, Bool]] = None
 
@@ -706,6 +709,12 @@ class ClothingItem(DonationItem):
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
 
+        if self.tops_subcategory is not None and not isinstance(self.tops_subcategory, TopsSubcategoryEnum):
+            self.tops_subcategory = TopsSubcategoryEnum(self.tops_subcategory)
+
+        if self.bottoms_subcategory is not None and not isinstance(self.bottoms_subcategory, BottomsSubcategoryEnum):
+            self.bottoms_subcategory = BottomsSubcategoryEnum(self.bottoms_subcategory)
+
         if self.material is not None and not isinstance(self.material, ClothingMaterialEnum):
             self.material = ClothingMaterialEnum(self.material)
 
@@ -715,8 +724,12 @@ class ClothingItem(DonationItem):
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
 
-        if self.size is not None and not isinstance(self.size, ClothingSizeEnum):
-            self.size = ClothingSizeEnum(self.size)
+        if self.is_maternity is not None and not isinstance(self.is_maternity, Bool):
+            self.is_maternity = Bool(self.is_maternity)
+
+        if not isinstance(self.size, list):
+            self.size = [self.size] if self.size is not None else []
+        self.size = [v if isinstance(v, ClothingSizeEnum) else ClothingSizeEnum(v) for v in self.size]
 
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
@@ -737,7 +750,7 @@ class AccessoriesItem(DonationItem):
     Fashion and personal accessories: hats, scarves, gloves, belts, bags, jewellery, sunglasses, watches. COICOP 03.1
     (grouped with clothing by COICOP; separated here for progressive UI disclosure and schema clarity).
     Separated from ClothingItem because:
-    - No demographic→size value map — accessories are not sized XS–XXL
+    - No demographic→size value map — accessories are not sized XS-XXL
     - Clothing UC rules (underwear condition) do not apply
     - Progressive disclosure: "clothing or accessory?" is a clean first
     branch in the sorting UI
@@ -890,8 +903,8 @@ class FurnitureItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
-    assessment_result: Union[str, "FurnitureAssessmentEnum"] = None
     material: Optional[Union[str, "FurnitureMaterialEnum"]] = None
+    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
     dimensions: Optional[str] = None
     style: Optional[str] = None
 
@@ -906,13 +919,11 @@ class FurnitureItem(DonationItem):
         if not isinstance(self.subcategory, FurnitureSubcategoryEnum):
             self.subcategory = FurnitureSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, FurnitureAssessmentEnum):
-            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
-
         if self.material is not None and not isinstance(self.material, FurnitureMaterialEnum):
             self.material = FurnitureMaterialEnum(self.material)
+
+        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
+            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
 
         if self.dimensions is not None and not isinstance(self.dimensions, str):
             self.dimensions = str(self.dimensions)
@@ -955,8 +966,8 @@ class BeddingTextilesItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
-    assessment_result: Union[str, "BeddingAssessmentEnum"] = None
     material: Optional[Union[str, "BeddingMaterialEnum"]] = None
+    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
 
@@ -971,13 +982,11 @@ class BeddingTextilesItem(DonationItem):
         if not isinstance(self.subcategory, BeddingTextilesSubcategoryEnum):
             self.subcategory = BeddingTextilesSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, BeddingAssessmentEnum):
-            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
-
         if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
             self.material = BeddingMaterialEnum(self.material)
+
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
+            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -1369,9 +1378,11 @@ class PersonalCareItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "PersonalCareSubcategoryEnum"] = None
-    is_sealed: Union[bool, Bool] = None
     material: Optional[str] = None
+    is_sealed: Optional[Union[bool, Bool]] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
+    net_content_value: Optional[Decimal] = None
+    net_content_unit: Optional[Union[str, "NetContentUnitEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1384,16 +1395,20 @@ class PersonalCareItem(DonationItem):
         if not isinstance(self.subcategory, PersonalCareSubcategoryEnum):
             self.subcategory = PersonalCareSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.is_sealed):
-            self.MissingRequiredField("is_sealed")
-        if not isinstance(self.is_sealed, Bool):
-            self.is_sealed = Bool(self.is_sealed)
-
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
 
+        if self.is_sealed is not None and not isinstance(self.is_sealed, Bool):
+            self.is_sealed = Bool(self.is_sealed)
+
         if self.expiry_date is not None and not isinstance(self.expiry_date, XSDDate):
             self.expiry_date = XSDDate(self.expiry_date)
+
+        if self.net_content_value is not None and not isinstance(self.net_content_value, Decimal):
+            self.net_content_value = Decimal(self.net_content_value)
+
+        if self.net_content_unit is not None and not isinstance(self.net_content_unit, NetContentUnitEnum):
+            self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
         if self._is_empty(self.category):
@@ -1428,8 +1443,8 @@ class MobilityAidsItem(DonationItem):
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
-    assessment_result: Union[str, "MobilityAssessmentEnum"] = None
     material: Optional[str] = None
+    assessment_result: Optional[Union[str, "MobilityAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1442,13 +1457,11 @@ class MobilityAidsItem(DonationItem):
         if not isinstance(self.subcategory, MobilityAidsSubcategoryEnum):
             self.subcategory = MobilityAidsSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, MobilityAssessmentEnum):
-            self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
-
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
+
+        if self.assessment_result is not None and not isinstance(self.assessment_result, MobilityAssessmentEnum):
+            self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
 
         super().__post_init__(**kwargs)
         if self._is_empty(self.category):
@@ -1503,6 +1516,7 @@ class BabyInfantItem(DonationItem):
     is_sealed: Optional[Union[bool, Bool]] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    nappy_size: Optional[Union[str, "NappySizeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1539,6 +1553,9 @@ class BabyInfantItem(DonationItem):
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
+        if self.nappy_size is not None and not isinstance(self.nappy_size, NappySizeEnum):
+            self.nappy_size = NappySizeEnum(self.nappy_size)
+
         super().__post_init__(**kwargs)
         if self._is_empty(self.category):
             self.MissingRequiredField("category")
@@ -1571,11 +1588,12 @@ class FoodItem(DonationItem):
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
-    food_type: Union[str, "FoodTypeEnum"] = None
+    subcategory: Union[str, "FoodTypeEnum"] = None
     packaging_intact: Union[bool, Bool] = None
     storage_requirement: Union[str, "StorageRequirementEnum"] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
-    quantity: Optional[int] = None
+    net_content_value: Optional[Decimal] = None
+    net_content_unit: Optional[Union[str, "NetContentUnitEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1583,10 +1601,10 @@ class FoodItem(DonationItem):
         if not isinstance(self.id, FoodItemId):
             self.id = FoodItemId(self.id)
 
-        if self._is_empty(self.food_type):
-            self.MissingRequiredField("food_type")
-        if not isinstance(self.food_type, FoodTypeEnum):
-            self.food_type = FoodTypeEnum(self.food_type)
+        if self._is_empty(self.subcategory):
+            self.MissingRequiredField("subcategory")
+        if not isinstance(self.subcategory, FoodTypeEnum):
+            self.subcategory = FoodTypeEnum(self.subcategory)
 
         if self._is_empty(self.packaging_intact):
             self.MissingRequiredField("packaging_intact")
@@ -1601,8 +1619,11 @@ class FoodItem(DonationItem):
         if self.expiry_date is not None and not isinstance(self.expiry_date, XSDDate):
             self.expiry_date = XSDDate(self.expiry_date)
 
-        if self.quantity is not None and not isinstance(self.quantity, int):
-            self.quantity = int(self.quantity)
+        if self.net_content_value is not None and not isinstance(self.net_content_value, Decimal):
+            self.net_content_value = Decimal(self.net_content_value)
+
+        if self.net_content_unit is not None and not isinstance(self.net_content_unit, NetContentUnitEnum):
+            self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
         if self._is_empty(self.category):
@@ -1929,10 +1950,13 @@ class ClothingCategory(CategoryMixin):
 
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     subcategory: Optional[Union[str, "ClothingSubcategoryEnum"]] = None
+    tops_subcategory: Optional[Union[str, "TopsSubcategoryEnum"]] = None
+    bottoms_subcategory: Optional[Union[str, "BottomsSubcategoryEnum"]] = None
     material: Optional[Union[str, "ClothingMaterialEnum"]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
-    size: Optional[Union[str, "ClothingSizeEnum"]] = None
+    is_maternity: Optional[Union[bool, Bool]] = None
+    size: Optional[Union[Union[str, "ClothingSizeEnum"], list[Union[str, "ClothingSizeEnum"]]]] = empty_list()
     season: Optional[Union[Union[str, "SeasonEnum"], list[Union[str, "SeasonEnum"]]]] = empty_list()
     intact_labels: Optional[Union[bool, Bool]] = None
 
@@ -1943,6 +1967,12 @@ class ClothingCategory(CategoryMixin):
         if self.subcategory is not None and not isinstance(self.subcategory, ClothingSubcategoryEnum):
             self.subcategory = ClothingSubcategoryEnum(self.subcategory)
 
+        if self.tops_subcategory is not None and not isinstance(self.tops_subcategory, TopsSubcategoryEnum):
+            self.tops_subcategory = TopsSubcategoryEnum(self.tops_subcategory)
+
+        if self.bottoms_subcategory is not None and not isinstance(self.bottoms_subcategory, BottomsSubcategoryEnum):
+            self.bottoms_subcategory = BottomsSubcategoryEnum(self.bottoms_subcategory)
+
         if self.material is not None and not isinstance(self.material, ClothingMaterialEnum):
             self.material = ClothingMaterialEnum(self.material)
 
@@ -1952,8 +1982,12 @@ class ClothingCategory(CategoryMixin):
         if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
             self.demographic = DemographicEnum(self.demographic)
 
-        if self.size is not None and not isinstance(self.size, ClothingSizeEnum):
-            self.size = ClothingSizeEnum(self.size)
+        if self.is_maternity is not None and not isinstance(self.is_maternity, Bool):
+            self.is_maternity = Bool(self.is_maternity)
+
+        if not isinstance(self.size, list):
+            self.size = [self.size] if self.size is not None else []
+        self.size = [v if isinstance(v, ClothingSizeEnum) else ClothingSizeEnum(v) for v in self.size]
 
         if not isinstance(self.season, list):
             self.season = [self.season] if self.season is not None else []
@@ -2038,8 +2072,8 @@ class FurnitureCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FurnitureCategory
 
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
-    assessment_result: Union[str, "FurnitureAssessmentEnum"] = None
     material: Optional[Union[str, "FurnitureMaterialEnum"]] = None
+    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
     dimensions: Optional[str] = None
     style: Optional[str] = None
 
@@ -2049,13 +2083,11 @@ class FurnitureCategory(CategoryMixin):
         if not isinstance(self.subcategory, FurnitureSubcategoryEnum):
             self.subcategory = FurnitureSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, FurnitureAssessmentEnum):
-            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
-
         if self.material is not None and not isinstance(self.material, FurnitureMaterialEnum):
             self.material = FurnitureMaterialEnum(self.material)
+
+        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
+            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
 
         if self.dimensions is not None and not isinstance(self.dimensions, str):
             self.dimensions = str(self.dimensions)
@@ -2083,8 +2115,8 @@ class BeddingTextilesCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory
 
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
-    assessment_result: Union[str, "BeddingAssessmentEnum"] = None
     material: Optional[Union[str, "BeddingMaterialEnum"]] = None
+    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
 
@@ -2094,13 +2126,11 @@ class BeddingTextilesCategory(CategoryMixin):
         if not isinstance(self.subcategory, BeddingTextilesSubcategoryEnum):
             self.subcategory = BeddingTextilesSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, BeddingAssessmentEnum):
-            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
-
         if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
             self.material = BeddingMaterialEnum(self.material)
+
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
+            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
@@ -2360,8 +2390,10 @@ class PersonalCareCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.PersonalCareCategory
 
     subcategory: Union[str, "PersonalCareSubcategoryEnum"] = None
-    is_sealed: Union[bool, Bool] = None
+    is_sealed: Optional[Union[bool, Bool]] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
+    net_content_value: Optional[Decimal] = None
+    net_content_unit: Optional[Union[str, "NetContentUnitEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.subcategory):
@@ -2369,13 +2401,17 @@ class PersonalCareCategory(CategoryMixin):
         if not isinstance(self.subcategory, PersonalCareSubcategoryEnum):
             self.subcategory = PersonalCareSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.is_sealed):
-            self.MissingRequiredField("is_sealed")
-        if not isinstance(self.is_sealed, Bool):
+        if self.is_sealed is not None and not isinstance(self.is_sealed, Bool):
             self.is_sealed = Bool(self.is_sealed)
 
         if self.expiry_date is not None and not isinstance(self.expiry_date, XSDDate):
             self.expiry_date = XSDDate(self.expiry_date)
+
+        if self.net_content_value is not None and not isinstance(self.net_content_value, Decimal):
+            self.net_content_value = Decimal(self.net_content_value)
+
+        if self.net_content_unit is not None and not isinstance(self.net_content_unit, NetContentUnitEnum):
+            self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
 
@@ -2395,7 +2431,7 @@ class MobilityAidsCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.MobilityAidsCategory
 
     subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
-    assessment_result: Union[str, "MobilityAssessmentEnum"] = None
+    assessment_result: Optional[Union[str, "MobilityAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.subcategory):
@@ -2403,9 +2439,7 @@ class MobilityAidsCategory(CategoryMixin):
         if not isinstance(self.subcategory, MobilityAidsSubcategoryEnum):
             self.subcategory = MobilityAidsSubcategoryEnum(self.subcategory)
 
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, MobilityAssessmentEnum):
+        if self.assessment_result is not None and not isinstance(self.assessment_result, MobilityAssessmentEnum):
             self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
 
         super().__post_init__(**kwargs)
@@ -2433,6 +2467,7 @@ class BabyInfantCategory(CategoryMixin):
     is_sealed: Optional[Union[bool, Bool]] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+    nappy_size: Optional[Union[str, "NappySizeEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.subcategory):
@@ -2461,6 +2496,9 @@ class BabyInfantCategory(CategoryMixin):
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
+        if self.nappy_size is not None and not isinstance(self.nappy_size, NappySizeEnum):
+            self.nappy_size = NappySizeEnum(self.nappy_size)
+
         super().__post_init__(**kwargs)
 
 
@@ -2478,17 +2516,18 @@ class FoodCategory(YAMLRoot):
     class_name: ClassVar[str] = "FoodCategory"
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FoodCategory
 
-    food_type: Union[str, "FoodTypeEnum"] = None
+    subcategory: Union[str, "FoodTypeEnum"] = None
     packaging_intact: Union[bool, Bool] = None
     storage_requirement: Union[str, "StorageRequirementEnum"] = None
     expiry_date: Optional[Union[str, XSDDate]] = None
-    quantity: Optional[int] = None
+    net_content_value: Optional[Decimal] = None
+    net_content_unit: Optional[Union[str, "NetContentUnitEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
-        if self._is_empty(self.food_type):
-            self.MissingRequiredField("food_type")
-        if not isinstance(self.food_type, FoodTypeEnum):
-            self.food_type = FoodTypeEnum(self.food_type)
+        if self._is_empty(self.subcategory):
+            self.MissingRequiredField("subcategory")
+        if not isinstance(self.subcategory, FoodTypeEnum):
+            self.subcategory = FoodTypeEnum(self.subcategory)
 
         if self._is_empty(self.packaging_intact):
             self.MissingRequiredField("packaging_intact")
@@ -2503,8 +2542,11 @@ class FoodCategory(YAMLRoot):
         if self.expiry_date is not None and not isinstance(self.expiry_date, XSDDate):
             self.expiry_date = XSDDate(self.expiry_date)
 
-        if self.quantity is not None and not isinstance(self.quantity, int):
-            self.quantity = int(self.quantity)
+        if self.net_content_value is not None and not isinstance(self.net_content_value, Decimal):
+            self.net_content_value = Decimal(self.net_content_value)
+
+        if self.net_content_unit is not None and not isinstance(self.net_content_unit, NetContentUnitEnum):
+            self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
 
@@ -2647,6 +2689,36 @@ class UsedConditionGradeEnum(EnumDefinitionImpl):
     _defn = EnumDefinition(
         name="UsedConditionGradeEnum",
         description="""Observed wear/quality grade at sorting time. For wear-graded categories. Grounds schema:OfferItemCondition sub-values and schema:itemCondition. Applied regardless of usage — a new item with a defect is graded fair or poor, not assumed like_new. Sorters record what they observe.""",
+    )
+
+class NetContentUnitEnum(EnumDefinitionImpl):
+    """
+    Unit of measure for a single packaged item's net content (net_content_value). Values correspond to UN/CEFACT
+    Recommendation 20 unit-of-measure codes, the same code list referenced by schema:unitCode and GS1's netContent
+    property for packaged goods.
+    """
+    milliliter = PermissibleValue(
+        text="milliliter",
+        description="""Millilitres. UN/CEFACT code MLT. Liquids in small packaging (shampoo, cough syrup, hand sanitiser).""")
+    litre = PermissibleValue(
+        text="litre",
+        description="Litres. UN/CEFACT code LTR. Liquids in larger packaging (juice, laundry detergent).")
+    gram = PermissibleValue(
+        text="gram",
+        description="Grams. UN/CEFACT code GRM. Solids in small packaging (bar soap, spice sachet).")
+    kilogram = PermissibleValue(
+        text="kilogram",
+        description="Kilograms. UN/CEFACT code KGM. Solids in larger packaging (rice, flour, dry pet food).")
+    piece = PermissibleValue(
+        text="piece",
+        description="Discrete count as printed on the pack. UN/CEFACT code H87. Tablets, pads, sheets, rolls.")
+    other = PermissibleValue(
+        text="other",
+        description="Unit not covered by the values above.")
+
+    _defn = EnumDefinition(
+        name="NetContentUnitEnum",
+        description="""Unit of measure for a single packaged item's net content (net_content_value). Values correspond to UN/CEFACT Recommendation 20 unit-of-measure codes, the same code list referenced by schema:unitCode and GS1's netContent property for packaged goods.""",
     )
 
 class AttributeCompletenessEnum(EnumDefinitionImpl):
@@ -3027,6 +3099,28 @@ class CollectionLifecycleEnum(EnumDefinitionImpl):
         description="Lifecycle states for a DonationCollection.",
     )
 
+class ItemCountRangeEnum(EnumDefinitionImpl):
+    """
+    Categorical ranges for item counts in a collection or for defining the tracking tier.
+    """
+    single = PermissibleValue(
+        text="single",
+        description="A single, identifiable item")
+    small_pile = PermissibleValue(
+        text="small_pile",
+        description="2-10 items")
+    medium_pile = PermissibleValue(
+        text="medium_pile",
+        description="11-50 items")
+    large_pile = PermissibleValue(
+        text="large_pile",
+        description="51+ items")
+
+    _defn = EnumDefinition(
+        name="ItemCountRangeEnum",
+        description="Categorical ranges for item counts in a collection or for defining the tracking tier.",
+    )
+
 class DemandSignalTypeEnum(EnumDefinitionImpl):
     """
     Discriminator for the type of demand signal.
@@ -3293,6 +3387,9 @@ class ClothingSubcategoryEnum(EnumDefinitionImpl):
     bottoms = PermissibleValue(
         text="bottoms",
         description="""Trousers, skirts, shorts, leggings, lower-body garments. is_winter_suitable varies — shorts are summer; thermal leggings are winter.""")
+    one_piece = PermissibleValue(
+        text="one_piece",
+        description="One-piece garments: dresses, jumpsuits, rompers, overalls.")
     outerwear = PermissibleValue(
         text="outerwear",
         description="""Jackets, coats, outer layers. Fragment compiler may pre-fill is_winter_suitable=true; sorter can override for summer-weight jackets.""")
@@ -3312,6 +3409,55 @@ class ClothingSubcategoryEnum(EnumDefinitionImpl):
     _defn = EnumDefinition(
         name="ClothingSubcategoryEnum",
         description="""Clothing garment subcategories. Accessories are NOT here — they are in AccessoriesSubcategoryEnum (accessories.yaml) on a separate item class. Separation enables clean progressive disclosure in the UI.""",
+    )
+
+class TopsSubcategoryEnum(EnumDefinitionImpl):
+    """
+    Finer-grained garment type within the tops subcategory. UI-only refinement of ClothingSubcategoryEnum's tops value
+    — not a separate hierarchy level, no UC/VM rules reference it.
+    """
+    t_shirt = PermissibleValue(
+        text="t_shirt",
+        description="T-shirts, tank tops.")
+    shirt_blouse = PermissibleValue(
+        text="shirt_blouse",
+        description="Button-up shirts, blouses.")
+    sweater_hoodie = PermissibleValue(
+        text="sweater_hoodie",
+        description="Sweaters, jumpers, hoodies, sweatshirts.")
+    other = PermissibleValue(
+        text="other",
+        description="Tops not fitting above types.")
+
+    _defn = EnumDefinition(
+        name="TopsSubcategoryEnum",
+        description="""Finer-grained garment type within the tops subcategory. UI-only refinement of ClothingSubcategoryEnum's tops value — not a separate hierarchy level, no UC/VM rules reference it.""",
+    )
+
+class BottomsSubcategoryEnum(EnumDefinitionImpl):
+    """
+    Finer-grained garment type within the bottoms subcategory. UI-only refinement of ClothingSubcategoryEnum's bottoms
+    value — not a separate hierarchy level, no UC/VM rules reference it.
+    """
+    trousers = PermissibleValue(
+        text="trousers",
+        description="Trousers, pants, jeans.")
+    shorts = PermissibleValue(
+        text="shorts",
+        description="Shorts.")
+    skirt = PermissibleValue(
+        text="skirt",
+        description="Skirts.")
+    leggings = PermissibleValue(
+        text="leggings",
+        description="Leggings, tights.")
+    other = PermissibleValue(
+        text="other",
+        description="Bottoms not fitting above types.")
+
+    _defn = EnumDefinition(
+        name="BottomsSubcategoryEnum",
+        description="""Finer-grained garment type within the bottoms subcategory. UI-only refinement of ClothingSubcategoryEnum's bottoms value — not a separate hierarchy level, no UC/VM rules reference it.""",
     )
 
 class DemographicEnum(EnumDefinitionImpl):
@@ -3346,6 +3492,78 @@ class ClothingSizeEnum(EnumDefinitionImpl):
     Clothing sizes covering infant, children's, and adult sizing. Grounded in schema.org wearable size groups and CPI
     ClothingSize. Valid values per demographic are constrained by vm-size-* rules.
     """
+    baby_50 = PermissibleValue(
+        text="baby_50",
+        description="Baby Size 45-50. Age Newborn.")
+    baby_56 = PermissibleValue(
+        text="baby_56",
+        description="Baby Size 51-56. Age 1 month.")
+    baby_62 = PermissibleValue(
+        text="baby_62",
+        description="Baby Size 57-62. Age 2-4 months.")
+    baby_68 = PermissibleValue(
+        text="baby_68",
+        description="Baby Size 63-68. Age 5-7 months.")
+    baby_74 = PermissibleValue(
+        text="baby_74",
+        description="Baby Size 69-74. Age 8-11 months.")
+    baby_80 = PermissibleValue(
+        text="baby_80",
+        description="Baby Size 75-80. Age 12-15 months.")
+    baby_86 = PermissibleValue(
+        text="baby_86",
+        description="Baby Size 81-86. Age 16-21 months.")
+    baby_92 = PermissibleValue(
+        text="baby_92",
+        description="Baby Size 87-92. Age 22-24 months.")
+    child_98 = PermissibleValue(
+        text="child_98",
+        description="Toddler 93-98. Age 2-3 years.")
+    child_104 = PermissibleValue(
+        text="child_104",
+        description="Toddler 99-104. Age 3-4 years.")
+    child_110 = PermissibleValue(
+        text="child_110",
+        description="Child 105-110. Age 4-5 years.")
+    child_116 = PermissibleValue(
+        text="child_116",
+        description="Child 111-116. Age 5-6 years.")
+    child_122 = PermissibleValue(
+        text="child_122",
+        description="Child 117-122. Age 6-7 years.")
+    child_128 = PermissibleValue(
+        text="child_128",
+        description="Child 123-128. Age 7-8 years.")
+    child_140 = PermissibleValue(
+        text="child_140",
+        description="Child 129-140. Age 8-10 years.")
+    child_152 = PermissibleValue(
+        text="child_152",
+        description="Child 141-152. Age 10-12 years.")
+    child_164 = PermissibleValue(
+        text="child_164",
+        description="Child 153-164. Age 12-14 years.")
+    child_170 = PermissibleValue(
+        text="child_170",
+        description="Child 165-170. Age 14-16 years.")
+    size_xs = PermissibleValue(
+        text="size_xs",
+        description="Adult Extra Small")
+    size_s = PermissibleValue(
+        text="size_s",
+        description="Adult Small")
+    size_m = PermissibleValue(
+        text="size_m",
+        description="Adult Medium")
+    size_l = PermissibleValue(
+        text="size_l",
+        description="Adult Large")
+    size_xl = PermissibleValue(
+        text="size_xl",
+        description="Adult Extra Large")
+    size_xxl_plus = PermissibleValue(
+        text="size_xxl_plus",
+        description="Adult Extra Extra Large and Plus")
     baby_0_3m = PermissibleValue(
         text="baby_0_3m",
         description="Baby 0-3 months")
@@ -3612,9 +3830,7 @@ class FurnitureAssessmentEnum(EnumDefinitionImpl):
         description="""All load-bearing components intact; no cracks, wobbling, or unsafe instability. Safe for redistribution without qualification. Appropriate for new items with no observed defects.""")
     minor_cosmetic_damage = PermissibleValue(
         text="minor_cosmetic_damage",
-        description="""Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable. annotations:
-  label_en: \"Minor Cosmetic Damage\"
-  label_de: \"Geringe Kosmetische Schäden\"""")
+        description="""Scratches, scuffs, minor surface damage. Structural integrity unaffected. Fully redistributable.""")
     significant_cosmetic_damage = PermissibleValue(
         text="significant_cosmetic_damage",
         description="""Visible staining, discolouration, or notable surface damage. Structurally sound but appearance significantly affected. action: warn for seating/beds — sorting_notes required.""")
@@ -4312,10 +4528,10 @@ class PersonalCareSubcategoryEnum(EnumDefinitionImpl):
     """
     soap_body_wash = PermissibleValue(
         text="soap_body_wash",
-        description="Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed.")
+        description="""Bar soap, liquid soap, body wash, hand sanitiser. Must be sealed. (Baby wash → BabyInfantItem, see baby_care subcategory.)""")
     shampoo_conditioner = PermissibleValue(
         text="shampoo_conditioner",
-        description="Shampoo, conditioner, dry shampoo. Must be sealed.")
+        description="""Shampoo, conditioner, dry shampoo. Must be sealed. (Baby shampoo → BabyInfantItem, see baby_care subcategory.)""")
     dental = PermissibleValue(
         text="dental",
         description="Toothpaste, mouthwash, dental floss. Must be sealed. (Toothbrushes → personal_care_tools).")
@@ -4325,9 +4541,9 @@ class PersonalCareSubcategoryEnum(EnumDefinitionImpl):
     sanitary_products = PermissibleValue(
         text="sanitary_products",
         description="Menstrual pads, tampons, menstrual cups. Must be sealed.")
-    nappies_incontinence = PermissibleValue(
-        text="nappies_incontinence",
-        description="Baby nappies, adult incontinence products. Must be sealed.")
+    incontinence_products = PermissibleValue(
+        text="incontinence_products",
+        description="""Adult incontinence pads, pull-ups, bed pads. Must be sealed. (Baby nappies → BabyInfantItem, see nappies subcategory.)""")
     toilet_paper_tissue = PermissibleValue(
         text="toilet_paper_tissue",
         description="Toilet paper, facial tissue. Must be sealed/wrapped.")
@@ -4336,7 +4552,7 @@ class PersonalCareSubcategoryEnum(EnumDefinitionImpl):
         description="Toothbrushes, razors, nail clippers, tweezers, combs. UC block: used → never redistribute.")
     skincare = PermissibleValue(
         text="skincare",
-        description="Moisturisers, sunscreen, face wash, lip balm. Must be sealed.")
+        description="""Moisturisers, sunscreen, face wash, lip balm. Must be sealed. (Baby lotion/oil/powder/rash cream/sunscreen → BabyInfantItem, see baby_care subcategory.)""")
     cosmetics = PermissibleValue(
         text="cosmetics",
         description="Foundation, lipstick, mascara, nail polish. Must be sealed/unused.")
@@ -4520,6 +4736,12 @@ class BabyInfantSubcategoryEnum(EnumDefinitionImpl):
     feeding_bottles_teats = PermissibleValue(
         text="feeding_bottles_teats",
         description="Feeding bottles and teats. Must be sealed + unused (EN 14350).")
+    nappies = PermissibleValue(
+        text="nappies",
+        description="Baby nappies/diapers. Must be sealed. UNHCR NFI core item. nappy_size required.")
+    baby_care = PermissibleValue(
+        text="baby_care",
+        description="""Baby wipes, powder, lotion, oil, wash, shampoo, diaper rash cream, teething gel, baby sunscreen. Must be sealed. (Adult-equivalent toiletries → PersonalCareItem.)""")
     breastfeeding = PermissibleValue(
         text="breastfeeding",
         description="Breast pumps, nursing pads, sterilisers.")
@@ -4552,32 +4774,78 @@ is_winter_suitable required — thermal weight varies widely from 0.5 tog (summe
         description="""Baby and infant supplies subcategories. Grounded in Product Types Ontology. Baby clothing belongs in ClothingItem (demographic=baby).""",
     )
 
+class NappySizeEnum(EnumDefinitionImpl):
+    """
+    Weight-banded nappy sizing, matching how nappies are sized and labeled by manufacturers. Distinct from
+    ClothingSizeEnum's age-banded baby sizes, since nappy fit tracks infant weight rather than age. Bands are
+    approximate and vary slightly by brand — the weight range printed on the pack is authoritative; sorters should
+    match to the closest band.
+    """
+    newborn = PermissibleValue(
+        text="newborn",
+        description="Newborn, up to ~4kg.")
+    size_1 = PermissibleValue(
+        text="size_1",
+        description="Size 1, ~2-5kg.")
+    size_2 = PermissibleValue(
+        text="size_2",
+        description="Size 2, ~3-6kg.")
+    size_3 = PermissibleValue(
+        text="size_3",
+        description="Size 3, ~4-9kg.")
+    size_4 = PermissibleValue(
+        text="size_4",
+        description="Size 4, ~7-18kg.")
+    size_5 = PermissibleValue(
+        text="size_5",
+        description="Size 5, ~11-25kg.")
+    size_6 = PermissibleValue(
+        text="size_6",
+        description="Size 6, ~16kg and up.")
+    other = PermissibleValue(
+        text="other",
+        description="Size not fitting the standard bands, or unlabeled/unknown.")
+
+    _defn = EnumDefinition(
+        name="NappySizeEnum",
+        description="""Weight-banded nappy sizing, matching how nappies are sized and labeled by manufacturers. Distinct from ClothingSizeEnum's age-banded baby sizes, since nappy fit tracks infant weight rather than age. Bands are approximate and vary slightly by brand — the weight range printed on the pack is authoritative; sorters should match to the closest band.""",
+    )
+
 class FoodTypeEnum(EnumDefinitionImpl):
     """
     Primary food type classification. Grounded in FoodOn ontology (OBO Foundry). Each value maps to valid
     storage_requirement values via vm-storage-* rules.
     """
+    bread_bakery = PermissibleValue(
+        text="bread_bakery",
+        description="Bread, rolls, pastries, cakes, and other baked goods. Storage: ambient or frozen.")
+    fruit_vegetables = PermissibleValue(
+        text="fruit_vegetables",
+        description="""Fresh fruit, vegetables, and herbs. Perishable — packaging_intact rule applies. May be stored ambient, refrigerated, or frozen.""")
+    meat_fish = PermissibleValue(
+        text="meat_fish",
+        description="""Fresh or frozen meat, poultry, sausage, fish, and seafood. Perishable — packaging_intact rule applies. Requires refrigerated or frozen storage.""")
+    dairy_eggs = PermissibleValue(
+        text="dairy_eggs",
+        description="Milk, cheese, yoghurt, and eggs. Perishable — requires refrigeration or freezing.")
     dry_goods = PermissibleValue(
         text="dry_goods",
         description="Non-perishable dry staples: pasta, rice, flour, cereals, pulses. Storage: ambient or dry_cool.")
     canned_goods = PermissibleValue(
         text="canned_goods",
         description="Factory-sealed tins and cans. Shelf-stable at ambient temperature. Storage: ambient only.")
-    fresh_produce = PermissibleValue(
-        text="fresh_produce",
-        description="Unprocessed fruit, vegetables, herbs. Perishable. packaging_intact rule applies.")
-    dairy = PermissibleValue(
-        text="dairy",
-        description="""Milk, cheese, yoghurt, and dairy-based products. Perishable — requires refrigeration or freezing.""")
-    frozen = PermissibleValue(
-        text="frozen",
-        description="""Items requiring continuous frozen storage. Perishable — frozen storage is the only valid option. Breaking the cold chain makes refreezing unsafe.""")
     beverages = PermissibleValue(
         text="beverages",
         description="Bottled or packaged drinks (non-alcoholic).")
+    confectionery_sweets = PermissibleValue(
+        text="confectionery_sweets",
+        description="Chocolate, sweets, candy, and desserts. Storage: ambient.")
+    ready_meals = PermissibleValue(
+        text="ready_meals",
+        description="Prepared meals — ambient (shelf-stable), refrigerated, or frozen.")
     baby_food = PermissibleValue(
         text="baby_food",
-        description="""Commercially prepared infant formula and baby food. Perishable once opened — packaging_intact rule applies. Note: infant formula as a separate donation item belongs in BabyInfantItem (baby_infant category); this value covers baby food donated as part of a food collection.""")
+        description="""Commercially prepared solid baby food (purées, jars, pouches). Perishable once opened — packaging_intact rule applies. Note: infant formula belongs in BabyInfantItem (subcategory=infant_formula), not here; this value covers baby food donated as part of a food collection.""")
     condiments = PermissibleValue(
         text="condiments",
         description="Sauces, spreads, oils, vinegars, and seasoning products.")
@@ -4592,7 +4860,7 @@ class FoodTypeEnum(EnumDefinitionImpl):
 
 class StorageRequirementEnum(EnumDefinitionImpl):
     """
-    Required storage condition for a food item. Valid values per food_type are constrained by vm-storage-* rules in
+    Required storage condition for a food item. Valid values per subcategory are constrained by vm-storage-* rules in
     FoodCategory.
     """
     ambient = PermissibleValue(
@@ -4610,36 +4878,7 @@ class StorageRequirementEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="StorageRequirementEnum",
-        description="""Required storage condition for a food item. Valid values per food_type are constrained by vm-storage-* rules in FoodCategory.""",
-    )
-
-class FoodSubcategoryEnum(EnumDefinitionImpl):
-    """
-    Optional subcategory for further food classification within a food_type. Used when more granular labelling is
-    operationally useful.
-    """
-    vegetables = PermissibleValue(
-        text="vegetables",
-        description="Fresh vegetables.")
-    fruit = PermissibleValue(
-        text="fruit",
-        description="Fresh fruit.")
-    bread_bakery = PermissibleValue(
-        text="bread_bakery",
-        description="Bread, rolls, and baked goods.")
-    meat_alternatives = PermissibleValue(
-        text="meat_alternatives",
-        description="Plant-based meat substitutes.")
-    ready_meals = PermissibleValue(
-        text="ready_meals",
-        description="Prepared meals — ambient, refrigerated, or frozen.")
-    other = PermissibleValue(
-        text="other",
-        description="Food subcategory not covered above.")
-
-    _defn = EnumDefinition(
-        name="FoodSubcategoryEnum",
-        description="""Optional subcategory for further food classification within a food_type. Used when more granular labelling is operationally useful.""",
+        description="""Required storage condition for a food item. Valid values per subcategory are constrained by vm-storage-* rules in FoodCategory.""",
     )
 
 class DeviceTypeEnum(EnumDefinitionImpl):
@@ -4709,6 +4948,12 @@ slots.sorting_notes = Slot(uri=INKIND_KNOWLEDGE_REPO.sorting_notes, name="sortin
 
 slots.material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
                    model_uri=INKIND_KNOWLEDGE_REPO.material, domain=None, range=Optional[str])
+
+slots.net_content_value = Slot(uri=INKIND_KNOWLEDGE_REPO.net_content_value, name="net_content_value", curie=INKIND_KNOWLEDGE_REPO.curie('net_content_value'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.net_content_value, domain=None, range=Optional[Decimal])
+
+slots.net_content_unit = Slot(uri=INKIND_KNOWLEDGE_REPO.net_content_unit, name="net_content_unit", curie=INKIND_KNOWLEDGE_REPO.curie('net_content_unit'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.net_content_unit, domain=None, range=Optional[Union[str, "NetContentUnitEnum"]])
 
 slots.subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.subcategory, domain=None, range=Optional[str])
@@ -4845,6 +5090,12 @@ slots.expiry_date = Slot(uri=INKIND_KNOWLEDGE_REPO.expiry_date, name="expiry_dat
 slots.is_sealed = Slot(uri=INKIND_KNOWLEDGE_REPO.is_sealed, name="is_sealed", curie=INKIND_KNOWLEDGE_REPO.curie('is_sealed'),
                    model_uri=INKIND_KNOWLEDGE_REPO.is_sealed, domain=None, range=Optional[Union[bool, Bool]])
 
+slots.tops_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.tops_subcategory, name="tops_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('tops_subcategory'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.tops_subcategory, domain=None, range=Optional[Union[str, "TopsSubcategoryEnum"]])
+
+slots.bottoms_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.bottoms_subcategory, name="bottoms_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('bottoms_subcategory'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.bottoms_subcategory, domain=None, range=Optional[Union[str, "BottomsSubcategoryEnum"]])
+
 slots.size = Slot(uri=INKIND_KNOWLEDGE_REPO.size, name="size", curie=INKIND_KNOWLEDGE_REPO.curie('size'),
                    model_uri=INKIND_KNOWLEDGE_REPO.size, domain=None, range=Optional[Union[str, "ClothingSizeEnum"]])
 
@@ -4856,6 +5107,9 @@ slots.season = Slot(uri=INKIND_KNOWLEDGE_REPO.season, name="season", curie=INKIN
 
 slots.intact_labels = Slot(uri=INKIND_KNOWLEDGE_REPO.intact_labels, name="intact_labels", curie=INKIND_KNOWLEDGE_REPO.curie('intact_labels'),
                    model_uri=INKIND_KNOWLEDGE_REPO.intact_labels, domain=None, range=Optional[Union[bool, Bool]])
+
+slots.is_maternity = Slot(uri=INKIND_KNOWLEDGE_REPO.is_maternity, name="is_maternity", curie=INKIND_KNOWLEDGE_REPO.curie('is_maternity'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.is_maternity, domain=None, range=Optional[Union[bool, Bool]])
 
 slots.shoe_size = Slot(uri=INKIND_KNOWLEDGE_REPO.shoe_size, name="shoe_size", curie=INKIND_KNOWLEDGE_REPO.curie('shoe_size'),
                    model_uri=INKIND_KNOWLEDGE_REPO.shoe_size, domain=None, range=Optional[str])
@@ -4893,17 +5147,14 @@ slots.manufacture_year = Slot(uri=INKIND_KNOWLEDGE_REPO.manufacture_year, name="
 slots.includes_original_accessories = Slot(uri=INKIND_KNOWLEDGE_REPO.includes_original_accessories, name="includes_original_accessories", curie=INKIND_KNOWLEDGE_REPO.curie('includes_original_accessories'),
                    model_uri=INKIND_KNOWLEDGE_REPO.includes_original_accessories, domain=None, range=Optional[Union[bool, Bool]])
 
-slots.food_type = Slot(uri=INKIND_KNOWLEDGE_REPO.food_type, name="food_type", curie=INKIND_KNOWLEDGE_REPO.curie('food_type'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.food_type, domain=None, range=Union[str, "FoodTypeEnum"])
+slots.nappy_size = Slot(uri=INKIND_KNOWLEDGE_REPO.nappy_size, name="nappy_size", curie=INKIND_KNOWLEDGE_REPO.curie('nappy_size'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.nappy_size, domain=None, range=Optional[Union[str, "NappySizeEnum"]])
 
 slots.packaging_intact = Slot(uri=INKIND_KNOWLEDGE_REPO.packaging_intact, name="packaging_intact", curie=INKIND_KNOWLEDGE_REPO.curie('packaging_intact'),
                    model_uri=INKIND_KNOWLEDGE_REPO.packaging_intact, domain=None, range=Union[bool, Bool])
 
 slots.storage_requirement = Slot(uri=INKIND_KNOWLEDGE_REPO.storage_requirement, name="storage_requirement", curie=INKIND_KNOWLEDGE_REPO.curie('storage_requirement'),
                    model_uri=INKIND_KNOWLEDGE_REPO.storage_requirement, domain=None, range=Union[str, "StorageRequirementEnum"])
-
-slots.quantity = Slot(uri=INKIND_KNOWLEDGE_REPO.quantity, name="quantity", curie=INKIND_KNOWLEDGE_REPO.curie('quantity'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.quantity, domain=None, range=Optional[int])
 
 slots.step_type_ref = Slot(uri=INKIND_KNOWLEDGE_REPO.step_type_ref, name="step_type_ref", curie=INKIND_KNOWLEDGE_REPO.curie('step_type_ref'),
                    model_uri=INKIND_KNOWLEDGE_REPO.step_type_ref, domain=None, range=str)
@@ -5037,11 +5288,17 @@ slots.AccessoriesCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condi
 slots.ClothingCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="ClothingCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_subcategory, domain=None, range=Optional[Union[str, "ClothingSubcategoryEnum"]])
 
+slots.ClothingCategory_tops_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.tops_subcategory, name="ClothingCategory_tops_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('tops_subcategory'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_tops_subcategory, domain=None, range=Optional[Union[str, "TopsSubcategoryEnum"]])
+
+slots.ClothingCategory_bottoms_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.bottoms_subcategory, name="ClothingCategory_bottoms_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('bottoms_subcategory'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_bottoms_subcategory, domain=None, range=Optional[Union[str, "BottomsSubcategoryEnum"]])
+
 slots.ClothingCategory_demographic = Slot(uri=INKIND_KNOWLEDGE_REPO.demographic, name="ClothingCategory_demographic", curie=INKIND_KNOWLEDGE_REPO.curie('demographic'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_demographic, domain=None, range=Optional[Union[str, "DemographicEnum"]])
 
 slots.ClothingCategory_size = Slot(uri=INKIND_KNOWLEDGE_REPO.size, name="ClothingCategory_size", curie=INKIND_KNOWLEDGE_REPO.curie('size'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_size, domain=None, range=Optional[Union[str, "ClothingSizeEnum"]])
+                   model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_size, domain=None, range=Optional[Union[Union[str, "ClothingSizeEnum"], list[Union[str, "ClothingSizeEnum"]]]])
 
 slots.ClothingCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_winter_suitable, name="ClothingCategory_is_winter_suitable", curie=INKIND_KNOWLEDGE_REPO.curie('is_winter_suitable'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ClothingCategory_is_winter_suitable, domain=None, range=Optional[Union[bool, Bool]])
@@ -5080,13 +5337,13 @@ slots.FurnitureCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name
                    model_uri=INKIND_KNOWLEDGE_REPO.FurnitureCategory_material, domain=None, range=Optional[Union[str, "FurnitureMaterialEnum"]])
 
 slots.FurnitureCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="FurnitureCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.FurnitureCategory_assessment_result, domain=None, range=Union[str, "FurnitureAssessmentEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.FurnitureCategory_assessment_result, domain=None, range=Optional[Union[str, "FurnitureAssessmentEnum"]])
 
 slots.BeddingTextilesCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="BeddingTextilesCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_subcategory, domain=None, range=Union[str, "BeddingTextilesSubcategoryEnum"])
 
 slots.BeddingTextilesCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BeddingTextilesCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_assessment_result, domain=None, range=Union[str, "BeddingAssessmentEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_assessment_result, domain=None, range=Optional[Union[str, "BeddingAssessmentEnum"]])
 
 slots.BeddingTextilesCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="BeddingTextilesCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_material, domain=None, range=Optional[Union[str, "BeddingMaterialEnum"]])
@@ -5152,7 +5409,7 @@ slots.PersonalCareCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcateg
                    model_uri=INKIND_KNOWLEDGE_REPO.PersonalCareCategory_subcategory, domain=None, range=Union[str, "PersonalCareSubcategoryEnum"])
 
 slots.PersonalCareCategory_is_sealed = Slot(uri=INKIND_KNOWLEDGE_REPO.is_sealed, name="PersonalCareCategory_is_sealed", curie=INKIND_KNOWLEDGE_REPO.curie('is_sealed'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.PersonalCareCategory_is_sealed, domain=None, range=Union[bool, Bool])
+                   model_uri=INKIND_KNOWLEDGE_REPO.PersonalCareCategory_is_sealed, domain=None, range=Optional[Union[bool, Bool]])
 
 slots.PersonalCareCategory_expiry_date = Slot(uri=INKIND_KNOWLEDGE_REPO.expiry_date, name="PersonalCareCategory_expiry_date", curie=INKIND_KNOWLEDGE_REPO.curie('expiry_date'),
                    model_uri=INKIND_KNOWLEDGE_REPO.PersonalCareCategory_expiry_date, domain=None, range=Optional[Union[str, XSDDate]])
@@ -5161,7 +5418,7 @@ slots.MobilityAidsCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcateg
                    model_uri=INKIND_KNOWLEDGE_REPO.MobilityAidsCategory_subcategory, domain=None, range=Union[str, "MobilityAidsSubcategoryEnum"])
 
 slots.MobilityAidsCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="MobilityAidsCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.MobilityAidsCategory_assessment_result, domain=None, range=Union[str, "MobilityAssessmentEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.MobilityAidsCategory_assessment_result, domain=None, range=Optional[Union[str, "MobilityAssessmentEnum"]])
 
 slots.BabyInfantCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="BabyInfantCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_subcategory, domain=None, range=Union[str, "BabyInfantSubcategoryEnum"])
@@ -5178,8 +5435,11 @@ slots.BabyInfantCategory_is_sealed = Slot(uri=INKIND_KNOWLEDGE_REPO.is_sealed, n
 slots.BabyInfantCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="BabyInfantCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
 
-slots.FoodCategory_food_type = Slot(uri=INKIND_KNOWLEDGE_REPO.food_type, name="FoodCategory_food_type", curie=INKIND_KNOWLEDGE_REPO.curie('food_type'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.FoodCategory_food_type, domain=None, range=Union[str, "FoodTypeEnum"])
+slots.BabyInfantCategory_nappy_size = Slot(uri=INKIND_KNOWLEDGE_REPO.nappy_size, name="BabyInfantCategory_nappy_size", curie=INKIND_KNOWLEDGE_REPO.curie('nappy_size'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_nappy_size, domain=None, range=Optional[Union[str, "NappySizeEnum"]])
+
+slots.FoodCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="FoodCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.FoodCategory_subcategory, domain=None, range=Union[str, "FoodTypeEnum"])
 
 slots.FoodCategory_packaging_intact = Slot(uri=INKIND_KNOWLEDGE_REPO.packaging_intact, name="FoodCategory_packaging_intact", curie=INKIND_KNOWLEDGE_REPO.curie('packaging_intact'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FoodCategory_packaging_intact, domain=None, range=Union[bool, Bool])

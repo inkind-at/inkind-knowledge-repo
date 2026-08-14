@@ -387,7 +387,7 @@ instances:
         3. Open Food Facts (for food items, https://world.openfoodfacts.org/)
 
       On a successful lookup the engine pre-fills `category`, `subcategory`,
-      and (for food) `food_type` and `expiry_date` from registry metadata.
+      and (for food) `expiry_date` from registry metadata.
       The actor reviews and confirms pre-filled values in the subsequent
       `review_ml_result` step.
 
@@ -641,7 +641,7 @@ instances:
                              refrigerated | frozen
 
       Redistribution gate (enforced by engine):
-        packaging_intact=false AND food_type IN [fresh_produce, dairy, frozen]
+        packaging_intact=false AND subcategory IN [fruit_vegetables, dairy_eggs, meat_fish, ready_meals]
           → item is auto-rejected; actor is shown disposal guidance.
         expiry_date < today + 2 days
           → engine raises warning; actor confirms or rejects.

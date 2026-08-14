@@ -25,8 +25,10 @@ description: >-
     Class URIs used: foodon:00001006 (food), foodon:00001017 (food product),
     foodon:00001043 (packaging), foodon:00001256 (dry goods), foodon:00002403
     (canned goods), foodon:00001015 (fresh produce), foodon:00001180 (dairy),
-    foodon:00002253 (frozen), foodon:00001062 (beverages), foodon:00002640
-    (baby food), foodon:00001139 (condiments).
+    foodon:00001062 (beverages), foodon:00002640 (baby food), foodon:00001139
+    (condiments), foodon:03000288 (bread), foodon:03400793 (meat),
+    foodon:03315173 (fish), foodon:03400978 (confectionery), foodon:03400172
+    (prepared food).
 
   Phase 1 status:
     FoodItem is a Phase 1 stub — fully declared to establish the schema.
@@ -48,25 +50,28 @@ description: >-
     would pull in slots (notes, material) and imply condition model support
     that is semantically incorrect for food items.
 
-  Value-map food_type → valid storage_requirement:
-    dry_goods:    [ambient, dry_cool]
-    canned_goods: [ambient]
-    fresh_produce:[refrigerated, ambient]
-    dairy:        [refrigerated, frozen]
-    frozen:       [frozen]
-    beverages:    [ambient, refrigerated]
-    baby_food:    [ambient, refrigerated]
-    condiments:   [ambient, refrigerated]
-    other:        [ambient, refrigerated, frozen, dry_cool]
+  Value-map subcategory → valid storage_requirement:
+    bread_bakery:         [ambient, frozen]
+    fruit_vegetables:     [ambient, refrigerated, frozen]
+    meat_fish:            [refrigerated, frozen]
+    dairy_eggs:           [refrigerated, frozen]
+    dry_goods:            [ambient, dry_cool]
+    canned_goods:         [ambient]
+    beverages:            [ambient, refrigerated]
+    confectionery_sweets: [ambient]
+    condiments:           [ambient, refrigerated]
+    ready_meals:          [ambient, refrigerated, frozen]
+    baby_food:            [ambient, refrigerated]
+    other:                [ambient, refrigerated, frozen, dry_cool]
 
   UC constraints:
     uc-expiry-date-past-block        — runtime; expiry_date < today → block
     uc-packaging-perishable-block    — packaging_intact=false + perishable → block
 
   Completeness tiers:
-    minimal:  food_type, packaging_intact, storage_requirement
-    standard: food_type, packaging_intact, storage_requirement, usage
-    detailed: food_type, packaging_intact, storage_requirement,
+    minimal:  subcategory, packaging_intact, storage_requirement
+    standard: subcategory, packaging_intact, storage_requirement, usage
+    detailed: subcategory, packaging_intact, storage_requirement,
               expiry_date, net_content_value, net_content_unit, usage
 
 license: MIT
@@ -108,15 +113,24 @@ classes:
       - foodon:00001006
       - http://purl.obolibrary.org/obo/foodon.owl
     slots:
-      - food_type
+      - subcategory
       - expiry_date
       - packaging_intact
       - storage_requirement
       - net_content_value
       - net_content_unit
     slot_usage:
-      food_type:
+      subcategory:
+        range: FoodTypeEnum
         required: true
+        description: >-
+          Primary food type classification. Grounded in FoodOn food product
+          taxonomy. Determines valid storage_requirement values via value map.
+        see_also:
+          - foodon:00001017
+        annotations:
+          label_en: "food type"
+          label_de: "Lebensmitteltyp"
       packaging_intact:
         required: false
       storage_requirement:
@@ -132,9 +146,9 @@ classes:
           uc_suggest: disposal
           uc_note: "Dynamic date comparison — runtime enforcement"
     annotations:
-      completeness_minimal:  "food_type, packaging_intact, storage_requirement"
-      completeness_standard: "food_type, packaging_intact, storage_requirement, usage"
-      completeness_detailed: "food_type, packaging_intact, storage_requirement, expiry_date, net_content_value, net_content_unit, usage"
+      completeness_minimal:  "subcategory, packaging_intact, storage_requirement"
+      completeness_standard: "subcategory, packaging_intact, storage_requirement, usage"
+      completeness_detailed: "subcategory, packaging_intact, storage_requirement, expiry_date, net_content_value, net_content_unit, usage"
       coicop_division: "01"
       phase: "Phase 1 stub"
     rules:
@@ -147,12 +161,13 @@ classes:
           slot_conditions:
             packaging_intact:
               equals_string: "false"
-            food_type:
+            subcategory:
               any_of:
-                - equals_string: fresh_produce
-                - equals_string: dairy
-                - equals_string: frozen
+                - equals_string: fruit_vegetables
+                - equals_string: dairy_eggs
+                - equals_string: meat_fish
                 - equals_string: baby_food
+                - equals_string: ready_meals
         postconditions:
           slot_conditions:
             lifecycle_state:
@@ -173,25 +188,43 @@ classes:
           uc_note: "expiry_date < today — runtime check by Django model clean()"
 
       # ── VM: storage requirements by food type ─────────────────────────────
-      - title: vm-storage-frozen
-        description: >-
-          Frozen food requires frozen storage only. Breaking the cold chain
-          makes frozen food unsafe to refreeze. action: block invalid value.
+      # "other" is intentionally unconstrained — it already spans the full
+      # StorageRequirementEnum range, so a rule would be a no-op.
+      - title: vm-storage-bread-bakery
+        description: Bread and bakery goods are ambient or frozen — never refrigerated.
         preconditions:
           slot_conditions:
-            food_type:
-              equals_string: frozen
+            subcategory:
+              equals_string: bread_bakery
         postconditions:
           slot_conditions:
             storage_requirement:
-              equals_string: frozen
+              any_of:
+                - equals_string: ambient
+                - equals_string: frozen
 
-      - title: vm-storage-dairy
-        description: Dairy requires refrigerated or frozen storage.
+      - title: vm-storage-fruit-vegetables
+        description: Fruit and vegetables may be stored ambient, refrigerated, or frozen.
         preconditions:
           slot_conditions:
-            food_type:
-              equals_string: dairy
+            subcategory:
+              equals_string: fruit_vegetables
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: refrigerated
+                - equals_string: frozen
+
+      - title: vm-storage-meat-fish
+        description: >-
+          Meat and fish require refrigerated or frozen storage — never
+          ambient, for food safety.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: meat_fish
         postconditions:
           slot_conditions:
             storage_requirement:
@@ -199,39 +232,118 @@ classes:
                 - equals_string: refrigerated
                 - equals_string: frozen
 
+      - title: vm-storage-dairy-eggs
+        description: Dairy and eggs require refrigerated or frozen storage.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: dairy_eggs
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: refrigerated
+                - equals_string: frozen
+
+      - title: vm-storage-dry-goods
+        description: Dry goods are shelf-stable — ambient or dry_cool storage only.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: dry_goods
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: dry_cool
+
       - title: vm-storage-canned
         description: Canned goods are shelf-stable — ambient storage only.
         preconditions:
           slot_conditions:
-            food_type:
+            subcategory:
               equals_string: canned_goods
         postconditions:
           slot_conditions:
             storage_requirement:
               equals_string: ambient
 
+      - title: vm-storage-beverages
+        description: Beverages are stored ambient or refrigerated.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: beverages
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: refrigerated
+
+      - title: vm-storage-confectionery-sweets
+        description: Confectionery and sweets are shelf-stable — ambient storage only.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: confectionery_sweets
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              equals_string: ambient
+
+      - title: vm-storage-condiments
+        description: Condiments are stored ambient or refrigerated (once opened).
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: condiments
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: refrigerated
+
+      - title: vm-storage-ready-meals
+        description: >-
+          Ready meals may be shelf-stable ambient, chilled, or frozen,
+          depending on preparation.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: ready_meals
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: refrigerated
+                - equals_string: frozen
+
+      - title: vm-storage-baby-food
+        description: Baby food is stored ambient or refrigerated (once opened).
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: baby_food
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              any_of:
+                - equals_string: ambient
+                - equals_string: refrigerated
+
 
 slots:
-
-  food_type:
-    range: FoodTypeEnum
-    required: true
-    description: >-
-      Primary food type classification. Grounded in FoodOn food product
-      taxonomy. Determines valid storage_requirement values via value map.
-    see_also:
-      - foodon:00001017
-    annotations:
-      label_en: "food type"
-      label_de: "Lebensmitteltyp"
-
 
   packaging_intact:
     range: boolean
     required: true
     description: >-
       Whether the item's original packaging is intact and uncompromised.
-      UC block: false + perishable food_type → must not redistribute.
+      UC block: false + perishable subcategory → must not redistribute.
       Primary safety signal for food items — analogous to is_sealed in
       PersonalCareCategory.
     see_also:
@@ -244,7 +356,7 @@ slots:
     range: StorageRequirementEnum
     required: true
     description: >-
-      Required storage condition. Valid values constrained by food_type
+      Required storage condition. Valid values constrained by subcategory
       via vm-storage-* rules. Set during sorting to enable correct
       storage slot assignment and demand signal matching.
     annotations:
@@ -261,6 +373,47 @@ enums:
     see_also:
       - foodon:00001017
     permissible_values:
+      bread_bakery:
+        description: >-
+          Bread, rolls, pastries, cakes, and other baked goods.
+          Storage: ambient or frozen.
+        see_also: [foodon:03000288]
+        annotations:
+          label_en: "bread & bakery"
+          label_de: "Brot & Backwaren"
+          aliases_en: ["Bread", "Bakery", "Bakery items", "Rolls", "Pastries", "Cakes"]
+          aliases_de: ["Brot", "Backwaren", "Brötchen", "Gebäck", "Kuchen"]
+      fruit_vegetables:
+        description: >-
+          Fresh fruit, vegetables, and herbs. Perishable — packaging_intact
+          rule applies. May be stored ambient, refrigerated, or frozen.
+        see_also: [foodon:00001015]
+        annotations:
+          label_en: "fruit & vegetables"
+          label_de: "Obst & Gemüse"
+          aliases_en: ["Fruit and vegetables", "Produce", "Fresh produce", "Fruit", "Vegetable"]
+          aliases_de: ["Obst und Gemüse", "Frischprodukte", "Obst", "Gemüse"]
+      meat_fish:
+        description: >-
+          Fresh or frozen meat, poultry, sausage, fish, and seafood.
+          Perishable — packaging_intact rule applies. Requires refrigerated
+          or frozen storage.
+        see_also: [foodon:03400793, foodon:03315173]
+        annotations:
+          label_en: "meat & fish"
+          label_de: "Fleisch & Fisch"
+          aliases_en: ["Meat", "Fish", "Poultry", "Sausage", "Seafood"]
+          aliases_de: ["Fleisch", "Fisch", "Geflügel", "Wurst", "Meeresfrüchte"]
+      dairy_eggs:
+        description: >-
+          Milk, cheese, yoghurt, and eggs. Perishable — requires
+          refrigeration or freezing.
+        see_also: [foodon:00001180]
+        annotations:
+          label_en: "dairy & eggs"
+          label_de: "Milchprodukte & Eier"
+          aliases_en: ["Dairy", "Milk", "Cheese", "Yogurt", "Eggs"]
+          aliases_de: ["Milchprodukte", "Milch", "Käse", "Joghurt", "Eier"]
       dry_goods:
         description: >-
           Non-perishable dry staples: pasta, rice, flour, cereals, pulses.
@@ -281,37 +434,6 @@ enums:
           label_de: "Dosenlebensmittel"
           aliases_en: ["Canned goods", "Canned items", "Can"]
           aliases_de: ["Dosenlebensmittel", "Konserven", "Dose"]
-      fresh_produce:
-        description: >-
-          Unprocessed fruit, vegetables, herbs. Perishable.
-          packaging_intact rule applies.
-        see_also: [foodon:00001015]
-        annotations:
-          label_en: "fresh produce"
-          label_de: "Frischprodukte"
-          aliases_en: ["Fresh produce", "Produce", "Fruit", "vegetable"]
-          aliases_de: ["Frischprodukte", "Obst", "Gemüse"]
-      dairy:
-        description: >-
-          Milk, cheese, yoghurt, and dairy-based products. Perishable —
-          requires refrigeration or freezing.
-        see_also: [foodon:00001180]
-        annotations:
-          label_en: "dairy"
-          label_de: "Milchprodukte"
-          aliases_en: ["Dairy", "Milk", "Cheese", "Yogurt"]
-          aliases_de: ["Milchprodukte", "Milch", "Käse", "Joghurt"]
-      frozen:
-        description: >-
-          Items requiring continuous frozen storage. Perishable — frozen
-          storage is the only valid option. Breaking the cold chain makes
-          refreezing unsafe.
-        see_also: [foodon:00002253]
-        annotations:
-          label_en: "frozen"
-          label_de: "Gefroren"
-          aliases_en: ["Frozen", "Frozen food", "Frozen items"]
-          aliases_de: ["Gefroren", "Tiefkühlkost", "Gefrorene Lebensmittel"]
       beverages:
         description: Bottled or packaged drinks (non-alcoholic).
         see_also: [foodon:00001062]
@@ -320,27 +442,45 @@ enums:
           label_de: "Getränke"
           aliases_en: ["Beverages", "Drinks", "Juice", "Soda", "Water"]
           aliases_de: ["Getränke", "Saft", "Limonade", "Wasser"]
+      confectionery_sweets:
+        description: >-
+          Chocolate, sweets, candy, and desserts. Storage: ambient.
+        see_also: [foodon:03400978]
+        annotations:
+          label_en: "confectionery & sweets"
+          label_de: "Süßwaren"
+          aliases_en: ["Confectionery", "Sweets", "Candy", "Chocolate", "Desserts"]
+          aliases_de: ["Süßwaren", "Süßigkeiten", "Bonbons", "Schokolade", "Nachspeisen"]
+      ready_meals:
+        description: >-
+          Prepared meals — ambient (shelf-stable), refrigerated, or frozen.
+        see_also: [foodon:03400172]
+        annotations:
+          label_en: "ready meals"
+          label_de: "Fertiggerichte"
+          aliases_en: ["Ready meals", "Prepared meals", "Convenience meals"]
+          aliases_de: ["Fertiggerichte", "Fertigkost", "Convenience-Food"]
       baby_food:
         description: >-
-          Commercially prepared infant formula and baby food. Perishable
-          once opened — packaging_intact rule applies.
-          Note: infant formula as a separate donation item belongs in
-          BabyInfantItem (baby_infant category); this value covers baby food
+          Commercially prepared solid baby food (purées, jars, pouches).
+          Perishable once opened — packaging_intact rule applies.
+          Note: infant formula belongs in BabyInfantItem
+          (subcategory=infant_formula), not here; this value covers baby food
           donated as part of a food collection.
         see_also: [foodon:00002640]
         annotations:
           label_en: "baby food"
           label_de: "Babynahrung"
           aliases_en: ["Baby food", "Infant food"]
-          aliases_de: ["Babynahrung", "Säuglingsnahrung"]
+          aliases_de: ["Babynahrung", "Säuglingsnahrung", "Püree", "Gläschen"]
       condiments:
         description: Sauces, spreads, oils, vinegars, and seasoning products.
         see_also: [foodon:00001139]
         annotations:
-          label_en: "condiments"
-          label_de: "Konserven"
+          label_en: "Oils & Condiments"
+          label_de: "Öle & Würzmittel"
           aliases_en: ["Condiments", "Sauces", "Spreads", "Oils", "Vinegar", "Seasoning"]
-          aliases_de: ["Konserve", "Soße", "Aufstrich", "Öl", "Essig", "Gewürze"]
+          aliases_de: ["Soße", "Aufstrich", "Öl", "Essig", "Gewürze", "Würzmittel", "Speiseöl"]
       other:
         description: Food items not fitting above categories.
         annotations:
@@ -349,7 +489,7 @@ enums:
 
   StorageRequirementEnum:
     description: >-
-      Required storage condition for a food item. Valid values per food_type
+      Required storage condition for a food item. Valid values per subcategory
       are constrained by vm-storage-* rules in FoodCategory.
     permissible_values:
       ambient:
@@ -372,15 +512,3 @@ enums:
         annotations:
           label_en: "dry cool"
           label_de: "Trocken kühlen"
-
-  FoodSubcategoryEnum:
-    description: >-
-      Optional subcategory for further food classification within a food_type.
-      Used when more granular labelling is operationally useful.
-    permissible_values:
-      vegetables:        {description: "Fresh vegetables.", see_also: [foodon:00001638], annotations: {label_en: "vegetables", label_de: "Gemüse"}}
-      fruit:             {description: "Fresh fruit.", see_also: [foodon:00001032], annotations: {label_en: "fruit", label_de: "Obst"}}
-      bread_bakery:      {description: "Bread, rolls, and baked goods.", see_also: [foodon:00001112], annotations: {label_en: "bread/bakery", label_de: "Brot/Backwaren"}}
-      meat_alternatives: {description: "Plant-based meat substitutes.", annotations: {label_en: "meat alternatives", label_de: "Fleischalternativen"}}
-      ready_meals:       {description: "Prepared meals — ambient, refrigerated, or frozen.", annotations: {label_en: "ready meals", label_de: "Fertigkost"}}
-      other:             {description: "Food subcategory not covered above.", annotations: {label_en: "other", label_de: "Sonstiges"}}

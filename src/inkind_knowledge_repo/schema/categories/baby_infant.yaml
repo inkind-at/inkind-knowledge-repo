@@ -51,7 +51,7 @@ description: >-
       a safety risk.
 
     Track 2 — Consumables:
-      infant_formula, feeding_bottles_teats, baby_food, nappies, baby_care
+      infant_formula, feeding_bottles_teats, nappies, baby_care
       Uses is_sealed + expiry_date (same pattern as PersonalCareCategory).
       Hygiene and safety are binary: sealed/not sealed, expired/not expired.
       Used feeding bottles/teats are blocked outright (EN 14350 hygiene).
@@ -150,7 +150,7 @@ classes:
         description: >-
           Packaging/seal integrity for Track 2 consumables.
           Required when subcategory in [infant_formula, feeding_bottles_teats,
-          baby_food, nappies].
+          nappies].
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -170,7 +170,7 @@ classes:
       completeness_standard: "subcategory, usage, nappy_size"
       completeness_detailed: "subcategory, nappy_size, manufacture_year, is_complete_with_accessories, usage"
       track_structural_subcategories: "pushchairs_prams, cots_cribs, baby_carriers, high_chairs, car_seats, sleeping_bags"
-      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, baby_food, nappies, baby_care"
+      track_consumable_subcategories: "infant_formula, feeding_bottles_teats, nappies, baby_care"
       track_general_subcategories:    "bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other"
       regulatory_references: "EN 1888, EN 716, EN 14344, EN 14350, EN 16781"
     rules:
@@ -272,7 +272,6 @@ classes:
               any_of:
                 - equals_string: infant_formula
                 - equals_string: feeding_bottles_teats
-                - equals_string: baby_food
                 - equals_string: nappies
                 - equals_string: baby_care
         postconditions:
@@ -290,7 +289,6 @@ classes:
               any_of:
                 - equals_string: infant_formula
                 - equals_string: feeding_bottles_teats
-                - equals_string: baby_food
                 - equals_string: nappies
                 - equals_string: baby_care
             is_sealed:
