@@ -599,9 +599,9 @@ enums:
           Standard underwear → all_season / is_winter_suitable=true (base layer).
         annotations:
           label_en: "Underwear"
-          label_de: "Unterhose"
+          label_de: "Unterwäsche"
           aliases_en: ["Underwear", "Undies", "Panties", "Bras"]
-          aliases_de: ["Unterhose", "Unterhosen", "BH", "BHs"]
+          aliases_de: ["Unterhose", "Unterhosen", "BH", "BHs", "Unterwäsche"]
       nightwear:
         description: >-
           Pyjamas, nightgowns, dressing gowns, sleep sets.
