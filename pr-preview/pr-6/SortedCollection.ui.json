@@ -1,0 +1,2549 @@
+{
+  "SortedCollection": {
+    "class": "SortedCollection",
+    "fields": [
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": true,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        },
+        "completeness": "minimal"
+      }
+    ],
+    "enums": {
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  },
+  "ClothingItem": {
+    "class": "ClothingItem",
+    "fields": [
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "usage": [
+            "used"
+          ],
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ClothingSubcategoryEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "tops_subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "TopsSubcategoryEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "subcategory": [
+            "tops"
+          ]
+        }
+      },
+      {
+        "name": "bottoms_subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "BottomsSubcategoryEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "subcategory": [
+            "bottoms"
+          ]
+        }
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "ClothingMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "is_winter_suitable",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ],
+          "subcategory": [
+            "tops",
+            "bottoms",
+            "outerwear",
+            "nightwear"
+          ]
+        },
+        "auto_set_from": {
+          "season": {
+            "winter": true,
+            "summer": false,
+            "all_season": true
+          }
+        }
+      },
+      {
+        "name": "demographic",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "DemographicEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        },
+        "options_depend_on": [
+          {
+            "when": {
+              "subcategory": [
+                "underwear"
+              ]
+            },
+            "options": [
+              "baby",
+              "child",
+              "adult_male",
+              "adult_female"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "is_maternity",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard",
+        "visible_when": {
+          "demographic": [
+            "adult_female"
+          ],
+          "subcategory": [
+            "tops",
+            "bottoms",
+            "outerwear"
+          ]
+        }
+      },
+      {
+        "name": "size",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "ClothingSizeEnum",
+        "multivalued": true,
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        },
+        "options_depend_on": [
+          {
+            "when": {
+              "demographic": [
+                "baby"
+              ]
+            },
+            "options": [
+              "baby_50",
+              "baby_56",
+              "baby_62",
+              "baby_68",
+              "baby_74",
+              "baby_80",
+              "baby_86",
+              "baby_92"
+            ]
+          },
+          {
+            "when": {
+              "demographic": [
+                "child"
+              ]
+            },
+            "options": [
+              "child_98",
+              "child_104",
+              "child_110",
+              "child_116",
+              "child_122",
+              "child_128",
+              "child_140",
+              "child_152",
+              "child_164",
+              "child_170"
+            ]
+          },
+          {
+            "when": {
+              "demographic": [
+                "adult_male",
+                "adult_female",
+                "unisex"
+              ]
+            },
+            "options": [
+              "size_xs",
+              "size_s",
+              "size_m",
+              "size_l",
+              "size_xl",
+              "size_xxl_plus"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "season",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "SeasonEnum",
+        "multivalued": true,
+        "completeness": "detailed",
+        "options_depend_on": [
+          {
+            "when": {
+              "is_winter_suitable": [
+                "false"
+              ]
+            },
+            "options": [
+              "summer",
+              "spring_autumn"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "intact_labels",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+    ],
+    "enums": {
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ClothingSubcategoryEnum": [
+        "tops",
+        "bottoms",
+        "outerwear",
+        "underwear",
+        "nightwear",
+        "sportswear",
+        "other"
+      ],
+      "TopsSubcategoryEnum": [
+        "t_shirt",
+        "shirt_blouse",
+        "sweater_hoodie",
+        "other"
+      ],
+      "BottomsSubcategoryEnum": [
+        "trousers",
+        "shorts",
+        "skirt",
+        "leggings",
+        "other"
+      ],
+      "ClothingMaterialEnum": [
+        "cotton",
+        "wool",
+        "linen",
+        "silk",
+        "denim",
+        "leather",
+        "fleece",
+        "down",
+        "polyester",
+        "nylon",
+        "synthetic_blend",
+        "other"
+      ],
+      "DemographicEnum": [
+        "baby",
+        "child",
+        "adult_male",
+        "adult_female",
+        "unisex"
+      ],
+      "ClothingSizeEnum": [
+        "baby_50",
+        "baby_56",
+        "baby_62",
+        "baby_68",
+        "baby_74",
+        "baby_80",
+        "baby_86",
+        "baby_92",
+        "child_98",
+        "child_104",
+        "child_110",
+        "child_116",
+        "child_122",
+        "child_128",
+        "child_140",
+        "child_152",
+        "child_164",
+        "child_170",
+        "size_xs",
+        "size_s",
+        "size_m",
+        "size_l",
+        "size_xl",
+        "size_xxl_plus",
+        "baby_0_3m",
+        "baby_3_6m",
+        "baby_6_12m",
+        "baby_12_18m",
+        "baby_18_24m",
+        "child_2_3T",
+        "child_4_5T",
+        "child_6_7",
+        "child_8_10",
+        "child_12_14",
+        "xs_s",
+        "m_l",
+        "xl_plus",
+        "one_size"
+      ],
+      "SeasonEnum": [
+        "winter",
+        "spring_autumn",
+        "summer",
+        "all_season"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-underwear-condition-block",
+        "when": {
+          "subcategory": [
+            "underwear"
+          ],
+          "condition_grade": [
+            "fair",
+            "poor"
+          ]
+        },
+        "severity": "block",
+        "message": "Underwear must be new or like_new condition. fair or poor graded underwear must not be redistributed. Reflects universal hygiene policy across social organisations. action: block, suggest: disposal."
+      },
+      {
+        "id": "uc-underwear-adult-used-block",
+        "when": {
+          "subcategory": [
+            "underwear"
+          ],
+          "demographic": [
+            "adult_male",
+            "adult_female"
+          ],
+          "usage": [
+            "used"
+          ]
+        },
+        "severity": "block",
+        "message": "Used adult underwear (adult_male or adult_female demographic) must not be redistributed. usage must be new. Reflects hygiene and dignity standards applied universally in the social sector. action: block."
+      },
+      {
+        "id": "uc-poor-condition-block",
+        "when": {
+          "condition_grade": [
+            "poor"
+          ]
+        },
+        "severity": "warn",
+        "message": "Items in poor condition should not be distributed. action: block, suggest: disposal."
+      }
+    ]
+  },
+  "AccessoriesItem": {
+    "class": "AccessoriesItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "AccessoriesSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "demographic",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "AccessoriesDemographicEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "AccessoriesMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+      
+    ],
+    "enums": {
+      "AccessoriesSubcategoryEnum": [
+        "hats_headwear",
+        "scarves",
+        "gloves_mittens",
+        "belts",
+        "bags_luggage",
+        "jewellery",
+        "sunglasses",
+        "watches",
+        "other"
+      ],
+      "AccessoriesDemographicEnum": [
+        "baby",
+        "child",
+        "adult",
+        "all_ages"
+      ],
+      "AccessoriesMaterialEnum": [
+        "leather",
+        "wool",
+        "cotton",
+        "silk",
+        "metal",
+        "plastic",
+        "synthetic",
+        "natural_fibre",
+        "glass_crystal",
+        "other"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  },
+  "FootwearItem": {
+    "class": "FootwearItem",
+    "fields": [
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "FootwearSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "FootwearMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "is_pair_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "is_winter_suitable",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        },
+        "auto_set_from": {
+          "season": {
+            "winter": true,
+            "summer": false,
+            "all_season": true
+          }
+        }
+      },
+      {
+        "name": "demographic",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "DemographicEnum",
+        "completeness": "standard"
+      },
+      {
+        "name": "shoe_size",
+        "type": "string",
+        "required_in_step": false,
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "shoe_size_system",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "ShoeSizeSystemEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "season",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "SeasonEnum",
+        "multivalued": true,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }   
+      
+      
+    ],
+    "enums": {
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "FootwearSubcategoryEnum": [
+        "shoes",
+        "boots",
+        "sandals",
+        "slippers",
+        "sports_footwear",
+        "other"
+      ],
+      "FootwearMaterialEnum": [
+        "leather",
+        "suede",
+        "synthetic_leather",
+        "canvas",
+        "synthetic_mesh",
+        "rubber",
+        "wool_felt",
+        "textile",
+        "other"
+      ],
+      "DemographicEnum": [
+        "baby",
+        "child",
+        "adult_male",
+        "adult_female",
+        "unisex"
+      ],
+      "ShoeSizeSystemEnum": [
+        "EU",
+        "UK",
+        "US",
+        "CM"
+      ],
+      "SeasonEnum": [
+        "winter",
+        "spring_autumn",
+        "summer",
+        "all_season"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-footwear-pair-incomplete-warn",
+        "when": {
+          "is_pair_complete": [
+            "false"
+          ]
+        },
+        "severity": "warn",
+        "message": "Single shoes require sorter confirmation. Single shoes may still be appropriate for beneficiaries with limb differences. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "FurnitureItem": {
+    "class": "FurnitureItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "FurnitureSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "FurnitureMaterialEnum",
+        "completeness": "standard",
+        "auto_set_from": {
+          "subcategory": {
+            "beds": "wood",
+            "tables": "wood"
+          }
+        }
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "FurnitureAssessmentEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "dimensions",
+        "type": "string",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "style",
+        "type": "string",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+    ],
+    "enums": {
+      "FurnitureSubcategoryEnum": [
+        "seating",
+        "tables",
+        "beds",
+        "storage_units",
+        "shelving",
+        "other"
+      ],
+      "FurnitureMaterialEnum": [
+        "wood",
+        "metal",
+        "plastic",
+        "fabric",
+        "glass",
+        "mixed"
+      ],
+      "FurnitureAssessmentEnum": [
+        "structurally_sound",
+        "minor_cosmetic_damage",
+        "significant_cosmetic_damage",
+        "functional_with_repairs",
+        "structurally_compromised"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-furniture-compromised-block",
+        "when": {
+          "assessment_result": [
+            "structurally_compromised"
+          ]
+        },
+        "severity": "block",
+        "message": "Items assessed as structurally_compromised must not be redistributed. Applies to both new items (manufacturing defect) and used items. action: block, suggest: disposal or repair referral."
+      },
+      {
+        "id": "uc-furniture-repairable-warn",
+        "when": {
+          "assessment_result": [
+            "functional_with_repairs"
+          ]
+        },
+        "severity": "warn",
+        "message": "Items assessed as functional_with_repairs require sorter confirmation. action: warn — sorting_notes required."
+      },
+      {
+        "id": "uc-furniture-seating-beds-cosmetic-warn",
+        "when": {
+          "subcategory": [
+            "seating",
+            "beds"
+          ],
+          "assessment_result": [
+            "significant_cosmetic_damage"
+          ]
+        },
+        "severity": "warn",
+        "message": "Seating and beds with significant cosmetic damage require sorter confirmation. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "BeddingTextilesItem": {
+    "class": "BeddingTextilesItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "BeddingTextilesSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "BeddingMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "BeddingAssessmentEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "is_set_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "is_winter_suitable",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+      
+      
+    ],
+    "enums": {
+      "BeddingTextilesSubcategoryEnum": [
+        "blankets",
+        "duvets_quilts",
+        "pillows",
+        "mattresses",
+        "sleeping_bags",
+        "bedsheets",
+        "towels",
+        "curtains_blinds",
+        "tablecloths_napkins",
+        "other"
+      ],
+      "BeddingMaterialEnum": [
+        "cotton",
+        "polyester",
+        "wool",
+        "linen",
+        "fleece",
+        "down_feather",
+        "silk",
+        "microfibre",
+        "synthetic_blend",
+        "other"
+      ],
+      "BeddingAssessmentEnum": [
+        "clean_unused",
+        "clean_washed",
+        "clean_with_visible_staining",
+        "used_not_confirmed_washed",
+        "hygiene_concern"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-bedding-hygiene-concern-block",
+        "when": {
+          "assessment_result": [
+            "hygiene_concern"
+          ]
+        },
+        "severity": "block",
+        "message": "Items with hygiene concerns must not be redistributed. Covers mattress staining, infestation signs, biological contamination, and packaging damage on new items. Applies regardless of usage. action: block, suggest: disposal."
+      },
+      {
+        "id": "uc-bedding-not-washed-warn",
+        "when": {
+          "assessment_result": [
+            "used_not_confirmed_washed"
+          ]
+        },
+        "severity": "warn",
+        "message": "Used items where laundering is unconfirmed require sorter confirmation. action: warn — sorting_notes required."
+      },
+      {
+        "id": "uc-bedding-stained-warn",
+        "when": {
+          "assessment_result": [
+            "clean_with_visible_staining"
+          ]
+        },
+        "severity": "warn",
+        "message": "Visibly stained items require sorter confirmation. action: warn — sorting_notes required."
+      },
+      {
+        "id": "uc-bedding-sleeping-bag-winter-required",
+        "when": {
+          "subcategory": [
+            "sleeping_bags"
+          ]
+        },
+        "severity": "warn",
+        "message": "Sleeping bags require is_winter_suitable to be explicitly set. A summer sleeping bag issued in a cold-weather emergency is a genuine safety risk. Sorters must assess the thermal rating. action: warn — is_winter_suitable must be set at sorted state."
+      }
+    ]
+  },
+  "HouseholdItem": {
+    "class": "HouseholdItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "HouseholdSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "HouseholdMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "is_set_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+      
+      
+      
+    ],
+    "enums": {
+      "HouseholdSubcategoryEnum": [
+        "cookware",
+        "crockery",
+        "cutlery",
+        "glassware",
+        "small_appliances",
+        "cleaning",
+        "storage_organisation",
+        "home_decor",
+        "garden_tools",
+        "other"
+      ],
+      "HouseholdMaterialEnum": [
+        "stainless_steel",
+        "wood",
+        "ceramic",
+        "glass",
+        "cast_iron",
+        "copper",
+        "aluminium",
+        "non_stick",
+        "plastic",
+        "silicone",
+        "mixed",
+        "other"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  },
+  "ElectronicsItem": {
+    "class": "ElectronicsItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ElectronicsSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ElectronicsAssessmentEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "includes_charger",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "includes_original_packaging",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "ElectronicsSubcategoryEnum": [
+        "smartphones",
+        "tablets",
+        "laptops",
+        "desktop_computers",
+        "monitors",
+        "cameras",
+        "audio",
+        "cables_chargers",
+        "peripherals",
+        "gaming",
+        "other"
+      ],
+      "ElectronicsAssessmentEnum": [
+        "fully_functional",
+        "functional_minor_cosmetic",
+        "functional_significant_cosmetic",
+        "functional_with_issues",
+        "non_functional",
+        "untested"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-electronics-non-functional-warn",
+        "when": {
+          "assessment_result": [
+            "non_functional"
+          ]
+        },
+        "severity": "warn",
+        "message": "Non-functional items require sorter confirmation before redistribution. Applies to both new (factory defect) and used items. Sorter should note whether repair referral is appropriate. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "ToysItem": {
+    "class": "ToysItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ToysSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "material",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "ToysMaterialEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "age_range",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "ToyAgeRangeEnum",
+        "completeness": "standard"
+      },
+      {
+        "name": "is_set_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "has_small_parts",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+      
+      
+      
+    ],
+    "enums": {
+      "ToysSubcategoryEnum": [
+        "construction",
+        "dolls_figures",
+        "board_games",
+        "puzzles",
+        "outdoor_toys",
+        "ride_on",
+        "arts_crafts",
+        "educational",
+        "plush",
+        "other"
+      ],
+      "ToysMaterialEnum": [
+        "plastic",
+        "wood",
+        "fabric_plush",
+        "rubber_silicone",
+        "metal",
+        "cardboard_paper",
+        "foam",
+        "mixed",
+        "other"
+      ],
+      "ToyAgeRangeEnum": [
+        "age_0_to_3",
+        "age_3_to_6",
+        "age_6_to_12",
+        "age_12_plus",
+        "adult",
+        "all_ages"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-toys-small-parts-under3-block",
+        "when": {
+          "has_small_parts": [
+            "true"
+          ]
+        },
+        "severity": "block",
+        "message": "Toys with small parts must not be assigned to age_0_to_3. Implements EU Toy Safety Directive 2009/48/EC choking hazard requirement (also ASTM F963 for US-market toys). action: block."
+      },
+      {
+        "id": "uc-toys-incomplete-set-warn",
+        "when": {
+          "is_set_complete": [
+            "false"
+          ]
+        },
+        "severity": "warn",
+        "message": "Incomplete sets require sorter confirmation — missing pieces may render the toy unusable or unsafe for its intended purpose. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "SportsItem": {
+    "class": "SportsItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "SportsSubcategoryEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "SportsProtectiveAssessmentEnum"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard"
+      },
+      {
+        "name": "sport_type",
+        "type": "string",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "demographic",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "DemographicEnum",
+        "completeness": "detailed"
+      },
+      {
+        "name": "is_set_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "SportsSubcategoryEnum": [
+        "balls",
+        "rackets_bats",
+        "protective_gear",
+        "fitness_equipment",
+        "bicycles",
+        "water_sports",
+        "winter_sports",
+        "camping_outdoor",
+        "other"
+      ],
+      "SportsProtectiveAssessmentEnum": [
+        "safe_to_redistribute",
+        "safe_cosmetic_wear_only",
+        "unknown_impact_history",
+        "visible_structural_damage",
+        "unsafe_do_not_redistribute"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "DemographicEnum": [
+        "baby",
+        "child",
+        "adult_male",
+        "adult_female",
+        "unisex"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-sports-protective-gear-assessment-required",
+        "when": {
+          "subcategory": [
+            "protective_gear"
+          ]
+        },
+        "severity": "block",
+        "message": "Protective gear requires structured safety assessment regardless of usage — new protective gear can have manufacturing defects"
+      },
+      {
+        "id": "uc-sports-protective-gear-unsafe-block",
+        "when": {
+          "subcategory": [
+            "protective_gear"
+          ],
+          "assessment_result": [
+            "unsafe_do_not_redistribute"
+          ]
+        },
+        "severity": "block",
+        "message": "Protective gear assessed as unsafe must not be redistributed. action: block."
+      },
+      {
+        "id": "uc-sports-protective-gear-post-impact-warn",
+        "when": {
+          "subcategory": [
+            "protective_gear"
+          ],
+          "assessment_result": [
+            "unknown_impact_history"
+          ]
+        },
+        "severity": "warn",
+        "message": "Protective gear with unknown impact history requires confirmation. action: warn — sorting_notes required."
+      },
+      {
+        "id": "uc-sports-general-condition-grade-required",
+        "when": {},
+        "severity": "block",
+        "message": "General sports equipment requires condition_grade"
+      },
+      {
+        "id": "uc-sports-general-poor-warn",
+        "when": {
+          "condition_grade": [
+            "poor"
+          ]
+        },
+        "severity": "warn",
+        "message": "General sports equipment in poor condition requires confirmation. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "BooksItem": {
+    "class": "BooksItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "BooksSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "age_range",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "BookAgeRangeEnum",
+        "completeness": "standard"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "BooksSubcategoryEnum": [
+        "fiction",
+        "non_fiction",
+        "childrens_books",
+        "textbooks",
+        "language_learning",
+        "religious",
+        "educational_materials",
+        "other"
+      ],
+      "BookAgeRangeEnum": [
+        "children_0_5",
+        "children_6_12",
+        "young_adult",
+        "adult",
+        "all_ages"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  },
+  "StationeryItem": {
+    "class": "StationeryItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "StationerySubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "is_set_complete",
+        "type": "boolean",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "StationerySubcategoryEnum": [
+        "pens_pencils",
+        "writing_sets",
+        "notebooks_paper",
+        "envelopes_cards",
+        "folders_binders",
+        "organisers",
+        "art_supplies",
+        "craft_supplies",
+        "calculators",
+        "office_equipment_small",
+        "storage_supplies",
+        "other"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  },
+  "PersonalCareItem": {
+    "class": "PersonalCareItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "PersonalCareSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "is_sealed",
+        "type": "boolean",
+        "required_in_step": true,
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "expiry_date",
+        "type": "date",
+        "required_in_step": false,
+        "completeness": "standard"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "PersonalCareSubcategoryEnum": [
+        "soap_body_wash",
+        "shampoo_conditioner",
+        "dental",
+        "deodorant",
+        "sanitary_products",
+        "incontinence_products",
+        "toilet_paper_tissue",
+        "personal_care_tools",
+        "skincare",
+        "cosmetics",
+        "hair_styling",
+        "otc_medication",
+        "first_aid",
+        "medical_consumables",
+        "medical_devices_small",
+        "other"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-personal-care-unsealed-consumables-block",
+        "when": {
+          "is_sealed": [
+            "false"
+          ],
+          "subcategory": [
+            "soap_body_wash",
+            "shampoo_conditioner",
+            "dental",
+            "deodorant",
+            "sanitary_products",
+            "incontinence_products",
+            "skincare",
+            "cosmetics",
+            "hair_styling",
+            "otc_medication",
+            "first_aid",
+            "medical_consumables"
+          ]
+        },
+        "severity": "block",
+        "message": "Unsealed consumable personal care products must not be redistributed. A PC (Policy Constraint) override at the org level can permit specific subcategories (e.g. bulk bar soap) if org policy allows. action: block."
+      },
+      {
+        "id": "uc-personal-care-used-tools-block",
+        "when": {
+          "subcategory": [
+            "personal_care_tools"
+          ],
+          "usage": [
+            "used"
+          ]
+        },
+        "severity": "block",
+        "message": "Used personal care tools must not be redistributed. Health and sanitary safety — no PC override permitted. action: block."
+      }
+    ]
+  },
+  "MobilityAidsItem": {
+    "class": "MobilityAidsItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "MobilityAidsSubcategoryEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "MobilityAssessmentEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "MobilityAidsSubcategoryEnum": [
+        "wheelchairs",
+        "crutches",
+        "walking_frames",
+        "mobility_scooters",
+        "hearing_aids",
+        "visual_aids",
+        "orthotics",
+        "prosthetics",
+        "daily_living_aids",
+        "communication_devices",
+        "other"
+      ],
+      "MobilityAssessmentEnum": [
+        "safe_to_redistribute",
+        "safe_cosmetic_wear_only",
+        "safe_after_cleaning",
+        "non_functional",
+        "structurally_compromised",
+        "specialist_referral_required"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-mobility-compromised-block",
+        "when": {
+          "assessment_result": [
+            "structurally_compromised"
+          ]
+        },
+        "severity": "block",
+        "message": "Structurally compromised items must not be redistributed. Safety-critical — applies to new (manufacturing defect) and used items. action: block, suggest: disposal or specialist repair referral."
+      },
+      {
+        "id": "uc-mobility-specialist-required-block",
+        "when": {
+          "assessment_result": [
+            "specialist_referral_required"
+          ]
+        },
+        "severity": "block",
+        "message": "Items requiring specialist assessment must not enter general redistribution. Flag for specialist organisation referral. action: block from normal redistribution path."
+      },
+      {
+        "id": "uc-mobility-safe-after-cleaning-warn",
+        "when": {
+          "assessment_result": [
+            "safe_after_cleaning"
+          ]
+        },
+        "severity": "warn",
+        "message": "Body-contact items (hearing aids, orthotics) requiring cleaning before redistribution need sorter confirmation. action: warn — sorting_notes required documenting cleaning recommendation."
+      },
+      {
+        "id": "uc-mobility-non-functional-warn",
+        "when": {
+          "assessment_result": [
+            "non_functional"
+          ]
+        },
+        "severity": "warn",
+        "message": "Non-functional powered devices require sorter confirmation. action: warn — sorting_notes required."
+      }
+    ]
+  },
+  "BabyInfantItem": {
+    "class": "BabyInfantItem",
+    "fields": [
+      {
+        "name": "subcategory",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "BabyInfantSubcategoryEnum",
+        "completeness": "minimal",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "assessment_result",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "BabyEquipmentAssessmentEnum"
+      },
+      {
+        "name": "manufacture_year",
+        "type": "integer",
+        "required_in_step": false,
+        "completeness": "detailed",
+        "visible_when": {
+          "subcategory": [
+            "cots_cribs",
+            "car_seats",
+            "pushchairs_prams"
+          ],
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "includes_original_accessories",
+        "type": "boolean",
+        "required_in_step": false
+      },
+      {
+        "name": "is_winter_suitable",
+        "type": "boolean",
+        "required_in_step": false,
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ],
+          "subcategory": [
+            "sleeping_bags"
+          ]
+        }
+      },
+      {
+        "name": "is_sealed",
+        "type": "boolean",
+        "required_in_step": false
+      },
+      {
+        "name": "expiry_date",
+        "type": "date",
+        "required_in_step": false
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum"
+      },
+      {
+        "name": "nappy_size",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "NappySizeEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "subcategory": [
+            "nappies"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      },
+      
+      
+      
+      {
+        "name": "material",
+        "type": "string",
+        "required_in_step": false
+      }
+    ],
+    "enums": {
+      "BabyInfantSubcategoryEnum": [
+        "pushchairs_prams",
+        "car_seats",
+        "cots_cribs",
+        "baby_carriers",
+        "infant_formula",
+        "feeding_bottles_teats",
+        "nappies",
+        "breastfeeding",
+        "bath_equipment",
+        "changing",
+        "baby_monitors",
+        "bouncers_swings",
+        "sleeping_bags",
+        "other"
+      ],
+      "BabyEquipmentAssessmentEnum": [
+        "safe_to_redistribute",
+        "safe_minor_wear",
+        "requires_specialist_check",
+        "structural_concern",
+        "do_not_redistribute"
+      ],
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "NappySizeEnum": [
+        "newborn",
+        "size_1",
+        "size_2",
+        "size_3",
+        "size_4",
+        "size_5",
+        "size_6",
+        "other"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-baby-equipment-assessment-required",
+        "when": {
+          "subcategory": [
+            "pushchairs_prams",
+            "cots_cribs",
+            "baby_carriers",
+            "high_chairs",
+            "car_seats",
+            "sleeping_bags"
+          ]
+        },
+        "severity": "block",
+        "message": "Safety-critical baby equipment requires a structured assessment"
+      },
+      {
+        "id": "uc-baby-equipment-unsafe-block",
+        "when": {
+          "assessment_result": [
+            "do_not_redistribute",
+            "structural_concern"
+          ]
+        },
+        "severity": "block",
+        "message": "Equipment assessed as do_not_redistribute or structural_concern must not be redistributed. action: block."
+      },
+      {
+        "id": "uc-baby-car-seat-manufacture-year",
+        "when": {
+          "subcategory": [
+            "car_seats"
+          ]
+        },
+        "severity": "block",
+        "message": "Car seats require manufacture_year to enable the runtime age check"
+      },
+      {
+        "id": "uc-baby-equipment-specialist-warn",
+        "when": {
+          "assessment_result": [
+            "requires_specialist_check"
+          ]
+        },
+        "severity": "warn",
+        "message": "Equipment requiring specialist check before redistribution needs sorter confirmation. action: warn — sorting_notes required."
+      },
+      {
+        "id": "uc-baby-sleeping-bag-winter-required",
+        "when": {
+          "subcategory": [
+            "sleeping_bags"
+          ]
+        },
+        "severity": "warn",
+        "message": "Baby sleeping bags require is_winter_suitable to be explicitly set. A summer-weight baby sleeping bag (e.g. 0.5-1.0 tog) issued in a cold-weather response is a genuine safety risk — infants cannot regulate their own temperature. The thermal rating is typically printed on the label (tog, season number, or comfort temperature). action: warn — is_winter_suitable must be set at sorted state."
+      },
+      {
+        "id": "uc-baby-consumable-sealed-required",
+        "when": {
+          "subcategory": [
+            "infant_formula",
+            "feeding_bottles_teats",
+            "baby_food",
+            "nappies"
+          ]
+        },
+        "severity": "block",
+        "message": "Consumable baby items require sealed packaging"
+      },
+      {
+        "id": "uc-baby-consumable-unsealed-block",
+        "when": {
+          "subcategory": [
+            "infant_formula",
+            "feeding_bottles_teats",
+            "baby_food",
+            "nappies"
+          ],
+          "is_sealed": [
+            "false"
+          ]
+        },
+        "severity": "block",
+        "message": "Unsealed consumable baby items must not be redistributed. action: block."
+      },
+      {
+        "id": "uc-baby-feeding-used-block",
+        "when": {
+          "subcategory": [
+            "feeding_bottles_teats"
+          ],
+          "usage": [
+            "used"
+          ]
+        },
+        "severity": "block",
+        "message": "Used feeding bottles and teats must not be redistributed. Hygiene and infant safety — EN 14350 (drinking equipment for children). action: block — no override."
+      },
+      {
+        "id": "uc-baby-general-condition-grade-required",
+        "when": {
+          "subcategory": [
+            "bath_equipment",
+            "changing",
+            "baby_monitors",
+            "bouncers_swings",
+            "breastfeeding",
+            "other"
+          ]
+        },
+        "severity": "block",
+        "message": "General baby gear requires condition_grade wear assessment"
+      }
+    ]
+  },
+  "FoodItem": {
+    "class": "FoodItem",
+    "fields": [
+      {
+        "name": "food_type",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "FoodTypeEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "expiry_date",
+        "type": "date",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "packaging_intact",
+        "type": "boolean",
+        "required_in_step": true,
+        "completeness": "minimal"
+      },
+      {
+        "name": "storage_requirement",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "StorageRequirementEnum",
+        "completeness": "standard",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        },
+        "options_depend_on": [
+          {
+            "when": {
+              "food_type": [
+                "dairy"
+              ]
+            },
+            "options": [
+              "refrigerated",
+              "frozen"
+            ]
+          },
+          {
+            "when": {
+              "food_type": [
+                "canned_goods"
+              ]
+            },
+            "options": [
+              "ambient"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "quantity",
+        "type": "integer",
+        "required_in_step": false,
+        "completeness": "detailed"
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": false,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        }
+      }
+      
+      
+      
+    ],
+    "enums": {
+      "FoodTypeEnum": [
+        "dry_goods",
+        "canned_goods",
+        "fresh_produce",
+        "dairy",
+        "frozen",
+        "beverages",
+        "baby_food",
+        "condiments",
+        "other"
+      ],
+      "StorageRequirementEnum": [
+        "ambient",
+        "refrigerated",
+        "frozen",
+        "dry_cool"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": [
+      {
+        "id": "uc-packaging-perishable-block",
+        "when": {
+          "packaging_intact": [
+            "false"
+          ],
+          "food_type": [
+            "fresh_produce",
+            "dairy",
+            "frozen",
+            "baby_food"
+          ]
+        },
+        "severity": "block",
+        "message": "Perishable items with compromised packaging must not be redistributed. Food safety principle — perishable items cannot be safely redistributed once packaging integrity is lost. action: block."
+      },
+      {
+        "id": "vm-storage-frozen",
+        "when": {
+          "food_type": [
+            "frozen"
+          ]
+        },
+        "severity": "block",
+        "message": "Frozen food requires frozen storage only. Breaking the cold chain makes frozen food unsafe to refreeze. action: block invalid value."
+      }
+    ]
+  },
+  "OtherItem": {
+    "class": "OtherItem",
+    "fields": [
+      {
+        "name": "item_description",
+        "type": "string",
+        "required_in_step": false,
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "condition_grade",
+        "type": "enum",
+        "required_in_step": false,
+        "enum": "UsedConditionGradeEnum",
+        "visible_when": {
+          "lifecycle_state": [
+            "sorting_in_progress"
+          ]
+        }
+      },
+      {
+        "name": "usage",
+        "type": "enum",
+        "required_in_step": true,
+        "enum": "ItemUsageEnum",
+        "completeness": "minimal"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "required_in_step": true,
+        "dispatches_to": {
+          "ClothingItem": "ClothingItem",
+          "AccessoriesItem": "AccessoriesItem",
+          "FootwearItem": "FootwearItem",
+          "FurnitureItem": "FurnitureItem",
+          "BeddingTextilesItem": "BeddingTextilesItem",
+          "HouseholdItem": "HouseholdItem",
+          "ElectronicsItem": "ElectronicsItem",
+          "ToysItem": "ToysItem",
+          "SportsItem": "SportsItem",
+          "BooksItem": "BooksItem",
+          "StationeryItem": "StationeryItem",
+          "PersonalCareItem": "PersonalCareItem",
+          "MobilityAidsItem": "MobilityAidsItem",
+          "BabyInfantItem": "BabyInfantItem",
+          "FoodItem": "FoodItem",
+          "OtherItem": "OtherItem"
+        },
+        "completeness": "minimal"
+      }
+      
+    ],
+    "enums": {
+      "UsedConditionGradeEnum": [
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "ItemUsageEnum": [
+        "new",
+        "used"
+      ]
+    },
+    "rules": []
+  }
+}

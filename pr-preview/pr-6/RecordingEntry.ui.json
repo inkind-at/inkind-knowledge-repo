@@ -1,0 +1,17 @@
+{
+  "class": "RecordingEntry",
+  "fields": [
+    {
+      "name": "item_count_range",
+      "type": "enum",
+      "enum": "ItemCountRangeEnum",
+      "required_in_step": true,
+      "dispatches_to": {
+        "single":      "DonationItem.ui.json",
+        "small_pile":  "SortedCollection.ui.json",
+        "medium_pile": "SortedCollection.ui.json",
+        "large_pile":  "SortedCollection.ui.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1057 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://inkind-at.github.io/inkind-knowledge-repo/ui-descriptor-generator/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Implementation Guidelines: LinkML UI Descriptor Generator - inkind-knowledge-repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+
+      
+    
+<script src="../assets/pymdownx-extras/material-extra-theme-2ek1P7jT.js" type="text/javascript"></script>
+<script src="../assets/pymdownx-extras/material-extra-3rdparty-BUCF4rjN.js" type="text/javascript"></script>
+
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../css/pandas-dataframe.css">
+    
+      <link rel="stylesheet" href="../assets/pymdownx-extras/extra-c6ab11540a.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#implementation-guidelines-linkml-ui-descriptor-generator" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+
+<header class="md-header" data-md-component="header">
+  <nav
+    class="md-header__inner md-grid"
+    aria-label="header.title"
+  >
+    <a
+      href="https://inkind-at.github.io/inkind-knowledge-repo/"
+      title="inkind-knowledge-repo"
+      class="md-header__button md-logo"
+      aria-label="inkind-knowledge-repo"
+    >
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            inkind-knowledge-repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Implementation Guidelines: LinkML UI Descriptor Generator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header__options">
+      <div class="md-header-nav__scheme md-header-nav__button md-source__icon md-icon">
+          <a
+            href="javascript:toggleScheme();"
+            title="Light mode"
+            class="light-mode"
+          >
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+          </a>
+          <a
+            href="javascript:toggleScheme();"
+            title="Dark mode"
+            class="dark-mode"
+          >
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+          </a>
+          <a
+            href="javascript:toggleScheme();"
+            title="System preference"
+            class="system-mode"
+          >
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.5 2c-1.79 1.15-3 3.18-3 5.5s1.21 4.35 3.03 5.5C4.46 13 2 10.54 2 7.5A5.5 5.5 0 0 1 7.5 2m11.57 1.5 1.43 1.43L4.93 20.5 3.5 19.07zm-6.18 2.43L11.41 5 9.97 6l.42-1.7L9 3.24l1.75-.12.58-1.65L12 3.1l1.73.03-1.35 1.13zm-3.3 3.61-1.16-.73-1.12.78.34-1.32-1.09-.83 1.36-.09.45-1.29.51 1.27 1.36.03-1.05.87zM19 13.5a5.5 5.5 0 0 1-5.5 5.5c-1.22 0-2.35-.4-3.26-1.07l7.69-7.69c.67.91 1.07 2.04 1.07 3.26m-4.4 6.58 2.77-1.15-.24 3.35zm4.33-2.7 1.15-2.77 2.2 2.54zm1.15-4.96-1.14-2.78 3.34.24zM9.63 18.93l2.77 1.15-2.53 2.19z"/></svg>
+          </a>
+           <a
+            href="javascript:toggleScheme();"
+            title="Unknown scheme"
+            class="unknown-mode"
+          >
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.07 11.25-.9.92C13.45 12.89 13 13.5 13 15h-2v-.5c0-1.11.45-2.11 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-2-2 2 2 0 0 0-2 2H8a4 4 0 0 1 4-4 4 4 0 0 1 4 4 3.2 3.2 0 0 1-.93 2.25M13 19h-2v-2h2M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10c0-5.53-4.5-10-10-10"/></svg>
+          </a>
+      </div>
+    </div>
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/inkind-at/inkind-knowledge-repo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="inkind-knowledge-repo" class="md-nav__button md-logo" aria-label="inkind-knowledge-repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
+
+    </a>
+    inkind-knowledge-repo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/inkind-at/inkind-knowledge-repo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gen-ui-descriptor-inkind-knowledge-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gen-ui-descriptor — inkind-knowledge-repo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-purpose-and-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Purpose and Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Purpose and Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-future-process-templates-and-fragment-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to future process templates and fragment bindings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-repository-placement-and-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Repository Placement and Registration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-output-file-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Output File Set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-source-schema-structure-the-generator-must-understand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Source Schema Structure the Generator Must Understand
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Source Schema Structure the Generator Must Understand">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-the-class-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 The class hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-the-designates_type-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 The designates_type slot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-where-slots-come-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Where slots come from
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-where-rules-come-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Where rules come from
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-where-completeness-annotations-come-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Where completeness annotations come from
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-field-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Field Ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-internal-slots-to-exclude" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Internal Slots to Exclude
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-base-descriptor-donationitemuijson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Base Descriptor: DonationItem.ui.json
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Base Descriptor: DonationItem.ui.json">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-fields-included" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Fields included
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-the-dispatches_to-map-on-the-category-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 The dispatches_to map on the category field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-field-structure-for-base-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Field structure for base fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-subclass-descriptors-classnameuijson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Subclass Descriptors: &lt;ClassName&gt;.ui.json
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Subclass Descriptors: &lt;ClassName&gt;.ui.json">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-top-level-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Top-level structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-field-entry-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Field entry structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-enum-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Enum collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-rule-processing-by-prefix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Rule Processing by Prefix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Rule Processing by Prefix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-lc-rules-visible_when-on-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 lc-* rules → visible_when on fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-vm-rules-options_depend_on-or-auto_set_from-on-the-target-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 vm-* rules → options_depend_on or auto_set_from on the target field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-uc-rules-rules-array-entries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 uc-* rules → rules array entries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-special-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Special Cases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Special Cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-otheritem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 OtherItem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-fooditem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 FoodItem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-babyinfantitem-three-track-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 BabyInfantItem three-track assessment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-sportsitem-dual-track-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 SportsItem dual-track assessment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#105-multivalued-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.5 Multivalued fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-verification-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Verification Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-django-integration-for-reference-not-implemented-by-the-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Django Integration (for reference, not implemented by the generator)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-what-the-generator-must-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. What the Generator Must Not Do
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+  
+                  
+
+
+  
+  
+
+
+<h1 id="implementation-guidelines-linkml-ui-descriptor-generator">Implementation Guidelines: LinkML UI Descriptor Generator</h1>
+<h2 id="gen-ui-descriptor-inkind-knowledge-repo"><code>gen-ui-descriptor</code> — inkind-knowledge-repo</h2>
+<p><strong>Status:</strong> Implementation ready<br />
+<strong>Scope:</strong> Phase 1 — sorting form UI, no process templates, no fragment bindings<br />
+<strong>Target audience:</strong> AI agent implementing the generator</p>
+<hr />
+<h2 id="1-purpose-and-context">1. Purpose and Context</h2>
+<p>The UI descriptor generator (<code>gen-ui-descriptor</code>) is a custom LinkML <code>Generator</code> subclass that compiles the domain schema into a set of JSON files consumed by the Django sorting UI. It is a build-time artifact generator, not a runtime component.</p>
+<p>The generator exists because the two other generated artifacts serve different purposes and different consumers. The JSON Schema files (<code>gen-json-schema</code>) serve <code>ajv</code> for POST validation in the browser and <code>jsonschema</code> for server-side validation in Django — they are validation contracts. The Pydantic models (<code>gen-pydantic</code>) serve the Python configuration loader — they are typed data containers. Neither artifact is shaped for the UX need: telling the browser which fields to render, in what order, under what conditions, with what value constraints, and with what inline feedback rules.</p>
+<p>The UI descriptor fills this gap. It is compiled once from the YAML source, committed to <code>generated/ui-descriptors/</code>, loaded by Django at startup, and embedded in the sorting form page. The browser reads it as flat data — no schema machinery, no <code>$ref</code> resolution, no <code>allOf</code> traversal at runtime.</p>
+<h3 id="relationship-to-future-process-templates-and-fragment-bindings">Relationship to future process templates and fragment bindings</h3>
+<p>Phase 1 does not implement process templates or fragment bindings. The descriptor is designed so that when fragment bindings arrive they slot in cleanly. Each field in the descriptor carries a <code>required_in_step</code> flag set from the <code>completeness_minimal</code> annotation. A future fragment binding patch mechanism will override this flag per step context without regenerating the schema-derived content. The agent must not conflate the process layer (deferred) with the schema layer (implemented now).</p>
+<hr />
+<h2 id="2-repository-placement-and-registration">2. Repository Placement and Registration</h2>
+<p>The generator lives inside the knowledge repo as a first-class generator alongside <code>gen-json-schema</code> and <code>gen-pydantic</code>. It is not a script or a post-processor.</p>
+<p><strong>File location:</strong> <code>src/inkind/generators/ui_descriptor.py</code></p>
+<p><strong>Package registration:</strong> Register as a CLI entry point in <code>pyproject.toml</code> under <code>[project.entry-points."linkml.generators"]</code> so it is invocable as <code>gen-ui-descriptor</code> from the command line, exactly as <code>gen-json-schema</code> is invoked.</p>
+<p><strong>Invocation pattern:</strong>
+<div class="highlight"><pre><span></span><code>gen-ui-descriptor src/inkind/schema/donation_item.yaml --output-dir generated/ui-descriptors/
+</code></pre></div></p>
+<p>The entry point schema is <code>donation_item.yaml</code> because it is the root schema that imports all category schemas and defines all concrete subclasses. The generator traverses the full imported schema graph via <code>SchemaView</code>.</p>
+<p><strong>Output location:</strong> <code>generated/ui-descriptors/</code> — committed alongside <code>generated/json-schema/</code> and <code>generated/pydantic/</code>. Django reads from the path specified by the <code>INKIND_SCHEMA_DIR</code> environment variable.</p>
+<p><strong>Makefile target:</strong> Add alongside the other generator targets. The target depends on <code>donation_item.yaml</code> and all <code>categories/*.yaml</code> files so that changes to any category schema trigger regeneration.</p>
+<hr />
+<h2 id="3-output-file-set">3. Output File Set</h2>
+<p>The generator produces exactly two types of output file:</p>
+<p><strong>One base descriptor:</strong> <code>DonationItem.ui.json</code><br />
+Contains only the fields declared directly on <code>DonationItem</code> that are universal across all item types. The <code>category</code> field in this file carries <code>dispatches_to</code> — the map from each category value to its subclass descriptor filename. This file drives the phase 1 UI before any category is selected.</p>
+<p><strong>One subclass descriptor per concrete item class:</strong> <code>ClothingItem.ui.json</code>, <code>FurnitureItem.ui.json</code>, <code>BabyInfantItem.ui.json</code>, and so on for all 16 concrete subclasses.<br />
+Each file contains the complete field set for that item type, in slot declaration order, with all rendering metadata attached to each field entry.</p>
+<p>No other output files. The generator does not produce per-category-mixin files, per-rule files, or any intermediate artifacts.</p>
+<hr />
+<h2 id="4-source-schema-structure-the-generator-must-understand">4. Source Schema Structure the Generator Must Understand</h2>
+<p>Before implementing, the agent must understand how the schema is organised, because the generator reads across multiple layers simultaneously.</p>
+<h3 id="41-the-class-hierarchy">4.1 The class hierarchy</h3>
+<p><code>DonationItem</code> is declared <code>abstract: true</code> in <code>donation_item.yaml</code>. It is never instantiated. All 16 concrete subclasses use <code>is_a: DonationItem</code>. Most also carry one category mixin via <code>mixins: [ClothingCategory]</code>, <code>mixins: [FurnitureCategory]</code>, etc. <code>OtherItem</code> has no mixin. <code>FoodItem</code> is the only subclass whose mixin (<code>FoodCategory</code>) does not extend <code>CategoryMixin</code>.</p>
+<p>A concrete subclass is identified by: not abstract, not a mixin, <code>is_a</code> ancestor chain includes <code>DonationItem</code>, and the class name is not <code>DonationItem</code> itself.</p>
+<h3 id="42-the-designates_type-slot">4.2 The <code>designates_type</code> slot</h3>
+<p>The <code>category</code> slot on <code>DonationItem</code> carries <code>designates_type: true</code>. This is the semantic marker that makes <code>category</code> a type-dispatch field rather than a plain attribute. The generator detects this marker and uses it to build <code>dispatches_to</code> in the base descriptor. This is the only annotation the generator relies on for dispatch — no other conventions or annotations are needed.</p>
+<p>Because of the LinkML limitation that <code>designates_type</code> requires the range to be a string referencing a class URI (not an enum), the <code>category</code> slot in the actual YAML uses a string range with <code>designates_type: true</code>, and the permissible subclass names are listed as the allowed values. The agent must read the slot's permissible values or range restrictions to build the dispatch map — the exact mechanism depends on how the schema is expressed. Verify by inspecting the actual <code>donation_item.yaml</code> before implementing this step.</p>
+<h3 id="43-where-slots-come-from">4.3 Where slots come from</h3>
+<p>When a concrete class like <code>ClothingItem</code> is induced by <code>SchemaView.induced_class()</code>, the result merges slots from three sources: the base <code>DonationItem</code> slots, the mixin's slots (<code>ClothingCategory</code>), and any slot_usage overrides. The generator uses the induced class to get the complete, merged slot set. It does not manually union slots from multiple classes.</p>
+<h3 id="44-where-rules-come-from">4.4 Where rules come from</h3>
+<p>Rules are <strong>not</strong> carried through <code>induced_class()</code>. The generator must collect rules separately from two sources and combine them:</p>
+<ul>
+<li><strong><code>lc-*</code> rules</strong> live on the concrete subclass definition in <code>donation_item.yaml</code>. They reference <code>lifecycle_state</code>, which is a <code>DonationItem</code> slot — category mixins cannot see it, so these rules cannot live in the mixin.</li>
+<li><strong><code>vm-*</code> and <code>uc-*</code> rules</strong> live on the category mixin definition in the corresponding <code>categories/*.yaml</code> file.
+To collect all rules for a given concrete class, the generator walks the class's ancestor list (via <code>SchemaView.class_ancestors()</code>), collects rules from each ancestor that is a mixin, and adds the rules from the concrete class itself. The rule title prefix (<code>lc-</code>, <code>vm-</code>, <code>uc-</code>) is the dispatch signal for which output section the rule populates.</li>
+</ul>
+<h3 id="45-where-completeness-annotations-come-from">4.5 Where completeness annotations come from</h3>
+<p>The <code>completeness_minimal</code>, <code>completeness_standard</code>, and <code>completeness_detailed</code> annotations live on the <strong>mixin class</strong> definition — for example on <code>ClothingCategory</code> in <code>clothing.yaml</code>, not on <code>ClothingItem</code> in <code>donation_item.yaml</code>. Each annotation value is a comma-separated string of slot names belonging to that tier.</p>
+<p>The generator walks the ancestor list of the concrete class, finds the mixin ancestor, reads its annotations, and parses the comma-separated slot name lists. The base <code>DonationItem</code> slots do not have completeness annotations — they are universally required operational fields and are handled separately.</p>
+<hr />
+<h2 id="5-field-ordering">5. Field Ordering</h2>
+<p>Field display order in the generated descriptor must match slot declaration order in the YAML source. <code>SchemaView.induced_class()</code> returns attributes in declaration order as of current LinkML versions — the generator relies on this. If the order is incorrect in testing, fall back to walking the concrete class's own slots first, then the mixin's slots in declaration order.</p>
+<p>The <code>fields</code> key in the descriptor is a JSON <strong>array</strong>, not an object, to preserve and communicate this order. Field lookup by name in the browser must iterate the array, not rely on key access.</p>
+<p>The base <code>DonationItem</code> slots appear first in the base descriptor in the order they are declared on <code>DonationItem</code>. The category-specific slots appear in the subclass descriptor in the order they are declared in the mixin.</p>
+<hr />
+<h2 id="6-internal-slots-to-exclude">6. Internal Slots to Exclude</h2>
+<p>The following slots are managed by the system, not entered by the sorter, and must be excluded from all descriptors:</p>
+<ul>
+<li><code>id</code> — system-generated UUID</li>
+<li><code>created_at</code> — set at creation</li>
+<li><code>updated_at</code> — set on save</li>
+<li><code>attribute_completeness</code> — set by the fragment engine at sorting completion</li>
+<li><code>storage_unit</code> — set at the stored lifecycle transition, not during sorting</li>
+<li><code>lifecycle_state</code> — managed by the engine; not a sorter input
+<code>lifecycle_state</code> deserves special attention: it appears in <code>visible_when</code> and <code>rules</code> conditions throughout the descriptor, but it is never itself a rendered field. The generator uses it as a condition variable only.</li>
+</ul>
+<hr />
+<h2 id="7-base-descriptor-donationitemuijson">7. Base Descriptor: <code>DonationItem.ui.json</code></h2>
+<h3 id="71-fields-included">7.1 Fields included</h3>
+<p>Include only slots declared directly on <code>DonationItem</code> that are not in the exclusion list above. At minimum this covers: <code>category</code>, <code>usage</code>, <code>source_collection</code>, <code>donation_source</code>, <code>sorting_notes</code>, <code>material</code> (where applicable). Verify against the actual <code>donation_item.yaml</code>.</p>
+<h3 id="72-the-dispatches_to-map-on-the-category-field">7.2 The <code>dispatches_to</code> map on the <code>category</code> field</h3>
+<p>When the generator encounters a slot with <code>designates_type: true</code>, it builds <code>dispatches_to</code> as a dict mapping each permissible value to the filename of the corresponding subclass descriptor. The filename convention is <code>&lt;ClassName&gt;.ui.json</code>. The mapping covers every permissible value — all 16 item class names.</p>
+<p>The <code>dispatches_to</code> key is added to the field entry alongside all other field properties. It is not a separate top-level structure.</p>
+<h3 id="73-field-structure-for-base-fields">7.3 Field structure for base fields</h3>
+<p>Base fields have no <code>visible_when</code> condition — they are rendered unconditionally. Each base field entry carries: <code>name</code>, <code>type</code>, and where applicable <code>enum</code> (the enum name, not the values inline) and <code>required_in_step: true</code>. For the <code>category</code> field, additionally <code>dispatches_to</code>. No <code>completeness</code> key is emitted for base fields — they are universal operational fields, not tiered by completeness.</p>
+<hr />
+<h2 id="8-subclass-descriptors-classnameuijson">8. Subclass Descriptors: <code>&lt;ClassName&gt;.ui.json</code></h2>
+<h3 id="81-top-level-structure">8.1 Top-level structure</h3>
+<p>Each subclass descriptor is a JSON object with four top-level keys: <code>class</code> (the class name string), <code>fields</code> (ordered array), <code>enums</code> (dict of enum name to values array), and <code>rules</code> (array of rule objects).</p>
+<h3 id="82-field-entry-structure">8.2 Field entry structure</h3>
+<p>Each entry in the <code>fields</code> array is a JSON object with the following keys. All keys are optional except <code>name</code> and <code>type</code>.</p>
+<p><strong><code>name</code></strong> — the slot name as declared in the YAML. Required.</p>
+<p><strong><code>type</code></strong> — one of: <code>enum</code>, <code>boolean</code>, <code>string</code>, <code>integer</code>, <code>date</code>. Derived from the slot's <code>range</code> declaration. If the range is a declared enum, type is <code>enum</code>. If the range is <code>boolean</code>, type is <code>boolean</code>. If the range is <code>string</code> or free text, type is <code>string</code>. If the range is <code>integer</code>, type is <code>integer</code>. If the range is <code>date</code> or <code>datetime</code>, type is <code>date</code>. Required.</p>
+<p><strong><code>enum</code></strong> — the enum name as a string, present only when <code>type</code> is <code>enum</code>. The enum's values are emitted separately in the top-level <code>enums</code> dict. The field entry references by name, not by embedding values inline.</p>
+<p><strong><code>multivalued</code></strong> — boolean, present and <code>true</code> only when the slot is declared <code>multivalued: true</code> in the YAML. Omit when false.</p>
+<p><strong><code>completeness</code></strong> — one of <code>minimal</code>, <code>standard</code>, <code>detailed</code>. Derived from the mixin's completeness tier annotations. Omit if the slot does not appear in any completeness annotation (this applies to base slots and to any slot not yet annotated). A field with no <code>visible_when</code> and no <code>completeness</code> is always rendered unconditionally — the generator should emit a warning for any such field, as the schema is underdocumented for that slot.</p>
+<p><strong><code>visible_when</code></strong> — a dict where each key is a field name and each value is a list of permitted values for that field. All conditions in the dict are AND — all must hold simultaneously for the field to be visible. Derived from <code>lc-*</code> rules (see section 9.1). Present only on conditionally visible fields. A field with no <code>visible_when</code> key is rendered unconditionally within its completeness tier.</p>
+<p><strong><code>options_depend_on</code></strong> — present only on enum fields whose valid option set depends on another field's current value. Derived from <code>vm-*</code> rules where the target field is an enum (see section 9.2). The value is a dict with exactly one key: the controlling field name. That key's value is a dict mapping each controlling field value to the list of permitted options for the target field.</p>
+<p><strong><code>auto_set_from</code></strong> — present only on boolean or scalar fields that are auto-derived from another field's value. Derived from <code>vm-*</code> rules where the target field is boolean or scalar (see section 9.2). The value is a dict with exactly one key: the controlling field name. That key's value is a dict mapping each controlling value to the derived scalar value.</p>
+<p><strong><code>required_in_step</code></strong> — boolean. <code>true</code> if the slot appears in the mixin's <code>completeness_minimal</code> annotation, <code>false</code> otherwise. This is the seam for future fragment binding overrides. Always present.</p>
+<h3 id="83-enum-collection">8.3 Enum collection</h3>
+<p>The top-level <code>enums</code> dict collects all enums referenced by fields in this descriptor. Each entry maps the enum name to the list of permissible value names in declaration order. Only enums actually referenced by a field in this descriptor are included — do not include the full global enum registry. Enum values are strings (the permissible value names), not the full LinkML <code>PermissibleValue</code> objects.</p>
+<hr />
+<h2 id="9-rule-processing-by-prefix">9. Rule Processing by Prefix</h2>
+<h3 id="91-lc-rules-visible_when-on-fields">9.1 <code>lc-*</code> rules → <code>visible_when</code> on fields</h3>
+<p>Lifecycle-aware rules encode when a field becomes required relative to <code>lifecycle_state</code>. For the UI descriptor, this translates to field visibility: a field that is required at <code>sorted</code> state should be visible when <code>lifecycle_state</code> is <code>sorting_in_progress</code> (the state during which the sorter fills in the form).</p>
+<p><strong>Important:</strong> The precondition in <code>lc-*</code> rules references <code>lifecycle_state: sorted</code> — the state at which the field is validated as present. But the UI must show the field <em>before</em> that state, during <code>sorting_in_progress</code>. The generator therefore maps <code>lifecycle_state: sorted</code> in the precondition to <code>lifecycle_state: sorting_in_progress</code> in the <code>visible_when</code> output. This is the correct translation: show the field during active sorting so it can be filled before the transition to <code>sorted</code> is made.</p>
+<p><strong>Processing steps:</strong>
+1. Read <code>preconditions.slot_conditions</code> to extract the triggering conditions.
+2. Translate <code>lifecycle_state: sorted</code> to <code>lifecycle_state: sorting_in_progress</code> in the <code>visible_when</code> output.
+3. Preserve any other slot conditions in the precondition as additional AND conditions in <code>visible_when</code>.
+4. Read <code>postconditions.slot_conditions</code> to find which fields have <code>required: true</code>.
+5. For each such field (excluding internal slots), add or merge the <code>visible_when</code> condition onto the field entry.
+When multiple <code>lc-*</code> rules add <code>visible_when</code> conditions to the same field, merge them. If all rules have identical conditions, the result is one <code>visible_when</code> entry. If rules have different conditions (e.g. one adds a subcategory constraint), the result is the intersection — the field is visible only when all conditions hold simultaneously.</p>
+<h3 id="92-vm-rules-options_depend_on-or-auto_set_from-on-the-target-field">9.2 <code>vm-*</code> rules → <code>options_depend_on</code> or <code>auto_set_from</code> on the target field</h3>
+<p>Value-map rules encode dependent relationships between fields. The rule's precondition specifies the source field and its triggering values; the postcondition specifies the target field and its permitted values.</p>
+<p><strong>Processing steps:</strong>
+1. Extract the source field name and its triggering values from <code>preconditions.slot_conditions</code>. Each vm-<em> rule has exactly one source field in the precondition.
+2. Extract the target field name and its constrained values from <code>postconditions.slot_conditions</code>. Each vm-</em> rule has exactly one target field in the postcondition.
+3. Determine the type of the target field by checking its <code>range</code> in the induced class:
+   - If the target field's range is a declared enum → emit <code>options_depend_on</code> on the target field.
+   - If the target field's range is <code>boolean</code> or a scalar → emit <code>auto_set_from</code> on the target field.
+4. For <code>options_depend_on</code>: the source field becomes the key in the dict. Each triggering source value maps to the list of permitted target values from the postcondition. Multiple <code>vm-*</code> rules with the same source field and target field are merged into a single <code>options_depend_on</code> entry (one source value per rule, all accumulated under the same controlling field key).
+5. For <code>auto_set_from</code>: same structure but the mapped value is a single scalar (e.g. <code>true</code> or <code>false</code>) rather than a list.
+<strong>Important for auto_set_from:</strong> The postcondition in <code>vm-season-winter</code> specifies <code>is_winter_suitable: equals_string: "true"</code>. The generator must cast this to the appropriate JSON type — <code>"true"</code> as a string must become the boolean <code>true</code> in the output when the target field's range is <code>boolean</code>.</p>
+<h3 id="93-uc-rules-rules-array-entries">9.3 <code>uc-*</code> rules → <code>rules</code> array entries</h3>
+<p>Universal constraint rules encode combinations that should be blocked or flagged. These appear in the top-level <code>rules</code> array of the subclass descriptor.</p>
+<p><strong>Processing steps:</strong>
+1. Read <code>preconditions.slot_conditions</code> to extract the triggering conditions. Each condition entry maps a field name to a list of triggering values.
+2. Build the <code>when</code> dict: field name → list of values that trigger the rule.
+3. Determine <code>severity</code> from the rule's description or annotations. If the description contains the word "block" or "must not", use <code>"block"</code>. If it contains "warn" or "should not", use <code>"warn"</code>. Default to <code>"block"</code> when uncertain.
+4. Extract the user-facing <code>message</code> from the rule's <code>description</code>. Use the first sentence or the content after any prefix like "action: block, suggest: disposal.".
+5. Use the rule's <code>title</code> as the <code>id</code>.
+The <code>rules</code> array contains <strong>all</strong> uc-* rules that apply to this item class. Rules from the mixin (<code>uc-*</code> in <code>clothing.yaml</code>) and any uc-like rules on the concrete class are both included. The <code>vm-*</code> underwear-no-unisex rule (which functions as a UC constraint blocking unisex demographic for underwear) should be treated as a rule entry if it encodes a blocking combination, not just a value filter — inspect the actual rule postcondition to determine whether it belongs in <code>options_depend_on</code> or in <code>rules</code>.</p>
+<hr />
+<h2 id="10-special-cases">10. Special Cases</h2>
+<h3 id="101-otheritem">10.1 <code>OtherItem</code></h3>
+<p><code>OtherItem</code> has no category mixin. Its completeness annotations do not exist. It has only two category-specific fields: <code>item_description</code> (required at sorted) and <code>condition_grade</code>. The generator handles it by reading only the concrete class's own rules and slots, skipping the mixin ancestor walk.</p>
+<h3 id="102-fooditem">10.2 <code>FoodItem</code></h3>
+<p><code>FoodItem</code> uses <code>FoodCategory</code>, which does not extend <code>CategoryMixin</code>. It has no <code>condition_grade</code> and no <code>assessment_result</code>. Its field set is entirely distinct: <code>food_type</code>, <code>packaging_intact</code>, <code>storage_requirement</code>, <code>expiry_date</code>, <code>quantity</code>. The <code>vm-*</code> rules encode the <code>food_type → storage_requirement</code> value map. Process these identically to the clothing <code>vm-*</code> rules via <code>options_depend_on</code>.</p>
+<h3 id="103-babyinfantitem-three-track-assessment">10.3 <code>BabyInfantItem</code> three-track assessment</h3>
+<p><code>BabyInfantItem</code> uses three distinct assessment tracks driven by <code>subcategory</code>:
+- Safety-critical equipment subcategories → <code>assessment_result</code> (BabyEquipmentAssessmentEnum)
+- Consumable subcategories → <code>is_sealed</code> + <code>expiry_date</code>
+- General gear subcategories → <code>condition_grade</code>
+The three fields (<code>assessment_result</code>, <code>is_sealed</code>, <code>condition_grade</code>) each have <code>visible_when</code> conditions on <code>subcategory</code> with different value lists. These conditions come from <code>lc-*</code> rules on <code>BabyInfantItem</code>. The generator produces three separate field entries, each conditionally visible, with non-overlapping subcategory value lists. This is the correct output — no special casing needed beyond the standard <code>lc-*</code> rule processing.</p>
+<h3 id="104-sportsitem-dual-track-assessment">10.4 <code>SportsItem</code> dual-track assessment</h3>
+<p><code>SportsItem</code> has <code>assessment_result</code> for <code>protective_gear</code> subcategory and <code>condition_grade</code> for all other subcategories. These two fields are mutually exclusive — when one is visible the other is not. Both get <code>visible_when</code> conditions derived from <code>lc-*</code> rules. The <code>condition_grade</code> rule uses a <code>not: const: protective_gear</code> pattern in the precondition. The generator must handle this negation and produce a <code>visible_when</code> condition listing all subcategory values <em>except</em> <code>protective_gear</code>. To build this list, the generator reads the full <code>SportsSubcategoryEnum</code> permissible values and subtracts the excluded value.</p>
+<h3 id="105-multivalued-fields">10.5 Multivalued fields</h3>
+<p>The <code>season</code> slot on <code>ClothingItem</code> and <code>FootwearItem</code> is <code>multivalued: true</code>. The field entry carries <code>"multivalued": true</code>. The browser renders this as a multi-select or checkbox group. No other changes to the field entry structure are needed.</p>
+<hr />
+<h2 id="11-verification-checklist">11. Verification Checklist</h2>
+<p>Before the generator is considered complete, verify the following against the actual schema files:</p>
+<p><strong>Structure verification:</strong>
+- <code>DonationItem.ui.json</code> contains only base slots, no category-specific slots from any mixin.
+- The <code>category</code> field in <code>DonationItem.ui.json</code> has <code>dispatches_to</code> with exactly 16 entries, one per concrete subclass.
+- Each concrete class produces exactly one <code>.ui.json</code> file.
+- No abstract class, no mixin class, and no <code>DonationItem</code> base class produces a subclass descriptor file.
+<strong>Field ordering verification:</strong>
+- Fields in <code>ClothingItem.ui.json</code> appear in the same order as slots are declared in <code>clothing.yaml</code> (for mixin slots) and <code>donation_item.yaml</code> (for base slots that appear first).
+<strong>Visibility verification:</strong>
+- <code>demographic</code> in <code>ClothingItem.ui.json</code> has <code>visible_when: { "lifecycle_state": ["sorting_in_progress"] }</code>.
+- <code>is_winter_suitable</code> in <code>ClothingItem.ui.json</code> has <code>visible_when</code> with both <code>lifecycle_state</code> and <code>subcategory</code> conditions.
+- <code>assessment_result</code> in <code>FurnitureItem.ui.json</code> has <code>visible_when: { "lifecycle_state": ["sorting_in_progress"] }</code> (required at sorted → visible during sorting_in_progress).
+<strong>Value map verification:</strong>
+- <code>size</code> in <code>ClothingItem.ui.json</code> has <code>options_depend_on</code> with key <code>"demographic"</code> mapping all five demographic values to their respective size lists.
+- <code>is_winter_suitable</code> in <code>ClothingItem.ui.json</code> has <code>auto_set_from</code> with key <code>"season"</code> mapping <code>"winter"</code> to <code>true</code>, <code>"summer"</code> to <code>false</code>, <code>"all_season"</code> to <code>true</code>. <code>"spring_autumn"</code> is absent (no auto-derivation for this value).
+<strong>Rules verification:</strong>
+- <code>ClothingItem.ui.json</code> contains at least two uc-<em> rule entries: the underwear condition block and the adult underwear usage block.
+- Each rule entry has <code>id</code>, <code>message</code>, <code>severity</code>, and <code>when</code>.
+</em><em>Enum verification:</em><em>
+- The <code>enums</code> dict in <code>ClothingItem.ui.json</code> contains only the enums referenced by fields in that descriptor, not the full global enum set.
+- <code>ClothingSizeEnum</code> values are present in declaration order.
+</em><em>Exclusion verification:</em>*
+- <code>id</code>, <code>created_at</code>, <code>updated_at</code>, <code>attribute_completeness</code>, <code>storage_unit</code>, and <code>lifecycle_state</code> do not appear in any <code>fields</code> array.
+- <code>lifecycle_state</code> does appear correctly as a condition value in <code>visible_when</code> dicts.</p>
+<hr />
+<h2 id="12-django-integration-for-reference-not-implemented-by-the-generator">12. Django Integration (for reference, not implemented by the generator)</h2>
+<p>The generator produces files. Django consumes them. The integration is straightforward:</p>
+<p>The <code>SchemaRegistry</code> class in <code>inkind/schema_registry.py</code> loads all <code>*.ui.json</code> files from <code>INKIND_SCHEMA_DIR/ui-descriptors/</code> at application startup via <code>AppConfig.ready()</code>. It stores them in a dict keyed by class name. The sort form view retrieves all descriptors and embeds them as a single JSON blob in the page context. No reload mechanism in Phase 1 — restart the process when schemas change.</p>
+<p>The browser receives one JSON object containing all descriptors keyed by class name. The <code>SortingForm</code> JavaScript class reads <code>DonationItem</code> from this object to drive phase 1, then reads the selected category's descriptor to drive phase 2. The <code>fields</code> array drives render order. The <code>dispatches_to</code> map on the <code>category</code> field drives the phase 1 → phase 2 transition.</p>
+<hr />
+<h2 id="13-what-the-generator-must-not-do">13. What the Generator Must Not Do</h2>
+<p>The agent implementing this generator must not:</p>
+<ul>
+<li>Parse rule descriptions as strings to extract semantic content — use the structured <code>preconditions</code> and <code>postconditions</code> objects.</li>
+<li>Hard-code any category names, field names, enum values, or rule titles — all content must be read from the schema.</li>
+<li>Embed enum values inline in field entries — enum values belong in the top-level <code>enums</code> dict, referenced by name from field entries.</li>
+<li>Include <code>lifecycle_state</code> as a rendered field in any <code>fields</code> array.</li>
+<li>Conflate <code>visible_when</code> (field presence) with <code>options_depend_on</code> (value filtering) — these are distinct mechanisms for distinct problems.</li>
+<li>Generate any output for abstract classes, mixin classes, or the <code>DonationItem</code> base class as a subclass descriptor.</li>
+<li>Use <code>lifecycle_state: sorted</code> verbatim in <code>visible_when</code> — always translate to <code>sorting_in_progress</code> as described in section 9.1.</li>
+<li>Emit an <code>always_visible</code> key — this key does not exist in the descriptor format. The absence of <code>visible_when</code> already implies unconditional rendering within the field's completeness tier. Adding a redundant flag creates false symmetry with <code>visible_when</code> and misleads the browser implementation.</li>
+<li>Implement any Django, JavaScript, or browser-side code — the generator's responsibility ends at writing <code>.ui.json</code> files.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+  
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        
+
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        with emoji by
+        <a href="https://github.com/twitter/twemoji" target="_blank" rel="noopener">
+          Twemoji
+        </a>
+      </div>
+      
+<div class="md-social">
+  
+</div>
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "header.autohide", "navigation.expand", "navigation.instant", "navigation.instant.progress", "navigation.tracking", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../assets/pymdownx-extras/extra-loader-B5CKpNQx.js"></script>
+      
+    
+  </body>
+</html>
