@@ -3,37 +3,14 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/books
 name: books
 title: Books & Education Category Schema
 description: >-
-  Defines BooksCategory mixin applied to BooksItem.
+  Defines BooksCategory mixin applied to BooksItem. COICOP Division 09.5
+  (grouped with stationery by COICOP; kept separate here — different
+  sorting paths, condition vocabularies, and demand patterns). Ontology
+  grounding: schema:Book, Product Types Ontology per-subcategory IRIs.
 
-  COICOP alignment: Division 09.5 (newspapers, books, and stationery).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
-
-  Ontology grounding:
-    schema.org — schema:Book (first-class type, distinct from generic Product)
-      https://schema.org/Book
-    Product Types Ontology — pto:Fiction, pto:Non-fiction, pto:Textbook
-      http://www.productontology.org/id/
-
-  Separation from StationeryItem:
-    COICOP 09.5 groups books and stationery together. Separated here because:
-      - Published content (BooksItem) and consumable/office supplies have
-        different sorting paths and condition vocabularies.
-      - "Poor condition" for a book means worn pages/cover; for a pen it
-        means dried out or unusable — the same grade means different things.
-      - Demand signal patterns differ: school supply drives (stationery)
-        vs. book donations for libraries/reading programmes.
-
-  No demographic or clothing-style size dimension. age_range (BookAgeRangeEnum)
-  is broader and non-gendered — appropriate for content suitability.
-
-  Assessment: condition_grade (wear grade). Appropriate here because the
-  redistribution signal for books is primarily legibility and physical
-  integrity, well captured by the standard like_new/good/fair/poor scale.
-
-  Completeness tiers:
-    minimal:  subcategory
-    standard: subcategory, age_range, usage, condition_grade
-    detailed: subcategory, age_range, language, usage, condition_grade
+  age_range (BookAgeRangeEnum) is broader and non-gendered compared to
+  DemographicEnum — content suitability doesn't need a gender split.
+  Assessment: condition_grade (wear grade).
 
 license: MIT
 see_also:
@@ -52,9 +29,19 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  BooksPhysicalItemMixin:
+    mixin: true
+    is_a: BooksCategory
+    mixins: [BooksContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Books category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
 
   BooksCategory:
     mixin: true
@@ -85,6 +72,10 @@ classes:
       completeness_standard: "subcategory, age_range, usage, condition_grade"
       completeness_detailed: "subcategory, age_range, language, usage, condition_grade"
       coicop_division: "09.5"
+      label_en: "Books"
+      label_de: "Bücher"
+      aliases_en: ["books"]
+      aliases_de: ["Bücher"]
 
 
 slots:

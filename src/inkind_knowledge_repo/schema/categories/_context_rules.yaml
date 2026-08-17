@@ -1,0 +1,495 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/_context_rules
+name: context_rules
+title: Physical-Item Context Rules
+description: >-
+  Tier 3 of the category rule-sharing model: one mixin per category, each
+  holding only that category's lc-* rules (preconditions referencing
+  lifecycle_state, a slot that exists only on physical-item roots —
+  DonationItem, StorageCollection, SortedCollection — never on DemandSignal).
+
+  One mixin PER CATEGORY, not a single universal one: the UI descriptor
+  generator's lc-* handling attaches a rule's visible_when to any field in
+  the current class matching the rule's postcondition target by name alone,
+  with no notion of which category owns the rule. Several field names repeat
+  across categories (subcategory, is_winter_suitable, condition_grade), so a
+  single shared mixin previously leaked rules across categories (e.g.
+  Clothing's subcategory rule attaching to Furniture's subcategory field).
+  Splitting per category restores that isolation while still sharing each
+  category's rules across its three physical-item roots.
+
+  Each mixin here is referenced by exactly one category's physical-item
+  dispatch target (categories/<name>.yaml) and that category's real
+  DonationItem concrete subclass (entities/donation_item.yaml). These mixins
+  hold no slots — lc-* rules are read directly off .rules by the generator
+  and lifecycle_state is never an output field (see INTERNAL_SLOTS in
+  generators/ui_descriptor.py).
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+
+classes:
+
+  ClothingContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Clothing category only. Mixed into
+      ClothingPhysicalItemMixin (categories/clothing.yaml) and
+      DonationItem's real ClothingItem subclass (entities/donation_item.yaml).
+    rules:
+      - title: lc-sorted-clothing-is-winter-suitable-required
+        description: >-
+          is_winter_suitable required at sorted state for tops, bottoms,
+          outerwear, and nightwear. Not required for underwear (thermally
+          neutral base layer) or sportswear (assessed differently by the
+          SportsItem category). The thermal character of a garment is
+          independent of usage — sorters assess what they hold.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+            subcategory:
+              any_of:
+                - equals_string: tops
+                - equals_string: bottoms
+                - equals_string: outerwear
+                - equals_string: nightwear
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-used-clothing-condition-grade-required
+        description: >-
+          For used clothing (usage = used), condition_grade is required.
+        preconditions:
+          slot_conditions:
+            usage:
+              equals_string: used
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+      - title: lc-sorted-clothing-demographic-required
+        description: >-
+          demographic required at sorted state for all ClothingItem instances.
+          Drives demand signal matching (e.g. "adult female tops, size M").
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            demographic:
+              required: true
+
+      - title: lc-sorted-clothing-size-required
+        description: >-
+          size required at sorted state.
+          Drives demand signal matching and storage slot assignment.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            size:
+              required: true
+
+      - title: lc-sorted-clothing-subcategory-required
+        description: >-
+          subcategory required at sorted state. Drives demand signal matching,
+          UC rule evaluation (underwear constraints), and storage routing.
+          Not required at received state — category is known but subcategory
+          is determined during sorting.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+  AccessoriesContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Accessories category only. Mixed into
+      AccessoriesPhysicalItemMixin (categories/accessories.yaml) and
+      DonationItem's real AccessoriesItem subclass.
+    rules:
+      - title: lc-sorted-accessories-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+  FootwearContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Footwear category only. Mixed into
+      FootwearPhysicalItemMixin (categories/footwear.yaml) and
+      DonationItem's real FootwearItem subclass.
+    rules:
+      - title: lc-sorted-footwear-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+      - title: lc-sorted-footwear-is-winter-suitable-required
+        description: >-
+          is_winter_suitable required at sorted state. The thermal and
+          weather-protection character of footwear is operationally critical
+          for cold-weather emergency distribution — boots and sandals serve
+          entirely different needs. Sorter makes the call; fragment compiler
+          provides subcategory-based hints only.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-sorted-footwear-size-required
+        description: >-
+          shoe_size and shoe_size_system required at sorted state.
+          System required alongside size to disambiguate EU 42 from UK 8.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            shoe_size:
+              required: true
+            shoe_size_system:
+              required: true
+
+  FurnitureContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Furniture category only. Mixed into
+      FurnitureAssessmentMixin (categories/furniture.yaml) and
+      DonationItem's real FurnitureItem subclass.
+    rules:
+      - title: lc-sorted-furniture-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New furniture can have manufacturing defects (cracked panels,
+          defective joints, damaged flatpack components).
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+  BeddingContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Bedding and Textiles category only. Mixed into
+      BeddingAssessmentMixin (categories/bedding_textiles.yaml) and
+      DonationItem's real BeddingTextilesItem subclass.
+    rules:
+      - title: lc-sorted-bedding-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New items may have packaging damage or factory soiling.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+  HouseholdContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Household category only. Mixed into
+      HouseholdPhysicalItemMixin (categories/household.yaml) and
+      DonationItem's real HouseholdItem subclass.
+    rules:
+      - title: lc-sorted-household-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+  ElectronicsContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Electronics category only. Mixed into
+      ElectronicsAssessmentMixin (categories/electronics.yaml) and
+      DonationItem's real ElectronicsItem subclass.
+    rules:
+      - title: lc-sorted-electronics-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New devices can have factory defects or dead batteries.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+      - title: lc-sorted-electronics-not-untested
+        description: >-
+          untested is only valid at received state. At sorted state the sorter
+          must have tested the device and recorded a definitive assessment result.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              none_of:
+                - equals_string: untested
+
+  ToysContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Toys category only. Mixed into
+      ToysPhysicalItemMixin (categories/toys.yaml) and DonationItem's real
+      ToysItem subclass.
+    rules:
+      - title: lc-sorted-toys-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+  SportsContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Sports category only. Mixed into
+      SportsProtectiveAssessmentMixin (categories/sports.yaml) and
+      DonationItem's real SportsItem subclass.
+    rules:
+      - title: lc-sorted-sports-subcategory-required
+        description: >-
+          subcategory required at sorted state. SportsCategory rules then
+          enforce whether assessment_result or condition_grade is required
+          based on the subcategory value (protective_gear vs. other).
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+  BooksContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Books category only. Mixed into
+      BooksPhysicalItemMixin (categories/books.yaml) and DonationItem's real
+      BooksItem subclass.
+    rules:
+      - title: lc-sorted-books-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+  StationeryContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Stationery category only. Mixed into
+      StationeryPhysicalItemMixin (categories/stationery.yaml) and
+      DonationItem's real StationeryItem subclass.
+    rules:
+      - title: lc-sorted-stationery-condition-grade-required
+        description: condition_grade required at sorted state regardless of usage.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            condition_grade:
+              required: true
+
+  PersonalCareContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Personal Care category only. Mixed into
+      PersonalCarePhysicalItemMixin (categories/personal_care.yaml) and
+      DonationItem's real PersonalCareItem subclass.
+    rules:
+      - title: lc-sorted-personal-care-sealed-required
+        description: >-
+          is_sealed required at sorted state regardless of usage.
+          Even new personal care items may have compromised packaging.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            is_sealed:
+              required: true
+
+  MobilityAidsContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Mobility Aids category only. Mixed into
+      MobilityAssessmentMixin (categories/mobility_aids.yaml) and
+      DonationItem's real MobilityAidsItem subclass.
+    rules:
+      - title: lc-sorted-mobility-assessment-required
+        description: >-
+          assessment_result required at sorted state regardless of usage.
+          New mobility aids can have manufacturing defects.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            assessment_result:
+              required: true
+
+  BabyInfantContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Baby & Infant Supplies category only. Mixed into
+      BabyEquipmentAssessmentMixin (categories/baby_infant.yaml) and
+      DonationItem's real BabyInfantItem subclass.
+    rules:
+      - title: lc-sorted-baby-sleeping-bag-winter-required
+        description: >-
+          is_winter_suitable required at sorted state for baby sleeping bags.
+          A summer-weight baby sleeping bag (0.5-1.0 tog) issued in cold-
+          weather distribution is a safety risk — infants cannot regulate
+          their own temperature. BabyInfantCategory also carries this rule;
+          the lifecycle rule here ensures it is enforced at the sorted
+          transition.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+            subcategory:
+              equals_string: sleeping_bags
+        postconditions:
+          slot_conditions:
+            is_winter_suitable:
+              required: true
+
+      - title: lc-sorted-baby-subcategory-required
+        description: >-
+          subcategory required at sorted state. BabyInfantCategory rules
+          then enforce the appropriate assessment track for that subcategory.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            subcategory:
+              required: true
+
+      - title: lc-manufacture-year-required
+        description: >-
+          Manufacture year is required for certain subcategories.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              any_of:
+                - equals_string: cots_cribs
+                - equals_string: car_seats
+                - equals_string: pushchairs_prams
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            manufacture_year:
+              required: true
+
+  FoodContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Food category only. Mixed into
+      FoodPhysicalItemMixin (categories/food.yaml) and DonationItem's real
+      FoodItem subclass.
+    rules:
+      - title: lc-sorted-food-storage-required
+        description: storage_requirement required at sorted state.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            storage_requirement:
+              required: true
+
+  OtherContextRulesMixin:
+    mixin: true
+    description: >-
+      lc-* rules for the Other (catch-all) category only. Mixed into
+      OtherPhysicalItemMixin (categories/other.yaml) and DonationItem's real
+      OtherItem subclass.
+    rules:
+      - title: lc-sorted-other-required-fields
+        description: >-
+          item_description and condition_grade required at sorted state.
+          item_description provides the minimum human-readable record for
+          items with no controlled vocabulary.
+        preconditions:
+          slot_conditions:
+            lifecycle_state:
+              equals_string: sorted
+        postconditions:
+          slot_conditions:
+            item_description:
+              required: true
+            condition_grade:
+              required: true

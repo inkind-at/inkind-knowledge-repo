@@ -1,0 +1,67 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/sorted_collection
+name: sorted_collection
+title: Sorted Collection Schema
+description: >-
+  SortedCollection — a root parallel to DonationItem and StorageCollection,
+  used for items that have completed sorting. Deliberately minimal: only
+  usage and category are its own fields; every category-specific field,
+  enum, and rule is reused from the shared category files (categories/*.yaml,
+  categories/_context_rules.yaml) via category's dispatch_to-annotated enum
+  values, never re-declared here.
+
+  usage is required here, unlike on DonationItem/StorageCollection — by the
+  time an item is in a SortedCollection, its usage (new/used) is already
+  known.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+  - ../categories/clothing
+  - ../categories/accessories
+  - ../categories/footwear
+  - ../categories/furniture
+  - ../categories/bedding_textiles
+  - ../categories/household
+  - ../categories/electronics
+  - ../categories/toys
+  - ../categories/sports
+  - ../categories/books
+  - ../categories/stationery
+  - ../categories/personal_care
+  - ../categories/mobility_aids
+  - ../categories/baby_infant
+  - ../categories/food
+  - ../categories/other
+  - ../categories/_context_rules
+
+classes:
+
+  SortedCollection:
+    class_uri: schema:Product
+    description: >-
+      A physical donation item that has completed sorting. Parallel to
+      DonationItem and StorageCollection but reached via a different
+      lifecycle entry point.
+    slots:
+      - usage
+      - category
+    slot_usage:
+      usage:
+        range: ItemUsageEnum
+        required: true
+      category:
+        range: SortingCategoryEnum
+        required: true
+    annotations:
+      completeness_minimal:  "category, usage"
+      label_en: "Sorted Collection"
+      label_de: "Sortierter Bestand"

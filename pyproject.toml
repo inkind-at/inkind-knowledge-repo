@@ -22,6 +22,9 @@ dependencies = [
 [project.entry-points."linkml.generators"]
 gen-ui-descriptor = "inkind_knowledge_repo.generators.ui_descriptor:UiDescriptorGenerator"
 
+[project.scripts]
+generate-ui-descriptors = "inkind_knowledge_repo.generators.ui_descriptor:main"
+
 [dependency-groups]
 dev = [
     "linkml>=1.9.3",

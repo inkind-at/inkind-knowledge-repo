@@ -1,0 +1,59 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/categories/other
+name: other
+title: Other Category Schema
+description: >-
+  Defines OtherCategory mixin — the catch-all category for donation items not
+  fitting any other category. Does NOT extend CategoryMixin (its only slot,
+  material, isn't part of OtherItem's minimal field set). Use sparingly — a
+  frequently-recurring item type warrants a proper category instead.
+
+license: MIT
+see_also:
+  - https://unstats.un.org/unsd/classifications/Family/Detail/2094
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+  - ./_context_rules
+
+classes:
+
+  OtherPhysicalItemMixin:
+    mixin: true
+    is_a: OtherCategory
+    mixins: [OtherContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Other category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
+
+  OtherCategory:
+    mixin: true
+    class_uri: schema:Product
+    description: >-
+      Mixin for the catch-all OtherItem category. Minimal slots only
+      (item_description + condition_grade) — no category-specific value maps
+      or UC rules. Deliberately no completeness tier annotations.
+    slots:
+      - item_description
+      - condition_grade
+    slot_usage:
+      item_description:
+        required: true
+      condition_grade:
+        range: UsedConditionGradeEnum
+        required: false
+    annotations:
+      label_en: "Other"
+      label_de: "Sonstiges"
+      aliases_en: ["other"]
+      aliases_de: ["sonstiges"]

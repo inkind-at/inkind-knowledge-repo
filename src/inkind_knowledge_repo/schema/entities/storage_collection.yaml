@@ -1,0 +1,64 @@
+---
+id: https://inkind-at.github.io/inkind-knowledge-repo/storage_collection
+name: storage_collection
+title: Storage Collection Schema
+description: >-
+  StorageCollection — a root parallel to DonationItem, used for items
+  already assigned to storage. Deliberately minimal: only usage and
+  category are its own fields; every category-specific field, enum, and
+  rule is reused from the shared category files (categories/*.yaml,
+  categories/_context_rules.yaml) via category's dispatch_to-annotated enum
+  values, never re-declared here.
+license: MIT
+
+prefixes:
+  inkind_knowledge_repo: https://inkind-at.github.io/inkind-knowledge-repo/
+  linkml: https://w3id.org/linkml/
+
+default_prefix: inkind_knowledge_repo
+default_range: string
+
+imports:
+  - linkml:types
+  - ../core
+  - ../categories/clothing
+  - ../categories/accessories
+  - ../categories/footwear
+  - ../categories/furniture
+  - ../categories/bedding_textiles
+  - ../categories/household
+  - ../categories/electronics
+  - ../categories/toys
+  - ../categories/sports
+  - ../categories/books
+  - ../categories/stationery
+  - ../categories/personal_care
+  - ../categories/mobility_aids
+  - ../categories/baby_infant
+  - ../categories/food
+  - ../categories/other
+  - ../categories/_context_rules
+
+classes:
+
+  StorageCollection:
+    class_uri: schema:Product
+    description: >-
+      A physical donation item assigned to storage. Parallel to DonationItem
+      but reached via a different lifecycle entry point — items already
+      sorted and stored, tracked here for stock/storage purposes.
+    slots:
+      - usage
+      - category
+    slot_usage:
+      usage:
+        range: ItemUsageEnum
+        required: false
+      category:
+        range: BaseCategoryEnum
+        required: true
+    annotations:
+      completeness_minimal:  "category"
+      completeness_standard: "usage"
+      label_en: "Storage Collection"
+      label_de: "Lagerbestand"

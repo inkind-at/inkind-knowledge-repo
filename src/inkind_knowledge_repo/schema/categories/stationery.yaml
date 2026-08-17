@@ -3,41 +3,16 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/stationery
 name: stationery
 title: Stationery & Office Supplies Category Schema
 description: >-
-  Defines StationeryCategory mixin applied to StationeryItem.
+  Defines StationeryCategory mixin applied to StationeryItem. COICOP
+  Division 09.5 (grouped with books by COICOP; kept separate here —
+  different sorting paths and condition vocabularies: "poor condition"
+  means worn pages for a book, dried-out ink for a pen). Ontology
+  grounding: Product Types Ontology (pto:Stationery and per-subcategory
+  IRIs).
 
-  COICOP alignment: Division 09.5 (newspapers, books, and stationery).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
-
-  Ontology grounding:
-    Product Types Ontology — pto:Stationery, pto:Pen, pto:Notebook,
-    pto:Binder, pto:Art_supply, pto:Calculator
-      http://www.productontology.org/id/Stationery
-
-  Separation from BooksItem (COICOP groups both under 09.5):
-    - Published content (BooksItem) and consumable/office supplies have
-      different sorting paths and condition vocabularies.
-    - "Poor condition" means different things: worn pages for a book;
-      dried-out ink or unusable tip for a pen.
-    - Demand signal patterns differ: school supply drives target stationery;
-      book donation drives target BooksItem.
-    - Partially-used consumables (half-used notebook, pen still writing)
-      are valid for redistribution — condition_grade=fair captures this
-      without the same stigma as a fair-condition book.
-
-  Typical donation contexts:
-    - School supply drives (back-to-school campaigns)
-    - Refugee/asylum seeker support (language learning materials, writing tools)
-    - Community centre / adult education support
-    - Corporate office supply donations (surplus stock)
-
-  Assessment: condition_grade (wear grade). No strict UC block rules —
-  condition_grade=poor captures items that are unusable. Sorters use
-  good judgement for partially-used consumables.
-
-  Completeness tiers:
-    minimal:  subcategory
-    standard: subcategory, is_set_complete, usage, condition_grade
-    detailed: subcategory, is_set_complete, usage, condition_grade
+  Assessment: condition_grade (wear grade). No UC block rules —
+  condition_grade=poor captures unusable items; sorters use judgement for
+  partially-used consumables.
 
 license: MIT
 see_also:
@@ -55,9 +30,19 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  StationeryPhysicalItemMixin:
+    mixin: true
+    is_a: StationeryCategory
+    mixins: [StationeryContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Stationery category,
+      used identically by DonationItem, StorageCollection, and
+      SortedCollection. Pure composition — no slots or rules of its own.
 
   StationeryCategory:
     mixin: true
@@ -65,8 +50,6 @@ classes:
     description: >-
       Mixin for stationery and office supply slots.
       Applied to StationeryItem via mixins: [StationeryCategory].
-      No UC block rules — condition_grade=poor captures unusable items.
-      Sorters use good judgement for partially-used consumables.
     see_also:
       - http://www.productontology.org/id/Stationery
     slots:
@@ -85,6 +68,10 @@ classes:
       completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
       completeness_detailed: "subcategory, is_set_complete, usage, condition_grade"
       coicop_division: "09.5"
+      label_en: "Stationery"
+      label_de: "Schreibwaren"
+      aliases_en: ["stationery"]
+      aliases_de: ["Schreibwaren"]
 
 
 enums:

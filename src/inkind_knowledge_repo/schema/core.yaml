@@ -12,7 +12,8 @@ description: >-
     - Core condition model (ItemUsageEnum, UsedConditionGradeEnum)
     - Attribute completeness model (AttributeCompletenessEnum)
     - Item lifecycle state machine (ItemLifecycleStateEnum)
-    - Category registry (CategoryEnum) — canonical list of all item types
+    - Category registries (BaseCategoryEnum, SortingCategoryEnum) — canonical
+      lists of all item types, each value carrying a dispatch_to annotation
     - Deprecated legacy enum (ConditionEnum) retained for migration
 
   ── Category taxonomy ────────────────────────────────────────────────────────
@@ -25,7 +26,7 @@ description: >-
      COICOP_2018_-_pre-edited_white_cover_version_-_2018-12-26.pdf
      Used as the primary structural reference for how item types group
      into domains. COICOP alignments per category value are documented
-     in CategoryEnum below.
+     in BaseCategoryEnum below.
 
   2. UNHCR NFI (Non-Food Item) Core Relief Standards:
      https://emergency.unhcr.org/emergency-assistance/core-relief-items/
@@ -207,18 +208,16 @@ slots:
       Parent entity reference for hierarchical structures.
       Concrete range applied via slot_usage.
 
-  # ── Category (type-defining on DonationItem) ─────────────────────────────────
+  # ── Category (dispatch slot) ──────────────────────────────────────────────────
   category:
-    range: CategoryEnum
+    range: BaseCategoryEnum
     required: true
     slot_uri: schema:additionalType
     description: >-
-      Type-defining slot on DonationItem. Value is the class URI of the
-      concrete subclass (e.g. inkind_knowledge_repo:ClothingItem).
-      linkml-validate, gen-json-schema, and gen-pydantic all use this slot
-      to dispatch to the correct subclass schema and valid slot set.
-      For other entities (DemandSignal, StorageLocation) the range is
-      overridden via slot_usage to CategoryEnum.
+      Category identity. Each root overrides range via its own slot_usage to
+      either BaseCategoryEnum or SortingCategoryEnum (see those enums below)
+      — whichever enum applies, the generator dispatches by reading its
+      values' dispatch_to annotations.
     annotations:
       label_en: "Item Type"
       label_de: "Artikeltyp"
@@ -240,6 +239,16 @@ slots:
     annotations:
       label_en: "Notes"
       label_de: "Notizen"
+
+  item_description:
+    range: string
+    description: >-
+      Free-text description of the item. Required for OtherItem/OtherCategory
+      at sorted state — provides the minimum human-readable record where no
+      controlled vocabulary applies.
+    annotations:
+      label_en: "Description"
+      label_de: "Beschreibung"
 
 
   # ── Material ──────────────────────────────────────────────────────────────────
@@ -616,14 +625,17 @@ enums:
 
   # ── Category registry ─────────────────────────────────────────────────────────
 
-  CategoryEnum:
+  BaseCategoryEnum:
     description: >-
-      Canonical registry of all donation item categories. Mirrors the
-      DonationItem subclass URI hierarchy for use in non-item entities:
-      DemandSignal.category, StorageLocation.category_affinity, etc.
+      Canonical registry of all donation item categories. Each permissible
+      value carries a dispatch_to annotation naming the bare category mixin
+      (categories/*.yaml) for that category — no assessment content, no
+      lifecycle-gated fields. See SortingCategoryEnum below for the parallel
+      enum used where that content is needed.
 
-      DonationItem itself uses designates_type on the category slot;
-      this enum is for other entities that reference categories by value.
+      The UI descriptor generator (generators/ui_descriptor.py) treats any
+      slot whose range is an enum with dispatch_to annotations as a dispatch
+      field, and builds its dispatch map directly from those annotations.
 
       Grouping is aligned with COICOP 2018 divisions where applicable,
       with deviations documented per value:
@@ -646,6 +658,8 @@ enums:
           Separated from accessories because the demographic→size value map
           and UC rules (underwear condition) do not apply to accessories.
         meaning: inkind_knowledge_repo:ClothingItem
+        annotations:
+          dispatch_to: ClothingCategory
         see_also:
           - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
       AccessoriesItem:
@@ -655,6 +669,8 @@ enums:
           separated here for progressive UI disclosure and schema clarity —
           no size dimension, simpler demographic vocabulary).
         meaning: inkind_knowledge_repo:AccessoriesItem
+        annotations:
+          dispatch_to: AccessoriesCategory
         see_also:
           - http://www.productontology.org/id/Fashion_accessory
       FootwearItem:
@@ -663,6 +679,8 @@ enums:
           Separated from clothing because shoe sizing systems (EU/UK/US/CM)
           differ from clothing sizes and pair-completeness is footwear-specific.
         meaning: inkind_knowledge_repo:FootwearItem
+        annotations:
+          dispatch_to: FootwearCategory
         see_also:
           - http://www.productontology.org/id/Footwear
       # ── Home (COICOP Division 05) ─────────────────────────────────────────────
@@ -671,6 +689,8 @@ enums:
           Structural furniture: chairs, tables, beds, wardrobes → FurnitureItem.
           COICOP 05.1 (furniture and furnishings).
         meaning: inkind_knowledge_repo:FurnitureItem
+        annotations:
+          dispatch_to: FurnitureCategory
         see_also:
           - http://www.productontology.org/id/Furniture
       BeddingTextilesItem:
@@ -681,6 +701,8 @@ enums:
           standards, which list blankets and sleeping mats as core relief
           items at the same priority level as clothing.
         meaning: inkind_knowledge_repo:BeddingTextilesItem
+        annotations:
+          dispatch_to: BeddingTextilesCategory
         see_also:
           - http://www.productontology.org/id/Bedding
           - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
@@ -690,6 +712,8 @@ enums:
           COICOP 05.3 (household appliances), 05.4 (glassware/tableware/utensils),
           05.5 (tools for house and garden).
         meaning: inkind_knowledge_repo:HouseholdItem
+        annotations:
+          dispatch_to: HouseholdCategory
         see_also:
           - http://www.productontology.org/id/Household_goods
       # ── Technology (COICOP Division 09) ──────────────────────────────────────
@@ -698,6 +722,8 @@ enums:
           Consumer electronics: phones, laptops, cameras, gaming
           → ElectronicsItem. COICOP 09.1 (audio-visual equipment) and 09.2.
         meaning: inkind_knowledge_repo:ElectronicsItem
+        annotations:
+          dispatch_to: ElectronicsCategory
         see_also:
           - http://www.productontology.org/id/Consumer_electronics
       ToysItem:
@@ -705,6 +731,8 @@ enums:
           Toys and games → ToysItem. COICOP 09.3 (games, toys, hobbies).
           Age-grading follows EU Toy Safety Directive 2009/48/EC.
         meaning: inkind_knowledge_repo:ToysItem
+        annotations:
+          dispatch_to: ToysCategory
         see_also:
           - http://www.productontology.org/id/Toy
       SportsItem:
@@ -713,6 +741,8 @@ enums:
           and recreational equipment). Note: bicycles are placed here by
           domain convention; COICOP assigns them to Division 07 (Transport).
         meaning: inkind_knowledge_repo:SportsItem
+        annotations:
+          dispatch_to: SportsCategory
         see_also:
           - http://www.productontology.org/id/Sporting_goods
       # ── Learning (COICOP Division 09) ────────────────────────────────────────
@@ -721,6 +751,8 @@ enums:
           Books and educational materials → BooksItem. COICOP 09.5
           (newspapers, books, stationery).
         meaning: inkind_knowledge_repo:BooksItem
+        annotations:
+          dispatch_to: BooksCategory
         see_also:
           - http://schema.org/Book
       StationeryItem:
@@ -730,6 +762,8 @@ enums:
           because published content (BooksItem) and consumable/office supplies
           have different sorting paths, condition vocabularies, and demand signals.
         meaning: inkind_knowledge_repo:StationeryItem
+        annotations:
+          dispatch_to: StationeryCategory
         see_also:
           - http://www.productontology.org/id/Stationery
       # ── Care (COICOP Divisions 06 + 12) ──────────────────────────────────────
@@ -741,6 +775,8 @@ enums:
           identical across both: sealed required, used tools blocked, expiry
           enforced. Open Eligibility uses a single "Personal Care Items" node.
         meaning: inkind_knowledge_repo:PersonalCareItem
+        annotations:
+          dispatch_to: PersonalCareCategory
         see_also:
           - http://www.productontology.org/id/Personal_hygiene
           - http://www.productontology.org/id/Cosmetics
@@ -752,6 +788,8 @@ enums:
           (outpatient services, durable medical equipment). Open Eligibility
           "Assistive Technology" top-level category.
         meaning: inkind_knowledge_repo:MobilityAidsItem
+        annotations:
+          dispatch_to: MobilityAidsCategory
         see_also:
           - http://www.productontology.org/id/Assistive_technology
           - https://company.auntbertha.com/openeligibility/
@@ -764,6 +802,8 @@ enums:
           category here following Open Eligibility "Baby Supplies" and UNHCR
           NFI kit practice (nappies and formula are core NFI kit items).
         meaning: inkind_knowledge_repo:BabyInfantItem
+        annotations:
+          dispatch_to: BabyInfantCategory
         see_also:
           - https://company.auntbertha.com/openeligibility/
           - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
@@ -773,6 +813,8 @@ enums:
           beverages). Phase 1 stub — activated when food-bank organisations
           are onboarded. Grounded in FoodOn (OBO Foundry).
         meaning: inkind_knowledge_repo:FoodItem
+        annotations:
+          dispatch_to: FoodCategory
         see_also:
           - http://purl.obolibrary.org/obo/foodon.owl
       # ── Catch-all ────────────────────────────────────────────────────────────
@@ -781,6 +823,34 @@ enums:
           Items not fitting any other category → OtherItem. No COICOP alignment.
           Use sparingly — if a type appears frequently, add a proper subclass.
         meaning: inkind_knowledge_repo:OtherItem
+        annotations:
+          dispatch_to: OtherCategory
+
+  SortingCategoryEnum:
+    description: >-
+      Same 16 category identities as BaseCategoryEnum (see that enum for
+      COICOP grounding, not repeated here), but each dispatch_to annotation
+      points to the category's physical-item mixin — Tier 1/2 category
+      mixin plus that category's lc-* rules (categories/_context_rules.yaml)
+      — instead of the bare mixin. Used by roots describing an actual
+      physical item with a real lifecycle_state.
+    permissible_values:
+      ClothingItem:        {meaning: inkind_knowledge_repo:ClothingItem,        annotations: {dispatch_to: ClothingPhysicalItemMixin}}
+      AccessoriesItem:      {meaning: inkind_knowledge_repo:AccessoriesItem,     annotations: {dispatch_to: AccessoriesPhysicalItemMixin}}
+      FootwearItem:         {meaning: inkind_knowledge_repo:FootwearItem,       annotations: {dispatch_to: FootwearPhysicalItemMixin}}
+      FurnitureItem:        {meaning: inkind_knowledge_repo:FurnitureItem,      annotations: {dispatch_to: FurnitureAssessmentMixin}}
+      BeddingTextilesItem:  {meaning: inkind_knowledge_repo:BeddingTextilesItem, annotations: {dispatch_to: BeddingAssessmentMixin}}
+      HouseholdItem:        {meaning: inkind_knowledge_repo:HouseholdItem,      annotations: {dispatch_to: HouseholdPhysicalItemMixin}}
+      ElectronicsItem:      {meaning: inkind_knowledge_repo:ElectronicsItem,    annotations: {dispatch_to: ElectronicsAssessmentMixin}}
+      ToysItem:             {meaning: inkind_knowledge_repo:ToysItem,           annotations: {dispatch_to: ToysPhysicalItemMixin}}
+      SportsItem:           {meaning: inkind_knowledge_repo:SportsItem,         annotations: {dispatch_to: SportsProtectiveAssessmentMixin}}
+      BooksItem:            {meaning: inkind_knowledge_repo:BooksItem,          annotations: {dispatch_to: BooksPhysicalItemMixin}}
+      StationeryItem:       {meaning: inkind_knowledge_repo:StationeryItem,     annotations: {dispatch_to: StationeryPhysicalItemMixin}}
+      PersonalCareItem:     {meaning: inkind_knowledge_repo:PersonalCareItem,   annotations: {dispatch_to: PersonalCarePhysicalItemMixin}}
+      MobilityAidsItem:     {meaning: inkind_knowledge_repo:MobilityAidsItem,   annotations: {dispatch_to: MobilityAssessmentMixin}}
+      BabyInfantItem:       {meaning: inkind_knowledge_repo:BabyInfantItem,     annotations: {dispatch_to: BabyEquipmentAssessmentMixin}}
+      FoodItem:             {meaning: inkind_knowledge_repo:FoodItem,           annotations: {dispatch_to: FoodPhysicalItemMixin}}
+      OtherItem:            {meaning: inkind_knowledge_repo:OtherItem,          annotations: {dispatch_to: OtherPhysicalItemMixin}}
 
   # ── DEPRECATED ────────────────────────────────────────────────────────────────
 

@@ -5,128 +5,28 @@ title: Clothing Category Schema
 description: >-
   Defines ClothingCategory mixin applied to ClothingItem in donation_item.yaml.
   Covers wearable garments only: tops, bottoms, outerwear, underwear,
-  nightwear, sportswear.
+  nightwear, sportswear. COICOP Division 03.1.
 
-  COICOP alignment: Division 03.1 (clothing).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Ontology grounding: CPI (cpi:ClothingAndAccessories) for demographic/size;
+  schema.org wearable size groups/systems; Product Types Ontology (pto:) for
+  ClothingMaterialEnum values; schema:material as the fallback anchor for
+  values with no discrete pto: IRI.
 
-  Ontology grounding:
-    CPI (Clothing Product Information ontology) — cpi:ClothingAndAccessories
-      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
-      Provides: demographic (cpi:designatedFor), size (cpi:ClothingSize),
-      size groups (cpi:SportShoes).
-    schema.org — size groups and size systems
-      schema:WearableSizeGroupBaby, schema:WearableSizeGroupChildrens,
-      schema:WearableSizeGroupAdult, schema:WearableSizeSystemEU
-    Product Types Ontology (pto:) — individual textile fibres and fabrics
-      http://www.productontology.org/id/
-      Provides per-value grounding for ClothingMaterialEnum:
-        pto:Cotton, pto:Wool, pto:Linen, pto:Silk, pto:Denim,
-        pto:Leather, pto:Polar_fleece, pto:Down_feather,
-        pto:Polyester, pto:Nylon.
-    schema:material — overarching property grounding for the material slot
-      https://schema.org/material
-      First-class property on schema:Product (GoodRelations absorbed 2012).
-      Used as the see_also anchor for synthetic_blend and other values that
-      lack a discrete pto: IRI.
+  material (detailed tier) records predominant fibre — used for allergen
+  filtering (paired with intact_labels), seasonality hinting (wool/fleece/
+  down → winter; linen/silk → summer, sorter can override), and care-need
+  matching (silk/leather).
 
-  ── Material model ─────────────────────────────────────────────────────────
+  Separated from AccessoriesItem — no demographic→size value map or
+  underwear UC rules apply to accessories; see categories/accessories.yaml.
 
-  ClothingMaterialEnum records the predominant fibre or fabric type.
-  For blended fabrics (e.g. 60% cotton / 40% polyester), select the
-  dominant fibre; use synthetic_blend when no single synthetic dominates.
-
-  Three uses at sorting time:
-    1. Allergen filtering — beneficiaries with wool, latex, or nickel
-       sensitivities can be matched against items where material is known.
-       Enabled by intact_labels=true (care label legible); exact percentages
-       may be noted in sorting_notes.
-    2. Seasonality hinting — the fragment compiler MAY pre-fill
-       is_winter_suitable based on material:
-         wool, fleece, down  → pre-fill is_winter_suitable=true
-         linen, silk         → pre-fill is_winter_suitable=false
-       The sorter's explicit input always takes precedence; these are
-       UI suggestions only (same principle as subcategory→is_winter_suitable
-       pre-fills documented in the season_ui_hint annotation).
-    3. Care requirement matching — silk and leather require specialist care;
-       the match engine can surface this signal when beneficiary profiles
-       include care constraints.
-
-  material is in the detailed completeness tier for clothing (consistent with
-  furniture and household), because:
-    - Sorting throughput is the primary constraint; material is read from
-      the care label, which the sorter may not always locate quickly.
-    - is_winter_suitable (standard tier) already captures the most operationally
-      critical thermal signal without requiring material to be recorded.
-    - The allergen and care matching use-cases are valuable but secondary to
-      the core redistribution flow.
-
-  Separation from AccessoriesItem:
-    Accessories have no demographic→size value map — the full clothing value
-    map is entirely irrelevant for a bag or a scarf. The UC rules (underwear
-    condition, adult underwear must be new) do not apply to accessories.
-    Progressive disclosure in the sorting UI requires a clean branch:
-    "is this clothing or an accessory?" See categories/accessories.yaml.
-
-  Value-map structure:
-    subcategory → demographic  (which demographics are valid per subcategory)
-    demographic → size         (which sizes are valid per demographic)
-
-  UC constraints:
-    uc-underwear-condition-block  — underwear must be new or like_new condition
-    uc-underwear-adult-used-block — adult underwear (adult_male/adult_female)
-                                    must have usage=new
-    vm-demographic-underwear      — restricts underwear to the four gender-specific demographics
-
-  VM constraints (size value maps):
-    vm-size-baby   — baby demographic → baby sizes only
-    vm-size-child  — child demographic → children's sizes only
-    vm-size-adult  — adult/unisex demographics → adult sizes only
-
-  ── Seasonality model ──────────────────────────────────────────────────────
-
-  Two fields, intentionally redundant at the extremes, independent in the
-  middle of the seasonal spectrum:
-
-    is_winter_suitable (boolean) — required at standard completeness for all
-      subcategories except underwear (fixed thermal context) and sportswear
-      (assessed separately). The operationally critical field for emergency
-      cold-weather distribution. The sorter asks: "would this keep someone
-      warm in cold weather?" — a two-second judgement that the schema cannot
-      reliably infer.
-
-    season (SeasonEnum) — optional, detailed completeness tier.
-      winter | spring_autumn | summer | all_season.
-      Multivalued — a denim jacket might be both spring_autumn and summer.
-      Provides finer demand-signal matching granularity when time permits.
-
-    Design decision — explicit tagging over inference:
-      Subcategory + material could theoretically approximate seasonality:
-      outerwear → probably winter; linen → probably summer. Inference was
-      rejected because it fails at the cases that matter most:
-        - A thin cotton top and a heavyweight flannel shirt are both `tops`,
-          same demographic, same size — identical to the schema without
-          explicit input.
-        - Inference produces no answer for genuinely all-season items and
-          wrong answers for edge cases (a summer linen blazer in outerwear).
-      The fragment compiler MAY use inference as a UI pre-fill suggestion
-      (e.g. pre-check is_winter_suitable when subcategory=outerwear) but the
-      sorter's explicit input always takes precedence.
-
-    VM auto-derivation between the two fields:
-      season = winter        → is_winter_suitable = true  (vm-season-winter)
-      season = summer        → is_winter_suitable = false (vm-season-summer)
-      season = all_season    → is_winter_suitable = true  (vm-season-all)
-      season = spring_autumn → no constraint on is_winter_suitable
-                               (the sorter decides — a heavy wool cardigan
-                               tagged spring_autumn may still be winter_suitable)
-
-  Completeness tiers (read by fragment compiler and match engine):
-    minimal:  subcategory
-    standard: subcategory, demographic, size, is_winter_suitable, usage,
-              condition_grade
-    detailed: subcategory, demographic, size, is_winter_suitable, season,
-              material, usage, condition_grade, intact_labels
+  Seasonality model: is_winter_suitable (boolean, standard tier, sorter's
+  explicit call) and season (SeasonEnum, multivalued, detailed tier) are
+  intentionally both present — inference from subcategory/material was
+  rejected since it fails on common cases (a thin cotton top vs. a heavy
+  flannel shirt are both "tops"). VM rules auto-derive is_winter_suitable
+  from season at its unambiguous values (winter/summer/all_season);
+  spring_autumn leaves it to the sorter.
 
 license: MIT
 see_also:
@@ -148,27 +48,29 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  ClothingPhysicalItemMixin:
+    mixin: true
+    is_a: ClothingCategory
+    mixins: [ClothingContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Clothing category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
 
   ClothingCategory:
     mixin: true
     is_a: CategoryMixin
     description: >-
       Mixin carrying clothing-specific slots, value maps, and UC rules.
-      Applied to ClothingItem via mixins: [ClothingCategory].
-      Does NOT include accessories — see AccessoriesCategory (accessories.yaml).
-
-      Domain-level rules only (no lifecycle_state references).
-      Lifecycle-aware rules (lc-*) live on ClothingItem in donation_item.yaml
-      because lifecycle_state is a DonationItem slot invisible to this mixin.
-
-      Value maps grounded in CPI ontology demographic and size vocabularies.
-      Underwear UC constraints reflect real social-sector hygiene policy.
-      Seasonality: is_winter_suitable (boolean, standard tier) + season
-      (SeasonEnum, optional, detailed tier). See schema description above
-      for the full design rationale.
+      Applied to ClothingItem via mixins: [ClothingCategory]. Does NOT
+      include accessories — see AccessoriesCategory (accessories.yaml).
+      Domain-level rules only; lifecycle-aware (lc-*) rules live in
+      ClothingContextRulesMixin (categories/_context_rules.yaml).
     see_also:
       - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
     slots:
@@ -245,6 +147,10 @@ classes:
         Fragment compiler may pre-fill is_winter_suitable=true when
         subcategory=outerwear and is_winter_suitable=false when
         subcategory=sportswear (swimwear). Sorter can override.
+      label_en: "Clothing"
+      label_de: "Kleidung"
+      aliases_en: ["clothing", "clothes", "garment", "apparel"]
+      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel", "Gewand", "Kleidungsartikel"]
     rules:
       # ── UC: underwear ─────────────────────────────────────────────────────
       - title: uc-underwear-condition-block
@@ -528,21 +434,10 @@ slots:
     range: boolean
     description: >-
       Whether this item provides meaningful warmth in cold-weather conditions.
-      The primary emergency distribution filter — enables "show me all
-      winter-suitable clothing for children" queries at standard completeness.
-
-      Set explicitly by the sorter. The fragment compiler may pre-fill based
-      on subcategory (outerwear → true, swimwear → false) as a UI hint, but
-      the sorter's input always takes precedence.
-
-      Auto-derived from season when season is set to an unambiguous value:
-        season = winter     → is_winter_suitable = true  (vm-season-winter)
-        season = summer     → is_winter_suitable = false (vm-season-summer)
-        season = all_season → is_winter_suitable = true  (vm-season-all)
-        season = spring_autumn → sorter decides explicitly
-
-      Also declared on FootwearCategory (footwear.yaml) and
-      BeddingTextilesCategory (bedding_textiles.yaml) for the same purpose.
+      Primary emergency distribution filter. Set explicitly by the sorter
+      (fragment compiler may pre-fill as a UI hint only). Auto-derived from
+      season at its unambiguous values via vm-season-* rules. Also declared
+      on FootwearCategory and BeddingTextilesCategory for the same purpose.
     see_also:
       - schema:itemCondition
     annotations:
@@ -904,32 +799,11 @@ enums:
 
   ClothingMaterialEnum:
     description: >-
-      Primary fibre or fabric composition of a clothing item.
-      Records the predominant material; for blended fabrics (e.g. 60% cotton /
-      40% polyester), select the dominant fibre or use synthetic_blend when no
-      single synthetic dominates and a more specific value does not apply.
-
-      Grounded in:
-        Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
-          concepts, consistent with pto:Wood in FurnitureMaterialEnum.
-          http://www.productontology.org/id/
-        schema:material — overarching property on schema:Product, first-class
-          since GoodRelations was absorbed into schema.org in 2012.
-          https://schema.org/material
-          Used as see_also anchor for values that have no discrete pto: IRI
-          (synthetic_blend, other).
-
-      Three uses at sorting time:
-        1. Allergen filtering — wool, latex, and nickel sensitivities;
-           requires intact_labels=true for highest confidence;
-           exact percentages may be recorded in sorting_notes.
-        2. Seasonality hinting by the fragment compiler
-           (wool/fleece/down → pre-fill is_winter_suitable=true;
-            linen/silk → pre-fill is_winter_suitable=false).
-           Sorter override always takes precedence.
-        3. Care requirement matching — silk and leather indicate specialist
-           care needs that the match engine can surface.
-
+      Primary fibre or fabric composition of a clothing item. Records the
+      predominant material; for blends, select the dominant fibre or use
+      synthetic_blend. Grounded in Product Types Ontology (pto:) per-value
+      IRIs and schema:material as the fallback anchor. See file header for
+      the allergen-filtering / seasonality-hinting / care-matching use cases.
     see_also:
       - schema:material
     permissible_values:

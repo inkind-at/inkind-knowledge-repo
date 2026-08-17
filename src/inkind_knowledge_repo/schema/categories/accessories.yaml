@@ -5,53 +5,21 @@ title: Accessories Category Schema
 description: >-
   Defines AccessoriesCategory mixin applied to AccessoriesItem.
   Covers fashion and personal accessories: hats, scarves, gloves, belts,
-  bags, jewellery, sunglasses, watches, wallets.
+  bags, jewellery, sunglasses, watches, wallets. COICOP Division 03.1
+  (grouped with clothing by COICOP; separated here for schema/UI clarity).
 
-  COICOP alignment: Division 03.1 (clothing and footwear — COICOP groups
-  accessories with clothing; separated here for schema and UI clarity).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Ontology grounding: Product Types Ontology (pto:Fashion_accessory and
+  per-value material IRIs), CPI ontology for subcategory terms, schema:material
+  as the fallback anchor.
 
-  Ontology grounding:
-    Product Types Ontology — pto:Fashion_accessory, and per-value IRIs for
-      ClothingMaterialEnum (pto:Leather, pto:Wool, pto:Cotton, pto:Silk).
-      http://www.productontology.org/id/Fashion_accessory
-    CPI ontology — see_also for subcategory terms
-      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
-    schema:material — overarching property on schema:Product, used as
-      see_also anchor for values without a discrete pto: IRI.
-      https://schema.org/material
+  material (detailed tier) records the dominant identifiable material — used
+  for allergen filtering (wool, nickel) and care-requirement matching
+  (leather, silk).
 
-  Material model:
-    AccessoriesMaterialEnum records the primary construction material of the
-    accessory. Two redistribution-relevant uses:
-      1. Allergen filtering — wool sensitivity (scarves, gloves, hats);
-         nickel sensitivity in metal jewellery.
-      2. Care requirement matching — leather requires conditioning/specialist
-         care; silk is dry-clean only; metal jewellery requires anti-tarnish
-         storage.
-    Material is in the detailed completeness tier — already reflected in the
-    annotations. Not every accessory has a single identifiable primary
-    material (e.g. a wristwatch has metal case + leather strap + glass face),
-    so material records the dominant element the sorter can identify quickly.
-
-  Separation from ClothingItem (design rationale):
-    - No size dimension — accessories are not sized XS-XXL. A scarf is
-      not "medium"; a bag is not "adult female size S".
-    - No demographic→size value map — the clothing value map is entirely
-      irrelevant here.
-    - Clothing UC rules (underwear condition, adult underwear must be new)
-      do not apply to any accessory subcategory.
-    - Progressive disclosure: "clothing or accessory?" is a clean first
-      branch in the sorting UI — mixing them forces sorters to scan past
-      irrelevant subcategories.
-    - AccessoriesDemographicEnum uses a simpler age-only vocabulary
-      (baby/child/adult/all_ages) — gender is not a meaningful dimension
-      for most accessories at the sorting level.
-
-  Completeness tiers:
-    minimal:  subcategory, usage
-    standard: subcategory, usage, condition_grade
-    detailed: subcategory, demographic, material, usage, condition_grade
+  Deliberately simpler than ClothingCategory: no size dimension, no
+  demographic→size value map, no underwear UC rules, and a simpler
+  age-only AccessoriesDemographicEnum — see donation_item.yaml for the
+  full rationale for keeping this separate from ClothingItem.
 
 license: MIT
 see_also:
@@ -73,9 +41,19 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  AccessoriesPhysicalItemMixin:
+    mixin: true
+    is_a: AccessoriesCategory
+    mixins: [AccessoriesContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Accessories category,
+      used identically by DonationItem, StorageCollection, and
+      SortedCollection. Pure composition — no slots or rules of its own.
 
   AccessoriesCategory:
     mixin: true
@@ -83,9 +61,6 @@ classes:
     description: >-
       Mixin for fashion and personal accessories.
       Applied to AccessoriesItem via mixins: [AccessoriesCategory].
-      Deliberately simpler than ClothingCategory — no size dimension,
-      no demographic→size value map, simpler demographic vocabulary,
-      no underwear UC rules. See schema description above for full rationale.
     see_also:
       - http://www.productontology.org/id/Fashion_accessory
     slots:
@@ -121,6 +96,10 @@ classes:
       completeness_standard: "subcategory, usage, condition_grade"
       completeness_detailed: "subcategory, demographic, material, usage, condition_grade"
       coicop_division: "03.1"
+      label_en: "Accessories"
+      label_de: "Accesoires"
+      aliases_en: ["accessories", "accessory", "fashion accessory"]
+      aliases_de: ["Accesoires", "Accessoire", "Modeaccessoire"]
 
 
 
@@ -210,20 +189,10 @@ enums:
   AccessoriesMaterialEnum:
     description: >-
       Primary construction material of a fashion or personal accessory.
-      Records the dominant material the sorter can identify quickly.
-      Not all accessories have a single primary material — a watch has a metal
-      case, leather strap, and glass face; record the most prominent element.
-
-      Grounded in Product Types Ontology (pto:) for individual fibres and
-      common materials, and schema:material as the overarching property anchor.
-      Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml)
-      for the fibre values (leather, wool, cotton, silk) for consistency.
-
-      Two redistribution-relevant uses:
-        1. Allergen filtering — wool (scarves, hats, gloves) and nickel
-           (base metal jewellery, belt buckles) sensitivities.
-        2. Care requirement matching — leather requires conditioning; silk
-           is dry-clean only; metal jewellery requires anti-tarnish storage.
+      Records the dominant material the sorter can identify quickly (e.g. a
+      watch has metal case + leather strap + glass face — record the most
+      prominent element). Grounded in Product Types Ontology (pto:), aligned
+      with ClothingMaterialEnum's fibre values for consistency.
     see_also:
       - schema:material
     permissible_values:

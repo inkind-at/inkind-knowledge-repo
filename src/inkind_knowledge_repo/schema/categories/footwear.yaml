@@ -3,61 +3,20 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/footwear
 name: footwear
 title: Footwear Category Schema
 description: >-
-  Defines FootwearCategory mixin applied to FootwearItem.
+  Defines FootwearCategory mixin applied to FootwearItem. COICOP Division
+  03.2. Ontology grounding: Product Types Ontology (pto:Footwear and
+  per-value material IRIs), CPI cpi:SportShoes, schema:material as fallback
+  anchor.
 
-  COICOP alignment: Division 03.2 (footwear).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  material (detailed tier) records the primary upper-material — used for
+  care-requirement matching (leather/suede/rubber/canvas), allergen
+  filtering (latex rubber), and seasonality hinting.
 
-  Ontology grounding:
-    Product Types Ontology — pto:Footwear, pto:Shoe, pto:Boot, pto:Sandal,
-    pto:Leather, pto:Suede, pto:Rubber, pto:Wool
-      http://www.productontology.org/id/Footwear
-    CPI ontology — cpi:SportShoes
-      http://www.ebusiness-unibw.org/ontologies/cpi/ns#
-    schema:material — overarching property on schema:Product, used as
-      see_also anchor for values without a discrete pto: IRI (canvas,
-      synthetic_mesh, textile).
-      https://schema.org/material
-
-  Material model:
-    FootwearMaterialEnum records the primary upper-material (the dominant
-    outer fabric/surface visible on the shoe). Three redistribution-relevant
-    uses:
-      1. Care requirement matching — leather requires conditioning; suede
-         requires specialist brushing and waterproofing; rubber boots can
-         be wiped clean; canvas is machine-washable.
-      2. Allergen filtering — latex rubber (relevant for latex-sensitive
-         beneficiaries; most modern rubber boots use synthetic rubber, but
-         natural rubber is still used in some products).
-      3. Seasonality hinting — canvas and synthetic_mesh are typically
-         summer/spring-autumn shoes; wool/felt slippers are all-season
-         or winter-suitable for indoor use. The fragment compiler MAY
-         use material as an additional UI pre-fill signal alongside
-         subcategory. Sorter always overrides.
-    Material is added to the detailed completeness tier.
-
-  Separation from ClothingItem:
-    - Shoe sizing systems (EU/UK/US/CM) differ fundamentally from clothing sizes.
-    - Pair-completeness is a footwear-specific assessment concern.
-    - The demographic slot is reused from clothing.yaml but the size slot is
-      replaced by shoe_size + shoe_size_system.
-
-  Seasonality:
-    is_winter_suitable and season are applied to footwear for the same
-    reason as clothing — boots and sandals are obviously different for
-    emergency cold-weather distribution. SeasonEnum is declared in
-    clothing.yaml and reused here via import. The same VM auto-derivation
-    rules (vm-season-winter, vm-season-summer, vm-season-all) apply.
-    The fragment compiler may pre-fill is_winter_suitable=true for boots
-    and is_winter_suitable=false for sandals as a UI hint; sorters override.
-
-  Completeness tiers:
-    minimal:  subcategory
-    standard: subcategory, demographic, shoe_size, shoe_size_system,
-              is_pair_complete, is_winter_suitable, usage, condition_grade
-    detailed: subcategory, demographic, shoe_size, shoe_size_system,
-              is_pair_complete, is_winter_suitable, season, usage,
-              condition_grade
+  Separated from ClothingItem: shoe sizing (EU/UK/US/CM) differs from
+  clothing sizes, and pair-completeness is a footwear-specific concern.
+  demographic is reused from clothing.yaml; size is replaced by shoe_size +
+  shoe_size_system. is_winter_suitable/season/SeasonEnum are also reused
+  from clothing.yaml, with the same VM auto-derivation rules.
 
 license: MIT
 see_also:
@@ -78,9 +37,19 @@ imports:
   - linkml:types
   - ./_base
   - ./clothing   # imports SeasonEnum, DemographicEnum, is_winter_suitable, season
+  - ./_context_rules
 
 
 classes:
+
+  FootwearPhysicalItemMixin:
+    mixin: true
+    is_a: FootwearCategory
+    mixins: [FootwearContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Footwear category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
 
   FootwearCategory:
     mixin: true
@@ -88,9 +57,6 @@ classes:
     description: >-
       Mixin for footwear slots and UC rules.
       Applied to FootwearItem via mixins: [FootwearCategory].
-      Uses shoe_size + shoe_size_system instead of ClothingSizeEnum.
-      Reuses DemographicEnum, is_winter_suitable, and SeasonEnum from
-      clothing.yaml. Same VM season auto-derivation rules apply.
     see_also:
       - http://www.productontology.org/id/Footwear
     slots:
@@ -116,26 +82,19 @@ classes:
         description: >-
           Whether this footwear provides meaningful warmth and weather
           protection in cold conditions. Required at standard completeness.
-          Fragment compiler may pre-fill: boots → true, sandals → false.
-          Sorter always overrides (e.g. a lightweight canvas boot → false).
+          Sorter's call; fragment compiler may pre-fill as a UI hint only.
       season:
         range: SeasonEnum
         required: false
         multivalued: true
         description: >-
-          Seasonal suitability. Optional — detailed completeness tier.
-          Same VM auto-derivation as ClothingCategory:
-            winter → is_winter_suitable = true
-            summer → is_winter_suitable = false
-            all_season → is_winter_suitable = true
-            spring_autumn → sorter decides is_winter_suitable explicitly.
+          Seasonal suitability. Optional — detailed completeness tier. Same
+          VM auto-derivation as ClothingCategory.
       material:
         range: FootwearMaterialEnum
         required: false
         description: >-
           Primary upper-material. Optional — detailed completeness tier.
-          Record the dominant outer surface material. See FootwearMaterialEnum
-          for full vocabulary and ontology grounding.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -147,6 +106,10 @@ classes:
       season_ui_hint: >-
         Fragment compiler may pre-fill is_winter_suitable=true for boots
         and is_winter_suitable=false for sandals. Sorter can override.
+      label_en: "Footwear"
+      label_de: "Schuhe"
+      aliases_en: ["footwear", "shoes", "boots", "sandals", "slippers"]
+      aliases_de: ["Schuhe", "Stiefel", "Sandalen", "Hausschuhe"]
     rules:
       - title: uc-footwear-pair-incomplete-warn
         description: >-
@@ -283,27 +246,11 @@ enums:
 
   FootwearMaterialEnum:
     description: >-
-      Primary upper-material of a footwear item — the dominant outer fabric
-      or surface visible on the shoe upper (excluding the sole, which is
-      rubber or synthetic in almost all footwear).
-
+      Primary upper-material of a footwear item (excluding the sole).
       Grounded in Product Types Ontology (pto:) where distinct IRIs exist,
-      and schema:material as the overarching property anchor for values
-      without a discrete pto: IRI. Aligned with ClothingMaterialEnum for
-      shared values (leather, suede, wool).
-
-      Three redistribution-relevant uses:
-        1. Care requirement matching — leather needs conditioning; suede
-           needs specialist brushing and waterproofing; canvas is typically
-           machine-washable; rubber boots can be wiped clean.
-        2. Allergen filtering — latex rubber (natural rubber) is a known
-           allergen; most modern Wellington boots use synthetic rubber but
-           natural rubber is still used in premium lines.
-        3. Seasonality hinting — canvas and synthetic_mesh are typical
-           summer/spring-autumn materials; wool_felt is associated with
-           warm indoor slippers. Fragment compiler MAY use material as a
-           supplementary UI pre-fill hint (secondary to subcategory-based
-           hints). Sorter always overrides.
+      schema:material as fallback anchor; aligned with ClothingMaterialEnum
+      for shared values (leather, suede, wool). Used for care-requirement
+      matching, allergen filtering (latex rubber), and seasonality hinting.
     see_also:
       - schema:material
     permissible_values:

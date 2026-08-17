@@ -3,47 +3,19 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/furniture
 name: furniture
 title: Furniture Category Schema
 description: >-
-  Defines FurnitureCategory mixin applied to FurnitureItem.
+  Defines FurnitureCategory mixin applied to FurnitureItem. COICOP Division
+  05.1. Ontology grounding: Product Types Ontology (pto:Furniture and
+  per-value IRIs), schema:material, schema:SizeSpecification (dimensions).
 
-  COICOP alignment: Division 05.1 (furniture and furnishings).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Uses FurnitureAssessmentEnum (structured structural assessment) instead of
+  condition_grade — structural soundness, not wear, is the primary
+  redistribution signal (a scratched but solid chair is redistributable; a
+  clean but wobbly one is not). assessment_result required regardless of
+  usage since flatpack/new furniture can have manufacturing or assembly
+  defects.
 
-  Ontology grounding:
-    Product Types Ontology — pto:Furniture, pto:Chair, pto:Table, pto:Bed,
-    pto:Cabinet, pto:Wood
-      http://www.productontology.org/id/Furniture
-    schema.org — schema:material (first-class property on schema:Product,
-      superseding GoodRelations gr:qualitativeProductOrServiceProperty)
-      https://schema.org/material
-    schema.org — schema:SizeSpecification (dimensions)
-
-  Assessment model rationale:
-    Uses FurnitureAssessmentEnum (structured structural assessment) instead of
-    condition_grade (wear grade). Structural soundness is the primary safety
-    and redistribution signal for furniture — a scratched but solid chair is
-    redistributable; a visually clean but wobbly one is not. Wear grade
-    (like_new/good/fair/poor) does not capture this distinction adequately.
-
-    assessment_result required regardless of usage because:
-      - New flatpack furniture can have manufacturing defects (cracked panels,
-        defective cam locks, damaged veneer from transit)
-      - New donated furniture from corporate clearances may have assembly issues
-      Sorters must assess what they observe, not assume from the usage label.
-
-  Value-map subcategory → valid materials:
-    seating:       [wood, metal, plastic, fabric, mixed]
-    tables:        [wood, metal, plastic, glass, mixed]
-    beds:          [wood, metal, mixed]
-    storage_units: [wood, metal, plastic, mixed]
-    shelving:      [wood, metal, plastic, mixed]
-    other:         all materials valid
-
-  dimensions required_if: subcategory in [tables, beds]
-
-  Completeness tiers:
-    minimal:  subcategory, assessment_result
-    standard: subcategory, material, assessment_result, usage
-    detailed: subcategory, material, assessment_result, dimensions, style, usage
+  Valid materials are constrained per subcategory by vm-material-* rules
+  (e.g. beds/tables exclude fabric). dimensions required for tables/beds.
 
 license: MIT
 see_also:
@@ -62,6 +34,7 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
@@ -72,15 +45,14 @@ classes:
     description: >-
       Mixin for furniture slots, value maps, and UC rules.
       Applied to FurnitureItem via mixins: [FurnitureCategory].
-      Uses FurnitureAssessmentEnum instead of condition_grade — see schema
-      description above for the assessment model rationale.
-      assessment_result required regardless of usage.
+      assessment_result and its UC rules live on FurnitureAssessmentMixin
+      (below) so DemandSignal can dispatch to this bare mixin without
+      assessment content that only applies to a physical item in hand.
     see_also:
       - http://www.productontology.org/id/Furniture
     slots:
       - subcategory
       - material
-      - assessment_result
       - dimensions
       - style
     slot_usage:
@@ -90,12 +62,64 @@ classes:
       material:
         range: FurnitureMaterialEnum
         required: false
+    annotations:
+      completeness_minimal:  "subcategory"
+      completeness_standard: "subcategory, material, usage"
+      completeness_detailed: "subcategory, material, dimensions, style, usage"
+      coicop_division: "05.1"
+      label_en: "Furniture"
+      label_de: "Möbel"
+      aliases_en: ["furniture", "furnishings"]
+      aliases_de: ["Möbel", "Einrichtung"]
+    rules:
+      - title: vm-material-beds
+        description: >-
+          Beds accept structural materials only (wood, metal, mixed).
+          Fabric and plastic are not valid primary materials for beds.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: beds
+        postconditions:
+          slot_conditions:
+            material:
+              any_of:
+                - equals_string: wood
+                - equals_string: metal
+                - equals_string: mixed
+
+      - title: vm-material-tables
+        description: Tables do not use fabric as primary material.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: tables
+        postconditions:
+          slot_conditions:
+            material:
+              any_of:
+                - equals_string: wood
+                - equals_string: metal
+                - equals_string: plastic
+                - equals_string: glass
+                - equals_string: mixed
+
+  FurnitureAssessmentMixin:
+    mixin: true
+    is_a: FurnitureCategory
+    mixins: [FurnitureContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for Furniture — used identically
+      by DonationItem, StorageCollection, and SortedCollection. Adds
+      assessment_result and its UC rules on top of FurnitureCategory.
+      Never used by DemandSignal.
+    slots:
+      - assessment_result
+    slot_usage:
       assessment_result:
         range: FurnitureAssessmentEnum
         required: false
-        description: >-
-          Structural and quality assessment. Required regardless of usage —
-          new furniture can have manufacturing defects or assembly issues.
+        description: Structural and quality assessment. Required regardless of usage.
     annotations:
       completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, material, assessment_result, usage"
@@ -148,38 +172,6 @@ classes:
             sorting_notes:
               required: true
 
-      - title: vm-material-beds
-        description: >-
-          Beds accept structural materials only (wood, metal, mixed).
-          Fabric and plastic are not valid primary materials for beds.
-        preconditions:
-          slot_conditions:
-            subcategory:
-              equals_string: beds
-        postconditions:
-          slot_conditions:
-            material:
-              any_of:
-                - equals_string: wood
-                - equals_string: metal
-                - equals_string: mixed
-
-      - title: vm-material-tables
-        description: Tables do not use fabric as primary material.
-        preconditions:
-          slot_conditions:
-            subcategory:
-              equals_string: tables
-        postconditions:
-          slot_conditions:
-            material:
-              any_of:
-                - equals_string: wood
-                - equals_string: metal
-                - equals_string: plastic
-                - equals_string: glass
-                - equals_string: mixed
-
 
 slots:
   dimensions:
@@ -205,11 +197,9 @@ enums:
 
   FurnitureAssessmentEnum:
     description: >-
-      Structured assessment of furniture structural integrity and quality.
-      Replaces the boolean structural_integrity slot with a richer vocabulary
-      that distinguishes cosmetic damage from structural compromise.
-      Required at sorting regardless of usage — new items can have
-      manufacturing defects. See schema description for full rationale.
+      Structured assessment of furniture structural integrity and quality,
+      distinguishing cosmetic damage from structural compromise. Required at
+      sorting regardless of usage.
     permissible_values:
       structurally_sound:
         description: >-

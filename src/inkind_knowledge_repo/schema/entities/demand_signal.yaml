@@ -22,33 +22,39 @@ default_range: string
 imports:
   - linkml:types
   - ../core
+  - ../categories/clothing
+  - ../categories/accessories
+  - ../categories/footwear
+  - ../categories/furniture
+  - ../categories/bedding_textiles
+  - ../categories/household
+  - ../categories/electronics
+  - ../categories/toys
+  - ../categories/sports
+  - ../categories/books
+  - ../categories/stationery
+  - ../categories/personal_care
+  - ../categories/mobility_aids
+  - ../categories/baby_infant
+  - ../categories/food
+  - ../categories/other
 
 classes:
-
-  AnyValue:
-    description: >-
-      Current workaround before proper attributes are introduced.
-      Unconstrained value holder for schemaless JSON blobs.
-      Used for DemandSignal.attributes until the Phase 2
-      typed ItemAttributes refactor.
-    # class_uri: linkml:Any
-    slots:
-      - subcategory
-      - demographic
-      - size
-      
 
   DemandSignal:
     description: >-
       A signal representing demand for a category of items.  Covers standing
       interests, time-bounded campaigns, and specific beneficiary requests
       under a single unified model.
+
+      category's range is BaseCategoryEnum (core.yaml) — dispatch_to
+      resolves to the bare Tier 1 category mixin only, since a demand
+      signal describes what's wanted, not a physical item in hand:
+      assessment_result and lifecycle_state-gated visibility never apply
+      here.
     slots:
       - id
-      - org
-      - signal_type
       - category
-      - attributes
       - quantity_requested
       - quantity_fulfilled
       - campaign
@@ -66,7 +72,7 @@ classes:
         range: SocialOrganisation
         required: true
       category:
-        range: CategoryEnum
+        range: BaseCategoryEnum
         required: true
         see_also:
           - openeligibility:ServiceTag
@@ -78,6 +84,8 @@ classes:
         required: false
         see_also:
           - openeligibility:HumanSituation
+    annotations:
+      completeness_minimal: "category"
 
 slots:
 
@@ -87,16 +95,6 @@ slots:
     description: >-
       Discriminator — standing (permanent interest), campaign (time-bounded),
       or specific (concrete beneficiary request).
-
-  attributes:
-    range: AnyValue
-    description: >-
-      Category-specific demand attribute filters. Structure mirrors the
-      attribute vocabulary defined in the category schema for the given
-      category value.
-      Phase 2 refactor: replace Any with typed ItemAttributes subclass
-      hierarchy, moving category mixin slots into *Attributes classes
-      shared between DonationItem and DemandSignal.
 
   quantity_requested:
     range: integer

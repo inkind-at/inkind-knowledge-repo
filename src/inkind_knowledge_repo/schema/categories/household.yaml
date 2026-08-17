@@ -3,50 +3,20 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/household
 name: household
 title: Household & Kitchen Category Schema
 description: >-
-  Defines HouseholdCategory mixin applied to HouseholdItem.
+  Defines HouseholdCategory mixin applied to HouseholdItem. COICOP Divisions
+  05.3 (appliances), 05.4 (glassware, tableware, utensils), 05.5 (house and
+  garden tools). Household textiles (05.2) are in BeddingTextilesItem, not
+  here.
 
-  COICOP alignment:
-    Division 05.3 — household appliances (toasters, kettles, blenders)
-    Division 05.4 — glassware, tableware, utensils (crockery, cutlery)
-    Division 05.5 — tools for house and garden (cleaning tools, garden tools)
-    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Ontology grounding: Product Types Ontology (pto:Household_goods and
+  per-value IRIs), schema:material as fallback anchor.
 
-  Note on COICOP 05.2: household textiles (blankets, duvets, towels, curtains)
-  are in BeddingTextilesItem, not here, following the COICOP 05.2 separation
-  and UNHCR NFI standards. The former linens subcategory has been removed.
+  material (detailed tier) is used for allergen filtering (nickel, copper)
+  and care-requirement matching (cast iron, wood, non-stick).
 
-  Ontology grounding:
-    Product Types Ontology — pto:Household_goods, pto:Cookware, pto:Tableware,
-    pto:Cutlery, pto:Glassware, pto:Home_appliance, pto:Decorative_arts,
-    pto:Garden_tool, pto:Wood, pto:Stainless_steel, pto:Ceramic, pto:Cast_iron,
-    pto:Silicone, pto:Copper
-      http://www.productontology.org/id/Household_goods
-    schema:material — overarching property on schema:Product, used as
-      see_also anchor for values without a discrete pto: IRI (aluminium,
-      non_stick, plastic, mixed).
-      https://schema.org/material
-
-  Material model:
-    HouseholdMaterialEnum records the primary construction material. Two
-    redistribution-relevant uses:
-      1. Allergen filtering — nickel in stainless steel (small percentage
-         of stainless steel alloys may contain nickel; relevant for cutlery);
-         copper in copper cookware (rare sensitivity).
-      2. Care requirement matching — cast iron requires seasoning; copper
-         requires specialist polishing; wood requires oiling; non-stick
-         coatings require specific cleaning instructions.
-    Material is in the detailed completeness tier — already reflected in the
-    annotations.
-
-  Assessment: condition_grade (wear grade). Wear grade is appropriate here
-  because the redistribution signal for cookware, appliances, and decor is
-  primarily how worn/functional the item appears, not a structured safety
-  checklist.
-
-  Completeness tiers:
-    minimal:  subcategory
-    standard: subcategory, is_set_complete, usage, condition_grade
-    detailed: subcategory, material, is_set_complete, usage, condition_grade
+  Assessment: condition_grade (wear grade) — appropriate here since the
+  redistribution signal for cookware, appliances, and decor is how
+  worn/functional the item appears, not a structured safety checklist.
 
 license: MIT
 see_also:
@@ -66,9 +36,19 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  HouseholdPhysicalItemMixin:
+    mixin: true
+    is_a: HouseholdCategory
+    mixins: [HouseholdContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Household category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
 
   HouseholdCategory:
     mixin: true
@@ -76,8 +56,6 @@ classes:
     description: >-
       Mixin for household and kitchen goods slots.
       Applied to HouseholdItem via mixins: [HouseholdCategory].
-      COICOP 05.3-05.5. Bedding/textiles (COICOP 05.2) are in
-      BeddingTextilesCategory — not here.
     see_also:
       - http://www.productontology.org/id/Household_goods
     slots:
@@ -93,10 +71,8 @@ classes:
         range: HouseholdMaterialEnum
         required: false
         description: >-
-          Primary construction material. Optional — detailed completeness tier.
-          Record the dominant material; use mixed when no single material
-          dominates. See HouseholdMaterialEnum for full vocabulary and
-          ontology grounding.
+          Primary construction material. Optional — detailed completeness
+          tier.
       condition_grade:
         range: UsedConditionGradeEnum
         required: false
@@ -105,29 +81,21 @@ classes:
       completeness_standard: "subcategory, is_set_complete, usage, condition_grade"
       completeness_detailed: "subcategory, material, is_set_complete, usage, condition_grade"
       coicop_divisions: "05.3, 05.4, 05.5"
+      label_en: "Household"
+      label_de: "Haustechnik"
+      aliases_en: ["household goods", "domestic items"]
+      aliases_de: ["Haushaltsgegenstände", "Domestikum"]
 
 
 enums:
 
   HouseholdMaterialEnum:
     description: >-
-      Primary construction material of a household or kitchen item.
-      Records the dominant material; use mixed when no single material
-      dominates (e.g. a saucepan with a stainless steel body and plastic handle).
-
-      Grounded in Product Types Ontology (pto:) for discrete material types and
-      schema:material as the overarching property anchor (schema.org property
-      on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty).
-      pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
-
-      Two redistribution-relevant uses:
-        1. Allergen filtering — nickel in stainless steel cutlery (relevant for
-           nickel contact dermatitis, though most modern stainless steel is
-           safe); copper cookware (rare sensitivity).
-        2. Care requirement matching — cast iron requires seasoning and
-           cannot be soaked; copper requires specialist polishing; wood
-           requires periodic oiling; non-stick coatings need specific
-           cleaning instructions.
+      Primary construction material of a household or kitchen item. Records
+      the dominant material; use mixed when none dominates. Grounded in
+      Product Types Ontology (pto:), consistent with FurnitureMaterialEnum.
+      Used for allergen filtering (nickel, copper) and care-requirement
+      matching (cast iron, copper, wood, non-stick).
     see_also:
       - schema:material
     permissible_values:

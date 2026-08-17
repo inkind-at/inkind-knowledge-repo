@@ -58,7 +58,7 @@ slots:
       Current item count — derived from items linked to this location.
 
   category_affinity:
-    range: CategoryEnum
+    range: BaseCategoryEnum
     description: >-
       Preferred item category — informational hint, not enforced by the
       engine.

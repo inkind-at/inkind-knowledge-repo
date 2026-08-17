@@ -3,76 +3,23 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/food
 name: food
 title: Food Category Schema
 description: >-
-  Defines FoodCategory mixin applied to FoodItem.
+  Defines FoodCategory mixin applied to FoodItem. COICOP Division 01.
+  Referenced also by UNHCR (food is a parallel core relief stream to NFIs)
+  and Open Eligibility ("Food" top-level category parallel to "Goods").
+  Ontology grounding: FoodOn (OBO Foundry food ontology), per-value foodon:
+  IRIs on FoodTypeEnum.
 
-  COICOP alignment: Division 01 (food and non-alcoholic beverages).
-  https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Phase 1 stub — fully declared to establish the schema; the sort_food
+  process path activates once food-bank organisations are onboarded.
 
-  UNHCR NFI Core Relief Standards:
-  Food is explicitly excluded from the NFI category by definition (NFI =
-  non-food items), but UNHCR documentation consistently lists food as a
-  parallel core relief stream alongside NFIs:
-  https://emergency.unhcr.org/emergency-assistance/core-relief-items/
+  Uses NEITHER condition_grade NOR assessment_result — packaging_intact +
+  expiry_date is the complete vocabulary (a wear grade is meaningless for a
+  tin of beans), same pattern as PersonalCareCategory's is_sealed +
+  expiry_date. Does NOT extend CategoryMixin, since that would pull in
+  slots (notes, material) that don't apply to food.
 
-  Open Eligibility taxonomy:
-  "Food" is a top-level category parallel to "Goods":
-  https://company.auntbertha.com/openeligibility/
-
-  Ontology grounding:
-    FoodOn (OBO Foundry food ontology) — the authoritative reference for food
-    product classification:
-      http://purl.obolibrary.org/obo/foodon.owl
-    Class URIs used: foodon:00001006 (food), foodon:00001017 (food product),
-    foodon:00001043 (packaging), foodon:00001256 (dry goods), foodon:00002403
-    (canned goods), foodon:00001015 (fresh produce), foodon:00001180 (dairy),
-    foodon:00001062 (beverages), foodon:00002640 (baby food), foodon:00001139
-    (condiments), foodon:03000288 (bread), foodon:03400793 (meat),
-    foodon:03315173 (fish), foodon:03400978 (confectionery), foodon:03400172
-    (prepared food).
-
-  Phase 1 status:
-    FoodItem is a Phase 1 stub — fully declared to establish the schema.
-    The sort_food process path and associated fragment bindings are activated
-    when food-bank organisations are onboarded. Declaring now prevents a
-    future data migration.
-
-  Assessment model:
-    FoodCategory uses NEITHER condition_grade NOR assessment_result.
-    The complete assessment vocabulary is packaging_intact + expiry_date.
-    Rationale: food safety assessment is binary —
-      packaging intact?  → yes (redistributable) / no (block if perishable)
-      within expiry?     → yes (redistributable) / no (block)
-    A wear grade is meaningless for a tin of beans. A structured assessment
-    enum would duplicate packaging_intact.
-    This is the same pattern as PersonalCareCategory (is_sealed + expiry_date).
-
-    FoodCategory does NOT extend CategoryMixin for this reason — CategoryMixin
-    would pull in slots (notes, material) and imply condition model support
-    that is semantically incorrect for food items.
-
-  Value-map subcategory → valid storage_requirement:
-    bread_bakery:         [ambient, frozen]
-    fruit_vegetables:     [ambient, refrigerated, frozen]
-    meat_fish:            [refrigerated, frozen]
-    dairy_eggs:           [refrigerated, frozen]
-    dry_goods:            [ambient, dry_cool]
-    canned_goods:         [ambient]
-    beverages:            [ambient, refrigerated]
-    confectionery_sweets: [ambient]
-    condiments:           [ambient, refrigerated]
-    ready_meals:          [ambient, refrigerated, frozen]
-    baby_food:            [ambient, refrigerated]
-    other:                [ambient, refrigerated, frozen, dry_cool]
-
-  UC constraints:
-    uc-expiry-date-past-block        — runtime; expiry_date < today → block
-    uc-packaging-perishable-block    — packaging_intact=false + perishable → block
-
-  Completeness tiers:
-    minimal:  subcategory, packaging_intact, storage_requirement
-    standard: subcategory, packaging_intact, storage_requirement, usage
-    detailed: subcategory, packaging_intact, storage_requirement,
-              expiry_date, net_content_value, net_content_unit, usage
+  Valid storage_requirement values are constrained per subcategory by
+  vm-storage-* rules (e.g. meat_fish excludes ambient).
 
 license: MIT
 see_also:
@@ -92,23 +39,26 @@ default_range: string
 imports:
   - linkml:types
   - ../core
+  - ./_context_rules
 
 
 classes:
 
+  FoodPhysicalItemMixin:
+    mixin: true
+    is_a: FoodCategory
+    mixins: [FoodContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Food category, used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Pure composition — no slots or rules of its own.
+
   FoodCategory:
     mixin: true
-    # Intentionally does NOT extend CategoryMixin.
-    # FoodCategory has no condition_grade or assessment_result — food safety
-    # uses packaging_intact + expiry_date. CategoryMixin would pull in slots
-    # (notes, material) semantically incorrect for food items. See schema
-    # description for full rationale.
+    # Intentionally does NOT extend CategoryMixin — see schema description.
     description: >-
       Mixin for food-specific slots, value maps, and UC rules.
       Applied to FoodItem via mixins: [FoodCategory].
-      Grounded in FoodOn (OBO Foundry): http://purl.obolibrary.org/obo/foodon.owl
-      Does not extend CategoryMixin — see schema description for rationale.
-      Phase 1 stub — sort_food process path activated on food-bank onboarding.
     see_also:
       - foodon:00001006
       - http://purl.obolibrary.org/obo/foodon.owl
@@ -151,6 +101,10 @@ classes:
       completeness_detailed: "subcategory, packaging_intact, storage_requirement, expiry_date, net_content_value, net_content_unit, usage"
       coicop_division: "01"
       phase: "Phase 1 stub"
+      label_en: "Food"
+      label_de: "Lebensmittel"
+      aliases_en: ["food", "food item"]
+      aliases_de: ["Essen", "Lebensmittel"]
     rules:
       - title: uc-packaging-perishable-block
         description: >-

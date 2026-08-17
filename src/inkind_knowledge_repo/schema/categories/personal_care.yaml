@@ -3,72 +3,26 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/personal_care
 name: personal_care
 title: Personal Care Category Schema
 description: >-
-  Defines PersonalCareCategory mixin applied to PersonalCareItem.
-  Merges former HygieneItem and HealthBeautyItem into a single class.
+  Defines PersonalCareCategory mixin applied to PersonalCareItem. Merges
+  former HygieneItem and HealthBeautyItem — COICOP 06.1 (medical products)
+  and 12.1 (personal care) share identical operative safety rules (sealed
+  required for consumables, used tools blocked, expiry enforced), and Open
+  Eligibility already uses one "Personal Care Items" node for both.
+  Ontology grounding: Product Types Ontology (pto:Personal_hygiene and
+  per-subcategory IRIs).
 
-  COICOP alignment:
-    Division 06.1 — medical products and appliances (OTC medications,
-    medical devices, first aid supplies)
-    Division 12.1 — personal care (toiletries, cosmetics, related appliances)
-    https://unstats.un.org/unsd/classifications/Family/Detail/2094
+  Uses NEITHER condition_grade NOR assessment_result — is_sealed +
+  expiry_date is the complete vocabulary (a wear grade is meaningless for a
+  tube of toothpaste). Same pattern as FoodCategory.
 
-  Open Eligibility taxonomy:
-    Uses a single "Personal Care Items" node for both COICOP 06.1 and 12.1:
-    https://company.auntbertha.com/openeligibility/
+  Baby nappies and baby-specific toiletries are NOT here — they route to
+  BabyInfantSubcategoryEnum's baby_care/nappies subcategories (same
+  is_sealed/expiry_date assessment, grouped there for UX with other baby
+  items donated/requested together). Only adult incontinence_products stay
+  here.
 
-  Ontology grounding:
-    Product Types Ontology — pto:Personal_hygiene, pto:Soap, pto:Hair_care,
-    pto:Oral_hygiene, pto:Diaper, pto:Skin_care, pto:Cosmetics,
-    pto:Over-the-counter_drug, pto:First_aid, pto:Medical_device
-      http://www.productontology.org/id/Personal_hygiene
-
-  Merge rationale (HygieneItem + HealthBeautyItem → PersonalCareItem):
-    The operative safety rules are identical across both former categories:
-      1. Sealed required for consumables (soap, shampoo, OTC medications)
-      2. Used personal care tools must not be redistributed (toothbrushes,
-         razors, used cosmetics)
-      3. Expiry date enforced for medications and perishable products
-    Splitting them created rule duplication with no semantic benefit.
-    Open Eligibility's single node supports this merge.
-
-  Assessment model:
-    PersonalCareCategory uses NEITHER condition_grade NOR assessment_result.
-    The complete assessment vocabulary is is_sealed + expiry_date.
-    Rationale: for personal care products, the relevant safety signals are
-    hygiene integrity (sealed?) and freshness (not expired?). A wear grade
-    is meaningless for a tube of toothpaste or a pack of incontinence pads —
-    it is either sealed or it is not. A structured safety enum would simply
-    duplicate is_sealed. FoodCategory uses the same pattern.
-
-  Note on nappies:
-    Baby nappies are NOT in PersonalCareSubcategoryEnum — they moved to
-    BabyInfantSubcategoryEnum (baby_infant.yaml) as a Track 2 consumable,
-    consistent with UNHCR NFI kit standards, which group nappies with
-    infant formula as core relief items. Only adult incontinence products
-    remain here as incontinence_products.
-
-  Note on baby toiletries:
-    Baby-specific toiletries (baby wipes, baby powder, baby lotion/oil,
-    baby wash, baby shampoo, diaper rash cream, teething gel, baby
-    sunscreen) are NOT in PersonalCareSubcategoryEnum — they belong in
-    BabyInfantSubcategoryEnum's baby_care subcategory (baby_infant.yaml),
-    grouped alongside nappies as items donated, sorted, and requested
-    together. The is_sealed/expiry_date assessment is identical to the
-    adult toiletries below (skincare, soap_body_wash, shampoo_conditioner),
-    so this is purely a routing/UX decision, not a distinct vocabulary —
-    same rationale as the nappies move above.
-
-  Note on OTC medications:
-    Prescription medications must NEVER be accepted. If found, sorters must
-    flag for safe pharmaceutical disposal, not sort into PersonalCareItem.
-    This is enforced by operational procedure, not a schema rule (the schema
-    cannot prevent a sorter from incorrectly classifying a prescription item).
-
-  Completeness tiers:
-    minimal:  subcategory, is_sealed
-    standard: subcategory, is_sealed, expiry_date, usage
-    detailed: subcategory, is_sealed, expiry_date, net_content_value,
-              net_content_unit, usage
+  Prescription medications must never be accepted; flagging for safe
+  disposal is operational procedure, not a schema rule.
 
 license: MIT
 see_also:
@@ -89,9 +43,19 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
+
+  PersonalCarePhysicalItemMixin:
+    mixin: true
+    is_a: PersonalCareCategory
+    mixins: [PersonalCareContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for the Personal Care category,
+      used identically by DonationItem, StorageCollection, and
+      SortedCollection. Pure composition — no slots or rules of its own.
 
   PersonalCareCategory:
     mixin: true
@@ -99,9 +63,6 @@ classes:
     description: >-
       Mixin for personal care, hygiene, and health product slots and UC rules.
       Applied to PersonalCareItem via mixins: [PersonalCareCategory].
-      Merges COICOP 06.1 and 12.1. See schema description for merge rationale.
-      No condition_grade or assessment_result — is_sealed + expiry_date
-      are the complete assessment vocabulary. See schema description.
     see_also:
       - http://www.productontology.org/id/Personal_hygiene
       - https://company.auntbertha.com/openeligibility/
@@ -139,6 +100,10 @@ classes:
       prescription_medication_note: >-
         Prescription medications must NOT be accepted. Flag for pharmaceutical
         disposal. This is operational procedure — not enforceable by schema rule.
+      label_en: "Personal Care"
+      label_de: "Personalhygiene"
+      aliases_en: ["personal care", "hygiene"]
+      aliases_de: ["Personalhygiene", "Hygiene"]
     rules:
       - title: uc-personal-care-unsealed-consumables-block
         description: >-

@@ -45,6 +45,8 @@ imports:
   - entities/donation_source
   - entities/donation_collection
   - entities/donation_item
+  - entities/storage_collection
+  - entities/sorted_collection
   - entities/demand_signal
   - entities/campaign
   - categories/_base
@@ -63,6 +65,7 @@ imports:
   - categories/mobility_aids
   - categories/baby_infant
   - categories/food
+  - categories/other
   # - process/step_type
   # - process/process_template
   # - ui/fragment_binding

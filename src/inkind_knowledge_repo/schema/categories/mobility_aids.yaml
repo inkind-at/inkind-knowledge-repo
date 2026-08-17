@@ -3,47 +3,17 @@ id: https://inkind-at.github.io/inkind-knowledge-repo/categories/mobility_aids
 name: mobility_aids
 title: Mobility Aids & Assistive Devices Category Schema
 description: >-
-  Defines MobilityAidsCategory mixin applied to MobilityAidsItem.
+  Defines MobilityAidsCategory mixin applied to MobilityAidsItem. COICOP
+  Division 06.1.3 (other medical products) and 06.2 (durable medical
+  equipment). Open Eligibility "Assistive Technology" top-level category.
+  Ontology grounding: Product Types Ontology (pto:Assistive_technology and
+  per-subcategory IRIs).
 
-  COICOP alignment:
-    Division 06.1.3 — other medical products (assistive devices, orthotic
-    appliances, medical equipment for home use)
-    Division 06.2 — outpatient services (durable medical equipment)
-    https://unstats.un.org/unsd/classifications/Family/Detail/2094
-
-  Open Eligibility taxonomy:
-    "Assistive Technology" — a top-level goods category distinct from
-    general medical supplies:
-    https://company.auntbertha.com/openeligibility/
-
-  Ontology grounding:
-    Product Types Ontology — pto:Assistive_technology, pto:Wheelchair,
-    pto:Crutch, pto:Walking_frame, pto:Hearing_aid, pto:Orthopedic_equipment,
-    pto:Augmentative_and_alternative_communication
-      http://www.productontology.org/id/Assistive_technology
-
-  Assessment model rationale:
-    Uses MobilityAssessmentEnum (structured safety and hygiene assessment)
-    instead of separate boolean structural_integrity + functional_status slots.
-    Rationale:
-      - Structural soundness is safety-critical (wheelchairs, crutches must
-        not fail under load)
-      - Body-contact items (hearing aids, orthotics) require hygiene
-        assessment independent of structural soundness
-      - A single unified enum captures all three dimensions (structural,
-        functional, hygiene) without requiring the sorter to navigate
-        multiple boolean fields
-      - The former annotation-driven approach (structural_check_subcategories)
-        was opaque to linkml-validate and the fragment compiler
-
-    assessment_result required regardless of usage because new mobility aids
-    can have manufacturing defects — a new wheelchair with a defective wheel
-    lock is dangerous regardless of never having been used.
-
-  Completeness tiers:
-    minimal:  subcategory, assessment_result
-    standard: subcategory, assessment_result, usage
-    detailed: subcategory, assessment_result, usage
+  Uses MobilityAssessmentEnum (structural + functional + hygiene in one
+  vocabulary) instead of separate boolean slots — captures that
+  body-contact items (hearing aids, orthotics) need hygiene assessment
+  independent of structural soundness. assessment_result required
+  regardless of usage since new items can have manufacturing defects.
 
 license: MIT
 see_also:
@@ -62,6 +32,7 @@ default_range: string
 imports:
   - linkml:types
   - ./_base
+  - ./_context_rules
 
 
 classes:
@@ -72,24 +43,45 @@ classes:
     description: >-
       Mixin for mobility aids and assistive device slots and UC rules.
       Applied to MobilityAidsItem via mixins: [MobilityAidsCategory].
-      Uses MobilityAssessmentEnum — see schema description for rationale.
-      assessment_result required regardless of usage.
+      assessment_result and its UC rules live on MobilityAssessmentMixin
+      (below) so DemandSignal can dispatch to this bare mixin without
+      assessment content that only applies to a physical item in hand.
     see_also:
       - http://www.productontology.org/id/Assistive_technology
       - https://company.auntbertha.com/openeligibility/
     slots:
       - subcategory
-      - assessment_result
     slot_usage:
       subcategory:
         range: MobilityAidsSubcategoryEnum
         required: true
+    annotations:
+      completeness_minimal:  "subcategory"
+      completeness_standard: "subcategory, usage"
+      completeness_detailed: "subcategory, usage"
+      coicop_divisions: "06.1.3, 06.2"
+      open_eligibility_category: "Assistive Technology"
+      label_en: "Mobility Aids and Assistive Devices"
+      label_de: "Mobilitätshilfen und Hilfsgeräte"
+      aliases_en: ["mobility aids", "assistive devices"]
+      aliases_de: ["Mobilitätshilfen", "Hilfsgeräte"]
+
+  MobilityAssessmentMixin:
+    mixin: true
+    is_a: MobilityAidsCategory
+    mixins: [MobilityAidsContextRulesMixin]
+    description: >-
+      Shared physical-item dispatch target for Mobility Aids — used
+      identically by DonationItem, StorageCollection, and SortedCollection.
+      Adds assessment_result and its UC rules on top of MobilityAidsCategory.
+      Never used by DemandSignal.
+    slots:
+      - assessment_result
+    slot_usage:
       assessment_result:
         range: MobilityAssessmentEnum
         required: false
-        description: >-
-          Safety and hygiene assessment. Required regardless of usage —
-          new mobility aids can have manufacturing defects.
+        description: Safety and hygiene assessment. Required regardless of usage.
     annotations:
       completeness_minimal:  "subcategory, assessment_result"
       completeness_standard: "subcategory, assessment_result, usage"
@@ -161,11 +153,10 @@ enums:
 
   MobilityAssessmentEnum:
     description: >-
-      Structured safety and hygiene assessment for mobility aids and assistive
-      devices. Unified vocabulary covering structural soundness, functional
-      state, and body-contact hygiene. Replaces former separate boolean
-      structural_integrity + functional_status slots.
-      Required at sorting regardless of usage.
+      Structured safety and hygiene assessment for mobility aids and
+      assistive devices, covering structural soundness, functional state,
+      and body-contact hygiene in one vocabulary. Required at sorting
+      regardless of usage.
     permissible_values:
       safe_to_redistribute:
         description: >-

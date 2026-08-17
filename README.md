@@ -29,7 +29,15 @@ There are several pre-defined command-recipes available.
 They are written for the command runner [just](https://github.com/casey/just/). To list all pre-defined commands, run `just` or `just --list`.
 
 
-Generate ui descriptor file:
+Generate UI descriptor files:
+
+The `generate-ui-descriptors` CLI command (registered via `[project.scripts]` in `pyproject.toml`) generates the full set of UI descriptor JSON files in one run — one file per root (`DonationItem`, `StorageCollection`, `SortedCollection`, `DemandSignal`) plus one shared file per category dispatch target (bare Tier 1 and physical-item variants), plus merged `labels-en.json`/`labels-de.json`:
+```bash
+uv run generate-ui-descriptors src/inkind_knowledge_repo/schema/inkind_knowledge_repo.yaml examples/output/
+```
+Pass `--roots` to generate a subset, e.g. `--roots DonationItem`.
+
+Running the test suite also regenerates `examples/output/` as a side effect, via `generate_all_ui_descriptors()`:
 ```bash
 pytest tests/test_ui_descriptor.py
 ```
