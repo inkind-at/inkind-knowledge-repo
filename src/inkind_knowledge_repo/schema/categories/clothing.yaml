@@ -292,8 +292,11 @@ classes:
                 - equals_string: child_116
                 - equals_string: child_122
                 - equals_string: child_128
+                - equals_string: child_134
                 - equals_string: child_140
+                - equals_string: child_146
                 - equals_string: child_152
+                - equals_string: child_158
                 - equals_string: child_164
                 - equals_string: child_170  
       - title: vm-size-adult
@@ -599,9 +602,9 @@ enums:
           Standard underwear → all_season / is_winter_suitable=true (base layer).
         annotations:
           label_en: "Underwear"
-          label_de: "Unterhose"
+          label_de: "Unterwäsche"
           aliases_en: ["Underwear", "Undies", "Panties", "Bras"]
-          aliases_de: ["Unterhose", "Unterhosen", "BH", "BHs"]
+          aliases_de: ["Unterhose", "Unterhosen", "BH", "BHs", "Unterwäsche"]
       nightwear:
         description: >-
           Pyjamas, nightgowns, dressing gowns, sleep sets.
@@ -771,9 +774,12 @@ enums:
       child_116:   {description: "Child 111-116. Age 5-6 years.", annotations: {label_en: "116", label_de: "116"}}
       child_122:   {description: "Child 117-122. Age 6-7 years.", annotations: {label_en: "122", label_de: "122"}}
       child_128:   {description: "Child 123-128. Age 7-8 years.", annotations: {label_en: "128", label_de: "128"}}
-      child_140:   {description: "Child 129-140. Age 8-10 years.", annotations: {label_en: "140", label_de: "140"}}
-      child_152:   {description: "Child 141-152. Age 10-12 years.", annotations: {label_en: "152", label_de: "152"}}
-      child_164:   {description: "Child 153-164. Age 12-14 years.", annotations: {label_en: "164", label_de: "164"}}
+      child_134:   {description: "Child 129-134. Age 8-9 years.", annotations: {label_en: "134", label_de: "134"}}
+      child_140:   {description: "Child 135-140. Age 9-10 years.", annotations: {label_en: "140", label_de: "140"}}
+      child_146:   {description: "Child 141-146. Age 10-11 years.", annotations: {label_en: "146", label_de: "146"}}
+      child_152:   {description: "Child 147-152. Age 11-12 years.", annotations: {label_en: "152", label_de: "152"}}
+      child_158:   {description: "Child 153-158. Age 12-13 years.", annotations: {label_en: "158", label_de: "158"}}
+      child_164:   {description: "Child 159-164. Age 13-14 years.", annotations: {label_en: "164", label_de: "164"}}
       child_170:   {description: "Child 165-170. Age 14-16 years.", annotations: {label_en: "170", label_de: "170"}}
       size_xs:        {description: "Adult Extra Small", annotations: {label_en: "XS", label_de: "XS"}}
       size_s:         {description: "Adult Small", annotations: {label_en: "S", label_de: "S"}}
