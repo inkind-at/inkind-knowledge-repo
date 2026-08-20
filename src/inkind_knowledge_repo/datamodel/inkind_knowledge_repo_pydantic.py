@@ -2124,9 +2124,9 @@ class FoodTypeEnum(str, Enum):
     """
     Bottled or packaged drinks (non-alcoholic).
     """
-    confectionery_sweets = "confectionery_sweets"
+    snacks_confectionery = "snacks_confectionery"
     """
-    Chocolate, sweets, candy, and desserts. Storage: ambient.
+    Sweet snacks (chocolate, sweets, candy, desserts) and savory snacks (crisps/chips, pretzels, popcorn, savory crackers, salted nuts). Merged into one bucket following DACH retail/food-bank sorting practice, where sweet and savory snacks share one shelf ("Süß & Salzig"). Storage: ambient.
     """
     ready_meals = "ready_meals"
     """
@@ -2205,6 +2205,36 @@ class UrgencyTierEnum(str, Enum):
     critical = "critical"
     """
     Critical — immediate fulfilment required.
+    """
+
+
+class HouseholdSituationEnum(str, Enum):
+    """
+    Household composition classification for a demand signal.
+    """
+    single_adult = "single_adult"
+    """
+    Single adult household.
+    """
+    couple_no_children = "couple_no_children"
+    """
+    Couple without children.
+    """
+    single_parent = "single_parent"
+    """
+    Single parent with one or more children.
+    """
+    family_with_children = "family_with_children"
+    """
+    Family with two parents/carers and one or more children.
+    """
+    multigenerational = "multigenerational"
+    """
+    Household spanning multiple generations.
+    """
+    other = "other"
+    """
+    Household composition not covered by the above.
     """
 
 
@@ -2507,7 +2537,6 @@ class FoodCategory(ConfiguredBaseModel):
                                                             'net_content_unit, usage'},
                          'completeness_minimal': {'tag': 'completeness_minimal',
                                                   'value': 'subcategory, '
-                                                           'packaging_intact, '
                                                            'storage_requirement'},
                          'completeness_standard': {'tag': 'completeness_standard',
                                                    'value': 'subcategory, '
@@ -2519,7 +2548,27 @@ class FoodCategory(ConfiguredBaseModel):
                          'phase': {'tag': 'phase', 'value': 'Phase 1 stub'}},
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/categories/food',
          'mixin': True,
-         'rules': [{'description': 'Perishable items with compromised packaging must '
+         'rules': [{'description': 'packaging_intact required, except for '
+                                   'subcategories commonly donated without commercial '
+                                   'packaging: bread_bakery (loose bakery excess), '
+                                   'fruit_vegetables (loose fresh produce), and '
+                                   "meat_fish (butcher-paper wrapping isn't "
+                                   'tamper-evident commercial packaging either). '
+                                   'Forcing an answer for these risks a sorter '
+                                   'recording packaging_intact=false for a genuinely '
+                                   'unpackaged item, which would incorrectly trigger '
+                                   'uc-packaging-perishable-block. No lifecycle_state '
+                                   'precondition — FoodCategory is shared with '
+                                   'DemandSignal, which has no lifecycle_state slot.',
+                    'postconditions': {'slot_conditions': {'packaging_intact': {'name': 'packaging_intact',
+                                                                                'required': True}}},
+                    'preconditions': {'slot_conditions': {'subcategory': {'name': 'subcategory',
+                                                                          'none_of': [{'equals_string': 'bread_bakery'},
+                                                                                      {'equals_string': 'fruit_vegetables'},
+                                                                                      {'equals_string': 'meat_fish'},
+                                                                                      {'equals_string': 'other'}]}}},
+                    'title': 'lc-food-packaging-intact-required'},
+                   {'description': 'Perishable items with compromised packaging must '
                                    'not be redistributed. Food safety principle — '
                                    'perishable items cannot be safely redistributed '
                                    'once packaging integrity is lost. action: block.',
@@ -2604,13 +2653,13 @@ class FoodCategory(ConfiguredBaseModel):
                     'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'beverages',
                                                                           'name': 'subcategory'}}},
                     'title': 'vm-storage-beverages'},
-                   {'description': 'Confectionery and sweets are shelf-stable — '
+                   {'description': 'Snacks and confectionery are shelf-stable — '
                                    'ambient storage only.',
                     'postconditions': {'slot_conditions': {'storage_requirement': {'equals_string': 'ambient',
                                                                                    'name': 'storage_requirement'}}},
-                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'confectionery_sweets',
+                    'preconditions': {'slot_conditions': {'subcategory': {'equals_string': 'snacks_confectionery',
                                                                           'name': 'subcategory'}}},
-                    'title': 'vm-storage-confectionery-sweets'},
+                    'title': 'vm-storage-snacks-confectionery'},
                    {'description': 'Condiments are stored ambient or refrigerated '
                                    '(once opened).',
                     'postconditions': {'slot_conditions': {'storage_requirement': {'any_of': [{'equals_string': 'ambient'},
@@ -2700,7 +2749,7 @@ class FoodCategory(ConfiguredBaseModel):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
@@ -3161,7 +3210,7 @@ class FoodPhysicalItemMixin(FoodContextRulesMixin, FoodCategory):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
@@ -3363,7 +3412,7 @@ class FoodItem(DonationItem, FoodContextRulesMixin, FoodCategory):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
@@ -3579,7 +3628,10 @@ class DemandSignal(ConfiguredBaseModel):
     category's range is BaseCategoryEnum (core.yaml) — dispatch_to resolves to the bare Tier 1 category mixin only, since a demand signal describes what's wanted, not a physical item in hand: assessment_result and lifecycle_state-gated visibility never apply here.
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'completeness_minimal': {'tag': 'completeness_minimal',
-                                                  'value': 'category'}},
+                                                  'value': 'category'},
+                         'completeness_standard': {'tag': 'completeness_standard',
+                                                   'value': 'urgency_tier, '
+                                                            'household_situation'}},
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/demand_signal',
          'see_also': ['schema:Demand'],
          'slot_usage': {'category': {'name': 'category',
@@ -3616,20 +3668,13 @@ class DemandSignal(ConfiguredBaseModel):
                        'DemandSignal'],
          'see_also': ['openeligibility:ServiceTag'],
          'slot_uri': 'schema:additionalType'} })
-    quantity_requested: Optional[int] = Field(default=None, description="""Target quantity.  Null = any amount welcome (standing signals have no target).""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    quantity_fulfilled: int = Field(default=..., description="""Items matched to this signal — derived at runtime.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    campaign: Optional[str] = Field(default=None, description="""FK to Campaign — set only for `campaign` signal_type.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    holder: Optional[str] = Field(default=None, description="""FK reference to Beneficiary or SocialOrganisation — used for `specific` signal_type.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    context_note: Optional[str] = Field(default=None, description="""Human-readable context note, e.g. \"Back to school for 30 primary school children\".""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    deadline: Optional[date] = Field(default=None, description="""Deadline for fulfilment.  Null for standing signals.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
     urgency_tier: Optional[UrgencyTierEnum] = Field(default=None, description="""Urgency classification.  Null for standing signals; set for campaign and specific types.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal'], 'see_also': ['openeligibility:HumanSituation']} })
+    household_situation: Optional[HouseholdSituationEnum] = Field(default=None, description="""Household composition of the beneficiary/holder this signal concerns — informs suitability of matched items.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
     lifecycle_state: DemandSignalLifecycleEnum = Field(default=..., description="""Current lifecycle state of the entity. Concrete enum range applied via slot_usage. Transitions enforced by Django model clean().""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource',
                        'DonationCollection',
                        'DonationItem',
                        'DemandSignal',
                        'Campaign']} })
-    registered_at: datetime  = Field(default=..., description="""Timestamp when this demand signal was registered.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
-    public_visibility: bool = Field(default=..., description="""Whether to expose this signal on the public API and Donor Portal.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
 
 
 class Campaign(ConfiguredBaseModel):

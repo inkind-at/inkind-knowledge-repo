@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-08-14T11:09:56
+# Generation date: 2026-08-20T22:13:43
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -376,7 +376,7 @@ class StorageLocation(YAMLRoot):
     is_active: Union[bool, Bool] = None
     parent: Optional[Union[str, StorageLocationId]] = None
     capacity: Optional[int] = None
-    category_affinity: Optional[Union[str, "CategoryEnum"]] = None
+    category_affinity: Optional[Union[str, "BaseCategoryEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -410,8 +410,8 @@ class StorageLocation(YAMLRoot):
         if self.capacity is not None and not isinstance(self.capacity, int):
             self.capacity = int(self.capacity)
 
-        if self.category_affinity is not None and not isinstance(self.category_affinity, CategoryEnum):
-            self.category_affinity = CategoryEnum(self.category_affinity)
+        if self.category_affinity is not None and not isinstance(self.category_affinity, BaseCategoryEnum):
+            self.category_affinity = BaseCategoryEnum(self.category_affinity)
 
         super().__post_init__(**kwargs)
 
@@ -561,15 +561,10 @@ class DonationCollection(YAMLRoot):
 class DonationItem(YAMLRoot):
     """
     Abstract base for all donation items. Never instantiated directly.
-    The category slot carries designates_type: true — its value (the class URI of the concrete subclass) selects which
-    subclass schema applies. This is the LinkML mechanism for a discriminated union: category IS the type, not an
-    attribute of the item. Grounded in schema:Product.
-    attribute_completeness is set by the fragment engine when the sorting episode completes. It records data quality —
-    NOT whether the episode was complete (lifecycle_state = sorted records that). See AttributeCompletenessEnum in
-    core.yaml for the full rationale.
-    The lifecycle state machine is documented in ItemLifecycleStateEnum in core.yaml. Transitions are enforced by
-    Django model clean(). The sorting_in_progress state prevents concurrent editing of the same item by two sorters
-    simultaneously.
+    attribute_completeness is set by the fragment engine when a sorting episode completes; it records data quality,
+    not episode completion (lifecycle_state = sorted records that — see AttributeCompletenessEnum in core.yaml).
+    Lifecycle state machine is documented in ItemLifecycleStateEnum (core.yaml). Transitions are enforced by Django
+    model clean(); the sorting_in_progress state prevents concurrent edits by two sorters.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -580,7 +575,7 @@ class DonationItem(YAMLRoot):
 
     id: Union[str, DonationItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -603,7 +598,8 @@ class DonationItem(YAMLRoot):
 
         if self._is_empty(self.category):
             self.MissingRequiredField("category")
-        self.category = str(self.class_name)
+        if not isinstance(self.category, SortingCategoryEnum):
+            self.category = SortingCategoryEnum(self.category)
 
         if self._is_empty(self.lifecycle_state):
             self.MissingRequiredField("lifecycle_state")
@@ -636,41 +632,13 @@ class DonationItem(YAMLRoot):
             self.source_collection = DonationCollectionId(self.source_collection)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
-
-
-    def __new__(cls, *args, **kwargs):
-
-        type_designator = "category"
-        if not type_designator in kwargs:
-            return super().__new__(cls,*args,**kwargs)
-        else:
-            type_designator_value = kwargs[type_designator]
-            target_cls = cls._class_for("class_name", type_designator_value)
-
-
-            if target_cls is None:
-                raise ValueError(f"Wrong type designator value: class {cls.__name__} "
-                                 f"has no subclass with ['class_name']='{kwargs[type_designator]}'")
-            return super().__new__(target_cls,*args,**kwargs)
-
 
 
 @dataclass(repr=False)
 class ClothingItem(DonationItem):
     """
-    Clothing garments: tops, bottoms, outerwear, underwear, nightwear, sportswear. COICOP 03.1 (clothing). Grounded in
-    CPI (Clothing Product Information ontology):
-    http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
-
-    Assessment: condition_grade (wear grade). The demographic→size value map and all UC rules (underwear condition,
-    adult underwear must be new) are defined in ClothingCategory (categories/clothing.yaml).
-    Lifecycle-aware rules here:
-    lc-sorted-clothing-condition-grade-required
-    lc-sorted-clothing-demographic-required
-    lc-sorted-clothing-size-required
+    Clothing garments: tops, bottoms, outerwear, underwear, nightwear, sportswear. COICOP 03.1. Assessment:
+    condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -681,7 +649,7 @@ class ClothingItem(DonationItem):
 
     id: Union[str, ClothingItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -739,26 +707,14 @@ class ClothingItem(DonationItem):
             self.intact_labels = Bool(self.intact_labels)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class AccessoriesItem(DonationItem):
     """
-    Fashion and personal accessories: hats, scarves, gloves, belts, bags, jewellery, sunglasses, watches. COICOP 03.1
-    (grouped with clothing by COICOP; separated here for progressive UI disclosure and schema clarity).
-    Separated from ClothingItem because:
-    - No demographic→size value map — accessories are not sized XS-XXL
-    - Clothing UC rules (underwear condition) do not apply
-    - Progressive disclosure: "clothing or accessory?" is a clean first
-    branch in the sorting UI
-    - AccessoriesDemographicEnum uses a simpler age-only vocabulary
-    (baby/child/adult/all_ages) — gender is not meaningful for most
-    accessories
-
-    Assessment: condition_grade (wear grade).
+    Fashion and personal accessories: hats, scarves, gloves, belts, bags, jewellery, sunglasses, watches. COICOP 03.1,
+    grouped with clothing but kept separate here — no demographic→size value map, no clothing UC rules, simpler
+    age-only AccessoriesDemographicEnum. Assessment: condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -769,7 +725,7 @@ class AccessoriesItem(DonationItem):
 
     id: Union[str, AccessoriesItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -799,18 +755,13 @@ class AccessoriesItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class FootwearItem(DonationItem):
     """
-    Footwear: shoes, boots, sandals, slippers. COICOP 03.2 (footwear). Separated from ClothingItem because:
-    - Shoe sizing systems (EU/UK/US/CM) differ from clothing sizes
-    - Pair-completeness is a footwear-specific assessment concern
-    Assessment: condition_grade (wear grade).
+    Footwear: shoes, boots, sandals, slippers. COICOP 03.2. Separated from ClothingItem for shoe-specific sizing
+    (EU/UK/US/CM) and pair completeness. Assessment: condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -821,7 +772,7 @@ class FootwearItem(DonationItem):
 
     id: Union[str, FootwearItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -872,22 +823,15 @@ class FootwearItem(DonationItem):
         self.season = [v if isinstance(v, SeasonEnum) else SeasonEnum(v) for v in self.season]
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class FurnitureItem(DonationItem):
     """
-    Structural furniture: chairs, tables, beds, wardrobes, shelving. COICOP 05.1 (furniture and furnishings). Grounded
-    in Product Types Ontology:
-    http://www.productontology.org/id/Furniture
-
-    Assessment: FurnitureAssessmentEnum (structured structural assessment). Structural soundness is the primary
-    redistribution signal for furniture — a scratched but solid chair is redistributable; a wobbly but clean one is
-    not. assessment_result required regardless of usage because new flatpack furniture can have manufacturing defects
-    or assembly issues.
+    Structural furniture: chairs, tables, beds, wardrobes, shelving. COICOP 05.1. Assessment: FurnitureAssessmentEnum
+    — structural soundness is the primary redistribution signal (a scratched but solid chair is redistributable; a
+    wobbly but clean one is not). assessment_result required regardless of usage since flatpack furniture can have
+    assembly/manufacturing defects.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -898,15 +842,15 @@ class FurnitureItem(DonationItem):
 
     id: Union[str, FurnitureItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
     material: Optional[Union[str, "FurnitureMaterialEnum"]] = None
-    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
     dimensions: Optional[str] = None
     style: Optional[str] = None
+    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -922,35 +866,25 @@ class FurnitureItem(DonationItem):
         if self.material is not None and not isinstance(self.material, FurnitureMaterialEnum):
             self.material = FurnitureMaterialEnum(self.material)
 
-        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
-            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
-
         if self.dimensions is not None and not isinstance(self.dimensions, str):
             self.dimensions = str(self.dimensions)
 
         if self.style is not None and not isinstance(self.style, str):
             self.style = str(self.style)
 
+        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
+            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
+
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class BeddingTextilesItem(DonationItem):
     """
     Bedding and household textiles: blankets, duvets, mattresses, pillows, sleeping bags, towels, curtains. COICOP
-    05.2 (household textiles).
-    Separated from HouseholdItem following COICOP 05.2 and UNHCR NFI kit standards, which list blankets and sleeping
-    mats as core relief items at the same priority level as clothing — not incidental household goods. The hygiene
-    assessment vocabulary (BeddingAssessmentEnum) also differs fundamentally from household item wear grading.
-    Assessment: BeddingAssessmentEnum (hygiene and condition assessment). Hygiene state is the primary redistribution
-    signal for bedding — a worn but clean blanket is redistributable; a visually intact but stained mattress is not.
-    assessment_result required regardless of usage because new items may have packaging damage or factory soiling.
-    UNHCR NFI standards reference:
-    https://emergency.unhcr.org/emergency-assistance/core-relief-items/
-    kind-non-food-item-distribution
+    05.2. Separated from HouseholdItem — UNHCR NFI standards list blankets/sleeping mats as core relief items, and
+    hygiene assessment differs from wear grading. Assessment: BeddingAssessmentEnum (hygiene primary signal — a worn
+    but clean blanket is redistributable, a stained mattress is not). assessment_result required regardless of usage.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -961,15 +895,15 @@ class BeddingTextilesItem(DonationItem):
 
     id: Union[str, BeddingTextilesItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
     material: Optional[Union[str, "BeddingMaterialEnum"]] = None
-    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
+    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -985,28 +919,24 @@ class BeddingTextilesItem(DonationItem):
         if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
             self.material = BeddingMaterialEnum(self.material)
 
-        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
-            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
-
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
 
         if self.is_winter_suitable is not None and not isinstance(self.is_winter_suitable, Bool):
             self.is_winter_suitable = Bool(self.is_winter_suitable)
 
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
+            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
+
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class HouseholdItem(DonationItem):
     """
     Household and kitchen goods: cookware, crockery, small appliances, cleaning tools, home decor, garden tools.
-    COICOP 05.3 (household appliances), 05.4 (glassware, tableware, utensils), 05.5 (tools for house and garden).
-    Note: bedding and textiles (COICOP 05.2) are BeddingTextilesItem, not HouseholdItem — separated per COICOP
-    structure and UNHCR NFI practice. Assessment: condition_grade (wear grade).
+    COICOP 05.3–05.5. Bedding and textiles (05.2) are BeddingTextilesItem, not this class. Assessment: condition_grade
+    (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1017,7 +947,7 @@ class HouseholdItem(DonationItem):
 
     id: Union[str, HouseholdItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1047,22 +977,15 @@ class HouseholdItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class ElectronicsItem(DonationItem):
     """
-    Consumer electronics: phones, tablets, laptops, cameras, audio devices, cables, gaming consoles. COICOP 09.1
-    (audio-visual equipment) and 09.2.
-    Assessment: ElectronicsAssessmentEnum (functional and cosmetic state). Functional state is the primary
-    redistribution signal for electronics — a cracked-screen phone that works is more useful than a pristine one that
-    does not. assessment_result required regardless of usage because new devices can have factory defects or dead
-    batteries.
-    Data wiping is a process concern (fragment step in sort_electronics process path), not a schema constraint — it is
-    enforced by the fragment engine, not by a UC rule here.
+    Consumer electronics: phones, tablets, laptops, cameras, audio devices, cables, gaming consoles. COICOP 09.1–09.2.
+    Assessment: ElectronicsAssessmentEnum — functional state is the primary redistribution signal (a cracked-screen
+    phone that works beats a pristine one that doesn't). assessment_result required regardless of usage. Data wiping
+    is enforced by the fragment engine, not a schema rule.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1073,7 +996,7 @@ class ElectronicsItem(DonationItem):
 
     id: Union[str, ElectronicsItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1109,18 +1032,13 @@ class ElectronicsItem(DonationItem):
             self.includes_original_packaging = Bool(self.includes_original_packaging)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class ToysItem(DonationItem):
     """
-    Toys and games. COICOP 09.3 (games, toys, hobbies). Age grading follows EU Toy Safety Directive 2009/48/EC:
-    https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
-    UC rule for small parts choking hazard also references ASTM F963 (US standard) for completeness. Assessment:
-    condition_grade (wear grade).
+    Toys and games. COICOP 09.3. Age grading follows EU Toy Safety Directive 2009/48/EC; the small-parts
+    choking-hazard UC rule also references ASTM F963. Assessment: condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1131,7 +1049,7 @@ class ToysItem(DonationItem):
 
     id: Union[str, ToysItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1169,23 +1087,14 @@ class ToysItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class SportsItem(DonationItem):
     """
-    Sports and fitness equipment. COICOP 09.4 (sport and recreational equipment). Note: bicycles are placed here by
-    domain convention; COICOP assigns them to Division 07 (Transport). The domain decision reflects how social
-    organisations actually sort and store these items.
-    Dual-track assessment (defined in SportsCategory, categories/sports.yaml):
-    protective_gear subcategory → SportsProtectiveAssessmentEnum
-    Wear grade is insufficient for safety-critical items — structural
-    damage may not be visually apparent after impact (e.g. a cracked
-    helmet inner shell invisible under an intact outer shell).
-    all other subcategories → condition_grade (wear grade)
+    Sports and fitness equipment. COICOP 09.4. Bicycles are placed here by domain convention (COICOP assigns them to
+    Division 07). Dual-track assessment: protective_gear subcategory uses SportsProtectiveAssessmentEnum (wear grade
+    can't catch impact damage not visible under an intact shell); everything else uses condition_grade.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1196,17 +1105,17 @@ class SportsItem(DonationItem):
 
     id: Union[str, SportsItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "SportsSubcategoryEnum"] = None
     material: Optional[str] = None
-    assessment_result: Optional[Union[str, "SportsProtectiveAssessmentEnum"]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     sport_type: Optional[str] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
+    assessment_result: Optional[Union[str, "SportsProtectiveAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1222,9 +1131,6 @@ class SportsItem(DonationItem):
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
 
-        if self.assessment_result is not None and not isinstance(self.assessment_result, SportsProtectiveAssessmentEnum):
-            self.assessment_result = SportsProtectiveAssessmentEnum(self.assessment_result)
-
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
@@ -1237,18 +1143,17 @@ class SportsItem(DonationItem):
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
 
+        if self.assessment_result is not None and not isinstance(self.assessment_result, SportsProtectiveAssessmentEnum):
+            self.assessment_result = SportsProtectiveAssessmentEnum(self.assessment_result)
+
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class BooksItem(DonationItem):
     """
-    Books and educational materials. COICOP 09.5 (newspapers, books, stationery). Grounded in schema:Book (schema.org
-    has a first-class Book type distinct from generic Product). No demographic or clothing-style size dimension —
-    age_range (BookAgeRangeEnum) is broader and non-gendered. Assessment: condition_grade (wear grade).
+    Books and educational materials. COICOP 09.5. No demographic/size dimension — age_range (BookAgeRangeEnum) is
+    broader and non-gendered. Assessment: condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1259,7 +1164,7 @@ class BooksItem(DonationItem):
 
     id: Union[str, BooksItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1293,18 +1198,13 @@ class BooksItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class StationeryItem(DonationItem):
     """
-    Stationery and office supplies: pens, notebooks, art supplies, calculators. COICOP 09.5 (newspapers, books,
-    stationery). Separated from BooksItem because published content (BooksItem) and consumable/office supplies have
-    different sorting paths, condition vocabularies (partially-used pens are not "poor condition books"), and demand
-    signal patterns (school supply drives vs. book donations). Assessment: condition_grade (wear grade).
+    Stationery and office supplies: pens, notebooks, art supplies, calculators. COICOP 09.5. Separated from BooksItem
+    — different sorting paths, condition vocabulary, and demand patterns. Assessment: condition_grade (wear grade).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1315,7 +1215,7 @@ class StationeryItem(DonationItem):
 
     id: Union[str, StationeryItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1345,24 +1245,14 @@ class StationeryItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class PersonalCareItem(DonationItem):
     """
-    Personal care, hygiene, and health products. Merges COICOP 06.1 (medical products and appliances) and 12.1
-    (personal care — toiletries, cosmetics, related appliances). Open Eligibility uses a single "Personal Care Items"
-    node for both:
-    https://company.auntbertha.com/openeligibility/
-
-    Merged because the operative safety rules are identical across both former categories: sealed required, used tools
-    blocked, expiry enforced. Splitting them would duplicate all three rules with no semantic benefit.
-    Assessment: is_sealed + expiry_date (no condition_grade or assessment_result). For personal care products, the
-    relevant safety signals are hygiene integrity (sealed?) and freshness (not expired?). A wear grade is meaningless
-    for a tube of toothpaste — it is either sealed or it is not.
+    Personal care, hygiene, and health products. Merges COICOP 06.1 and 12.1 — the operative safety rules (sealed
+    required, used tools blocked, expiry enforced) are identical across both. Assessment: is_sealed + expiry_date, no
+    condition_grade — a wear grade is meaningless for a tube of toothpaste.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1373,7 +1263,7 @@ class PersonalCareItem(DonationItem):
 
     id: Union[str, PersonalCareItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1411,23 +1301,14 @@ class PersonalCareItem(DonationItem):
             self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class MobilityAidsItem(DonationItem):
     """
     Mobility aids and assistive devices: wheelchairs, crutches, walking frames, hearing aids, orthotics, daily living
-    aids. COICOP 06.1.3 (other medical products) and 06.2 (outpatient services, durable medical equipment). Open
-    Eligibility "Assistive Technology" top-level category:
-    https://company.auntbertha.com/openeligibility/
-
-    Assessment: MobilityAssessmentEnum (structured safety and hygiene). A single enum captures structural soundness,
-    functional state, and body-contact hygiene (used hearing aids, orthotics) — replacing the former separate boolean
-    structural_integrity + functional_status slots that generated the problematic annotation-based approach.
-    assessment_result required regardless of usage — new mobility aids can have manufacturing defects.
+    aids. COICOP 06.1.3 and 06.2. Assessment: MobilityAssessmentEnum, capturing structural soundness, functional
+    state, and body-contact hygiene in one enum. assessment_result required regardless of usage.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1438,7 +1319,7 @@ class MobilityAidsItem(DonationItem):
 
     id: Union[str, MobilityAidsItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1464,35 +1345,19 @@ class MobilityAidsItem(DonationItem):
             self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class BabyInfantItem(DonationItem):
     """
     Baby and infant supplies: pushchairs, cots, car seats, infant formula, feeding bottles, baby monitors, bath
-    equipment. Baby clothing belongs in ClothingItem (demographic=baby).
-    COICOP distributes baby items across Division 03 (clothing), 05 (household), and 01 (food). Treated as a
-    first-class top-level category here following Open Eligibility "Baby Supplies" and UNHCR NFI kit practice (nappies
-    and formula are core NFI kit items):
-    https://company.auntbertha.com/openeligibility/
-    https://emergency.unhcr.org/emergency-assistance/core-relief-items/
-
-    Three-track assessment model (defined in BabyInfantCategory):
-    Track 1 — safety-critical equipment (BabyEquipmentAssessmentEnum):
-    pushchairs, cots, car seats, carriers, high chairs, sleeping bags.
-    EN 1888 (pushchairs), EN 716 (cots), EN 14344 (car seats),
-    EN 16781 (baby sleeping bags — neck/armhole openings, no loose
-    cords), all require structured provenance + structural assessment.
-    Baby sleeping bags are Track 1, NOT BeddingTextilesItem — the
-    EN 16781 safety check differs materially from adult sleeping bag
-    hygiene assessment.
-    Track 2 — consumables (is_sealed + expiry_date):
-    infant_formula, feeding_bottles_teats, baby_food.
-    Track 3 — general baby gear (condition_grade):
-    bath equipment, changing, monitors, bouncers.
+    equipment. Baby clothing belongs in ClothingItem (demographic=baby). Treated as a first-class category (COICOP
+    otherwise scatters these across Divisions 01/03/05), following Open Eligibility and UNHCR NFI kit practice.
+    Three-track assessment: Track 1 — safety-critical equipment (BabyEquipmentAssessmentEnum): pushchairs, cots, car
+    seats, carriers, high chairs, sleeping bags (EN 1888/716/14344/16781). Baby sleeping bags are Track 1, not
+    BeddingTextilesItem, since EN 16781 differs from adult sleeping-bag hygiene checks. Track 2 — consumables
+    (is_sealed + expiry_date): infant formula, feeding bottles/teats, baby food. Track 3 — general gear
+    (condition_grade): bath, changing, monitors, bouncers.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1503,13 +1368,12 @@ class BabyInfantItem(DonationItem):
 
     id: Union[str, BabyInfantItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
     subcategory: Union[str, "BabyInfantSubcategoryEnum"] = None
     material: Optional[str] = None
-    assessment_result: Optional[Union[str, "BabyEquipmentAssessmentEnum"]] = None
     manufacture_year: Optional[int] = None
     includes_original_accessories: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
@@ -1517,6 +1381,7 @@ class BabyInfantItem(DonationItem):
     expiry_date: Optional[Union[str, XSDDate]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     nappy_size: Optional[Union[str, "NappySizeEnum"]] = None
+    assessment_result: Optional[Union[str, "BabyEquipmentAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1531,9 +1396,6 @@ class BabyInfantItem(DonationItem):
 
         if self.material is not None and not isinstance(self.material, str):
             self.material = str(self.material)
-
-        if self.assessment_result is not None and not isinstance(self.assessment_result, BabyEquipmentAssessmentEnum):
-            self.assessment_result = BabyEquipmentAssessmentEnum(self.assessment_result)
 
         if self.manufacture_year is not None and not isinstance(self.manufacture_year, int):
             self.manufacture_year = int(self.manufacture_year)
@@ -1556,24 +1418,18 @@ class BabyInfantItem(DonationItem):
         if self.nappy_size is not None and not isinstance(self.nappy_size, NappySizeEnum):
             self.nappy_size = NappySizeEnum(self.nappy_size)
 
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BabyEquipmentAssessmentEnum):
+            self.assessment_result = BabyEquipmentAssessmentEnum(self.assessment_result)
+
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class FoodItem(DonationItem):
     """
-    Food donation item. COICOP Division 01 (food and non-alcoholic beverages). Grounded in FoodOn (OBO Foundry food
-    ontology):
-    http://purl.obolibrary.org/obo/foodon.owl
-
-    Phase 1 stub — fully declared to establish the schema; the sort_food process path is activated when food-bank
-    organisations are onboarded.
-    Assessment: packaging_intact + expiry_date (defined in FoodCategory). No condition_grade or assessment_result —
-    food safety is binary: packaging intact or not, expired or not. FoodCategory does not extend CategoryMixin for
-    this reason.
+    Food donation item. COICOP Division 01. Phase 1 stub — fully declared to establish the schema; the sort_food
+    process path activates once food-bank organisations are onboarded. Assessment: packaging_intact + expiry_date —
+    food safety is binary, no condition_grade.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1584,7 +1440,7 @@ class FoodItem(DonationItem):
 
     id: Union[str, FoodItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1626,17 +1482,15 @@ class FoodItem(DonationItem):
             self.net_content_unit = NetContentUnitEnum(self.net_content_unit)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
 class OtherItem(DonationItem):
     """
-    Catch-all for donation items not fitting any other category. No mixin — minimal slots only (item_description +
-    condition_grade). Use sparingly: if a new item type appears frequently in operations, it warrants a proper
-    subclass with a category mixin and dedicated sorting fragment rather than accumulating in OtherItem.
+    Catch-all for donation items not fitting any other category. Minimal slots only (item_description +
+    condition_grade), via OtherCategory (categories/other.yaml). Use sparingly: if a new item type appears frequently
+    in operations, it warrants a proper subclass with a category mixin and dedicated sorting fragment rather than
+    accumulating in OtherItem.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1647,7 +1501,7 @@ class OtherItem(DonationItem):
 
     id: Union[str, OtherItemId] = None
     usage: Union[str, "ItemUsageEnum"] = None
-    category: str = None
+    category: Union[str, "SortingCategoryEnum"] = None
     lifecycle_state: Union[str, "ItemLifecycleStateEnum"] = None
     created_at: Union[str, XSDDateTime] = None
     updated_at: Union[str, XSDDateTime] = None
@@ -1669,37 +1523,64 @@ class OtherItem(DonationItem):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
 
         super().__post_init__(**kwargs)
-        if self._is_empty(self.category):
-            self.MissingRequiredField("category")
-        self.category = str(self.class_name)
 
 
 @dataclass(repr=False)
-class AnyValue(YAMLRoot):
+class StorageCollection(YAMLRoot):
     """
-    Current workaround before proper attributes are introduced. Unconstrained value holder for schemaless JSON blobs.
-    Used for DemandSignal.attributes until the Phase 2 typed ItemAttributes refactor.
+    A physical donation item assigned to storage. Parallel to DonationItem but reached via a different lifecycle entry
+    point — items already sorted and stored, tracked here for stock/storage purposes.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
-    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["AnyValue"]
-    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:AnyValue"
-    class_name: ClassVar[str] = "AnyValue"
-    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.AnyValue
+    class_class_uri: ClassVar[URIRef] = SCHEMA["Product"]
+    class_class_curie: ClassVar[str] = "schema:Product"
+    class_name: ClassVar[str] = "StorageCollection"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.StorageCollection
 
-    subcategory: Optional[str] = None
-    demographic: Optional[Union[str, "DemographicEnum"]] = None
-    size: Optional[Union[str, "ClothingSizeEnum"]] = None
+    usage: Union[str, "ItemUsageEnum"] = None
+    category: Union[str, "BaseCategoryEnum"] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
-        if self.subcategory is not None and not isinstance(self.subcategory, str):
-            self.subcategory = str(self.subcategory)
+        if self._is_empty(self.usage):
+            self.MissingRequiredField("usage")
+        if not isinstance(self.usage, ItemUsageEnum):
+            self.usage = ItemUsageEnum(self.usage)
 
-        if self.demographic is not None and not isinstance(self.demographic, DemographicEnum):
-            self.demographic = DemographicEnum(self.demographic)
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        if not isinstance(self.category, BaseCategoryEnum):
+            self.category = BaseCategoryEnum(self.category)
 
-        if self.size is not None and not isinstance(self.size, ClothingSizeEnum):
-            self.size = ClothingSizeEnum(self.size)
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
+class SortedCollection(YAMLRoot):
+    """
+    A physical donation item that has completed sorting. Parallel to DonationItem and StorageCollection but reached
+    via a different lifecycle entry point.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = SCHEMA["Product"]
+    class_class_curie: ClassVar[str] = "schema:Product"
+    class_name: ClassVar[str] = "SortedCollection"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.SortedCollection
+
+    usage: Union[str, "ItemUsageEnum"] = None
+    category: Union[str, "SortingCategoryEnum"] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self._is_empty(self.usage):
+            self.MissingRequiredField("usage")
+        if not isinstance(self.usage, ItemUsageEnum):
+            self.usage = ItemUsageEnum(self.usage)
+
+        if self._is_empty(self.category):
+            self.MissingRequiredField("category")
+        if not isinstance(self.category, SortingCategoryEnum):
+            self.category = SortingCategoryEnum(self.category)
 
         super().__post_init__(**kwargs)
 
@@ -1709,6 +1590,9 @@ class DemandSignal(YAMLRoot):
     """
     A signal representing demand for a category of items. Covers standing interests, time-bounded campaigns, and
     specific beneficiary requests under a single unified model.
+    category's range is BaseCategoryEnum (core.yaml) — dispatch_to resolves to the bare Tier 1 category mixin only,
+    since a demand signal describes what's wanted, not a physical item in hand: assessment_result and
+    lifecycle_state-gated visibility never apply here.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1718,20 +1602,11 @@ class DemandSignal(YAMLRoot):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.DemandSignal
 
     id: Union[str, DemandSignalId] = None
-    org: Union[str, SocialOrganisationId] = None
-    signal_type: Union[str, "DemandSignalTypeEnum"] = None
-    category: Union[str, "CategoryEnum"] = None
-    quantity_fulfilled: int = None
+    category: Union[str, "BaseCategoryEnum"] = None
     lifecycle_state: Union[str, "DemandSignalLifecycleEnum"] = None
-    registered_at: Union[str, XSDDateTime] = None
-    public_visibility: Union[bool, Bool] = None
-    attributes: Optional[Union[dict, AnyValue]] = None
-    quantity_requested: Optional[int] = None
-    campaign: Optional[Union[str, CampaignId]] = None
-    holder: Optional[str] = None
-    context_note: Optional[str] = None
-    deadline: Optional[Union[str, XSDDate]] = None
+    org: Union[str, SocialOrganisationId] = None
     urgency_tier: Optional[Union[str, "UrgencyTierEnum"]] = None
+    household_situation: Optional[Union[str, "HouseholdSituationEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -1739,61 +1614,26 @@ class DemandSignal(YAMLRoot):
         if not isinstance(self.id, DemandSignalId):
             self.id = DemandSignalId(self.id)
 
-        if self._is_empty(self.org):
-            self.MissingRequiredField("org")
-        if not isinstance(self.org, SocialOrganisationId):
-            self.org = SocialOrganisationId(self.org)
-
-        if self._is_empty(self.signal_type):
-            self.MissingRequiredField("signal_type")
-        if not isinstance(self.signal_type, DemandSignalTypeEnum):
-            self.signal_type = DemandSignalTypeEnum(self.signal_type)
-
         if self._is_empty(self.category):
             self.MissingRequiredField("category")
-        if not isinstance(self.category, CategoryEnum):
-            self.category = CategoryEnum(self.category)
-
-        if self._is_empty(self.quantity_fulfilled):
-            self.MissingRequiredField("quantity_fulfilled")
-        if not isinstance(self.quantity_fulfilled, int):
-            self.quantity_fulfilled = int(self.quantity_fulfilled)
+        if not isinstance(self.category, BaseCategoryEnum):
+            self.category = BaseCategoryEnum(self.category)
 
         if self._is_empty(self.lifecycle_state):
             self.MissingRequiredField("lifecycle_state")
         if not isinstance(self.lifecycle_state, DemandSignalLifecycleEnum):
             self.lifecycle_state = DemandSignalLifecycleEnum(self.lifecycle_state)
 
-        if self._is_empty(self.registered_at):
-            self.MissingRequiredField("registered_at")
-        if not isinstance(self.registered_at, XSDDateTime):
-            self.registered_at = XSDDateTime(self.registered_at)
-
-        if self._is_empty(self.public_visibility):
-            self.MissingRequiredField("public_visibility")
-        if not isinstance(self.public_visibility, Bool):
-            self.public_visibility = Bool(self.public_visibility)
-
-        if self.attributes is not None and not isinstance(self.attributes, AnyValue):
-            self.attributes = AnyValue(**as_dict(self.attributes))
-
-        if self.quantity_requested is not None and not isinstance(self.quantity_requested, int):
-            self.quantity_requested = int(self.quantity_requested)
-
-        if self.campaign is not None and not isinstance(self.campaign, CampaignId):
-            self.campaign = CampaignId(self.campaign)
-
-        if self.holder is not None and not isinstance(self.holder, str):
-            self.holder = str(self.holder)
-
-        if self.context_note is not None and not isinstance(self.context_note, str):
-            self.context_note = str(self.context_note)
-
-        if self.deadline is not None and not isinstance(self.deadline, XSDDate):
-            self.deadline = XSDDate(self.deadline)
+        if self._is_empty(self.org):
+            self.MissingRequiredField("org")
+        if not isinstance(self.org, SocialOrganisationId):
+            self.org = SocialOrganisationId(self.org)
 
         if self.urgency_tier is not None and not isinstance(self.urgency_tier, UrgencyTierEnum):
             self.urgency_tier = UrgencyTierEnum(self.urgency_tier)
+
+        if self.household_situation is not None and not isinstance(self.household_situation, HouseholdSituationEnum):
+            self.household_situation = HouseholdSituationEnum(self.household_situation)
 
         super().__post_init__(**kwargs)
 
@@ -1868,14 +1708,8 @@ class Campaign(YAMLRoot):
 @dataclass(repr=False)
 class CategoryMixin(YAMLRoot):
     """
-    Abstract mixin base for all category classes except FoodCategory.
-    Provides shared slots (material) available to all categories. Does NOT declare a condition rule — each category
-    type handles condition differently (see schema description above for full rationale).
-    FoodCategory does not extend this mixin because food safety assessment uses packaging_intact + expiry_date rather
-    than condition_grade or assessment_result. Extending CategoryMixin would pull in slots that are semantically
-    incorrect for food items.
-    All other concrete category mixins extend CategoryMixin and declare their own condition approach (condition_grade
-    or assessment_result) along with category-specific slots, UC rules, VM rules, and completeness tier annotations.
+    Abstract mixin base for all category classes except FoodCategory (see schema description above for why). Provides
+    shared slots (material). Does not declare a condition rule — each category type handles condition differently.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1897,8 +1731,6 @@ class CategoryMixin(YAMLRoot):
 class AccessoriesCategory(CategoryMixin):
     """
     Mixin for fashion and personal accessories. Applied to AccessoriesItem via mixins: [AccessoriesCategory].
-    Deliberately simpler than ClothingCategory — no size dimension, no demographic→size value map, simpler demographic
-    vocabulary, no underwear UC rules. See schema description above for full rationale.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1931,15 +1763,26 @@ class AccessoriesCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class AccessoriesPhysicalItemMixin(AccessoriesCategory):
+    """
+    Shared physical-item dispatch target for the Accessories category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["AccessoriesPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:AccessoriesPhysicalItemMixin"
+    class_name: ClassVar[str] = "AccessoriesPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.AccessoriesPhysicalItemMixin
+
+    subcategory: Union[str, "AccessoriesSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class ClothingCategory(CategoryMixin):
     """
     Mixin carrying clothing-specific slots, value maps, and UC rules. Applied to ClothingItem via mixins:
-    [ClothingCategory]. Does NOT include accessories — see AccessoriesCategory (accessories.yaml).
-    Domain-level rules only (no lifecycle_state references). Lifecycle-aware rules (lc-*) live on ClothingItem in
-    donation_item.yaml because lifecycle_state is a DonationItem slot invisible to this mixin.
-    Value maps grounded in CPI ontology demographic and size vocabularies. Underwear UC constraints reflect real
-    social-sector hygiene policy. Seasonality: is_winter_suitable (boolean, standard tier) + season (SeasonEnum,
-    optional, detailed tier). See schema description above for the full design rationale.
+    [ClothingCategory]. Does NOT include accessories — see AccessoriesCategory (accessories.yaml). Domain-level rules
+    only; lifecycle-aware (lc-*) rules live in ClothingContextRulesMixin (categories/_context_rules.yaml).
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -1999,12 +1842,23 @@ class ClothingCategory(CategoryMixin):
         super().__post_init__(**kwargs)
 
 
+class ClothingPhysicalItemMixin(ClothingCategory):
+    """
+    Shared physical-item dispatch target for the Clothing category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ClothingPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ClothingPhysicalItemMixin"
+    class_name: ClassVar[str] = "ClothingPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ClothingPhysicalItemMixin
+
+
 @dataclass(repr=False)
 class FootwearCategory(CategoryMixin):
     """
-    Mixin for footwear slots and UC rules. Applied to FootwearItem via mixins: [FootwearCategory]. Uses shoe_size +
-    shoe_size_system instead of ClothingSizeEnum. Reuses DemographicEnum, is_winter_suitable, and SeasonEnum from
-    clothing.yaml. Same VM season auto-derivation rules apply.
+    Mixin for footwear slots and UC rules. Applied to FootwearItem via mixins: [FootwearCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2058,11 +1912,26 @@ class FootwearCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class FootwearPhysicalItemMixin(FootwearCategory):
+    """
+    Shared physical-item dispatch target for the Footwear category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FootwearPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FootwearPhysicalItemMixin"
+    class_name: ClassVar[str] = "FootwearPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FootwearPhysicalItemMixin
+
+    subcategory: Union[str, "FootwearSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class FurnitureCategory(CategoryMixin):
     """
     Mixin for furniture slots, value maps, and UC rules. Applied to FurnitureItem via mixins: [FurnitureCategory].
-    Uses FurnitureAssessmentEnum instead of condition_grade — see schema description above for the assessment model
-    rationale. assessment_result required regardless of usage.
+    assessment_result and its UC rules live on FurnitureAssessmentMixin (below) so DemandSignal can dispatch to this
+    bare mixin without assessment content that only applies to a physical item in hand.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2073,7 +1942,6 @@ class FurnitureCategory(CategoryMixin):
 
     subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
     material: Optional[Union[str, "FurnitureMaterialEnum"]] = None
-    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
     dimensions: Optional[str] = None
     style: Optional[str] = None
 
@@ -2086,9 +1954,6 @@ class FurnitureCategory(CategoryMixin):
         if self.material is not None and not isinstance(self.material, FurnitureMaterialEnum):
             self.material = FurnitureMaterialEnum(self.material)
 
-        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
-            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
-
         if self.dimensions is not None and not isinstance(self.dimensions, str):
             self.dimensions = str(self.dimensions)
 
@@ -2099,13 +1964,35 @@ class FurnitureCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class FurnitureAssessmentMixin(FurnitureCategory):
+    """
+    Shared physical-item dispatch target for Furniture — used identically by DonationItem, StorageCollection, and
+    SortedCollection. Adds assessment_result and its UC rules on top of FurnitureCategory. Never used by DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FurnitureAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FurnitureAssessmentMixin"
+    class_name: ClassVar[str] = "FurnitureAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FurnitureAssessmentMixin
+
+    subcategory: Union[str, "FurnitureSubcategoryEnum"] = None
+    assessment_result: Optional[Union[str, "FurnitureAssessmentEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self.assessment_result is not None and not isinstance(self.assessment_result, FurnitureAssessmentEnum):
+            self.assessment_result = FurnitureAssessmentEnum(self.assessment_result)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
 class BeddingTextilesCategory(CategoryMixin):
     """
     Mixin for bedding and textiles slots and UC rules. Applied to BeddingTextilesItem via mixins:
-    [BeddingTextilesCategory]. Split from HouseholdItem per COICOP 05.2 and UNHCR NFI standards. Uses
-    BeddingAssessmentEnum — hygiene is the primary redistribution signal. is_winter_suitable added for thermal weight
-    signal on blankets, duvets, and sleeping bags. SeasonEnum not declared — binary is sufficient for bedding. See
-    schema description for full rationale.
+    [BeddingTextilesCategory]. assessment_result and its hygiene UC rules live on BeddingAssessmentMixin (below) so
+    DemandSignal can dispatch to this bare mixin without assessment content that only applies to a physical item in
+    hand.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2116,7 +2003,6 @@ class BeddingTextilesCategory(CategoryMixin):
 
     subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
     material: Optional[Union[str, "BeddingMaterialEnum"]] = None
-    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
     is_set_complete: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
 
@@ -2129,9 +2015,6 @@ class BeddingTextilesCategory(CategoryMixin):
         if self.material is not None and not isinstance(self.material, BeddingMaterialEnum):
             self.material = BeddingMaterialEnum(self.material)
 
-        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
-            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
-
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
 
@@ -2142,10 +2025,33 @@ class BeddingTextilesCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class BeddingAssessmentMixin(BeddingTextilesCategory):
+    """
+    Shared physical-item dispatch target for Bedding and Textiles — used identically by DonationItem,
+    StorageCollection, and SortedCollection. Adds assessment_result and its UC rules on top of
+    BeddingTextilesCategory. Never used by DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BeddingAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BeddingAssessmentMixin"
+    class_name: ClassVar[str] = "BeddingAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BeddingAssessmentMixin
+
+    subcategory: Union[str, "BeddingTextilesSubcategoryEnum"] = None
+    assessment_result: Optional[Union[str, "BeddingAssessmentEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BeddingAssessmentEnum):
+            self.assessment_result = BeddingAssessmentEnum(self.assessment_result)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
 class HouseholdCategory(CategoryMixin):
     """
-    Mixin for household and kitchen goods slots. Applied to HouseholdItem via mixins: [HouseholdCategory]. COICOP
-    05.3-05.5. Bedding/textiles (COICOP 05.2) are in BeddingTextilesCategory — not here.
+    Mixin for household and kitchen goods slots. Applied to HouseholdItem via mixins: [HouseholdCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2178,10 +2084,26 @@ class HouseholdCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class HouseholdPhysicalItemMixin(HouseholdCategory):
+    """
+    Shared physical-item dispatch target for the Household category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["HouseholdPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:HouseholdPhysicalItemMixin"
+    class_name: ClassVar[str] = "HouseholdPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.HouseholdPhysicalItemMixin
+
+    subcategory: Union[str, "HouseholdSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class ElectronicsCategory(CategoryMixin):
     """
-    Mixin for electronics slots and UC rules. Applied to ElectronicsItem via mixins: [ElectronicsCategory]. Uses
-    ElectronicsAssessmentEnum — see schema description for rationale. assessment_result required regardless of usage.
+    Mixin for electronics slots and UC rules. Applied to ElectronicsItem via mixins: [ElectronicsCategory].
+    assessment_result and its UC rule live on ElectronicsAssessmentMixin (below) so DemandSignal can dispatch to this
+    bare mixin without assessment content that only applies to a physical item in hand.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2191,7 +2113,6 @@ class ElectronicsCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ElectronicsCategory
 
     subcategory: Union[str, "ElectronicsSubcategoryEnum"] = None
-    assessment_result: Union[str, "ElectronicsAssessmentEnum"] = None
     includes_charger: Optional[Union[bool, Bool]] = None
     includes_original_packaging: Optional[Union[bool, Bool]] = None
 
@@ -2200,11 +2121,6 @@ class ElectronicsCategory(CategoryMixin):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, ElectronicsSubcategoryEnum):
             self.subcategory = ElectronicsSubcategoryEnum(self.subcategory)
-
-        if self._is_empty(self.assessment_result):
-            self.MissingRequiredField("assessment_result")
-        if not isinstance(self.assessment_result, ElectronicsAssessmentEnum):
-            self.assessment_result = ElectronicsAssessmentEnum(self.assessment_result)
 
         if self.includes_charger is not None and not isinstance(self.includes_charger, Bool):
             self.includes_charger = Bool(self.includes_charger)
@@ -2216,11 +2132,35 @@ class ElectronicsCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class ElectronicsAssessmentMixin(ElectronicsCategory):
+    """
+    Shared physical-item dispatch target for Electronics — used identically by DonationItem, StorageCollection, and
+    SortedCollection. Adds assessment_result and its UC rule on top of ElectronicsCategory. Never used by
+    DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ElectronicsAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ElectronicsAssessmentMixin"
+    class_name: ClassVar[str] = "ElectronicsAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ElectronicsAssessmentMixin
+
+    subcategory: Union[str, "ElectronicsSubcategoryEnum"] = None
+    assessment_result: Union[str, "ElectronicsAssessmentEnum"] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self._is_empty(self.assessment_result):
+            self.MissingRequiredField("assessment_result")
+        if not isinstance(self.assessment_result, ElectronicsAssessmentEnum):
+            self.assessment_result = ElectronicsAssessmentEnum(self.assessment_result)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
 class ToysCategory(CategoryMixin):
     """
-    Mixin for toys and games slots and UC rules. Applied to ToysItem via mixins: [ToysCategory]. Age grading follows
-    EU Toy Safety Directive 2009/48/EC. The small parts rule (uc-toys-small-parts-under3-block) directly implements
-    the Directive's choking hazard requirement.
+    Mixin for toys and games slots and UC rules. Applied to ToysItem via mixins: [ToysCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2261,11 +2201,27 @@ class ToysCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class ToysPhysicalItemMixin(ToysCategory):
+    """
+    Shared physical-item dispatch target for the Toys category, used identically by DonationItem, StorageCollection,
+    and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ToysPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ToysPhysicalItemMixin"
+    class_name: ClassVar[str] = "ToysPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ToysPhysicalItemMixin
+
+    subcategory: Union[str, "ToysSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class SportsCategory(CategoryMixin):
     """
-    Mixin for sports equipment slots and UC rules. Applied to SportsItem via mixins: [SportsCategory]. Dual-track
-    assessment: assessment_result for protective_gear, condition_grade for all other subcategories. See schema
-    description for full rationale.
+    Mixin for sports equipment slots and UC rules. Applied to SportsItem via mixins: [SportsCategory]. condition_grade
+    for general (non-protective-gear) subcategories lives here; assessment_result for protective_gear and its UC rules
+    live on SportsProtectiveAssessmentMixin (below), so DemandSignal can dispatch to this bare mixin without that
+    assessment content.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2275,7 +2231,6 @@ class SportsCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.SportsCategory
 
     subcategory: Union[str, "SportsSubcategoryEnum"] = None
-    assessment_result: Optional[Union[str, "SportsProtectiveAssessmentEnum"]] = None
     condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
     sport_type: Optional[str] = None
     demographic: Optional[Union[str, "DemographicEnum"]] = None
@@ -2286,9 +2241,6 @@ class SportsCategory(CategoryMixin):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, SportsSubcategoryEnum):
             self.subcategory = SportsSubcategoryEnum(self.subcategory)
-
-        if self.assessment_result is not None and not isinstance(self.assessment_result, SportsProtectiveAssessmentEnum):
-            self.assessment_result = SportsProtectiveAssessmentEnum(self.assessment_result)
 
         if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
             self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
@@ -2301,6 +2253,30 @@ class SportsCategory(CategoryMixin):
 
         if self.is_set_complete is not None and not isinstance(self.is_set_complete, Bool):
             self.is_set_complete = Bool(self.is_set_complete)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
+class SportsProtectiveAssessmentMixin(SportsCategory):
+    """
+    Shared physical-item dispatch target for Sports — used identically by DonationItem, StorageCollection, and
+    SortedCollection. Adds assessment_result (protective_gear only) and its UC rules on top of SportsCategory. Never
+    used by DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["SportsProtectiveAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:SportsProtectiveAssessmentMixin"
+    class_name: ClassVar[str] = "SportsProtectiveAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.SportsProtectiveAssessmentMixin
+
+    subcategory: Union[str, "SportsSubcategoryEnum"] = None
+    assessment_result: Optional[Union[str, "SportsProtectiveAssessmentEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self.assessment_result is not None and not isinstance(self.assessment_result, SportsProtectiveAssessmentEnum):
+            self.assessment_result = SportsProtectiveAssessmentEnum(self.assessment_result)
 
         super().__post_init__(**kwargs)
 
@@ -2342,11 +2318,24 @@ class BooksCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class BooksPhysicalItemMixin(BooksCategory):
+    """
+    Shared physical-item dispatch target for the Books category, used identically by DonationItem, StorageCollection,
+    and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BooksPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BooksPhysicalItemMixin"
+    class_name: ClassVar[str] = "BooksPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BooksPhysicalItemMixin
+
+    subcategory: Union[str, "BooksSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class StationeryCategory(CategoryMixin):
     """
-    Mixin for stationery and office supply slots. Applied to StationeryItem via mixins: [StationeryCategory]. No UC
-    block rules — condition_grade=poor captures unusable items. Sorters use good judgement for partially-used
-    consumables.
+    Mixin for stationery and office supply slots. Applied to StationeryItem via mixins: [StationeryCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2375,12 +2364,25 @@ class StationeryCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class StationeryPhysicalItemMixin(StationeryCategory):
+    """
+    Shared physical-item dispatch target for the Stationery category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["StationeryPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:StationeryPhysicalItemMixin"
+    class_name: ClassVar[str] = "StationeryPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.StationeryPhysicalItemMixin
+
+    subcategory: Union[str, "StationerySubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class PersonalCareCategory(CategoryMixin):
     """
     Mixin for personal care, hygiene, and health product slots and UC rules. Applied to PersonalCareItem via mixins:
-    [PersonalCareCategory]. Merges COICOP 06.1 and 12.1. See schema description for merge rationale. No
-    condition_grade or assessment_result — is_sealed + expiry_date are the complete assessment vocabulary. See schema
-    description.
+    [PersonalCareCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2417,11 +2419,26 @@ class PersonalCareCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class PersonalCarePhysicalItemMixin(PersonalCareCategory):
+    """
+    Shared physical-item dispatch target for the Personal Care category, used identically by DonationItem,
+    StorageCollection, and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["PersonalCarePhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:PersonalCarePhysicalItemMixin"
+    class_name: ClassVar[str] = "PersonalCarePhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.PersonalCarePhysicalItemMixin
+
+    subcategory: Union[str, "PersonalCareSubcategoryEnum"] = None
+
+@dataclass(repr=False)
 class MobilityAidsCategory(CategoryMixin):
     """
     Mixin for mobility aids and assistive device slots and UC rules. Applied to MobilityAidsItem via mixins:
-    [MobilityAidsCategory]. Uses MobilityAssessmentEnum — see schema description for rationale. assessment_result
-    required regardless of usage.
+    [MobilityAidsCategory]. assessment_result and its UC rules live on MobilityAssessmentMixin (below) so DemandSignal
+    can dispatch to this bare mixin without assessment content that only applies to a physical item in hand.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2431,7 +2448,6 @@ class MobilityAidsCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.MobilityAidsCategory
 
     subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
-    assessment_result: Optional[Union[str, "MobilityAssessmentEnum"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.subcategory):
@@ -2439,6 +2455,27 @@ class MobilityAidsCategory(CategoryMixin):
         if not isinstance(self.subcategory, MobilityAidsSubcategoryEnum):
             self.subcategory = MobilityAidsSubcategoryEnum(self.subcategory)
 
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
+class MobilityAssessmentMixin(MobilityAidsCategory):
+    """
+    Shared physical-item dispatch target for Mobility Aids — used identically by DonationItem, StorageCollection, and
+    SortedCollection. Adds assessment_result and its UC rules on top of MobilityAidsCategory. Never used by
+    DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["MobilityAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:MobilityAssessmentMixin"
+    class_name: ClassVar[str] = "MobilityAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.MobilityAssessmentMixin
+
+    subcategory: Union[str, "MobilityAidsSubcategoryEnum"] = None
+    assessment_result: Optional[Union[str, "MobilityAssessmentEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
         if self.assessment_result is not None and not isinstance(self.assessment_result, MobilityAssessmentEnum):
             self.assessment_result = MobilityAssessmentEnum(self.assessment_result)
 
@@ -2448,9 +2485,10 @@ class MobilityAidsCategory(CategoryMixin):
 @dataclass(repr=False)
 class BabyInfantCategory(CategoryMixin):
     """
-    Mixin for baby and infant supply slots and UC rules. Applied to BabyInfantItem via mixins: [BabyInfantCategory].
-    Three-track assessment model — see schema description above. EN 1888 (pushchairs), EN 716 (cots), EN 14344 (car
-    seats), EN 14350 (feeding bottles) ground the safety UC rules.
+    Mixin for baby and infant supply slots and UC rules — Tracks 2/3, see schema description above. Applied to
+    BabyInfantItem via mixins: [BabyInfantCategory]. Track 1 assessment_result and its UC rules live on
+    BabyEquipmentAssessmentMixin (below), so DemandSignal can dispatch to this bare mixin without that assessment
+    content.
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2460,7 +2498,6 @@ class BabyInfantCategory(CategoryMixin):
     class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BabyInfantCategory
 
     subcategory: Union[str, "BabyInfantSubcategoryEnum"] = None
-    assessment_result: Optional[Union[str, "BabyEquipmentAssessmentEnum"]] = None
     manufacture_year: Optional[int] = None
     includes_original_accessories: Optional[Union[bool, Bool]] = None
     is_winter_suitable: Optional[Union[bool, Bool]] = None
@@ -2474,9 +2511,6 @@ class BabyInfantCategory(CategoryMixin):
             self.MissingRequiredField("subcategory")
         if not isinstance(self.subcategory, BabyInfantSubcategoryEnum):
             self.subcategory = BabyInfantSubcategoryEnum(self.subcategory)
-
-        if self.assessment_result is not None and not isinstance(self.assessment_result, BabyEquipmentAssessmentEnum):
-            self.assessment_result = BabyEquipmentAssessmentEnum(self.assessment_result)
 
         if self.manufacture_year is not None and not isinstance(self.manufacture_year, int):
             self.manufacture_year = int(self.manufacture_year)
@@ -2503,11 +2537,33 @@ class BabyInfantCategory(CategoryMixin):
 
 
 @dataclass(repr=False)
+class BabyEquipmentAssessmentMixin(BabyInfantCategory):
+    """
+    Shared physical-item dispatch target for Baby & Infant Supplies — used identically by DonationItem,
+    StorageCollection, and SortedCollection. Adds Track 1 assessment_result and its UC rules on top of
+    BabyInfantCategory. Never used by DemandSignal.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BabyEquipmentAssessmentMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BabyEquipmentAssessmentMixin"
+    class_name: ClassVar[str] = "BabyEquipmentAssessmentMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BabyEquipmentAssessmentMixin
+
+    subcategory: Union[str, "BabyInfantSubcategoryEnum"] = None
+    assessment_result: Optional[Union[str, "BabyEquipmentAssessmentEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self.assessment_result is not None and not isinstance(self.assessment_result, BabyEquipmentAssessmentEnum):
+            self.assessment_result = BabyEquipmentAssessmentEnum(self.assessment_result)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
 class FoodCategory(YAMLRoot):
     """
-    Mixin for food-specific slots, value maps, and UC rules. Applied to FoodItem via mixins: [FoodCategory]. Grounded
-    in FoodOn (OBO Foundry): http://purl.obolibrary.org/obo/foodon.owl Does not extend CategoryMixin — see schema
-    description for rationale. Phase 1 stub — sort_food process path activated on food-bank onboarding.
+    Mixin for food-specific slots, value maps, and UC rules. Applied to FoodItem via mixins: [FoodCategory].
     """
     _inherited_slots: ClassVar[list[str]] = []
 
@@ -2550,6 +2606,66 @@ class FoodCategory(YAMLRoot):
 
         super().__post_init__(**kwargs)
 
+
+@dataclass(repr=False)
+class FoodPhysicalItemMixin(FoodCategory):
+    """
+    Shared physical-item dispatch target for the Food category, used identically by DonationItem, StorageCollection,
+    and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FoodPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FoodPhysicalItemMixin"
+    class_name: ClassVar[str] = "FoodPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FoodPhysicalItemMixin
+
+    subcategory: Union[str, "FoodTypeEnum"] = None
+    packaging_intact: Union[bool, Bool] = None
+    storage_requirement: Union[str, "StorageRequirementEnum"] = None
+
+@dataclass(repr=False)
+class OtherCategory(YAMLRoot):
+    """
+    Mixin for the catch-all OtherItem category. Minimal slots only (item_description + condition_grade) — no
+    category-specific value maps or UC rules. Deliberately no completeness tier annotations.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = SCHEMA["Product"]
+    class_class_curie: ClassVar[str] = "schema:Product"
+    class_name: ClassVar[str] = "OtherCategory"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.OtherCategory
+
+    item_description: str = None
+    condition_grade: Optional[Union[str, "UsedConditionGradeEnum"]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self._is_empty(self.item_description):
+            self.MissingRequiredField("item_description")
+        if not isinstance(self.item_description, str):
+            self.item_description = str(self.item_description)
+
+        if self.condition_grade is not None and not isinstance(self.condition_grade, UsedConditionGradeEnum):
+            self.condition_grade = UsedConditionGradeEnum(self.condition_grade)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
+class OtherPhysicalItemMixin(OtherCategory):
+    """
+    Shared physical-item dispatch target for the Other category, used identically by DonationItem, StorageCollection,
+    and SortedCollection. Pure composition — no slots or rules of its own.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["OtherPhysicalItemMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:OtherPhysicalItemMixin"
+    class_name: ClassVar[str] = "OtherPhysicalItemMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.OtherPhysicalItemMixin
+
+    item_description: str = None
 
 @dataclass(repr=False)
 class ProvenanceRecord(YAMLRoot):
@@ -2643,6 +2759,214 @@ class ProvenanceRecord(YAMLRoot):
             self.override_reason = str(self.override_reason)
 
         super().__post_init__(**kwargs)
+
+
+class ClothingContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Clothing category only. Mixed into ClothingPhysicalItemMixin (categories/clothing.yaml) and
+    DonationItem's real ClothingItem subclass (entities/donation_item.yaml).
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ClothingContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ClothingContextRulesMixin"
+    class_name: ClassVar[str] = "ClothingContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ClothingContextRulesMixin
+
+
+class AccessoriesContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Accessories category only. Mixed into AccessoriesPhysicalItemMixin
+    (categories/accessories.yaml) and DonationItem's real AccessoriesItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["AccessoriesContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:AccessoriesContextRulesMixin"
+    class_name: ClassVar[str] = "AccessoriesContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.AccessoriesContextRulesMixin
+
+
+class FootwearContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Footwear category only. Mixed into FootwearPhysicalItemMixin (categories/footwear.yaml) and
+    DonationItem's real FootwearItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FootwearContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FootwearContextRulesMixin"
+    class_name: ClassVar[str] = "FootwearContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FootwearContextRulesMixin
+
+
+class FurnitureContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Furniture category only. Mixed into FurnitureAssessmentMixin (categories/furniture.yaml) and
+    DonationItem's real FurnitureItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FurnitureContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FurnitureContextRulesMixin"
+    class_name: ClassVar[str] = "FurnitureContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FurnitureContextRulesMixin
+
+
+class BeddingContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Bedding and Textiles category only. Mixed into BeddingAssessmentMixin
+    (categories/bedding_textiles.yaml) and DonationItem's real BeddingTextilesItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BeddingContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BeddingContextRulesMixin"
+    class_name: ClassVar[str] = "BeddingContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BeddingContextRulesMixin
+
+
+class HouseholdContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Household category only. Mixed into HouseholdPhysicalItemMixin (categories/household.yaml) and
+    DonationItem's real HouseholdItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["HouseholdContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:HouseholdContextRulesMixin"
+    class_name: ClassVar[str] = "HouseholdContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.HouseholdContextRulesMixin
+
+
+class ElectronicsContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Electronics category only. Mixed into ElectronicsAssessmentMixin (categories/electronics.yaml)
+    and DonationItem's real ElectronicsItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ElectronicsContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ElectronicsContextRulesMixin"
+    class_name: ClassVar[str] = "ElectronicsContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ElectronicsContextRulesMixin
+
+
+class ToysContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Toys category only. Mixed into ToysPhysicalItemMixin (categories/toys.yaml) and DonationItem's
+    real ToysItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["ToysContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:ToysContextRulesMixin"
+    class_name: ClassVar[str] = "ToysContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.ToysContextRulesMixin
+
+
+class SportsContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Sports category only. Mixed into SportsProtectiveAssessmentMixin (categories/sports.yaml) and
+    DonationItem's real SportsItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["SportsContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:SportsContextRulesMixin"
+    class_name: ClassVar[str] = "SportsContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.SportsContextRulesMixin
+
+
+class BooksContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Books category only. Mixed into BooksPhysicalItemMixin (categories/books.yaml) and
+    DonationItem's real BooksItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BooksContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BooksContextRulesMixin"
+    class_name: ClassVar[str] = "BooksContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BooksContextRulesMixin
+
+
+class StationeryContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Stationery category only. Mixed into StationeryPhysicalItemMixin (categories/stationery.yaml)
+    and DonationItem's real StationeryItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["StationeryContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:StationeryContextRulesMixin"
+    class_name: ClassVar[str] = "StationeryContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.StationeryContextRulesMixin
+
+
+class PersonalCareContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Personal Care category only. Mixed into PersonalCarePhysicalItemMixin
+    (categories/personal_care.yaml) and DonationItem's real PersonalCareItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["PersonalCareContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:PersonalCareContextRulesMixin"
+    class_name: ClassVar[str] = "PersonalCareContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.PersonalCareContextRulesMixin
+
+
+class MobilityAidsContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Mobility Aids category only. Mixed into MobilityAssessmentMixin (categories/mobility_aids.yaml)
+    and DonationItem's real MobilityAidsItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["MobilityAidsContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:MobilityAidsContextRulesMixin"
+    class_name: ClassVar[str] = "MobilityAidsContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.MobilityAidsContextRulesMixin
+
+
+class BabyInfantContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Baby & Infant Supplies category only. Mixed into BabyEquipmentAssessmentMixin
+    (categories/baby_infant.yaml) and DonationItem's real BabyInfantItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["BabyInfantContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:BabyInfantContextRulesMixin"
+    class_name: ClassVar[str] = "BabyInfantContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.BabyInfantContextRulesMixin
+
+
+class FoodContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Food category only. Mixed into FoodPhysicalItemMixin (categories/food.yaml) and DonationItem's
+    real FoodItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["FoodContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:FoodContextRulesMixin"
+    class_name: ClassVar[str] = "FoodContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.FoodContextRulesMixin
+
+
+class OtherContextRulesMixin(YAMLRoot):
+    """
+    lc-* rules for the Other (catch-all) category only. Mixed into OtherPhysicalItemMixin (categories/other.yaml) and
+    DonationItem's real OtherItem subclass.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["OtherContextRulesMixin"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:OtherContextRulesMixin"
+    class_name: ClassVar[str] = "OtherContextRulesMixin"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.OtherContextRulesMixin
 
 
 # Enumerations
@@ -2856,12 +3180,13 @@ Transitions:
   stored              → disposed            (culled from stock; Phase 2)""",
     )
 
-class CategoryEnum(EnumDefinitionImpl):
+class BaseCategoryEnum(EnumDefinitionImpl):
     """
-    Canonical registry of all donation item categories. Mirrors the DonationItem subclass URI hierarchy for use in
-    non-item entities: DemandSignal.category, StorageLocation.category_affinity, etc.
-    DonationItem itself uses designates_type on the category slot; this enum is for other entities that reference
-    categories by value.
+    Canonical registry of all donation item categories. Each permissible value carries a dispatch_to annotation naming
+    the bare category mixin (categories/*.yaml) for that category — no assessment content, no lifecycle-gated fields.
+    See SortingCategoryEnum below for the parallel enum used where that content is needed.
+    The UI descriptor generator (generators/ui_descriptor.py) treats any slot whose range is an enum with dispatch_to
+    annotations as a dispatch field, and builds its dispatch map directly from those annotations.
     Grouping is aligned with COICOP 2018 divisions where applicable, with deviations documented per value:
     Apparel    → COICOP Division 03 (clothing and footwear)
     Home       → COICOP Division 05 (housing, household goods)
@@ -2936,9 +3261,9 @@ class CategoryEnum(EnumDefinitionImpl):
         meaning=INKIND_KNOWLEDGE_REPO["OtherItem"])
 
     _defn = EnumDefinition(
-        name="CategoryEnum",
-        description="""Canonical registry of all donation item categories. Mirrors the DonationItem subclass URI hierarchy for use in non-item entities: DemandSignal.category, StorageLocation.category_affinity, etc.
-DonationItem itself uses designates_type on the category slot; this enum is for other entities that reference categories by value.
+        name="BaseCategoryEnum",
+        description="""Canonical registry of all donation item categories. Each permissible value carries a dispatch_to annotation naming the bare category mixin (categories/*.yaml) for that category — no assessment content, no lifecycle-gated fields. See SortingCategoryEnum below for the parallel enum used where that content is needed.
+The UI descriptor generator (generators/ui_descriptor.py) treats any slot whose range is an enum with dispatch_to annotations as a dispatch field, and builds its dispatch map directly from those annotations.
 Grouping is aligned with COICOP 2018 divisions where applicable, with deviations documented per value:
   Apparel    → COICOP Division 03 (clothing and footwear)
   Home       → COICOP Division 05 (housing, household goods)
@@ -2946,6 +3271,67 @@ Grouping is aligned with COICOP 2018 divisions where applicable, with deviations
   Learning   → COICOP Division 09 (recreation and culture)
   Care       → COICOP Divisions 06 (health) and 12 (personal care)
   Life stage → COICOP Divisions 01 (food) and 03/05 (baby items)""",
+    )
+
+class SortingCategoryEnum(EnumDefinitionImpl):
+    """
+    Same 16 category identities as BaseCategoryEnum (see that enum for COICOP grounding, not repeated here), but each
+    dispatch_to annotation points to the category's physical-item mixin — Tier 1/2 category mixin plus that category's
+    lc-* rules (categories/_context_rules.yaml) — instead of the bare mixin. Used by roots describing an actual
+    physical item with a real lifecycle_state.
+    """
+    ClothingItem = PermissibleValue(
+        text="ClothingItem",
+        meaning=INKIND_KNOWLEDGE_REPO["ClothingItem"])
+    AccessoriesItem = PermissibleValue(
+        text="AccessoriesItem",
+        meaning=INKIND_KNOWLEDGE_REPO["AccessoriesItem"])
+    FootwearItem = PermissibleValue(
+        text="FootwearItem",
+        meaning=INKIND_KNOWLEDGE_REPO["FootwearItem"])
+    FurnitureItem = PermissibleValue(
+        text="FurnitureItem",
+        meaning=INKIND_KNOWLEDGE_REPO["FurnitureItem"])
+    BeddingTextilesItem = PermissibleValue(
+        text="BeddingTextilesItem",
+        meaning=INKIND_KNOWLEDGE_REPO["BeddingTextilesItem"])
+    HouseholdItem = PermissibleValue(
+        text="HouseholdItem",
+        meaning=INKIND_KNOWLEDGE_REPO["HouseholdItem"])
+    ElectronicsItem = PermissibleValue(
+        text="ElectronicsItem",
+        meaning=INKIND_KNOWLEDGE_REPO["ElectronicsItem"])
+    ToysItem = PermissibleValue(
+        text="ToysItem",
+        meaning=INKIND_KNOWLEDGE_REPO["ToysItem"])
+    SportsItem = PermissibleValue(
+        text="SportsItem",
+        meaning=INKIND_KNOWLEDGE_REPO["SportsItem"])
+    BooksItem = PermissibleValue(
+        text="BooksItem",
+        meaning=INKIND_KNOWLEDGE_REPO["BooksItem"])
+    StationeryItem = PermissibleValue(
+        text="StationeryItem",
+        meaning=INKIND_KNOWLEDGE_REPO["StationeryItem"])
+    PersonalCareItem = PermissibleValue(
+        text="PersonalCareItem",
+        meaning=INKIND_KNOWLEDGE_REPO["PersonalCareItem"])
+    MobilityAidsItem = PermissibleValue(
+        text="MobilityAidsItem",
+        meaning=INKIND_KNOWLEDGE_REPO["MobilityAidsItem"])
+    BabyInfantItem = PermissibleValue(
+        text="BabyInfantItem",
+        meaning=INKIND_KNOWLEDGE_REPO["BabyInfantItem"])
+    FoodItem = PermissibleValue(
+        text="FoodItem",
+        meaning=INKIND_KNOWLEDGE_REPO["FoodItem"])
+    OtherItem = PermissibleValue(
+        text="OtherItem",
+        meaning=INKIND_KNOWLEDGE_REPO["OtherItem"])
+
+    _defn = EnumDefinition(
+        name="SortingCategoryEnum",
+        description="""Same 16 category identities as BaseCategoryEnum (see that enum for COICOP grounding, not repeated here), but each dispatch_to annotation points to the category's physical-item mixin — Tier 1/2 category mixin plus that category's lc-* rules (categories/_context_rules.yaml) — instead of the bare mixin. Used by roots describing an actual physical item with a real lifecycle_state.""",
     )
 
 class ConditionEnum(EnumDefinitionImpl):
@@ -3162,6 +3548,34 @@ class UrgencyTierEnum(EnumDefinitionImpl):
         description="Urgency classification for campaign and specific demand signals.",
     )
 
+class HouseholdSituationEnum(EnumDefinitionImpl):
+    """
+    Household composition classification for a demand signal.
+    """
+    single_adult = PermissibleValue(
+        text="single_adult",
+        description="Single adult household.")
+    couple_no_children = PermissibleValue(
+        text="couple_no_children",
+        description="Couple without children.")
+    single_parent = PermissibleValue(
+        text="single_parent",
+        description="Single parent with one or more children.")
+    family_with_children = PermissibleValue(
+        text="family_with_children",
+        description="Family with two parents/carers and one or more children.")
+    multigenerational = PermissibleValue(
+        text="multigenerational",
+        description="Household spanning multiple generations.")
+    other = PermissibleValue(
+        text="other",
+        description="Household composition not covered by the above.")
+
+    _defn = EnumDefinition(
+        name="HouseholdSituationEnum",
+        description="Household composition classification for a demand signal.",
+    )
+
 class DemandSignalLifecycleEnum(EnumDefinitionImpl):
     """
     Lifecycle states for a DemandSignal. Standing signals stay `active` permanently; campaign and specific signals
@@ -3251,16 +3665,8 @@ class AccessoriesSubcategoryEnum(EnumDefinitionImpl):
 class AccessoriesMaterialEnum(EnumDefinitionImpl):
     """
     Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can
-    identify quickly. Not all accessories have a single primary material — a watch has a metal case, leather strap,
-    and glass face; record the most prominent element.
-    Grounded in Product Types Ontology (pto:) for individual fibres and common materials, and schema:material as the
-    overarching property anchor. Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml) for the
-    fibre values (leather, wool, cotton, silk) for consistency.
-    Two redistribution-relevant uses:
-    1. Allergen filtering — wool (scarves, hats, gloves) and nickel
-    (base metal jewellery, belt buckles) sensitivities.
-    2. Care requirement matching — leather requires conditioning; silk
-    is dry-clean only; metal jewellery requires anti-tarnish storage.
+    identify quickly (e.g. a watch has metal case + leather strap + glass face — record the most prominent element).
+    Grounded in Product Types Ontology (pto:), aligned with ClothingMaterialEnum's fibre values for consistency.
     """
     leather = PermissibleValue(
         text="leather",
@@ -3295,13 +3701,7 @@ class AccessoriesMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="AccessoriesMaterialEnum",
-        description="""Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can identify quickly. Not all accessories have a single primary material — a watch has a metal case, leather strap, and glass face; record the most prominent element.
-Grounded in Product Types Ontology (pto:) for individual fibres and common materials, and schema:material as the overarching property anchor. Values and grounding are aligned with ClothingMaterialEnum (clothing.yaml) for the fibre values (leather, wool, cotton, silk) for consistency.
-Two redistribution-relevant uses:
-  1. Allergen filtering — wool (scarves, hats, gloves) and nickel
-     (base metal jewellery, belt buckles) sensitivities.
-  2. Care requirement matching — leather requires conditioning; silk
-     is dry-clean only; metal jewellery requires anti-tarnish storage.""",
+        description="""Primary construction material of a fashion or personal accessory. Records the dominant material the sorter can identify quickly (e.g. a watch has metal case + leather strap + glass face — record the most prominent element). Grounded in Product Types Ontology (pto:), aligned with ClothingMaterialEnum's fibre values for consistency.""",
     )
 
 class AccessoriesDemographicEnum(EnumDefinitionImpl):
@@ -3401,7 +3801,10 @@ class ClothingSubcategoryEnum(EnumDefinitionImpl):
         description="""Pyjamas, nightgowns, dressing gowns, sleep sets. Seasonal weight varies — lightweight vs. fleece nightwear.""")
     sportswear = PermissibleValue(
         text="sportswear",
-        description="""Athletic wear, gym tops, leggings, swimwear, base layers. Non-specialist — specialist sports clothing (wetsuits, cycling jerseys) belongs in SportsItem. Fragment compiler may pre-fill is_winter_suitable=false for swimwear subcategory context.""")
+        description="""Athletic wear, gym tops, leggings, base layers. Non-specialist — specialist sports clothing (wetsuits, cycling jerseys) belongs in SportsItem. Swimwear is a separate subcategory — see swimwear.""")
+    swimwear = PermissibleValue(
+        text="swimwear",
+        description="""Swimwear and bathing garments: swimsuits, bikinis, swim trunks, board shorts. Always summer-only (see SeasonEnum) — unlike sportswear's other examples (e.g. thermal base layers), which can be winter-suitable. Separated from sportswear for hygiene handling: worn against skin like underwear, so the same UC condition/usage rules apply (uc-swimwear-condition-block, uc-swimwear-adult-used-block).""")
     other = PermissibleValue(
         text="other",
         description="Clothing garments not fitting above subcategories.")
@@ -3534,15 +3937,24 @@ class ClothingSizeEnum(EnumDefinitionImpl):
     child_128 = PermissibleValue(
         text="child_128",
         description="Child 123-128. Age 7-8 years.")
+    child_134 = PermissibleValue(
+        text="child_134",
+        description="Child 129-134. Age 8-9 years.")
     child_140 = PermissibleValue(
         text="child_140",
-        description="Child 129-140. Age 8-10 years.")
+        description="Child 135-140. Age 9-10 years.")
+    child_146 = PermissibleValue(
+        text="child_146",
+        description="Child 141-146. Age 10-11 years.")
     child_152 = PermissibleValue(
         text="child_152",
-        description="Child 141-152. Age 10-12 years.")
+        description="Child 147-152. Age 11-12 years.")
+    child_158 = PermissibleValue(
+        text="child_158",
+        description="Child 153-158. Age 12-13 years.")
     child_164 = PermissibleValue(
         text="child_164",
-        description="Child 153-164. Age 12-14 years.")
+        description="Child 159-164. Age 13-14 years.")
     child_170 = PermissibleValue(
         text="child_170",
         description="Child 165-170. Age 14-16 years.")
@@ -3614,29 +4026,10 @@ class ClothingSizeEnum(EnumDefinitionImpl):
 
 class ClothingMaterialEnum(EnumDefinitionImpl):
     """
-    Primary fibre or fabric composition of a clothing item. Records the predominant material; for blended fabrics
-    (e.g. 60% cotton / 40% polyester), select the dominant fibre or use synthetic_blend when no single synthetic
-    dominates and a more specific value does not apply.
-    Grounded in:
-    Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
-    concepts, consistent with pto:Wood in FurnitureMaterialEnum.
-    http://www.productontology.org/id/
-    schema:material — overarching property on schema:Product, first-class
-    since GoodRelations was absorbed into schema.org in 2012.
-    https://schema.org/material
-    Used as see_also anchor for values that have no discrete pto: IRI
-    (synthetic_blend, other).
-
-    Three uses at sorting time:
-    1. Allergen filtering — wool, latex, and nickel sensitivities;
-    requires intact_labels=true for highest confidence;
-    exact percentages may be recorded in sorting_notes.
-    2. Seasonality hinting by the fragment compiler
-    (wool/fleece/down → pre-fill is_winter_suitable=true;
-    linen/silk → pre-fill is_winter_suitable=false).
-    Sorter override always takes precedence.
-    3. Care requirement matching — silk and leather indicate specialist
-    care needs that the match engine can surface.
+    Primary fibre or fabric composition of a clothing item. Records the predominant material; for blends, select the
+    dominant fibre or use synthetic_blend. Grounded in Product Types Ontology (pto:) per-value IRIs and
+    schema:material as the fallback anchor. See file header for the allergen-filtering / seasonality-hinting /
+    care-matching use cases.
     """
     cotton = PermissibleValue(
         text="cotton",
@@ -3677,27 +4070,7 @@ class ClothingMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="ClothingMaterialEnum",
-        description="""Primary fibre or fabric composition of a clothing item. Records the predominant material; for blended fabrics (e.g. 60% cotton / 40% polyester), select the dominant fibre or use synthetic_blend when no single synthetic dominates and a more specific value does not apply.
-Grounded in:
-  Product Types Ontology (pto:) — per-value IRIs that map Wikipedia textile
-    concepts, consistent with pto:Wood in FurnitureMaterialEnum.
-    http://www.productontology.org/id/
-  schema:material — overarching property on schema:Product, first-class
-    since GoodRelations was absorbed into schema.org in 2012.
-    https://schema.org/material
-    Used as see_also anchor for values that have no discrete pto: IRI
-    (synthetic_blend, other).
-
-Three uses at sorting time:
-  1. Allergen filtering — wool, latex, and nickel sensitivities;
-     requires intact_labels=true for highest confidence;
-     exact percentages may be recorded in sorting_notes.
-  2. Seasonality hinting by the fragment compiler
-     (wool/fleece/down → pre-fill is_winter_suitable=true;
-      linen/silk → pre-fill is_winter_suitable=false).
-     Sorter override always takes precedence.
-  3. Care requirement matching — silk and leather indicate specialist
-     care needs that the match engine can surface.""",
+        description="""Primary fibre or fabric composition of a clothing item. Records the predominant material; for blends, select the dominant fibre or use synthetic_blend. Grounded in Product Types Ontology (pto:) per-value IRIs and schema:material as the fallback anchor. See file header for the allergen-filtering / seasonality-hinting / care-matching use cases.""",
     )
 
 class FootwearSubcategoryEnum(EnumDefinitionImpl):
@@ -3732,23 +4105,10 @@ class FootwearSubcategoryEnum(EnumDefinitionImpl):
 
 class FootwearMaterialEnum(EnumDefinitionImpl):
     """
-    Primary upper-material of a footwear item — the dominant outer fabric or surface visible on the shoe upper
-    (excluding the sole, which is rubber or synthetic in almost all footwear).
-    Grounded in Product Types Ontology (pto:) where distinct IRIs exist, and schema:material as the overarching
-    property anchor for values without a discrete pto: IRI. Aligned with ClothingMaterialEnum for shared values
-    (leather, suede, wool).
-    Three redistribution-relevant uses:
-    1. Care requirement matching — leather needs conditioning; suede
-    needs specialist brushing and waterproofing; canvas is typically
-    machine-washable; rubber boots can be wiped clean.
-    2. Allergen filtering — latex rubber (natural rubber) is a known
-    allergen; most modern Wellington boots use synthetic rubber but
-    natural rubber is still used in premium lines.
-    3. Seasonality hinting — canvas and synthetic_mesh are typical
-    summer/spring-autumn materials; wool_felt is associated with
-    warm indoor slippers. Fragment compiler MAY use material as a
-    supplementary UI pre-fill hint (secondary to subcategory-based
-    hints). Sorter always overrides.
+    Primary upper-material of a footwear item (excluding the sole). Grounded in Product Types Ontology (pto:) where
+    distinct IRIs exist, schema:material as fallback anchor; aligned with ClothingMaterialEnum for shared values
+    (leather, suede, wool). Used for care-requirement matching, allergen filtering (latex rubber), and seasonality
+    hinting.
     """
     leather = PermissibleValue(
         text="leather",
@@ -3780,20 +4140,7 @@ class FootwearMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="FootwearMaterialEnum",
-        description="""Primary upper-material of a footwear item — the dominant outer fabric or surface visible on the shoe upper (excluding the sole, which is rubber or synthetic in almost all footwear).
-Grounded in Product Types Ontology (pto:) where distinct IRIs exist, and schema:material as the overarching property anchor for values without a discrete pto: IRI. Aligned with ClothingMaterialEnum for shared values (leather, suede, wool).
-Three redistribution-relevant uses:
-  1. Care requirement matching — leather needs conditioning; suede
-     needs specialist brushing and waterproofing; canvas is typically
-     machine-washable; rubber boots can be wiped clean.
-  2. Allergen filtering — latex rubber (natural rubber) is a known
-     allergen; most modern Wellington boots use synthetic rubber but
-     natural rubber is still used in premium lines.
-  3. Seasonality hinting — canvas and synthetic_mesh are typical
-     summer/spring-autumn materials; wool_felt is associated with
-     warm indoor slippers. Fragment compiler MAY use material as a
-     supplementary UI pre-fill hint (secondary to subcategory-based
-     hints). Sorter always overrides.""",
+        description="""Primary upper-material of a footwear item (excluding the sole). Grounded in Product Types Ontology (pto:) where distinct IRIs exist, schema:material as fallback anchor; aligned with ClothingMaterialEnum for shared values (leather, suede, wool). Used for care-requirement matching, allergen filtering (latex rubber), and seasonality hinting.""",
     )
 
 class ShoeSizeSystemEnum(EnumDefinitionImpl):
@@ -3821,9 +4168,8 @@ class ShoeSizeSystemEnum(EnumDefinitionImpl):
 
 class FurnitureAssessmentEnum(EnumDefinitionImpl):
     """
-    Structured assessment of furniture structural integrity and quality. Replaces the boolean structural_integrity
-    slot with a richer vocabulary that distinguishes cosmetic damage from structural compromise. Required at sorting
-    regardless of usage — new items can have manufacturing defects. See schema description for full rationale.
+    Structured assessment of furniture structural integrity and quality, distinguishing cosmetic damage from
+    structural compromise. Required at sorting regardless of usage.
     """
     structurally_sound = PermissibleValue(
         text="structurally_sound",
@@ -3843,7 +4189,7 @@ class FurnitureAssessmentEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="FurnitureAssessmentEnum",
-        description="""Structured assessment of furniture structural integrity and quality. Replaces the boolean structural_integrity slot with a richer vocabulary that distinguishes cosmetic damage from structural compromise. Required at sorting regardless of usage — new items can have manufacturing defects. See schema description for full rationale.""",
+        description="""Structured assessment of furniture structural integrity and quality, distinguishing cosmetic damage from structural compromise. Required at sorting regardless of usage.""",
     )
 
 class FurnitureSubcategoryEnum(EnumDefinitionImpl):
@@ -3907,20 +4253,9 @@ class FurnitureMaterialEnum(EnumDefinitionImpl):
 class BeddingMaterialEnum(EnumDefinitionImpl):
     """
     Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend
-    when no single synthetic dominates (e.g. a polyester/cotton blend duvet cover).
-    Grounded in Product Types Ontology (pto:) for individual fibres and schema:material as the overarching property
-    anchor. Values for natural fibres (cotton, wool, linen, silk, down_feather) are aligned with ClothingMaterialEnum
-    (clothing.yaml) for consistency across all textile category material enums.
-    Three redistribution-relevant uses:
-    1. Allergen filtering — wool (blankets, duvets) for wool-sensitive
-    beneficiaries; down/feather (duvets, pillows) for feather-allergy
-    or asthma sufferers.
-    2. Winter suitability hinting — the fragment compiler MAY pre-fill
-    is_winter_suitable=true for wool, fleece, and down_feather, and
-    false for linen and silk. Sorter always overrides.
-    The winter_hint annotation on individual values carries this signal.
-    3. Care requirement matching — wool requires gentle/hand-wash;
-    silk requires dry-clean; down requires low-heat tumble drying.
+    when no single synthetic dominates. Grounded in Product Types Ontology (pto:), aligned with ClothingMaterialEnum's
+    natural-fibre values for consistency. Used for allergen filtering, winter-suitability hinting (winter_hint
+    annotation per value), and care-requirement matching.
     """
     cotton = PermissibleValue(
         text="cotton",
@@ -3955,18 +4290,7 @@ class BeddingMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="BeddingMaterialEnum",
-        description="""Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend when no single synthetic dominates (e.g. a polyester/cotton blend duvet cover).
-Grounded in Product Types Ontology (pto:) for individual fibres and schema:material as the overarching property anchor. Values for natural fibres (cotton, wool, linen, silk, down_feather) are aligned with ClothingMaterialEnum (clothing.yaml) for consistency across all textile category material enums.
-Three redistribution-relevant uses:
-  1. Allergen filtering — wool (blankets, duvets) for wool-sensitive
-     beneficiaries; down/feather (duvets, pillows) for feather-allergy
-     or asthma sufferers.
-  2. Winter suitability hinting — the fragment compiler MAY pre-fill
-     is_winter_suitable=true for wool, fleece, and down_feather, and
-     false for linen and silk. Sorter always overrides.
-     The winter_hint annotation on individual values carries this signal.
-  3. Care requirement matching — wool requires gentle/hand-wash;
-     silk requires dry-clean; down requires low-heat tumble drying.""",
+        description="""Primary fibre or fabric composition of a bedding or textile item. Records the dominant fibre; use synthetic_blend when no single synthetic dominates. Grounded in Product Types Ontology (pto:), aligned with ClothingMaterialEnum's natural-fibre values for consistency. Used for allergen filtering, winter-suitability hinting (winter_hint annotation per value), and care-requirement matching.""",
     )
 
 class BeddingAssessmentEnum(EnumDefinitionImpl):
@@ -4038,19 +4362,9 @@ class BeddingTextilesSubcategoryEnum(EnumDefinitionImpl):
 
 class HouseholdMaterialEnum(EnumDefinitionImpl):
     """
-    Primary construction material of a household or kitchen item. Records the dominant material; use mixed when no
-    single material dominates (e.g. a saucepan with a stainless steel body and plastic handle).
-    Grounded in Product Types Ontology (pto:) for discrete material types and schema:material as the overarching
-    property anchor (schema.org property on schema:Product, superseding GoodRelations
-    gr:qualitativeProductOrServiceProperty). pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
-    Two redistribution-relevant uses:
-    1. Allergen filtering — nickel in stainless steel cutlery (relevant for
-    nickel contact dermatitis, though most modern stainless steel is
-    safe); copper cookware (rare sensitivity).
-    2. Care requirement matching — cast iron requires seasoning and
-    cannot be soaked; copper requires specialist polishing; wood
-    requires periodic oiling; non-stick coatings need specific
-    cleaning instructions.
+    Primary construction material of a household or kitchen item. Records the dominant material; use mixed when none
+    dominates. Grounded in Product Types Ontology (pto:), consistent with FurnitureMaterialEnum. Used for allergen
+    filtering (nickel, copper) and care-requirement matching (cast iron, copper, wood, non-stick).
     """
     stainless_steel = PermissibleValue(
         text="stainless_steel",
@@ -4091,16 +4405,7 @@ class HouseholdMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="HouseholdMaterialEnum",
-        description="""Primary construction material of a household or kitchen item. Records the dominant material; use mixed when no single material dominates (e.g. a saucepan with a stainless steel body and plastic handle).
-Grounded in Product Types Ontology (pto:) for discrete material types and schema:material as the overarching property anchor (schema.org property on schema:Product, superseding GoodRelations gr:qualitativeProductOrServiceProperty). pto: grounding is consistent with FurnitureMaterialEnum (furniture.yaml).
-Two redistribution-relevant uses:
-  1. Allergen filtering — nickel in stainless steel cutlery (relevant for
-     nickel contact dermatitis, though most modern stainless steel is
-     safe); copper cookware (rare sensitivity).
-  2. Care requirement matching — cast iron requires seasoning and
-     cannot be soaked; copper requires specialist polishing; wood
-     requires periodic oiling; non-stick coatings need specific
-     cleaning instructions.""",
+        description="""Primary construction material of a household or kitchen item. Records the dominant material; use mixed when none dominates. Grounded in Product Types Ontology (pto:), consistent with FurnitureMaterialEnum. Used for allergen filtering (nickel, copper) and care-requirement matching (cast iron, copper, wood, non-stick).""",
     )
 
 class HouseholdSubcategoryEnum(EnumDefinitionImpl):
@@ -4218,23 +4523,9 @@ class ElectronicsSubcategoryEnum(EnumDefinitionImpl):
 
 class ToysMaterialEnum(EnumDefinitionImpl):
     """
-    Primary construction material of a toy or game item. Operationally relevant under the EU Toy Safety Directive
-    2009/48/EC Annex II (Chemical properties), which restricts hazardous substances in toy materials. Recording
-    material type enables targeted awareness:
-    - Old plastic (pre-2000) → potential lead paint or cadmium concern.
-    Sorters should note in sorting_notes for age-apparent vintage items.
-    - PVC plastic → potential phthalate concern for toys aimed at
-    children under 3 (Directive Annex II, point 45).
-    - Rubber/natural rubber → latex allergen signal (teething rings,
-    bath toys). Fragment compiler may surface allergen note when
-    material=rubber and age_range=age_0_to_3.
-    - Wood → durability and repairability signal; matches demand for
-    natural-material toys.
-    - Fabric_plush → allergen signal for dustmite sensitivity.
-    Laundering before redistribution is good practice.
-
-    Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and schema:material as the overarching property
-    anchor for the remainder.
+    Primary construction material of a toy or game item. Operationally relevant under EU Toy Safety Directive
+    2009/48/EC Annex II (hazardous substance restrictions) — see per-value descriptions for specific chemical/allergen
+    concerns. Grounded in pto:Wood/pto:Rubber where discrete IRIs exist, schema:material as fallback anchor.
     """
     plastic = PermissibleValue(
         text="plastic",
@@ -4266,20 +4557,7 @@ class ToysMaterialEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="ToysMaterialEnum",
-        description="""Primary construction material of a toy or game item. Operationally relevant under the EU Toy Safety Directive 2009/48/EC Annex II (Chemical properties), which restricts hazardous substances in toy materials. Recording material type enables targeted awareness:
-  - Old plastic (pre-2000) → potential lead paint or cadmium concern.
-    Sorters should note in sorting_notes for age-apparent vintage items.
-  - PVC plastic → potential phthalate concern for toys aimed at
-    children under 3 (Directive Annex II, point 45).
-  - Rubber/natural rubber → latex allergen signal (teething rings,
-    bath toys). Fragment compiler may surface allergen note when
-    material=rubber and age_range=age_0_to_3.
-  - Wood → durability and repairability signal; matches demand for
-    natural-material toys.
-  - Fabric_plush → allergen signal for dustmite sensitivity.
-    Laundering before redistribution is good practice.
-
-Grounded in pto:Wood, pto:Rubber for values with discrete IRIs, and schema:material as the overarching property anchor for the remainder.""",
+        description="""Primary construction material of a toy or game item. Operationally relevant under EU Toy Safety Directive 2009/48/EC Annex II (hazardous substance restrictions) — see per-value descriptions for specific chemical/allergen concerns. Grounded in pto:Wood/pto:Rubber where discrete IRIs exist, schema:material as fallback anchor.""",
     )
 
 class ToysSubcategoryEnum(EnumDefinitionImpl):
@@ -4582,9 +4860,8 @@ class PersonalCareSubcategoryEnum(EnumDefinitionImpl):
 
 class MobilityAssessmentEnum(EnumDefinitionImpl):
     """
-    Structured safety and hygiene assessment for mobility aids and assistive devices. Unified vocabulary covering
-    structural soundness, functional state, and body-contact hygiene. Replaces former separate boolean
-    structural_integrity + functional_status slots. Required at sorting regardless of usage.
+    Structured safety and hygiene assessment for mobility aids and assistive devices, covering structural soundness,
+    functional state, and body-contact hygiene in one vocabulary. Required at sorting regardless of usage.
     """
     safe_to_redistribute = PermissibleValue(
         text="safe_to_redistribute",
@@ -4607,7 +4884,7 @@ class MobilityAssessmentEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="MobilityAssessmentEnum",
-        description="""Structured safety and hygiene assessment for mobility aids and assistive devices. Unified vocabulary covering structural soundness, functional state, and body-contact hygiene. Replaces former separate boolean structural_integrity + functional_status slots. Required at sorting regardless of usage.""",
+        description="""Structured safety and hygiene assessment for mobility aids and assistive devices, covering structural soundness, functional state, and body-contact hygiene in one vocabulary. Required at sorting regardless of usage.""",
     )
 
 class MobilityAidsSubcategoryEnum(EnumDefinitionImpl):
@@ -4657,24 +4934,11 @@ class MobilityAidsSubcategoryEnum(EnumDefinitionImpl):
 class BabyEquipmentAssessmentEnum(EnumDefinitionImpl):
     """
     Structured safety assessment for safety-critical baby equipment (pushchairs, cots, car seats, carriers, high
-    chairs). Required at sorting regardless of usage — new equipment can have manufacturing defects or fail safety
-    age/provenance criteria.
-    Car seat specific (EN 14344):
-    Structural integrity after a collision cannot be verified. Car seats
-    over 10 years old or with unknown collision history must receive
-    do_not_redistribute. manufacture_year is required for all car seats
-    to enable the runtime age check.
-
-    Cot specific (EN 716):
-    Drop-side cots are banned in the EU. A new-looking dropside cot
-    must receive do_not_redistribute.
-
-    Baby sleeping bag specific (EN 16781):
-    Neck opening must prevent infant from slipping inside. Armhole
-    openings must be present and correctly sized. No loose cords,
-    drawstrings, or ribbon ties permitted. No small detachable decorative
-    parts. is_winter_suitable must be set — thermal weight ranges from
-    0.5 tog (summer) to 3.5 tog (winter).
+    chairs). Required at sorting regardless of usage.
+    Car seats (EN 14344): collision history can't be verified visually — over 10 years old or unknown history must
+    receive do_not_redistribute; manufacture_year is required to enable the age check. Cots (EN 716): drop-side cots
+    are EU-banned, always do_not_redistribute. Baby sleeping bags (EN 16781): verify neck/armhole opening safety, no
+    loose cords/ties, no detachable decorative parts; is_winter_suitable must also be set.
     """
     safe_to_redistribute = PermissibleValue(
         text="safe_to_redistribute",
@@ -4694,23 +4958,8 @@ class BabyEquipmentAssessmentEnum(EnumDefinitionImpl):
 
     _defn = EnumDefinition(
         name="BabyEquipmentAssessmentEnum",
-        description="""Structured safety assessment for safety-critical baby equipment (pushchairs, cots, car seats, carriers, high chairs). Required at sorting regardless of usage — new equipment can have manufacturing defects or fail safety age/provenance criteria.
-Car seat specific (EN 14344):
-  Structural integrity after a collision cannot be verified. Car seats
-  over 10 years old or with unknown collision history must receive
-  do_not_redistribute. manufacture_year is required for all car seats
-  to enable the runtime age check.
-
-Cot specific (EN 716):
-  Drop-side cots are banned in the EU. A new-looking dropside cot
-  must receive do_not_redistribute.
-
-Baby sleeping bag specific (EN 16781):
-  Neck opening must prevent infant from slipping inside. Armhole
-  openings must be present and correctly sized. No loose cords,
-  drawstrings, or ribbon ties permitted. No small detachable decorative
-  parts. is_winter_suitable must be set — thermal weight ranges from
-  0.5 tog (summer) to 3.5 tog (winter).""",
+        description="""Structured safety assessment for safety-critical baby equipment (pushchairs, cots, car seats, carriers, high chairs). Required at sorting regardless of usage.
+Car seats (EN 14344): collision history can't be verified visually — over 10 years old or unknown history must receive do_not_redistribute; manufacture_year is required to enable the age check. Cots (EN 716): drop-side cots are EU-banned, always do_not_redistribute. Baby sleeping bags (EN 16781): verify neck/armhole opening safety, no loose cords/ties, no detachable decorative parts; is_winter_suitable must also be set.""",
     )
 
 class BabyInfantSubcategoryEnum(EnumDefinitionImpl):
@@ -4837,9 +5086,9 @@ class FoodTypeEnum(EnumDefinitionImpl):
     beverages = PermissibleValue(
         text="beverages",
         description="Bottled or packaged drinks (non-alcoholic).")
-    confectionery_sweets = PermissibleValue(
-        text="confectionery_sweets",
-        description="Chocolate, sweets, candy, and desserts. Storage: ambient.")
+    snacks_confectionery = PermissibleValue(
+        text="snacks_confectionery",
+        description="""Sweet snacks (chocolate, sweets, candy, desserts) and savory snacks (crisps/chips, pretzels, popcorn, savory crackers, salted nuts). Merged into one bucket following DACH retail/food-bank sorting practice, where sweet and savory snacks share one shelf (\"Süß & Salzig\"). Storage: ambient.""")
     ready_meals = PermissibleValue(
         text="ready_meals",
         description="Prepared meals — ambient (shelf-stable), refrigerated, or frozen.")
@@ -4938,13 +5187,16 @@ slots.parent = Slot(uri=INKIND_KNOWLEDGE_REPO.parent, name="parent", curie=INKIN
                    model_uri=INKIND_KNOWLEDGE_REPO.parent, domain=None, range=Optional[str])
 
 slots.category = Slot(uri=SCHEMA.additionalType, name="category", curie=SCHEMA.curie('additionalType'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.category, domain=None, range=Union[str, "CategoryEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.category, domain=None, range=Union[str, "BaseCategoryEnum"])
 
 slots.notes = Slot(uri=INKIND_KNOWLEDGE_REPO.notes, name="notes", curie=INKIND_KNOWLEDGE_REPO.curie('notes'),
                    model_uri=INKIND_KNOWLEDGE_REPO.notes, domain=None, range=Optional[str])
 
 slots.sorting_notes = Slot(uri=INKIND_KNOWLEDGE_REPO.sorting_notes, name="sorting_notes", curie=INKIND_KNOWLEDGE_REPO.curie('sorting_notes'),
                    model_uri=INKIND_KNOWLEDGE_REPO.sorting_notes, domain=None, range=Optional[str])
+
+slots.item_description = Slot(uri=INKIND_KNOWLEDGE_REPO.item_description, name="item_description", curie=INKIND_KNOWLEDGE_REPO.curie('item_description'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.item_description, domain=None, range=Optional[str])
 
 slots.material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
                    model_uri=INKIND_KNOWLEDGE_REPO.material, domain=None, range=Optional[str])
@@ -4989,7 +5241,7 @@ slots.current_occupancy = Slot(uri=INKIND_KNOWLEDGE_REPO.current_occupancy, name
                    model_uri=INKIND_KNOWLEDGE_REPO.current_occupancy, domain=None, range=int)
 
 slots.category_affinity = Slot(uri=INKIND_KNOWLEDGE_REPO.category_affinity, name="category_affinity", curie=INKIND_KNOWLEDGE_REPO.curie('category_affinity'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.category_affinity, domain=None, range=Optional[Union[str, "CategoryEnum"]])
+                   model_uri=INKIND_KNOWLEDGE_REPO.category_affinity, domain=None, range=Optional[Union[str, "BaseCategoryEnum"]])
 
 slots.source_type = Slot(uri=INKIND_KNOWLEDGE_REPO.source_type, name="source_type", curie=INKIND_KNOWLEDGE_REPO.curie('source_type'),
                    model_uri=INKIND_KNOWLEDGE_REPO.source_type, domain=None, range=Union[str, "DonationSourceTypeEnum"])
@@ -5024,41 +5276,14 @@ slots.source_collection = Slot(uri=INKIND_KNOWLEDGE_REPO.source_collection, name
 slots.storage_unit = Slot(uri=INKIND_KNOWLEDGE_REPO.storage_unit, name="storage_unit", curie=INKIND_KNOWLEDGE_REPO.curie('storage_unit'),
                    model_uri=INKIND_KNOWLEDGE_REPO.storage_unit, domain=None, range=Optional[Union[str, StorageLocationId]])
 
-slots.item_description = Slot(uri=INKIND_KNOWLEDGE_REPO.item_description, name="item_description", curie=INKIND_KNOWLEDGE_REPO.curie('item_description'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.item_description, domain=None, range=Optional[str])
-
 slots.signal_type = Slot(uri=INKIND_KNOWLEDGE_REPO.signal_type, name="signal_type", curie=INKIND_KNOWLEDGE_REPO.curie('signal_type'),
                    model_uri=INKIND_KNOWLEDGE_REPO.signal_type, domain=None, range=Union[str, "DemandSignalTypeEnum"])
-
-slots.attributes = Slot(uri=INKIND_KNOWLEDGE_REPO.attributes, name="attributes", curie=INKIND_KNOWLEDGE_REPO.curie('attributes'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.attributes, domain=None, range=Optional[Union[dict, AnyValue]])
-
-slots.quantity_requested = Slot(uri=INKIND_KNOWLEDGE_REPO.quantity_requested, name="quantity_requested", curie=INKIND_KNOWLEDGE_REPO.curie('quantity_requested'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.quantity_requested, domain=None, range=Optional[int])
-
-slots.quantity_fulfilled = Slot(uri=INKIND_KNOWLEDGE_REPO.quantity_fulfilled, name="quantity_fulfilled", curie=INKIND_KNOWLEDGE_REPO.curie('quantity_fulfilled'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.quantity_fulfilled, domain=None, range=int)
-
-slots.campaign = Slot(uri=INKIND_KNOWLEDGE_REPO.campaign, name="campaign", curie=INKIND_KNOWLEDGE_REPO.curie('campaign'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.campaign, domain=None, range=Optional[Union[str, CampaignId]])
-
-slots.holder = Slot(uri=INKIND_KNOWLEDGE_REPO.holder, name="holder", curie=INKIND_KNOWLEDGE_REPO.curie('holder'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.holder, domain=None, range=Optional[str])
-
-slots.context_note = Slot(uri=INKIND_KNOWLEDGE_REPO.context_note, name="context_note", curie=INKIND_KNOWLEDGE_REPO.curie('context_note'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.context_note, domain=None, range=Optional[str])
-
-slots.deadline = Slot(uri=INKIND_KNOWLEDGE_REPO.deadline, name="deadline", curie=INKIND_KNOWLEDGE_REPO.curie('deadline'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.deadline, domain=None, range=Optional[Union[str, XSDDate]])
 
 slots.urgency_tier = Slot(uri=INKIND_KNOWLEDGE_REPO.urgency_tier, name="urgency_tier", curie=INKIND_KNOWLEDGE_REPO.curie('urgency_tier'),
                    model_uri=INKIND_KNOWLEDGE_REPO.urgency_tier, domain=None, range=Optional[Union[str, "UrgencyTierEnum"]])
 
-slots.registered_at = Slot(uri=INKIND_KNOWLEDGE_REPO.registered_at, name="registered_at", curie=INKIND_KNOWLEDGE_REPO.curie('registered_at'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.registered_at, domain=None, range=Union[str, XSDDateTime])
-
-slots.public_visibility = Slot(uri=INKIND_KNOWLEDGE_REPO.public_visibility, name="public_visibility", curie=INKIND_KNOWLEDGE_REPO.curie('public_visibility'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.public_visibility, domain=None, range=Union[bool, Bool])
+slots.household_situation = Slot(uri=INKIND_KNOWLEDGE_REPO.household_situation, name="household_situation", curie=INKIND_KNOWLEDGE_REPO.curie('household_situation'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.household_situation, domain=None, range=Optional[Union[str, "HouseholdSituationEnum"]])
 
 slots.title = Slot(uri=INKIND_KNOWLEDGE_REPO.title, name="title", curie=INKIND_KNOWLEDGE_REPO.curie('title'),
                    model_uri=INKIND_KNOWLEDGE_REPO.title, domain=None, range=str)
@@ -5229,7 +5454,7 @@ slots.DonationCollection_parent = Slot(uri=INKIND_KNOWLEDGE_REPO.parent, name="D
                    model_uri=INKIND_KNOWLEDGE_REPO.DonationCollection_parent, domain=DonationCollection, range=Optional[Union[str, DonationCollectionId]])
 
 slots.DonationItem_category = Slot(uri=SCHEMA.additionalType, name="DonationItem_category", curie=SCHEMA.curie('additionalType'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_category, domain=DonationItem, range=str)
+                   model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_category, domain=DonationItem, range=Union[str, "SortingCategoryEnum"])
 
 slots.DonationItem_lifecycle_state = Slot(uri=INKIND_KNOWLEDGE_REPO.lifecycle_state, name="DonationItem_lifecycle_state", curie=INKIND_KNOWLEDGE_REPO.curie('lifecycle_state'),
                    model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_lifecycle_state, domain=DonationItem, range=Union[str, "ItemLifecycleStateEnum"])
@@ -5249,17 +5474,23 @@ slots.DonationItem_donation_source = Slot(uri=INKIND_KNOWLEDGE_REPO.donation_sou
 slots.DonationItem_storage_unit = Slot(uri=INKIND_KNOWLEDGE_REPO.storage_unit, name="DonationItem_storage_unit", curie=INKIND_KNOWLEDGE_REPO.curie('storage_unit'),
                    model_uri=INKIND_KNOWLEDGE_REPO.DonationItem_storage_unit, domain=DonationItem, range=Optional[Union[str, StorageLocationId]])
 
-slots.OtherItem_item_description = Slot(uri=INKIND_KNOWLEDGE_REPO.item_description, name="OtherItem_item_description", curie=INKIND_KNOWLEDGE_REPO.curie('item_description'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.OtherItem_item_description, domain=OtherItem, range=str)
+slots.StorageCollection_usage = Slot(uri=SCHEMA.itemCondition, name="StorageCollection_usage", curie=SCHEMA.curie('itemCondition'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.StorageCollection_usage, domain=StorageCollection, range=Union[str, "ItemUsageEnum"])
 
-slots.OtherItem_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="OtherItem_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.OtherItem_condition_grade, domain=OtherItem, range=Optional[Union[str, "UsedConditionGradeEnum"]])
+slots.StorageCollection_category = Slot(uri=SCHEMA.additionalType, name="StorageCollection_category", curie=SCHEMA.curie('additionalType'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.StorageCollection_category, domain=StorageCollection, range=Union[str, "BaseCategoryEnum"])
+
+slots.SortedCollection_usage = Slot(uri=SCHEMA.itemCondition, name="SortedCollection_usage", curie=SCHEMA.curie('itemCondition'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.SortedCollection_usage, domain=SortedCollection, range=Union[str, "ItemUsageEnum"])
+
+slots.SortedCollection_category = Slot(uri=SCHEMA.additionalType, name="SortedCollection_category", curie=SCHEMA.curie('additionalType'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.SortedCollection_category, domain=SortedCollection, range=Union[str, "SortingCategoryEnum"])
 
 slots.DemandSignal_org = Slot(uri=INKIND_KNOWLEDGE_REPO.org, name="DemandSignal_org", curie=INKIND_KNOWLEDGE_REPO.curie('org'),
                    model_uri=INKIND_KNOWLEDGE_REPO.DemandSignal_org, domain=DemandSignal, range=Union[str, SocialOrganisationId])
 
 slots.DemandSignal_category = Slot(uri=SCHEMA.additionalType, name="DemandSignal_category", curie=SCHEMA.curie('additionalType'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.DemandSignal_category, domain=DemandSignal, range=Union[str, "CategoryEnum"])
+                   model_uri=INKIND_KNOWLEDGE_REPO.DemandSignal_category, domain=DemandSignal, range=Union[str, "BaseCategoryEnum"])
 
 slots.DemandSignal_lifecycle_state = Slot(uri=INKIND_KNOWLEDGE_REPO.lifecycle_state, name="DemandSignal_lifecycle_state", curie=INKIND_KNOWLEDGE_REPO.curie('lifecycle_state'),
                    model_uri=INKIND_KNOWLEDGE_REPO.DemandSignal_lifecycle_state, domain=DemandSignal, range=Union[str, "DemandSignalLifecycleEnum"])
@@ -5336,20 +5567,20 @@ slots.FurnitureCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory
 slots.FurnitureCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="FurnitureCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FurnitureCategory_material, domain=None, range=Optional[Union[str, "FurnitureMaterialEnum"]])
 
-slots.FurnitureCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="FurnitureCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.FurnitureCategory_assessment_result, domain=None, range=Optional[Union[str, "FurnitureAssessmentEnum"]])
+slots.FurnitureAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="FurnitureAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.FurnitureAssessmentMixin_assessment_result, domain=None, range=Optional[Union[str, "FurnitureAssessmentEnum"]])
 
 slots.BeddingTextilesCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="BeddingTextilesCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_subcategory, domain=None, range=Union[str, "BeddingTextilesSubcategoryEnum"])
-
-slots.BeddingTextilesCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BeddingTextilesCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_assessment_result, domain=None, range=Optional[Union[str, "BeddingAssessmentEnum"]])
 
 slots.BeddingTextilesCategory_material = Slot(uri=INKIND_KNOWLEDGE_REPO.material, name="BeddingTextilesCategory_material", curie=INKIND_KNOWLEDGE_REPO.curie('material'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_material, domain=None, range=Optional[Union[str, "BeddingMaterialEnum"]])
 
 slots.BeddingTextilesCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_winter_suitable, name="BeddingTextilesCategory_is_winter_suitable", curie=INKIND_KNOWLEDGE_REPO.curie('is_winter_suitable'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BeddingTextilesCategory_is_winter_suitable, domain=None, range=Optional[Union[bool, Bool]])
+
+slots.BeddingAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BeddingAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.BeddingAssessmentMixin_assessment_result, domain=None, range=Optional[Union[str, "BeddingAssessmentEnum"]])
 
 slots.HouseholdCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="HouseholdCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.HouseholdCategory_subcategory, domain=None, range=Union[str, "HouseholdSubcategoryEnum"])
@@ -5363,8 +5594,8 @@ slots.HouseholdCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.conditi
 slots.ElectronicsCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="ElectronicsCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ElectronicsCategory_subcategory, domain=None, range=Union[str, "ElectronicsSubcategoryEnum"])
 
-slots.ElectronicsCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="ElectronicsCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.ElectronicsCategory_assessment_result, domain=None, range=Union[str, "ElectronicsAssessmentEnum"])
+slots.ElectronicsAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="ElectronicsAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.ElectronicsAssessmentMixin_assessment_result, domain=None, range=Union[str, "ElectronicsAssessmentEnum"])
 
 slots.ToysCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="ToysCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ToysCategory_subcategory, domain=None, range=Union[str, "ToysSubcategoryEnum"])
@@ -5381,14 +5612,14 @@ slots.ToysCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_gr
 slots.SportsCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="SportsCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.SportsCategory_subcategory, domain=None, range=Union[str, "SportsSubcategoryEnum"])
 
-slots.SportsCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="SportsCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.SportsCategory_assessment_result, domain=None, range=Optional[Union[str, "SportsProtectiveAssessmentEnum"]])
-
 slots.SportsCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="SportsCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
                    model_uri=INKIND_KNOWLEDGE_REPO.SportsCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
 
 slots.SportsCategory_demographic = Slot(uri=INKIND_KNOWLEDGE_REPO.demographic, name="SportsCategory_demographic", curie=INKIND_KNOWLEDGE_REPO.curie('demographic'),
                    model_uri=INKIND_KNOWLEDGE_REPO.SportsCategory_demographic, domain=None, range=Optional[Union[str, "DemographicEnum"]])
+
+slots.SportsProtectiveAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="SportsProtectiveAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.SportsProtectiveAssessmentMixin_assessment_result, domain=None, range=Optional[Union[str, "SportsProtectiveAssessmentEnum"]])
 
 slots.BooksCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="BooksCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BooksCategory_subcategory, domain=None, range=Union[str, "BooksSubcategoryEnum"])
@@ -5417,14 +5648,11 @@ slots.PersonalCareCategory_expiry_date = Slot(uri=INKIND_KNOWLEDGE_REPO.expiry_d
 slots.MobilityAidsCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="MobilityAidsCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.MobilityAidsCategory_subcategory, domain=None, range=Union[str, "MobilityAidsSubcategoryEnum"])
 
-slots.MobilityAidsCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="MobilityAidsCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.MobilityAidsCategory_assessment_result, domain=None, range=Optional[Union[str, "MobilityAssessmentEnum"]])
+slots.MobilityAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="MobilityAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.MobilityAssessmentMixin_assessment_result, domain=None, range=Optional[Union[str, "MobilityAssessmentEnum"]])
 
 slots.BabyInfantCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="BabyInfantCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_subcategory, domain=None, range=Union[str, "BabyInfantSubcategoryEnum"])
-
-slots.BabyInfantCategory_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BabyInfantCategory_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
-                   model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_assessment_result, domain=None, range=Optional[Union[str, "BabyEquipmentAssessmentEnum"]])
 
 slots.BabyInfantCategory_is_winter_suitable = Slot(uri=INKIND_KNOWLEDGE_REPO.is_winter_suitable, name="BabyInfantCategory_is_winter_suitable", curie=INKIND_KNOWLEDGE_REPO.curie('is_winter_suitable'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_is_winter_suitable, domain=None, range=Optional[Union[bool, Bool]])
@@ -5438,6 +5666,9 @@ slots.BabyInfantCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condit
 slots.BabyInfantCategory_nappy_size = Slot(uri=INKIND_KNOWLEDGE_REPO.nappy_size, name="BabyInfantCategory_nappy_size", curie=INKIND_KNOWLEDGE_REPO.curie('nappy_size'),
                    model_uri=INKIND_KNOWLEDGE_REPO.BabyInfantCategory_nappy_size, domain=None, range=Optional[Union[str, "NappySizeEnum"]])
 
+slots.BabyEquipmentAssessmentMixin_assessment_result = Slot(uri=INKIND_KNOWLEDGE_REPO.assessment_result, name="BabyEquipmentAssessmentMixin_assessment_result", curie=INKIND_KNOWLEDGE_REPO.curie('assessment_result'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.BabyEquipmentAssessmentMixin_assessment_result, domain=None, range=Optional[Union[str, "BabyEquipmentAssessmentEnum"]])
+
 slots.FoodCategory_subcategory = Slot(uri=INKIND_KNOWLEDGE_REPO.subcategory, name="FoodCategory_subcategory", curie=INKIND_KNOWLEDGE_REPO.curie('subcategory'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FoodCategory_subcategory, domain=None, range=Union[str, "FoodTypeEnum"])
 
@@ -5449,6 +5680,12 @@ slots.FoodCategory_storage_requirement = Slot(uri=INKIND_KNOWLEDGE_REPO.storage_
 
 slots.FoodCategory_expiry_date = Slot(uri=INKIND_KNOWLEDGE_REPO.expiry_date, name="FoodCategory_expiry_date", curie=INKIND_KNOWLEDGE_REPO.curie('expiry_date'),
                    model_uri=INKIND_KNOWLEDGE_REPO.FoodCategory_expiry_date, domain=None, range=Optional[Union[str, XSDDate]])
+
+slots.OtherCategory_item_description = Slot(uri=INKIND_KNOWLEDGE_REPO.item_description, name="OtherCategory_item_description", curie=INKIND_KNOWLEDGE_REPO.curie('item_description'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.OtherCategory_item_description, domain=None, range=str)
+
+slots.OtherCategory_condition_grade = Slot(uri=INKIND_KNOWLEDGE_REPO.condition_grade, name="OtherCategory_condition_grade", curie=INKIND_KNOWLEDGE_REPO.curie('condition_grade'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.OtherCategory_condition_grade, domain=None, range=Optional[Union[str, "UsedConditionGradeEnum"]])
 
 slots.ProvenanceRecord_org = Slot(uri=INKIND_KNOWLEDGE_REPO.org, name="ProvenanceRecord_org", curie=INKIND_KNOWLEDGE_REPO.curie('org'),
                    model_uri=INKIND_KNOWLEDGE_REPO.ProvenanceRecord_org, domain=ProvenanceRecord, range=Union[str, SocialOrganisationId])

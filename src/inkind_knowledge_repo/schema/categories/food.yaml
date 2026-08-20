@@ -96,7 +96,7 @@ classes:
           uc_suggest: disposal
           uc_note: "Dynamic date comparison — runtime enforcement"
     annotations:
-      completeness_minimal:  "subcategory, packaging_intact, storage_requirement"
+      completeness_minimal:  "subcategory, storage_requirement"
       completeness_standard: "subcategory, packaging_intact, storage_requirement, usage"
       completeness_detailed: "subcategory, packaging_intact, storage_requirement, expiry_date, net_content_value, net_content_unit, usage"
       coicop_division: "01"
@@ -106,6 +106,30 @@ classes:
       aliases_en: ["food", "food item"]
       aliases_de: ["Essen", "Lebensmittel"]
     rules:
+      - title: lc-food-packaging-intact-required
+        description: >-
+          packaging_intact required, except for subcategories commonly
+          donated without commercial packaging: bread_bakery (loose bakery
+          excess), fruit_vegetables (loose fresh produce), and meat_fish
+          (butcher-paper wrapping isn't tamper-evident commercial packaging
+          either). Forcing an answer for these risks a sorter recording
+          packaging_intact=false for a genuinely unpackaged item, which would
+          incorrectly trigger uc-packaging-perishable-block. No
+          lifecycle_state precondition — FoodCategory is shared with
+          DemandSignal, which has no lifecycle_state slot.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              none_of:
+                - equals_string: bread_bakery
+                - equals_string: fruit_vegetables
+                - equals_string: meat_fish
+                - equals_string: other
+        postconditions:
+          slot_conditions:
+            packaging_intact:
+              required: true
+
       - title: uc-packaging-perishable-block
         description: >-
           Perishable items with compromised packaging must not be redistributed.
@@ -236,12 +260,12 @@ classes:
                 - equals_string: ambient
                 - equals_string: refrigerated
 
-      - title: vm-storage-confectionery-sweets
-        description: Confectionery and sweets are shelf-stable — ambient storage only.
+      - title: vm-storage-snacks-confectionery
+        description: Snacks and confectionery are shelf-stable — ambient storage only.
         preconditions:
           slot_conditions:
             subcategory:
-              equals_string: confectionery_sweets
+              equals_string: snacks_confectionery
         postconditions:
           slot_conditions:
             storage_requirement:
@@ -297,6 +321,10 @@ slots:
     required: true
     description: >-
       Whether the item's original packaging is intact and uncompromised.
+      Required except for bread_bakery, fruit_vegetables, and meat_fish —
+      commonly donated without commercial packaging (loose bakery goods,
+      loose produce, butcher-wrapped meat/fish). See
+      lc-food-packaging-intact-required.
       UC block: false + perishable subcategory → must not redistribute.
       Primary safety signal for food items — analogous to is_sealed in
       PersonalCareCategory.
@@ -396,15 +424,19 @@ enums:
           label_de: "Getränke"
           aliases_en: ["Beverages", "Drinks", "Juice", "Soda", "Water"]
           aliases_de: ["Getränke", "Saft", "Limonade", "Wasser"]
-      confectionery_sweets:
+      snacks_confectionery:
         description: >-
-          Chocolate, sweets, candy, and desserts. Storage: ambient.
-        see_also: [foodon:03400978]
+          Sweet snacks (chocolate, sweets, candy, desserts) and savory snacks
+          (crisps/chips, pretzels, popcorn, savory crackers, salted nuts).
+          Merged into one bucket following DACH retail/food-bank sorting
+          practice, where sweet and savory snacks share one shelf ("Süß &
+          Salzig"). Storage: ambient.
+        see_also: [foodon:03400978, foodon:03310825]
         annotations:
-          label_en: "confectionery & sweets"
-          label_de: "Süßwaren"
-          aliases_en: ["Confectionery", "Sweets", "Candy", "Chocolate", "Desserts"]
-          aliases_de: ["Süßwaren", "Süßigkeiten", "Bonbons", "Schokolade", "Nachspeisen"]
+          label_en: "snacks & confectionery"
+          label_de: "Süß & Salzig"
+          aliases_en: ["Confectionery", "Sweets", "Candy", "Chocolate", "Desserts", "Snacks", "Crisps", "Chips", "Pretzels", "Popcorn", "Crackers", "Nuts"]
+          aliases_de: ["Süßwaren", "Süßigkeiten", "Bonbons", "Schokolade", "Nachspeisen", "Snacks", "Chips", "Salzgebäck", "Popcorn", "Cracker", "Nüsse"]
       ready_meals:
         description: >-
           Prepared meals — ambient (shelf-stable), refrigerated, or frozen.

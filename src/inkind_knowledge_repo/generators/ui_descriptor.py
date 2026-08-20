@@ -248,13 +248,21 @@ class UiDescriptorGenerator(Generator):
                 values.append(pv.text)
         return values
 
-    def _parse_condition_values(self, field_name: str, condition: SlotDefinition) -> List[Any]:
+    def _parse_condition_values(
+        self, field_name: str, condition: SlotDefinition, class_name: str
+    ) -> List[Any]:
         """
         Extract the list of values expressed by a slot condition expression.
 
         For none_of: returns the COMPLEMENT — all enum values for field_name
         minus the excluded ones. field_name must be the TARGET (postcondition)
-        field so the correct enum is resolved.
+        field so the correct enum is resolved. class_name is required to
+        resolve field_name's CLASS-INDUCED range (via schemaview.induced_slot)
+        rather than its generic top-level slot definition — many slots (e.g.
+        subcategory) declare a bare `range: string` at the top level and only
+        get their real enum range via slot_usage on a specific class, so the
+        un-induced lookup would silently resolve to "string" and produce an
+        empty complement.
 
         For any_of / equals_string / equals_number: returns the stated values.
         """
@@ -282,7 +290,10 @@ class UiDescriptorGenerator(Generator):
                     excluded.add(item.equals_number)
             # Resolve complement against field_name's enum.
             # Caller must pass the TARGET field name here.
-            slot_def = self.schemaview.get_slot(field_name)
+            try:
+                slot_def = self.schemaview.induced_slot(field_name, class_name)
+            except Exception:
+                slot_def = None
             if slot_def and slot_def.range:
                 enum_values = self._get_enum_values(slot_def.range)
                 if enum_values is not None:
@@ -616,7 +627,7 @@ class UiDescriptorGenerator(Generator):
             # All fields are AND; values within each field are OR.
             conditions: Dict[str, List[Any]] = {}
             for slot_name, slot_cond in pre.slot_conditions.items():
-                values = self._parse_condition_values(slot_name, slot_cond)
+                values = self._parse_condition_values(slot_name, slot_cond, class_name)
                 if values:
                     conditions[slot_name] = values
             conditions = self._translate_lifecycle_condition(conditions)
@@ -662,15 +673,18 @@ class UiDescriptorGenerator(Generator):
                 if has_none_of:
                     # none_of → options_depend_on complement.
                     # Pass target_field so the correct enum is resolved.
-                    target_values = self._parse_condition_values(target_field, target_cond)
+                    target_values = self._parse_condition_values(target_field, target_cond, class_name)
                 elif is_uc_text:
                     # Blocking vm- rule (no none_of) → treat as UC.
                     uc_rules.append(self._build_uc_entry(rule, conditions))
                     continue
                 else:
-                    target_values = self._parse_condition_values(target_field, target_cond)
+                    target_values = self._parse_condition_values(target_field, target_cond, class_name)
 
-                target_slot = self.schemaview.get_slot(target_field)
+                try:
+                    target_slot = self.schemaview.induced_slot(target_field, class_name)
+                except Exception:
+                    target_slot = self.schemaview.get_slot(target_field)
                 target_type = self._map_slot_type(target_slot or SlotDefinition({}))
 
                 if target_type == "enum":
