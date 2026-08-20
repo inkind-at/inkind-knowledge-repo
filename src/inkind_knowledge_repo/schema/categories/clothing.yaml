@@ -5,7 +5,7 @@ title: Clothing Category Schema
 description: >-
   Defines ClothingCategory mixin applied to ClothingItem in donation_item.yaml.
   Covers wearable garments only: tops, bottoms, outerwear, underwear,
-  nightwear, sportswear. COICOP Division 03.1.
+  nightwear, sportswear, swimwear. COICOP Division 03.1.
 
   Ontology grounding: CPI (cpi:ClothingAndAccessories) for demographic/size;
   schema.org wearable size groups/systems; Product Types Ontology (pto:) for
@@ -146,7 +146,7 @@ classes:
       season_ui_hint: >-
         Fragment compiler may pre-fill is_winter_suitable=true when
         subcategory=outerwear and is_winter_suitable=false when
-        subcategory=sportswear (swimwear). Sorter can override.
+        subcategory=swimwear. Sorter can override.
       label_en: "Clothing"
       label_de: "Kleidung"
       aliases_en: ["clothing", "clothes", "garment", "apparel"]
@@ -183,6 +183,50 @@ classes:
           slot_conditions:
             subcategory:
               equals_string: underwear
+            demographic:
+              any_of:
+                - equals_string: adult_male
+                - equals_string: adult_female
+            usage:
+              equals_string: used
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+
+      # ── UC: swimwear ──────────────────────────────────────────────────────
+      - title: uc-swimwear-condition-block
+        description: >-
+          Swimwear must be new or like_new condition. fair or poor graded
+          swimwear must not be redistributed. Worn against skin like
+          underwear — same hygiene policy applies.
+          action: block, suggest: disposal.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: swimwear
+            condition_grade:
+              any_of:
+                - equals_string: fair
+                - equals_string: poor
+        postconditions:
+          slot_conditions:
+            lifecycle_state:
+              none_of:
+                - equals_string: stored
+                - equals_string: distributed
+      - title: uc-swimwear-adult-used-block
+        description: >-
+          Used adult swimwear (adult_male or adult_female demographic) must
+          not be redistributed. usage must be new. Same hygiene and dignity
+          standard as adult underwear.
+          action: block.
+        preconditions:
+          slot_conditions:
+            subcategory:
+              equals_string: swimwear
             demographic:
               any_of:
                 - equals_string: adult_male
@@ -388,6 +432,7 @@ classes:
                 - equals_string: tops
                 - equals_string: bottoms
                 - equals_string: outerwear
+                - equals_string: swimwear
         postconditions:
           slot_conditions:
             is_maternity:
@@ -468,7 +513,7 @@ slots:
       Improves match quality for beneficiaries with care requirements
       (e.g. allergy to certain materials). Detailed completeness tier.
     annotations:
-      show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear]"
+      show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear, swimwear]"
       label_en: "Intact care and composition labels"
       label_de: "Unversehrte Pflege- und Materialetiketten"
 
@@ -480,7 +525,7 @@ slots:
       is still demographic=adult_female, size=m_l, is_maternity=true.
       Optional, detailed completeness tier.
     annotations:
-      show_if: "subcategory in [tops, bottoms, outerwear]"
+      show_if: "subcategory in [tops, bottoms, outerwear, swimwear]"
       label_en: "Maternity"
       label_de: "Umstandsmode"
       aliases_en: ["Maternity", "Pregnancy"]
@@ -616,15 +661,28 @@ enums:
           aliases_de: ["Pyjama", "Nachtanzug", "Bademantel", "Schlafset"]
       sportswear:
         description: >-
-          Athletic wear, gym tops, leggings, swimwear, base layers.
-          Non-specialist — specialist sports clothing (wetsuits, cycling
-          jerseys) belongs in SportsItem. Fragment compiler may pre-fill
-          is_winter_suitable=false for swimwear subcategory context.
+          Athletic wear, gym tops, leggings, base layers. Non-specialist —
+          specialist sports clothing (wetsuits, cycling jerseys) belongs in
+          SportsItem. Swimwear is a separate subcategory — see swimwear.
         annotations:
           label_en: "Sportswear"
           label_de: "Sportartikel"
-          aliases_en: ["Athletic wear", "Gym top", "Leggings", "Swimwear", "Base layer"]
-          aliases_de: ["Sportbekleidung", "Sportartikel", "Schwimmbekleidung", "Sportleggings", "Sporttop"]
+          aliases_en: ["Athletic wear", "Gym top", "Leggings", "Base layer"]
+          aliases_de: ["Sportbekleidung", "Sportartikel", "Sportleggings", "Sporttop"]
+      swimwear:
+        description: >-
+          Swimwear and bathing garments: swimsuits, bikinis, swim trunks,
+          board shorts. Always summer-only (see SeasonEnum) — unlike
+          sportswear's other examples (e.g. thermal base layers), which can
+          be winter-suitable. Separated from sportswear for hygiene
+          handling: worn against skin like underwear, so the same UC
+          condition/usage rules apply (uc-swimwear-condition-block,
+          uc-swimwear-adult-used-block).
+        annotations:
+          label_en: "Swimwear"
+          label_de: "Bademode"
+          aliases_en: ["Swimwear", "Swimsuit", "Bathing suit", "Bikini", "Swim trunks", "Board shorts"]
+          aliases_de: ["Bademode", "Badebekleidung", "Badeanzug", "Bikini", "Badehose", "Schwimmhose"]
       other:
         description: Clothing garments not fitting above subcategories.
         annotations:

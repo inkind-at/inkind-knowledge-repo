@@ -604,7 +604,11 @@ class ClothingSubcategoryEnum(str, Enum):
     """
     sportswear = "sportswear"
     """
-    Athletic wear, gym tops, leggings, swimwear, base layers. Non-specialist — specialist sports clothing (wetsuits, cycling jerseys) belongs in SportsItem. Fragment compiler may pre-fill is_winter_suitable=false for swimwear subcategory context.
+    Athletic wear, gym tops, leggings, base layers. Non-specialist — specialist sports clothing (wetsuits, cycling jerseys) belongs in SportsItem. Swimwear is a separate subcategory — see swimwear.
+    """
+    swimwear = "swimwear"
+    """
+    Swimwear and bathing garments: swimsuits, bikinis, swim trunks, board shorts. Always summer-only (see SeasonEnum) — unlike sportswear's other examples (e.g. thermal base layers), which can be winter-suitable. Separated from sportswear for hygiene handling: worn against skin like underwear, so the same UC condition/usage rules apply (uc-swimwear-condition-block, uc-swimwear-adult-used-block).
     """
     other = "other"
     """
@@ -3745,8 +3749,7 @@ class ClothingCategory(CategoryMixin):
                                                      'is_winter_suitable=true when '
                                                      'subcategory=outerwear and '
                                                      'is_winter_suitable=false when '
-                                                     'subcategory=sportswear '
-                                                     '(swimwear). Sorter can '
+                                                     'subcategory=swimwear. Sorter can '
                                                      'override.'}},
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/categories/clothing',
          'mixin': True,
@@ -3780,6 +3783,34 @@ class ClothingCategory(CategoryMixin):
                                                           'usage': {'equals_string': 'used',
                                                                     'name': 'usage'}}},
                     'title': 'uc-underwear-adult-used-block'},
+                   {'description': 'Swimwear must be new or like_new condition. fair '
+                                   'or poor graded swimwear must not be redistributed. '
+                                   'Worn against skin like underwear — same hygiene '
+                                   'policy applies. action: block, suggest: disposal.',
+                    'postconditions': {'slot_conditions': {'lifecycle_state': {'name': 'lifecycle_state',
+                                                                               'none_of': [{'equals_string': 'stored'},
+                                                                                           {'equals_string': 'distributed'}]}}},
+                    'preconditions': {'slot_conditions': {'condition_grade': {'any_of': [{'equals_string': 'fair'},
+                                                                                         {'equals_string': 'poor'}],
+                                                                              'name': 'condition_grade'},
+                                                          'subcategory': {'equals_string': 'swimwear',
+                                                                          'name': 'subcategory'}}},
+                    'title': 'uc-swimwear-condition-block'},
+                   {'description': 'Used adult swimwear (adult_male or adult_female '
+                                   'demographic) must not be redistributed. usage must '
+                                   'be new. Same hygiene and dignity standard as adult '
+                                   'underwear. action: block.',
+                    'postconditions': {'slot_conditions': {'lifecycle_state': {'name': 'lifecycle_state',
+                                                                               'none_of': [{'equals_string': 'stored'},
+                                                                                           {'equals_string': 'distributed'}]}}},
+                    'preconditions': {'slot_conditions': {'demographic': {'any_of': [{'equals_string': 'adult_male'},
+                                                                                     {'equals_string': 'adult_female'}],
+                                                                          'name': 'demographic'},
+                                                          'subcategory': {'equals_string': 'swimwear',
+                                                                          'name': 'subcategory'},
+                                                          'usage': {'equals_string': 'used',
+                                                                    'name': 'usage'}}},
+                    'title': 'uc-swimwear-adult-used-block'},
                    {'description': 'Items in poor condition should not be distributed. '
                                    'action: block, suggest: disposal.',
                     'postconditions': {'slot_conditions': {'lifecycle_state': {'name': 'lifecycle_state',
@@ -3902,7 +3933,8 @@ class ClothingCategory(CategoryMixin):
                                                                           'name': 'demographic'},
                                                           'subcategory': {'any_of': [{'equals_string': 'tops'},
                                                                                      {'equals_string': 'bottoms'},
-                                                                                     {'equals_string': 'outerwear'}],
+                                                                                     {'equals_string': 'outerwear'},
+                                                                                     {'equals_string': 'swimwear'}],
                                                                           'name': 'subcategory'}}},
                     'title': 'lc-maternity-demographic-subcategory'}],
          'see_also': ['http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories'],
@@ -4061,7 +4093,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'label_en': {'tag': 'label_en', 'value': 'Maternity'},
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
-                                              'outerwear]'}},
+                                              'outerwear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
     size: Optional[list[ClothingSizeEnum]] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
                          'label_en': {'tag': 'label_en', 'value': 'Size'}},
@@ -4081,7 +4113,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
                                               'outerwear, underwear, nightwear, '
-                                              'sportswear]'}},
+                                              'sportswear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
 
 
@@ -4177,7 +4209,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'label_en': {'tag': 'label_en', 'value': 'Maternity'},
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
-                                              'outerwear]'}},
+                                              'outerwear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
     size: Optional[list[ClothingSizeEnum]] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
                          'label_en': {'tag': 'label_en', 'value': 'Size'}},
@@ -4197,7 +4229,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
                                               'outerwear, underwear, nightwear, '
-                                              'sportswear]'}},
+                                              'sportswear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
 
 
@@ -7094,7 +7126,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'label_en': {'tag': 'label_en', 'value': 'Maternity'},
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
-                                              'outerwear]'}},
+                                              'outerwear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
     size: Optional[list[ClothingSizeEnum]] = Field(default=None, description="""Size of the clothing item. Valid values constrained by demographic via value map rules (vm-size-baby, vm-size-child, vm-size-adult). Grounded in cpi:ClothingSize and schema.org size systems.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Größe'},
                          'label_en': {'tag': 'label_en', 'value': 'Size'}},
@@ -7114,7 +7146,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                          'show_if': {'tag': 'show_if',
                                      'value': 'subcategory in [tops, bottoms, '
                                               'outerwear, underwear, nightwear, '
-                                              'sportswear]'}},
+                                              'sportswear, swimwear]'}},
          'domain_of': ['ClothingCategory']} })
     id: str = Field(default=..., description="""A unique identifier for the entity.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation',
                        'Actor',

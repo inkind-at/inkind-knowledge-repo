@@ -55,16 +55,9 @@ classes:
     slots:
       - id
       - category
-      - quantity_requested
-      - quantity_fulfilled
-      - campaign
-      - holder
-      - context_note
-      - deadline
       - urgency_tier
+      - household_situation
       - lifecycle_state
-      - registered_at
-      - public_visibility
     see_also:
       - schema:Demand
     slot_usage:
@@ -86,6 +79,7 @@ classes:
           - openeligibility:HumanSituation
     annotations:
       completeness_minimal: "category"
+      completeness_standard: "urgency_tier, household_situation"
 
 slots:
 
@@ -96,56 +90,17 @@ slots:
       Discriminator — standing (permanent interest), campaign (time-bounded),
       or specific (concrete beneficiary request).
 
-  quantity_requested:
-    range: integer
-    description: >-
-      Target quantity.  Null = any amount welcome (standing signals have no
-      target).
-
-  quantity_fulfilled:
-    range: integer
-    required: true
-    description: >-
-      Items matched to this signal — derived at runtime.
-
-  campaign:
-    range: Campaign
-    description: >-
-      FK to Campaign — set only for `campaign` signal_type.
-
-  holder:
-    range: string
-    description: >-
-      FK reference to Beneficiary or SocialOrganisation — used for `specific`
-      signal_type.
-
-  context_note:
-    range: string
-    description: >-
-      Human-readable context note, e.g. "Back to school for 30 primary school
-      children".
-
-  deadline:
-    range: date
-    description: >-
-      Deadline for fulfilment.  Null for standing signals.
-
   urgency_tier:
     range: UrgencyTierEnum
     description: >-
       Urgency classification.  Null for standing signals; set for campaign and
       specific types.
 
-  registered_at:
-    range: datetime
-    required: true
-    description: Timestamp when this demand signal was registered.
-
-  public_visibility:
-    range: boolean
-    required: true
+  household_situation:
+    range: HouseholdSituationEnum
     description: >-
-      Whether to expose this signal on the public API and Donor Portal.
+      Household composition of the beneficiary/holder this signal concerns —
+      informs suitability of matched items.
 
 enums:
 
@@ -171,12 +126,75 @@ enums:
     permissible_values:
       low:
         description: "Low urgency — no immediate deadline pressure."
+        annotations:
+          label_en: "Low"
+          label_de: "Niedrig"
+          hint_en: "4+ weeks"
+          hint_de: "4+ Wochen"
+          color_hint: "info"
+          deadline_days: 28
       medium:
         description: "Medium urgency."
+        annotations:
+          label_en: "Medium"
+          label_de: "Mittel"
+          hint_en: "within 2 weeks"
+          hint_de: "innerhalb 2 Wochen"
+          color_hint: "amber"
+          deadline_days: 14
       high:
         description: "High urgency — deadline approaching or need is acute."
+        annotations:
+          label_en: "High"
+          label_de: "Hoch"
+          hint_en: "within 1 week"
+          hint_de: "innerhalb 1 Woche"
+          color_hint: "warm_red"
+          deadline_days: 7
       critical:
         description: "Critical — immediate fulfilment required."
+        annotations:
+          label_en: "Critical"
+          label_de: "Kritisch"
+          hint_en: "within 3 days"
+          hint_de: "innerhalb 3 Tage"
+          color_hint: "warm_red"
+          deadline_days: 3
+          triggers_notification: true
+
+  HouseholdSituationEnum:
+    description: Household composition classification for a demand signal.
+    permissible_values:
+      single_adult:
+        description: "Single adult household."
+        annotations:
+          label_en: "Single adult"
+          label_de: "Einzelperson"
+      couple_no_children:
+        description: "Couple without children."
+        annotations:
+          label_en: "Couple without children"
+          label_de: "Paar ohne Kinder"
+      single_parent:
+        description: "Single parent with one or more children."
+        annotations:
+          label_en: "Single parent"
+          label_de: "Alleinerziehend"
+      family_with_children:
+        description: "Family with two parents/carers and one or more children."
+        annotations:
+          label_en: "Family with children"
+          label_de: "Familie mit Kindern"
+      multigenerational:
+        description: "Household spanning multiple generations."
+        annotations:
+          label_en: "Multigenerational"
+          label_de: "Mehrgenerationenhaushalt"
+      other:
+        description: "Household composition not covered by the above."
+        annotations:
+          label_en: "Other"
+          label_de: "Andere"
 
   DemandSignalLifecycleEnum:
     description: >-

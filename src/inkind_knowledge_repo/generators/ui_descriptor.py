@@ -182,8 +182,49 @@ class UiDescriptorGenerator(Generator):
             pass
         return "string"
 
-    def _get_enum_values(self, enum_name: Optional[str]) -> Optional[List[str]]:
-        """Return permissible value name strings for enum_name."""
+    # Annotation keys never inlined into a *.ui.json enum value object —
+    # labels are locale files' job (see LABEL_KEYS/_collect_labels), dispatch
+    # routing is its own dispatches_to field.
+    ENUM_VALUE_ANNOTATION_EXCLUDE = frozenset({
+        "label_en", "label_de", "hint_en", "hint_de",
+        "aliases_en", "aliases_de", "dispatch_to",
+    })
+
+    def _cast_annotation_scalar(self, raw: Any) -> Any:
+        """
+        Coerce an annotation's string value to int/float/bool where the text
+        unambiguously represents one, else return it unchanged. LinkML
+        annotation values are stored as strings regardless of the author's
+        intent, so "28" and "true" need this before they're fit to embed as
+        JSON numbers/booleans.
+        """
+        if not isinstance(raw, str):
+            return raw
+        low = raw.lower()
+        if low == "true":
+            return True
+        if low == "false":
+            return False
+        try:
+            return int(raw)
+        except ValueError:
+            pass
+        try:
+            return float(raw)
+        except ValueError:
+            pass
+        return raw
+
+    def _get_enum_values(self, enum_name: Optional[str]) -> Optional[List[Any]]:
+        """
+        Return permissible values for enum_name, one entry per value.
+
+        A value is the plain permissible-value string UNLESS that value
+        carries annotations beyond ENUM_VALUE_ANNOTATION_EXCLUDE (e.g.
+        color_hint, deadline_days, triggers_notification) — in that case the
+        entry is {"value": <text>, **those annotations}, scalar-cast via
+        _cast_annotation_scalar.
+        """
         if not enum_name:
             return None
         try:
@@ -192,7 +233,20 @@ class UiDescriptorGenerator(Generator):
             return None
         if not enum_def or not getattr(enum_def, "permissible_values", None):
             return None
-        return [pv.text for pv in enum_def.permissible_values.values()]
+
+        values: List[Any] = []
+        for pv in enum_def.permissible_values.values():
+            ann = getattr(pv, "annotations", None) or {}
+            extra = {
+                k: self._cast_annotation_scalar(getattr(v, "value", v))
+                for k, v in ann.items()
+                if k not in self.ENUM_VALUE_ANNOTATION_EXCLUDE
+            }
+            if extra:
+                values.append({"value": pv.text, **extra})
+            else:
+                values.append(pv.text)
+        return values
 
     def _parse_condition_values(self, field_name: str, condition: SlotDefinition) -> List[Any]:
         """
@@ -366,6 +420,22 @@ class UiDescriptorGenerator(Generator):
             return name
         return getattr(ann, "value", None) or str(ann) or name
 
+    def _get_annotation_hint(
+        self, annotations: Dict, locale: str
+    ) -> Optional[str]:
+        """
+        Return the hint_<locale> annotation value, or None if absent.
+
+        Unlike labels, a missing hint has no fallback — most enum values
+        won't have one, and there's no sensible substitute for "within 3
+        days" the way an element's own name substitutes for a missing label.
+        """
+        key = f"hint_{locale}"
+        ann = annotations.get(key)
+        if ann is None:
+            return None
+        return getattr(ann, "value", None) or str(ann) or None
+
     def _collect_labels(
         self, descriptor: Dict[str, Any], locale: str
     ) -> Dict[str, str]:
@@ -405,11 +475,20 @@ class UiDescriptorGenerator(Generator):
                     pvs = getattr(enum_def, "permissible_values", {}) or {}
                 except Exception:
                     pvs = {}
-                for value in values:
+                for raw_value in values:
+                    # Rich enum entries (see _get_enum_values) are
+                    # {"value": ..., ...extra annotations} — unwrap to the
+                    # bare value string for label lookup/keying.
+                    value = raw_value["value"] if isinstance(raw_value, dict) else raw_value
                     if value not in labels:
                         pv = pvs.get(value)
                         a = getattr(pv, "annotations", None) or {} \
                             if pv else {}
+                        # hint_<locale> is a PV-only concept (e.g.
+                        # UrgencyTierEnum's "within 3 days") — read it off
+                        # the PV's own annotations before any class-label
+                        # fallback below reassigns `a`.
+                        hint = self._get_annotation_hint(a, locale)
                         if f"label_{locale}" not in a:
                             # BaseCategoryEnum/SortingCategoryEnum values
                             # (e.g. "ClothingItem") are named identically to
@@ -428,6 +507,8 @@ class UiDescriptorGenerator(Generator):
                         labels[value] = self._get_annotation_label(
                             a, value, locale
                         )
+                        if hint is not None:
+                            labels[f"{value}_hint"] = hint
 
         return labels
 
