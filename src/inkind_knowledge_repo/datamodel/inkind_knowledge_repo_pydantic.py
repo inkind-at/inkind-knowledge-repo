@@ -3323,7 +3323,13 @@ class FoodItem(DonationItem, FoodContextRulesMixin, FoodCategory):
     """
     Food donation item. COICOP Division 01. Phase 1 stub — fully declared to establish the schema; the sort_food process path activates once food-bank organisations are onboarded. Assessment: packaging_intact + expiry_date — food safety is binary, no condition_grade.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'foodon:00001006',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Essen', 'Lebensmittel']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['food', 'food item']},
+                         'label_de': {'tag': 'label_de', 'value': 'Lebensmittel'},
+                         'label_en': {'tag': 'label_en', 'value': 'Food'}},
+         'class_uri': 'foodon:00001006',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['FoodCategory', 'FoodContextRulesMixin'],
          'see_also': ['foodon:00001006', 'http://purl.obolibrary.org/obo/foodon.owl']})
@@ -3418,7 +3424,11 @@ class OtherItem(DonationItem, OtherContextRulesMixin, OtherCategory):
     """
     Catch-all for donation items not fitting any other category. Minimal slots only (item_description + condition_grade), via OtherCategory (categories/other.yaml). Use sparingly: if a new item type appears frequently in operations, it warrants a proper subclass with a category mixin and dedicated sorting fragment rather than accumulating in OtherItem.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'schema:Product',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['sonstiges']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['other']},
+                         'label_de': {'tag': 'label_de', 'value': 'Sonstiges'},
+                         'label_en': {'tag': 'label_en', 'value': 'Other'}},
+         'class_uri': 'schema:Product',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['OtherCategory', 'OtherContextRulesMixin']})
 
@@ -6981,7 +6991,21 @@ class ClothingItem(ClothingCategory, DonationItem, ClothingContextRulesMixin):
     """
     Clothing garments: tops, bottoms, outerwear, underwear, nightwear, sportswear. COICOP 03.1. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'cpi:ClothingAndAccessories',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Kleidung',
+                                                  'Bekleidung',
+                                                  'Kleidungsstück',
+                                                  'Apparel',
+                                                  'Gewand',
+                                                  'Kleidungsartikel']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['clothing',
+                                                  'clothes',
+                                                  'garment',
+                                                  'apparel']},
+                         'label_de': {'tag': 'label_de', 'value': 'Kleidung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Clothing'}},
+         'class_uri': 'cpi:ClothingAndAccessories',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['ClothingCategory', 'ClothingContextRulesMixin'],
          'see_also': ['http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories']})
@@ -7139,7 +7163,17 @@ class AccessoriesItem(AccessoriesCategory, DonationItem, AccessoriesContextRules
     """
     Fashion and personal accessories: hats, scarves, gloves, belts, bags, jewellery, sunglasses, watches. COICOP 03.1, grouped with clothing but kept separate here — no demographic→size value map, no clothing UC rules, simpler age-only AccessoriesDemographicEnum. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Fashion_accessory',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Accesoires',
+                                                  'Accessoire',
+                                                  'Modeaccessoire']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['accessories',
+                                                  'accessory',
+                                                  'fashion accessory']},
+                         'label_de': {'tag': 'label_de', 'value': 'Accesoires'},
+                         'label_en': {'tag': 'label_en', 'value': 'Accessories'}},
+         'class_uri': 'pto:Fashion_accessory',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['AccessoriesCategory', 'AccessoriesContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Fashion_accessory']})
@@ -7250,7 +7284,20 @@ class FootwearItem(FootwearCategory, DonationItem, FootwearContextRulesMixin):
     """
     Footwear: shoes, boots, sandals, slippers. COICOP 03.2. Separated from ClothingItem for shoe-specific sizing (EU/UK/US/CM) and pair completeness. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Footwear',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Schuhe',
+                                                  'Stiefel',
+                                                  'Sandalen',
+                                                  'Hausschuhe']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['footwear',
+                                                  'shoes',
+                                                  'boots',
+                                                  'sandals',
+                                                  'slippers']},
+                         'label_de': {'tag': 'label_de', 'value': 'Schuhe'},
+                         'label_en': {'tag': 'label_en', 'value': 'Footwear'}},
+         'class_uri': 'pto:Footwear',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['FootwearCategory', 'FootwearContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Footwear']})
@@ -7382,7 +7429,13 @@ class FurnitureItem(FurnitureAssessmentMixin, DonationItem, FurnitureContextRule
     """
     Structural furniture: chairs, tables, beds, wardrobes, shelving. COICOP 05.1. Assessment: FurnitureAssessmentEnum — structural soundness is the primary redistribution signal (a scratched but solid chair is redistributable; a wobbly but clean one is not). assessment_result required regardless of usage since flatpack furniture can have assembly/manufacturing defects.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Furniture',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Möbel', 'Einrichtung']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['furniture', 'furnishings']},
+                         'label_de': {'tag': 'label_de', 'value': 'Möbel'},
+                         'label_en': {'tag': 'label_en', 'value': 'Furniture'}},
+         'class_uri': 'pto:Furniture',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['FurnitureAssessmentMixin', 'FurnitureContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Furniture']})
@@ -7475,7 +7528,15 @@ class BeddingTextilesItem(BeddingAssessmentMixin, DonationItem, BeddingContextRu
     """
     Bedding and household textiles: blankets, duvets, mattresses, pillows, sleeping bags, towels, curtains. COICOP 05.2. Separated from HouseholdItem — UNHCR NFI standards list blankets/sleeping mats as core relief items, and hygiene assessment differs from wear grading. Assessment: BeddingAssessmentEnum (hygiene primary signal — a worn but clean blanket is redistributable, a stained mattress is not). assessment_result required regardless of usage.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Bedding',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Bettwäsche', 'Textilien']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['bedding', 'textiles']},
+                         'label_de': {'tag': 'label_de',
+                                      'value': 'Bettwäsche und Textilien'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Bedding and Textiles'}},
+         'class_uri': 'pto:Bedding',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['BeddingAssessmentMixin', 'BeddingContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Bedding',
@@ -7578,7 +7639,14 @@ class HouseholdItem(HouseholdCategory, DonationItem, HouseholdContextRulesMixin)
     """
     Household and kitchen goods: cookware, crockery, small appliances, cleaning tools, home decor, garden tools. COICOP 05.3–05.5. Bedding and textiles (05.2) are BeddingTextilesItem, not this class. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Household_goods',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Haushaltsgegenstände',
+                                                  'Domestikum']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['household goods', 'domestic items']},
+                         'label_de': {'tag': 'label_de', 'value': 'Haustechnik'},
+                         'label_en': {'tag': 'label_en', 'value': 'Household'}},
+         'class_uri': 'pto:Household_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['HouseholdCategory', 'HouseholdContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Household_goods']})
@@ -7686,7 +7754,17 @@ class ElectronicsItem(ElectronicsAssessmentMixin, DonationItem, ElectronicsConte
     """
     Consumer electronics: phones, tablets, laptops, cameras, audio devices, cables, gaming consoles. COICOP 09.1–09.2. Assessment: ElectronicsAssessmentEnum — functional state is the primary redistribution signal (a cracked-screen phone that works beats a pristine one that doesn't). assessment_result required regardless of usage. Data wiping is enforced by the fragment engine, not a schema rule.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Consumer_electronics',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Elektronikgeräte',
+                                                  'Gadgets',
+                                                  'Elektronik']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['electronic devices',
+                                                  'gadgets',
+                                                  'electronic']},
+                         'label_de': {'tag': 'label_de', 'value': 'Elektronik'},
+                         'label_en': {'tag': 'label_en', 'value': 'Electronics'}},
+         'class_uri': 'pto:Consumer_electronics',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['ElectronicsAssessmentMixin', 'ElectronicsContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Consumer_electronics']})
@@ -7776,7 +7854,14 @@ class ToysItem(ToysCategory, DonationItem, ToysContextRulesMixin):
     """
     Toys and games. COICOP 09.3. Age grading follows EU Toy Safety Directive 2009/48/EC; the small-parts choking-hazard UC rule also references ASTM F963. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Toy',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Spielzeug', 'Spiele']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['toys', 'games']},
+                         'label_de': {'tag': 'label_de',
+                                      'value': 'Spielzeug und Spiele'},
+                         'label_en': {'tag': 'label_en', 'value': 'Toys and Games'}},
+         'class_uri': 'pto:Toy',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['ToysCategory', 'ToysContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Toy',
@@ -7893,7 +7978,13 @@ class SportsItem(SportsProtectiveAssessmentMixin, DonationItem, SportsContextRul
     """
     Sports and fitness equipment. COICOP 09.4. Bicycles are placed here by domain convention (COICOP assigns them to Division 07). Dual-track assessment: protective_gear subcategory uses SportsProtectiveAssessmentEnum (wear grade can't catch impact damage not visible under an intact shell); everything else uses condition_grade.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Sporting_goods',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Sport', 'Fitness']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['sports', 'fitness']},
+                         'label_de': {'tag': 'label_de', 'value': 'Sport'},
+                         'label_en': {'tag': 'label_en', 'value': 'Sports'}},
+         'class_uri': 'pto:Sporting_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['SportsProtectiveAssessmentMixin', 'SportsContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Sporting_goods']})
@@ -8015,7 +8106,11 @@ class BooksItem(BooksCategory, DonationItem, BooksContextRulesMixin):
     """
     Books and educational materials. COICOP 09.5. No demographic/size dimension — age_range (BookAgeRangeEnum) is broader and non-gendered. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'schema:Book',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['Bücher']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['books']},
+                         'label_de': {'tag': 'label_de', 'value': 'Bücher'},
+                         'label_en': {'tag': 'label_en', 'value': 'Books'}},
+         'class_uri': 'schema:Book',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['BooksCategory', 'BooksContextRulesMixin'],
          'see_also': ['schema:Book']})
@@ -8122,7 +8217,11 @@ class StationeryItem(StationeryCategory, DonationItem, StationeryContextRulesMix
     """
     Stationery and office supplies: pens, notebooks, art supplies, calculators. COICOP 09.5. Separated from BooksItem — different sorting paths, condition vocabulary, and demand patterns. Assessment: condition_grade (wear grade).
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Stationery',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de', 'value': ['Schreibwaren']},
+                         'aliases_en': {'tag': 'aliases_en', 'value': ['stationery']},
+                         'label_de': {'tag': 'label_de', 'value': 'Schreibwaren'},
+                         'label_en': {'tag': 'label_en', 'value': 'Stationery'}},
+         'class_uri': 'pto:Stationery',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['StationeryCategory', 'StationeryContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Stationery']})
@@ -8230,7 +8329,13 @@ class PersonalCareItem(PersonalCareCategory, DonationItem, PersonalCareContextRu
     """
     Personal care, hygiene, and health products. Merges COICOP 06.1 and 12.1 — the operative safety rules (sealed required, used tools blocked, expiry enforced) are identical across both. Assessment: is_sealed + expiry_date, no condition_grade — a wear grade is meaningless for a tube of toothpaste.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Personal_hygiene',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Personalhygiene', 'Hygiene']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['personal care', 'hygiene']},
+                         'label_de': {'tag': 'label_de', 'value': 'Personalhygiene'},
+                         'label_en': {'tag': 'label_en', 'value': 'Personal Care'}},
+         'class_uri': 'pto:Personal_hygiene',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['PersonalCareCategory', 'PersonalCareContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Personal_hygiene',
@@ -8330,7 +8435,16 @@ class MobilityAidsItem(MobilityAssessmentMixin, DonationItem, MobilityAidsContex
     """
     Mobility aids and assistive devices: wheelchairs, crutches, walking frames, hearing aids, orthotics, daily living aids. COICOP 06.1.3 and 06.2. Assessment: MobilityAssessmentEnum, capturing structural soundness, functional state, and body-contact hygiene in one enum. assessment_result required regardless of usage.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Assistive_technology',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Mobilitätshilfen', 'Hilfsgeräte']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['mobility aids',
+                                                  'assistive devices']},
+                         'label_de': {'tag': 'label_de',
+                                      'value': 'Mobilitätshilfen und Hilfsgeräte'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Mobility Aids and Assistive Devices'}},
+         'class_uri': 'pto:Assistive_technology',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['MobilityAssessmentMixin', 'MobilityAidsContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Assistive_technology',
@@ -8420,7 +8534,22 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
     Baby and infant supplies: pushchairs, cots, car seats, infant formula, feeding bottles, baby monitors, bath equipment. Baby clothing belongs in ClothingItem (demographic=baby). Treated as a first-class category (COICOP otherwise scatters these across Divisions 01/03/05), following Open Eligibility and UNHCR NFI kit practice.
     Three-track assessment: Track 1 — safety-critical equipment (BabyEquipmentAssessmentEnum): pushchairs, cots, car seats, carriers, high chairs, sleeping bags (EN 1888/716/14344/16781). Baby sleeping bags are Track 1, not BeddingTextilesItem, since EN 16781 differs from adult sleeping-bag hygiene checks. Track 2 — consumables (is_sealed + expiry_date): infant formula, feeding bottles/teats, baby food. Track 3 — general gear (condition_grade): bath, changing, monitors, bouncers.
     """
-    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'class_uri': 'pto:Baby_transport',
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
+                                        'value': ['Babyausstattung',
+                                                  'Kleinkindausstattung',
+                                                  'Babybedarf',
+                                                  'Kleinkindbedarf',
+                                                  'Baby sachen']},
+                         'aliases_en': {'tag': 'aliases_en',
+                                        'value': ['baby supplies',
+                                                  'infant supplies',
+                                                  'baby things',
+                                                  'infant things']},
+                         'label_de': {'tag': 'label_de',
+                                      'value': 'Baby- und Kleinkindausstattung'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Baby and Infant Supplies'}},
+         'class_uri': 'pto:Baby_transport',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['BabyEquipmentAssessmentMixin', 'BabyInfantContextRulesMixin'],
          'see_also': ['http://www.productontology.org/id/Baby_transport',

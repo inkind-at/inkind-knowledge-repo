@@ -406,7 +406,7 @@ enums:
         meaning: schema:UsedCondition
         annotations:
           label_en: "Used"
-          label_de: "Verwendet"
+          label_de: "Gebraucht"
 
   UsedConditionGradeEnum:
     description: >-

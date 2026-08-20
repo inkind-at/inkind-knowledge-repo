@@ -239,14 +239,15 @@ def test_ui_descriptor_no_cross_category_rule_leakage():
 
 
 def test_ui_descriptor_labels_resolve_via_ancestor_walk_from_tier1_mixin():
-    """label_en/label_de/aliases_en/aliases_de live once, on each category's
-    Tier 1 mixin (e.g. FurnitureCategory) — not on DonationItem's real
-    concrete subclasses, which the UI descriptor generator no longer
-    introspects, so labels declared there would be inert. Confirm both the
-    bare dispatch target (DemandSignal's, e.g. FurnitureCategory) and the
-    physical-item dispatch target (the other three roots', e.g.
-    FurnitureAssessmentMixin, which is_a's FurnitureCategory) resolve the
-    same label via _get_class_label_annotations' ancestor walk."""
+    """label_en/label_de/aliases_en/aliases_de are declared on each category's
+    Tier 1 mixin (e.g. FurnitureCategory) and also mirrored onto DonationItem's
+    real concrete subclasses (e.g. FurnitureItem) for alias_generator.py, which
+    walks sv.all_classes() directly rather than through the UI descriptor's
+    dispatch targets. The UI descriptor generator itself never introspects
+    those concrete subclasses — it resolves labels for its own dispatch
+    targets (the bare Tier 1 mixin and the physical-item mixin that is_a's it)
+    via _get_class_label_annotations' ancestor walk, independent of whatever
+    the concrete subclass carries."""
     gen = UiDescriptorGenerator(SCHEMA_PATH, top_class="DonationItem")
 
     bare = gen._get_class_label_annotations("FurnitureCategory")
@@ -262,12 +263,72 @@ def test_ui_descriptor_labels_resolve_via_ancestor_walk_from_tier1_mixin():
     assert clothing_bare.get("label_en").value == "Clothing"
     assert clothing_physical.get("label_en").value == "Clothing"
 
-    # DonationItem's real concrete subclasses no longer carry their own
-    # label annotations — they're inert now that the generator never
-    # introspects them for UI purposes.
+    # DonationItem's real concrete subclasses carry the same label, kept in
+    # sync with their Tier 1 mixin, for alias_generator.py's benefit.
     sv = SchemaView(SCHEMA_PATH)
     clothing_item_cls = sv.get_class("ClothingItem")
-    assert "label_en" not in (getattr(clothing_item_cls, "annotations", None) or {})
+    clothing_item_anns = getattr(clothing_item_cls, "annotations", None) or {}
+    assert clothing_item_anns.get("label_en").value == "Clothing"
+
+
+CATEGORY_VALUE_TO_EXPECTED_LABEL_EN = {
+    "ClothingItem": "Clothing",
+    "AccessoriesItem": "Accessories",
+    "FootwearItem": "Footwear",
+    "FurnitureItem": "Furniture",
+    "BeddingTextilesItem": "Bedding and Textiles",
+    "HouseholdItem": "Household",
+    "ElectronicsItem": "Electronics",
+    "ToysItem": "Toys and Games",
+    "SportsItem": "Sports",
+    "BooksItem": "Books",
+    "StationeryItem": "Stationery",
+    "PersonalCareItem": "Personal Care",
+    "MobilityAidsItem": "Mobility Aids and Assistive Devices",
+    "BabyInfantItem": "Baby and Infant Supplies",
+    "FoodItem": "Food",
+    "OtherItem": "Other",
+}
+
+
+def test_ui_descriptor_category_enum_values_resolve_labels_via_same_named_class():
+    """BaseCategoryEnum/SortingCategoryEnum permissible values (e.g.
+    "ClothingItem") carry only dispatch_to — no label_en/label_de of their
+    own, by design, to avoid a third copy of the translation alongside the
+    Tier 1 mixin and the DonationItem subclass. _collect_labels must resolve
+    each category value's label by falling back to the real DonationItem
+    subclass of the same name (ancestor-walked up to its Tier 1 mixin),
+    not silently echo the raw enum value name back as the label."""
+    sv = SchemaView(SCHEMA_PATH)
+    for enum_name in ("BaseCategoryEnum", "SortingCategoryEnum"):
+        enum_def = sv.get_enum(enum_name)
+        for value in CATEGORY_VALUE_TO_EXPECTED_LABEL_EN:
+            pv = enum_def.permissible_values[value]
+            anns = getattr(pv, "annotations", None) or {}
+            assert "label_en" not in anns, (
+                f"{enum_name}.{value} unexpectedly carries its own label_en — "
+                "update CATEGORY_VALUE_TO_EXPECTED_LABEL_EN / this test's "
+                "premise if that was intentional"
+            )
+
+    donation_gen = UiDescriptorGenerator(SCHEMA_PATH, top_class="DonationItem")
+    donation_labels_en = donation_gen._collect_labels(
+        {"DonationItem": donation_gen._build_descriptor("DonationItem")}, "en"
+    )
+    demand_gen = UiDescriptorGenerator(SCHEMA_PATH, top_class="DemandSignal")
+    demand_labels_en = demand_gen._collect_labels(
+        {"DemandSignal": demand_gen._build_descriptor("DemandSignal")}, "en"
+    )
+
+    for value, expected in CATEGORY_VALUE_TO_EXPECTED_LABEL_EN.items():
+        assert donation_labels_en.get(value) == expected, (
+            f"DonationItem (SortingCategoryEnum): {value} -> "
+            f"{donation_labels_en.get(value)!r}, expected {expected!r}"
+        )
+        assert demand_labels_en.get(value) == expected, (
+            f"DemandSignal (BaseCategoryEnum): {value} -> "
+            f"{demand_labels_en.get(value)!r}, expected {expected!r}"
+        )
 
 
 def test_ui_descriptor_dispatch_is_schema_driven_via_enum_annotations():
@@ -312,20 +373,20 @@ def _dispatch_map(root_descriptor):
     return next(f for f in root_descriptor["fields"] if f["name"] == "category")["dispatches_to"]
 
 
-def test_ui_descriptor_storage_collection_and_sorted_collection_share_files():
-    """StorageCollection and SortedCollection (and DonationItem) must
-    dispatch to the exact same physical-item files per category — that's the
-    entire point of the shared-file design, not per-root duplicates."""
-    storage = _generate("StorageCollection")
+def test_ui_descriptor_sorted_collection_and_donation_item_share_physical_item_files():
+    """SortedCollection and DonationItem both use SortingCategoryEnum for
+    their category slot, so they must dispatch to the exact same
+    physical-item files per category — that's the entire point of the
+    shared-file design, not per-root duplicates."""
     sorted_ = _generate("SortedCollection")
     donation = _generate("DonationItem")
 
-    storage_map = _dispatch_map(storage)
     sorted_map = _dispatch_map(sorted_)
     donation_map = _dispatch_map(donation)
 
-    assert len(storage_map) == 16
-    assert storage_map == sorted_map == donation_map
+    assert len(sorted_map) == 16
+    assert sorted_map == donation_map
+    assert all(v.endswith(("AssessmentMixin.ui.json", "PhysicalItemMixin.ui.json")) for v in sorted_map.values())
 
     # Root-owned fields never appear in the shared category files.
     furniture = _generate("FurnitureAssessmentMixin")
@@ -334,6 +395,29 @@ def test_ui_descriptor_storage_collection_and_sorted_collection_share_files():
     assert "donation_source" not in field_names
     assert "sorting_notes" not in field_names
     assert "assessment_result" in field_names  # category-owned, correctly present
+
+
+def test_ui_descriptor_storage_collection_and_demand_signal_share_bare_files():
+    """StorageCollection uses BaseCategoryEnum for its category slot — the
+    same enum DemandSignal uses — so both dispatch to the bare Tier 1
+    category files, not the physical-item files SortedCollection/DonationItem
+    use. StorageCollection therefore does NOT share dispatch targets with
+    SortedCollection/DonationItem."""
+    storage = _generate("StorageCollection")
+    demand = _generate("DemandSignal")
+    sorted_ = _generate("SortedCollection")
+
+    storage_map = _dispatch_map(storage)
+    demand_map = _dispatch_map(demand)
+    sorted_map = _dispatch_map(sorted_)
+
+    assert len(storage_map) == 16
+    assert storage_map == demand_map
+    assert storage_map != sorted_map
+    assert all(
+        v.endswith("Category.ui.json") and "Assessment" not in v and "PhysicalItem" not in v
+        for v in storage_map.values()
+    )
 
 
 def test_ui_descriptor_storage_collection_root_fields():

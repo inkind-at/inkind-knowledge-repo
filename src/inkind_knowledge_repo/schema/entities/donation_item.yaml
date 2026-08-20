@@ -136,6 +136,11 @@ classes:
       sportswear. COICOP 03.1. Assessment: condition_grade (wear grade).
     see_also:
       - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
+    annotations:
+      label_en: "Clothing"
+      label_de: "Kleidung"
+      aliases_en: ["clothing", "clothes", "garment", "apparel"]
+      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel", "Gewand", "Kleidungsartikel"]
 
 
   AccessoriesItem:
@@ -152,6 +157,11 @@ classes:
       condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Fashion_accessory
+    annotations:
+      label_en: "Accessories"
+      label_de: "Accesoires"
+      aliases_en: ["accessories", "accessory", "fashion accessory"]
+      aliases_de: ["Accesoires", "Accessoire", "Modeaccessoire"]
 
 
   FootwearItem:
@@ -166,6 +176,11 @@ classes:
       completeness. Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Footwear
+    annotations:
+      label_en: "Footwear"
+      label_de: "Schuhe"
+      aliases_en: ["footwear", "shoes", "boots", "sandals", "slippers"]
+      aliases_de: ["Schuhe", "Stiefel", "Sandalen", "Hausschuhe"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -187,6 +202,11 @@ classes:
       furniture can have assembly/manufacturing defects.
     see_also:
       - http://www.productontology.org/id/Furniture
+    annotations:
+      label_en: "Furniture"
+      label_de: "Möbel"
+      aliases_en: ["furniture", "furnishings"]
+      aliases_de: ["Möbel", "Einrichtung"]
 
 
   BeddingTextilesItem:
@@ -206,6 +226,11 @@ classes:
     see_also:
       - http://www.productontology.org/id/Bedding
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    annotations:
+      label_en: "Bedding and Textiles"
+      label_de: "Bettwäsche und Textilien"
+      aliases_en: ["bedding", "textiles"]
+      aliases_de: ["Bettwäsche", "Textilien"]
 
 
   HouseholdItem:
@@ -221,6 +246,11 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Household_goods
+    annotations:
+      label_en: "Household"
+      label_de: "Haustechnik"
+      aliases_en: ["household goods", "domestic items"]
+      aliases_de: ["Haushaltsgegenstände", "Domestikum"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -242,6 +272,11 @@ classes:
       usage. Data wiping is enforced by the fragment engine, not a schema rule.
     see_also:
       - http://www.productontology.org/id/Consumer_electronics
+    annotations:
+      label_en: "Electronics"
+      label_de: "Elektronik"
+      aliases_en: ["electronic devices", "gadgets", "electronic"]
+      aliases_de: ["Elektronikgeräte", "Gadgets", "Elektronik"]
 
 
   ToysItem:
@@ -257,6 +292,11 @@ classes:
     see_also:
       - http://www.productontology.org/id/Toy
       - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
+    annotations:
+      label_en: "Toys and Games"
+      label_de: "Spielzeug und Spiele"
+      aliases_en: ["toys", "games"]
+      aliases_de: ["Spielzeug", "Spiele"]
 
 
   SportsItem:
@@ -274,6 +314,11 @@ classes:
       condition_grade.
     see_also:
       - http://www.productontology.org/id/Sporting_goods
+    annotations:
+      label_en: "Sports"
+      label_de: "Sport"
+      aliases_en: ["sports", "fitness"]
+      aliases_de: ["Sport", "Fitness"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -292,6 +337,11 @@ classes:
       Assessment: condition_grade (wear grade).
     see_also:
       - schema:Book
+    annotations:
+      label_en: "Books"
+      label_de: "Bücher"
+      aliases_en: ["books"]
+      aliases_de: ["Bücher"]
 
 
   StationeryItem:
@@ -307,6 +357,11 @@ classes:
       condition_grade (wear grade).
     see_also:
       - http://www.productontology.org/id/Stationery
+    annotations:
+      label_en: "Stationery"
+      label_de: "Schreibwaren"
+      aliases_en: ["stationery"]
+      aliases_de: ["Schreibwaren"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -329,6 +384,11 @@ classes:
       - http://www.productontology.org/id/Personal_hygiene
       - http://www.productontology.org/id/Cosmetics
       - https://company.auntbertha.com/openeligibility/
+    annotations:
+      label_en: "Personal Care"
+      label_de: "Personalhygiene"
+      aliases_en: ["personal care", "hygiene"]
+      aliases_de: ["Personalhygiene", "Hygiene"]
 
 
   MobilityAidsItem:
@@ -346,6 +406,11 @@ classes:
     see_also:
       - http://www.productontology.org/id/Assistive_technology
       - https://company.auntbertha.com/openeligibility/
+    annotations:
+      label_en: "Mobility Aids and Assistive Devices"
+      label_de: "Mobilitätshilfen und Hilfsgeräte"
+      aliases_en: ["mobility aids", "assistive devices"]
+      aliases_de: ["Mobilitätshilfen", "Hilfsgeräte"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -378,6 +443,11 @@ classes:
       - http://www.productontology.org/id/Infant_bed
       - https://company.auntbertha.com/openeligibility/
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
+    annotations:
+      label_en: "Baby and Infant Supplies"
+      label_de: "Baby- und Kleinkindausstattung"
+      aliases_en: ["baby supplies", "infant supplies", "baby things", "infant things"]
+      aliases_de: ["Babyausstattung", "Kleinkindausstattung", "Babybedarf", "Kleinkindbedarf", "Baby sachen"]
 
 
   FoodItem:
@@ -394,6 +464,11 @@ classes:
     see_also:
       - foodon:00001006
       - http://purl.obolibrary.org/obo/foodon.owl
+    annotations:
+      label_en: "Food"
+      label_de: "Lebensmittel"
+      aliases_en: ["food", "food item"]
+      aliases_de: ["Essen", "Lebensmittel"]
 
 
   # ════════════════════════════════════════════════════════════════════════════
@@ -413,6 +488,11 @@ classes:
       type appears frequently in operations, it warrants a proper subclass
       with a category mixin and dedicated sorting fragment rather than
       accumulating in OtherItem.
+    annotations:
+      label_en: "Other"
+      label_de: "Sonstiges"
+      aliases_en: ["other"]
+      aliases_de: ["sonstiges"]
 
 
 # ── Slots declared in this schema ─────────────────────────────────────────────

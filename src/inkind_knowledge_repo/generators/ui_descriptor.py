@@ -335,11 +335,12 @@ class UiDescriptorGenerator(Generator):
         cover every dispatch target derived from it — the bare mixin itself
         (DemandSignal's target) and the Tier 2/physical-item mixin that
         is_a's it (e.g. FurnitureAssessmentMixin, the other three roots'
-        target) — without redeclaring the label on both. Labels no longer
-        live on DonationItem's real concrete subclasses (ClothingItem,
-        etc.) — those are never introspected by the UI descriptor generator
-        after the category descriptor sync work, so annotations there would
-        be inert.
+        target) — without redeclaring the label on both. DonationItem's real
+        concrete subclasses (ClothingItem, etc.) also carry the same label
+        annotations, kept in sync with their Tier 1 mixin, for
+        alias_generator.py (which reads sv.all_classes() directly); this
+        generator never introspects those subclasses, so whatever they carry
+        is irrelevant here.
         """
         for ancestor in self.schemaview.class_ancestors(class_name):
             try:
@@ -409,6 +410,21 @@ class UiDescriptorGenerator(Generator):
                         pv = pvs.get(value)
                         a = getattr(pv, "annotations", None) or {} \
                             if pv else {}
+                        if f"label_{locale}" not in a:
+                            # BaseCategoryEnum/SortingCategoryEnum values
+                            # (e.g. "ClothingItem") are named identically to
+                            # a real DonationItem subclass by design — reuse
+                            # that class's label (ancestor-walked up to its
+                            # Tier 1 mixin) instead of duplicating label_en/
+                            # label_de a third time on the PV itself.
+                            try:
+                                same_named_class = self.schemaview.get_class(value)
+                            except Exception:
+                                same_named_class = None
+                            if same_named_class is not None:
+                                cls_a = self._get_class_label_annotations(value)
+                                if f"label_{locale}" in cls_a:
+                                    a = cls_a
                         labels[value] = self._get_annotation_label(
                             a, value, locale
                         )
