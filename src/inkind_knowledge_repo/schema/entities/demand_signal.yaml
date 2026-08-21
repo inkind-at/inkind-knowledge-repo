@@ -103,7 +103,7 @@ slots:
       informs suitability of matched items.
     annotations:
       label_en: "Household situation"
-      label_de: "Haushaltssituation"
+      label_de: "Haushaltsform"
 
 enums:
 
@@ -172,7 +172,7 @@ enums:
         description: "Single adult household."
         annotations:
           label_en: "Single adult"
-          label_de: "Einzelperson"
+          label_de: "Einzelpersonen"
       couple_no_children:
         description: "Couple without children."
         annotations:
@@ -182,7 +182,7 @@ enums:
         description: "Single parent with one or more children."
         annotations:
           label_en: "Single parent"
-          label_de: "Alleinerziehend"
+          label_de: "Alleinerziehende"
       family_with_children:
         description: "Family with two parents/carers and one or more children."
         annotations:
@@ -192,7 +192,7 @@ enums:
         description: "Household spanning multiple generations."
         annotations:
           label_en: "Multigenerational"
-          label_de: "Mehrgenerationenhaushalt"
+          label_de: "Mehrgenerationenhaushalte"
       other:
         description: "Household composition not covered by the above."
         annotations:

@@ -3666,7 +3666,7 @@ class DemandSignal(ConfiguredBaseModel):
          'see_also': ['openeligibility:ServiceTag'],
          'slot_uri': 'schema:additionalType'} })
     urgency_tier: Optional[UrgencyTierEnum] = Field(default=None, description="""Urgency classification.  Null for standing signals; set for campaign and specific types.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal'], 'see_also': ['openeligibility:HumanSituation']} })
-    household_situation: Optional[HouseholdSituationEnum] = Field(default=None, description="""Household composition of the beneficiary/holder this signal concerns — informs suitability of matched items.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Haushaltssituation'},
+    household_situation: Optional[HouseholdSituationEnum] = Field(default=None, description="""Household composition of the beneficiary/holder this signal concerns — informs suitability of matched items.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Haushaltsform'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Household situation'}},
          'domain_of': ['DemandSignal']} })
