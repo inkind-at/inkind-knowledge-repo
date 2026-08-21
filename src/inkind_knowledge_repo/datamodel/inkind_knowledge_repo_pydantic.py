@@ -390,6 +390,145 @@ class ConditionEnum(str, Enum):
     poor = "poor"
 
 
+class OrgActivityAreaEnum(str, Enum):
+    """
+    Cause area(s) an organisation is active in. Grounded in ICNPO (International Classification of Nonprofit Organizations, Johns Hopkins Comparative Nonprofit Sector Project) — 12 major groups, adopted by the UN for nonprofit satellite accounts. Selected over NTEE/Candid PCS Subject for its international scope, small stable value set, and lack of licensing restrictions. ICNPO codes have no stable public per-value IRI, so meaning: is omitted below (same convention as UsedConditionGradeEnum.fair in core.yaml); see_also instead points to the defining working paper. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    culture_recreation = "culture_recreation"
+    """
+    Culture, arts, and recreation — ICNPO Group 1.
+    """
+    education_research = "education_research"
+    """
+    Education and research — ICNPO Group 2.
+    """
+    health = "health"
+    """
+    Health services and research — ICNPO Group 3.
+    """
+    social_services = "social_services"
+    """
+    Social services — ICNPO Group 4.
+    """
+    environment = "environment"
+    """
+    Environment and animal protection — ICNPO Group 5.
+    """
+    development_housing = "development_housing"
+    """
+    Development and housing — ICNPO Group 6.
+    """
+    law_advocacy_politics = "law_advocacy_politics"
+    """
+    Law, advocacy, and politics — ICNPO Group 7.
+    """
+    philanthropic_intermediaries = "philanthropic_intermediaries"
+    """
+    Philanthropic intermediaries and voluntarism promotion — ICNPO Group 8.
+    """
+    international = "international"
+    """
+    International activities — ICNPO Group 9.
+    """
+    religion = "religion"
+    """
+    Religion — ICNPO Group 10.
+    """
+    business_professional_unions = "business_professional_unions"
+    """
+    Business and professional associations, unions — ICNPO Group 11.
+    """
+    not_elsewhere_classified = "not_elsewhere_classified"
+    """
+    Not elsewhere classified — ICNPO Group 12.
+    """
+
+
+class OrgPopulationServedEnum(str, Enum):
+    """
+    Beneficiary/target population group(s) an organisation serves. Inspired by Candid's "Population Served" taxonomy facet, adapted rather than reproduced verbatim — Candid's complete hierarchy is served through a licensed Taxonomy API (see see_also), so this is a repo-defined starter set of the most common categories, not a full import. Use sparingly and add a proper value if a recurring gap is found during org onboarding (same guidance as OtherItem in core.yaml). Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    children_youth = "children_youth"
+    """
+    Children and youth.
+    """
+    seniors = "seniors"
+    """
+    Older adults / seniors.
+    """
+    people_with_disabilities = "people_with_disabilities"
+    """
+    People with disabilities.
+    """
+    immigrants_refugees = "immigrants_refugees"
+    """
+    Immigrants and refugees.
+    """
+    people_experiencing_homelessness = "people_experiencing_homelessness"
+    """
+    People experiencing homelessness.
+    """
+    economically_disadvantaged = "economically_disadvantaged"
+    """
+    Low-income / economically disadvantaged individuals and families.
+    """
+    women_girls = "women_girls"
+    """
+    Women and girls.
+    """
+    lgbtq = "lgbtq"
+    """
+    LGBTQ+ people.
+    """
+    veterans_military_families = "veterans_military_families"
+    """
+    Veterans and military families.
+    """
+    racial_ethnic_indigenous_groups = "racial_ethnic_indigenous_groups"
+    """
+    Racial, ethnic, and Indigenous groups.
+    """
+    people_with_health_conditions = "people_with_health_conditions"
+    """
+    People living with chronic illness or health conditions.
+    """
+    justice_involved = "justice_involved"
+    """
+    Incarcerated and formerly incarcerated people.
+    """
+    general_public = "general_public"
+    """
+    General/unspecified public — no targeted population group.
+    """
+    other = "other"
+    """
+    Population group not covered by the values above. Use sparingly — if a group recurs, add a proper value.
+    """
+
+
+class SDGGoalEnum(str, Enum):
+    """
+    UN Sustainable Development Goal(s) an organisation's work contributes to. Lightweight ESG/impact anchor — not a full metrics catalog. Deliberately deferred adopting IRIS+/GRI/B Impact in this pass; see docs/social_organisation_taxonomy_research.md.
+    """
+    no_poverty = "no_poverty"
+    zero_hunger = "zero_hunger"
+    good_health_and_well_being = "good_health_and_well_being"
+    quality_education = "quality_education"
+    gender_equality = "gender_equality"
+    clean_water_and_sanitation = "clean_water_and_sanitation"
+    affordable_and_clean_energy = "affordable_and_clean_energy"
+    decent_work_and_economic_growth = "decent_work_and_economic_growth"
+    industry_innovation_and_infrastructure = "industry_innovation_and_infrastructure"
+    reduced_inequality = "reduced_inequality"
+    sustainable_cities_and_communities = "sustainable_cities_and_communities"
+    responsible_consumption_and_production = "responsible_consumption_and_production"
+    climate_action = "climate_action"
+    life_below_water = "life_below_water"
+    life_on_land = "life_on_land"
+    peace_justice_and_strong_institutions = "peace_justice_and_strong_institutions"
+    partnerships_for_the_goals = "partnerships_for_the_goals"
+
+
 class ActorRoleEnum(str, Enum):
     """
     Valid actor roles within a SocialOrganisation.
@@ -2335,6 +2474,20 @@ class SocialOrganisation(ConfiguredBaseModel):
     geo_point: Optional[GeoPoint] = Field(default=None, description="""Geographic coordinates for public map display.  Optional — used by the public org directory.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation']} })
     is_active: bool = Field(default=..., description="""Whether this entity is currently active.""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation', 'Actor', 'StorageLocation']} })
     config: Optional[OrgConfig] = Field(default=None, description="""Inlined organisation configuration object (timezone, locale, etc.).""", json_schema_extra = { "linkml_meta": {'domain_of': ['SocialOrganisation']} })
+    mission_statement: Optional[str] = Field(default=None, description="""Free-text mission or purpose statement. No controlled vocabulary fits mission text — this mirrors org:purpose's own literal-valued modeling.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mission'},
+                         'label_en': {'tag': 'label_en', 'value': 'Mission Statement'}},
+         'domain_of': ['SocialOrganisation'],
+         'slot_uri': 'org:purpose'} })
+    activity_areas: list[OrgActivityAreaEnum] = Field(default=..., description="""Cause area(s) the organisation is active in, grounded in ICNPO (International Classification of Nonprofit Organizations). At least one value required. See OrgActivityAreaEnum for grounding rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Tätigkeitsbereiche'},
+                         'label_en': {'tag': 'label_en', 'value': 'Activity Areas'}},
+         'domain_of': ['SocialOrganisation'],
+         'slot_uri': 'org:classification'} })
+    population_served: Optional[list[OrgPopulationServedEnum]] = Field(default=None, description="""Beneficiary/target population group(s) the organisation serves. See OrgPopulationServedEnum for grounding rationale.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zielgruppen'},
+                         'label_en': {'tag': 'label_en', 'value': 'Population Served'}},
+         'domain_of': ['SocialOrganisation']} })
+    sdg_alignment: Optional[list[SDGGoalEnum]] = Field(default=None, description="""UN Sustainable Development Goal(s) the organisation's work contributes to. Lightweight anchor for future social impact / ESG estimation — not a full metrics catalog (see docs/social_organisation_taxonomy_research.md).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'SDG-Bezug'},
+                         'label_en': {'tag': 'label_en', 'value': 'SDG Alignment'}},
+         'domain_of': ['SocialOrganisation']} })
 
 
 class GeoPoint(ConfiguredBaseModel):

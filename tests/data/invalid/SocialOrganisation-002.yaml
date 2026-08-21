@@ -1,0 +1,5 @@
+id: urn:uuid:invalidorg-4567-4567-4567-invalidorg456789
+name: Test Organisation
+is_active: true
+activity_areas:
+  - not_a_real_activity_area  # Invalid enum

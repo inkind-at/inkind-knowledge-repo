@@ -1,0 +1,23 @@
+id: urn:uuid:org123-4567-4567-4567-org123456789
+name: Wiener Tafel
+is_active: true
+mission_statement: >-
+  Rescuing surplus food and redistributing it to social organisations
+  supporting people in need across Vienna.
+activity_areas:
+  - social_services
+  - environment
+population_served:
+  - economically_disadvantaged
+  - people_experiencing_homelessness
+  - children_youth
+sdg_alignment:
+  - no_poverty
+  - zero_hunger
+  - reduced_inequality
+geo_point:
+  lat: 48.2082
+  long: 16.3738
+config:
+  timezone: "Europe/Vienna"
+  locale: "de-AT"

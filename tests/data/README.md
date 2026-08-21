@@ -14,5 +14,5 @@ or one or more other characters allowed in filenames. The classname is derived b
 splitting at the first "-" and taking the part before the "-".
 
 Current examples:
-- Valid: DonationItem-001.yaml, DonationCollection-001.yaml, DemandSignal-001.yaml
-- Invalid: DonationItem-002.yaml (invalid enum), DonationItem-003.yaml (missing required), DonationCollection-002.yaml (invalid enum)
+- Valid: DonationItem-001.yaml, DonationCollection-001.yaml, DemandSignal-001.yaml, SocialOrganisation-001.yaml
+- Invalid: DonationItem-002.yaml (invalid enum), DonationItem-003.yaml (missing required), DonationCollection-002.yaml (invalid enum), SocialOrganisation-002.yaml (invalid enum)

@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-08-20T22:13:43
+# Generation date: 2026-08-21T15:00:23
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -231,10 +231,14 @@ class SocialOrganisation(YAMLRoot):
 
     id: Union[str, SocialOrganisationId] = None
     is_active: Union[bool, Bool] = None
+    activity_areas: Union[Union[str, "OrgActivityAreaEnum"], list[Union[str, "OrgActivityAreaEnum"]]] = None
     name: Optional[str] = None
     parent: Optional[Union[str, SocialOrganisationId]] = None
     geo_point: Optional[Union[dict, "GeoPoint"]] = None
     config: Optional[Union[dict, "OrgConfig"]] = None
+    mission_statement: Optional[str] = None
+    population_served: Optional[Union[Union[str, "OrgPopulationServedEnum"], list[Union[str, "OrgPopulationServedEnum"]]]] = empty_list()
+    sdg_alignment: Optional[Union[Union[str, "SDGGoalEnum"], list[Union[str, "SDGGoalEnum"]]]] = empty_list()
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -247,6 +251,12 @@ class SocialOrganisation(YAMLRoot):
         if not isinstance(self.is_active, Bool):
             self.is_active = Bool(self.is_active)
 
+        if self._is_empty(self.activity_areas):
+            self.MissingRequiredField("activity_areas")
+        if not isinstance(self.activity_areas, list):
+            self.activity_areas = [self.activity_areas] if self.activity_areas is not None else []
+        self.activity_areas = [v if isinstance(v, OrgActivityAreaEnum) else OrgActivityAreaEnum(v) for v in self.activity_areas]
+
         if self.name is not None and not isinstance(self.name, str):
             self.name = str(self.name)
 
@@ -258,6 +268,17 @@ class SocialOrganisation(YAMLRoot):
 
         if self.config is not None and not isinstance(self.config, OrgConfig):
             self.config = OrgConfig(**as_dict(self.config))
+
+        if self.mission_statement is not None and not isinstance(self.mission_statement, str):
+            self.mission_statement = str(self.mission_statement)
+
+        if not isinstance(self.population_served, list):
+            self.population_served = [self.population_served] if self.population_served is not None else []
+        self.population_served = [v if isinstance(v, OrgPopulationServedEnum) else OrgPopulationServedEnum(v) for v in self.population_served]
+
+        if not isinstance(self.sdg_alignment, list):
+            self.sdg_alignment = [self.sdg_alignment] if self.sdg_alignment is not None else []
+        self.sdg_alignment = [v if isinstance(v, SDGGoalEnum) else SDGGoalEnum(v) for v in self.sdg_alignment]
 
         super().__post_init__(**kwargs)
 
@@ -3356,6 +3377,176 @@ class ConditionEnum(EnumDefinitionImpl):
         description="DEPRECATED. Use usage + condition_grade instead.",
     )
 
+class OrgActivityAreaEnum(EnumDefinitionImpl):
+    """
+    Cause area(s) an organisation is active in. Grounded in ICNPO (International Classification of Nonprofit
+    Organizations, Johns Hopkins Comparative Nonprofit Sector Project) — 12 major groups, adopted by the UN for
+    nonprofit satellite accounts. Selected over NTEE/Candid PCS Subject for its international scope, small stable
+    value set, and lack of licensing restrictions. ICNPO codes have no stable public per-value IRI, so meaning: is
+    omitted below (same convention as UsedConditionGradeEnum.fair in core.yaml); see_also instead points to the
+    defining working paper. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    culture_recreation = PermissibleValue(
+        text="culture_recreation",
+        description="Culture, arts, and recreation — ICNPO Group 1.")
+    education_research = PermissibleValue(
+        text="education_research",
+        description="Education and research — ICNPO Group 2.")
+    health = PermissibleValue(
+        text="health",
+        description="Health services and research — ICNPO Group 3.")
+    social_services = PermissibleValue(
+        text="social_services",
+        description="Social services — ICNPO Group 4.")
+    environment = PermissibleValue(
+        text="environment",
+        description="Environment and animal protection — ICNPO Group 5.")
+    development_housing = PermissibleValue(
+        text="development_housing",
+        description="Development and housing — ICNPO Group 6.")
+    law_advocacy_politics = PermissibleValue(
+        text="law_advocacy_politics",
+        description="Law, advocacy, and politics — ICNPO Group 7.")
+    philanthropic_intermediaries = PermissibleValue(
+        text="philanthropic_intermediaries",
+        description="Philanthropic intermediaries and voluntarism promotion — ICNPO Group 8.")
+    international = PermissibleValue(
+        text="international",
+        description="International activities — ICNPO Group 9.")
+    religion = PermissibleValue(
+        text="religion",
+        description="Religion — ICNPO Group 10.")
+    business_professional_unions = PermissibleValue(
+        text="business_professional_unions",
+        description="Business and professional associations, unions — ICNPO Group 11.")
+    not_elsewhere_classified = PermissibleValue(
+        text="not_elsewhere_classified",
+        description="Not elsewhere classified — ICNPO Group 12.")
+
+    _defn = EnumDefinition(
+        name="OrgActivityAreaEnum",
+        description="""Cause area(s) an organisation is active in. Grounded in ICNPO (International Classification of Nonprofit Organizations, Johns Hopkins Comparative Nonprofit Sector Project) — 12 major groups, adopted by the UN for nonprofit satellite accounts. Selected over NTEE/Candid PCS Subject for its international scope, small stable value set, and lack of licensing restrictions. ICNPO codes have no stable public per-value IRI, so meaning: is omitted below (same convention as UsedConditionGradeEnum.fair in core.yaml); see_also instead points to the defining working paper. Full research: docs/social_organisation_taxonomy_research.md.""",
+    )
+
+class OrgPopulationServedEnum(EnumDefinitionImpl):
+    """
+    Beneficiary/target population group(s) an organisation serves. Inspired by Candid's "Population Served" taxonomy
+    facet, adapted rather than reproduced verbatim — Candid's complete hierarchy is served through a licensed Taxonomy
+    API (see see_also), so this is a repo-defined starter set of the most common categories, not a full import. Use
+    sparingly and add a proper value if a recurring gap is found during org onboarding (same guidance as OtherItem in
+    core.yaml). Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    children_youth = PermissibleValue(
+        text="children_youth",
+        description="Children and youth.")
+    seniors = PermissibleValue(
+        text="seniors",
+        description="Older adults / seniors.")
+    people_with_disabilities = PermissibleValue(
+        text="people_with_disabilities",
+        description="People with disabilities.")
+    immigrants_refugees = PermissibleValue(
+        text="immigrants_refugees",
+        description="Immigrants and refugees.")
+    people_experiencing_homelessness = PermissibleValue(
+        text="people_experiencing_homelessness",
+        description="People experiencing homelessness.")
+    economically_disadvantaged = PermissibleValue(
+        text="economically_disadvantaged",
+        description="Low-income / economically disadvantaged individuals and families.")
+    women_girls = PermissibleValue(
+        text="women_girls",
+        description="Women and girls.")
+    lgbtq = PermissibleValue(
+        text="lgbtq",
+        description="LGBTQ+ people.")
+    veterans_military_families = PermissibleValue(
+        text="veterans_military_families",
+        description="Veterans and military families.")
+    racial_ethnic_indigenous_groups = PermissibleValue(
+        text="racial_ethnic_indigenous_groups",
+        description="Racial, ethnic, and Indigenous groups.")
+    people_with_health_conditions = PermissibleValue(
+        text="people_with_health_conditions",
+        description="People living with chronic illness or health conditions.")
+    justice_involved = PermissibleValue(
+        text="justice_involved",
+        description="Incarcerated and formerly incarcerated people.")
+    general_public = PermissibleValue(
+        text="general_public",
+        description="General/unspecified public — no targeted population group.")
+    other = PermissibleValue(
+        text="other",
+        description="""Population group not covered by the values above. Use sparingly — if a group recurs, add a proper value.""")
+
+    _defn = EnumDefinition(
+        name="OrgPopulationServedEnum",
+        description="""Beneficiary/target population group(s) an organisation serves. Inspired by Candid's \"Population Served\" taxonomy facet, adapted rather than reproduced verbatim — Candid's complete hierarchy is served through a licensed Taxonomy API (see see_also), so this is a repo-defined starter set of the most common categories, not a full import. Use sparingly and add a proper value if a recurring gap is found during org onboarding (same guidance as OtherItem in core.yaml). Full research: docs/social_organisation_taxonomy_research.md.""",
+    )
+
+class SDGGoalEnum(EnumDefinitionImpl):
+    """
+    UN Sustainable Development Goal(s) an organisation's work contributes to. Lightweight ESG/impact anchor — not a
+    full metrics catalog. Deliberately deferred adopting IRIS+/GRI/B Impact in this pass; see
+    docs/social_organisation_taxonomy_research.md.
+    """
+    no_poverty = PermissibleValue(
+        text="no_poverty",
+        meaning=None)
+    zero_hunger = PermissibleValue(
+        text="zero_hunger",
+        meaning=None)
+    good_health_and_well_being = PermissibleValue(
+        text="good_health_and_well_being",
+        meaning=None)
+    quality_education = PermissibleValue(
+        text="quality_education",
+        meaning=None)
+    gender_equality = PermissibleValue(
+        text="gender_equality",
+        meaning=None)
+    clean_water_and_sanitation = PermissibleValue(
+        text="clean_water_and_sanitation",
+        meaning=None)
+    affordable_and_clean_energy = PermissibleValue(
+        text="affordable_and_clean_energy",
+        meaning=None)
+    decent_work_and_economic_growth = PermissibleValue(
+        text="decent_work_and_economic_growth",
+        meaning=None)
+    industry_innovation_and_infrastructure = PermissibleValue(
+        text="industry_innovation_and_infrastructure",
+        meaning=None)
+    reduced_inequality = PermissibleValue(
+        text="reduced_inequality",
+        meaning=None)
+    sustainable_cities_and_communities = PermissibleValue(
+        text="sustainable_cities_and_communities",
+        meaning=None)
+    responsible_consumption_and_production = PermissibleValue(
+        text="responsible_consumption_and_production",
+        meaning=None)
+    climate_action = PermissibleValue(
+        text="climate_action",
+        meaning=None)
+    life_below_water = PermissibleValue(
+        text="life_below_water",
+        meaning=None)
+    life_on_land = PermissibleValue(
+        text="life_on_land",
+        meaning=None)
+    peace_justice_and_strong_institutions = PermissibleValue(
+        text="peace_justice_and_strong_institutions",
+        meaning=None)
+    partnerships_for_the_goals = PermissibleValue(
+        text="partnerships_for_the_goals",
+        meaning=None)
+
+    _defn = EnumDefinition(
+        name="SDGGoalEnum",
+        description="""UN Sustainable Development Goal(s) an organisation's work contributes to. Lightweight ESG/impact anchor — not a full metrics catalog. Deliberately deferred adopting IRIS+/GRI/B Impact in this pass; see docs/social_organisation_taxonomy_research.md.""",
+    )
+
 class ActorRoleEnum(EnumDefinitionImpl):
     """
     Valid actor roles within a SocialOrganisation.
@@ -5227,6 +5418,18 @@ slots.geo_point = Slot(uri=INKIND_KNOWLEDGE_REPO.geo_point, name="geo_point", cu
 
 slots.config = Slot(uri=INKIND_KNOWLEDGE_REPO.config, name="config", curie=INKIND_KNOWLEDGE_REPO.curie('config'),
                    model_uri=INKIND_KNOWLEDGE_REPO.config, domain=None, range=Optional[Union[dict, OrgConfig]])
+
+slots.mission_statement = Slot(uri=ORG.purpose, name="mission_statement", curie=ORG.curie('purpose'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.mission_statement, domain=None, range=Optional[str])
+
+slots.activity_areas = Slot(uri=ORG.classification, name="activity_areas", curie=ORG.curie('classification'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.activity_areas, domain=None, range=Union[Union[str, "OrgActivityAreaEnum"], list[Union[str, "OrgActivityAreaEnum"]]])
+
+slots.population_served = Slot(uri=INKIND_KNOWLEDGE_REPO.population_served, name="population_served", curie=INKIND_KNOWLEDGE_REPO.curie('population_served'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.population_served, domain=None, range=Optional[Union[Union[str, "OrgPopulationServedEnum"], list[Union[str, "OrgPopulationServedEnum"]]]])
+
+slots.sdg_alignment = Slot(uri=INKIND_KNOWLEDGE_REPO.sdg_alignment, name="sdg_alignment", curie=INKIND_KNOWLEDGE_REPO.curie('sdg_alignment'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.sdg_alignment, domain=None, range=Optional[Union[Union[str, "SDGGoalEnum"], list[Union[str, "SDGGoalEnum"]]]])
 
 slots.role = Slot(uri=INKIND_KNOWLEDGE_REPO.role, name="role", curie=INKIND_KNOWLEDGE_REPO.curie('role'),
                    model_uri=INKIND_KNOWLEDGE_REPO.role, domain=None, range=Union[str, "ActorRoleEnum"])

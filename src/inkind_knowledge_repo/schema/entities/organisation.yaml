@@ -32,6 +32,10 @@ classes:
       - geo_point
       - is_active
       - config
+      - mission_statement
+      - activity_areas
+      - population_served
+      - sdg_alignment
     class_uri: org:Organization
     slot_usage:
       parent:
@@ -78,4 +82,231 @@ slots:
     range: OrgConfig
     description: >-
       Inlined organisation configuration object (timezone, locale, etc.).
+
+  # ── Mission / activities / beneficiaries ─────────────────────────────────────
+  mission_statement:
+    range: string
+    required: false
+    slot_uri: org:purpose
+    description: >-
+      Free-text mission or purpose statement. No controlled vocabulary fits
+      mission text — this mirrors org:purpose's own literal-valued modeling.
+    annotations:
+      label_en: "Mission Statement"
+      label_de: "Mission"
+
+  activity_areas:
+    range: OrgActivityAreaEnum
+    required: true
+    multivalued: true
+    slot_uri: org:classification
+    description: >-
+      Cause area(s) the organisation is active in, grounded in ICNPO
+      (International Classification of Nonprofit Organizations). At least
+      one value required. See OrgActivityAreaEnum for grounding rationale.
+    annotations:
+      label_en: "Activity Areas"
+      label_de: "Tätigkeitsbereiche"
+
+  population_served:
+    range: OrgPopulationServedEnum
+    required: false
+    multivalued: true
+    description: >-
+      Beneficiary/target population group(s) the organisation serves.
+      See OrgPopulationServedEnum for grounding rationale.
+    annotations:
+      label_en: "Population Served"
+      label_de: "Zielgruppen"
+
+  sdg_alignment:
+    range: SDGGoalEnum
+    required: false
+    multivalued: true
+    description: >-
+      UN Sustainable Development Goal(s) the organisation's work
+      contributes to. Lightweight anchor for future social impact / ESG
+      estimation — not a full metrics catalog (see docs/social_organisation_taxonomy_research.md).
+    annotations:
+      label_en: "SDG Alignment"
+      label_de: "SDG-Bezug"
+
+enums:
+
+  # ── Activity area (ICNPO) ────────────────────────────────────────────────────
+  OrgActivityAreaEnum:
+    description: >-
+      Cause area(s) an organisation is active in. Grounded in ICNPO
+      (International Classification of Nonprofit Organizations, Johns
+      Hopkins Comparative Nonprofit Sector Project) — 12 major groups,
+      adopted by the UN for nonprofit satellite accounts. Selected over
+      NTEE/Candid PCS Subject for its international scope, small stable
+      value set, and lack of licensing restrictions. ICNPO codes have no
+      stable public per-value IRI, so meaning: is omitted below (same
+      convention as UsedConditionGradeEnum.fair in core.yaml); see_also
+      instead points to the defining working paper.
+      Full research: docs/social_organisation_taxonomy_research.md.
+    see_also:
+      - http://ccss.jhu.edu/wp-content/uploads/downloads/2011/09/CNP_WP19_1996.pdf
+    permissible_values:
+      culture_recreation:
+        description: Culture, arts, and recreation — ICNPO Group 1.
+        annotations: {label_en: "Culture and Recreation", label_de: "Kultur und Freizeit"}
+      education_research:
+        description: Education and research — ICNPO Group 2.
+        annotations: {label_en: "Education and Research", label_de: "Bildung und Forschung"}
+      health:
+        description: Health services and research — ICNPO Group 3.
+        annotations: {label_en: "Health", label_de: "Gesundheit"}
+      social_services:
+        description: Social services — ICNPO Group 4.
+        annotations: {label_en: "Social Services", label_de: "Soziale Dienste"}
+      environment:
+        description: Environment and animal protection — ICNPO Group 5.
+        annotations: {label_en: "Environment", label_de: "Umwelt"}
+      development_housing:
+        description: Development and housing — ICNPO Group 6.
+        annotations: {label_en: "Development and Housing", label_de: "Entwicklung und Wohnungswesen"}
+      law_advocacy_politics:
+        description: Law, advocacy, and politics — ICNPO Group 7.
+        annotations: {label_en: "Law, Advocacy and Politics", label_de: "Recht, Interessenvertretung und Politik"}
+      philanthropic_intermediaries:
+        description: >-
+          Philanthropic intermediaries and voluntarism promotion —
+          ICNPO Group 8.
+        annotations: {label_en: "Philanthropic Intermediaries and Voluntarism Promotion", label_de: "Förderung von Ehrenamt und Philanthropie"}
+      international:
+        description: International activities — ICNPO Group 9.
+        annotations: {label_en: "International", label_de: "International"}
+      religion:
+        description: Religion — ICNPO Group 10.
+        annotations: {label_en: "Religion", label_de: "Religion"}
+      business_professional_unions:
+        description: >-
+          Business and professional associations, unions — ICNPO Group 11.
+        annotations: {label_en: "Business and Professional Associations, Unions", label_de: "Wirtschafts- und Berufsverbände, Gewerkschaften"}
+      not_elsewhere_classified:
+        description: Not elsewhere classified — ICNPO Group 12.
+        annotations: {label_en: "Not Elsewhere Classified", label_de: "Sonstige"}
+
+  # ── Population served (Candid-inspired) ──────────────────────────────────────
+  OrgPopulationServedEnum:
+    description: >-
+      Beneficiary/target population group(s) an organisation serves.
+      Inspired by Candid's "Population Served" taxonomy facet, adapted
+      rather than reproduced verbatim — Candid's complete hierarchy is
+      served through a licensed Taxonomy API (see see_also), so this is a
+      repo-defined starter set of the most common categories, not a full
+      import. Use sparingly and add a proper value if a recurring gap is
+      found during org onboarding (same guidance as OtherItem in core.yaml).
+      Full research: docs/social_organisation_taxonomy_research.md.
+    see_also:
+      - https://taxonomy.candid.org/populations
+    permissible_values:
+      children_youth:
+        description: Children and youth.
+        annotations: {label_en: "Children and Youth", label_de: "Kinder und Jugendliche"}
+      seniors:
+        description: Older adults / seniors.
+        annotations: {label_en: "Seniors", label_de: "Senioren"}
+      people_with_disabilities:
+        description: People with disabilities.
+        annotations: {label_en: "People with Disabilities", label_de: "Menschen mit Behinderung"}
+      immigrants_refugees:
+        description: Immigrants and refugees.
+        annotations: {label_en: "Immigrants and Refugees", label_de: "Migrant:innen und Geflüchtete"}
+      people_experiencing_homelessness:
+        description: People experiencing homelessness.
+        annotations: {label_en: "People Experiencing Homelessness", label_de: "Wohnungslose Menschen"}
+      economically_disadvantaged:
+        description: Low-income / economically disadvantaged individuals and families.
+        annotations: {label_en: "Economically Disadvantaged", label_de: "Einkommensschwache Personen"}
+      women_girls:
+        description: Women and girls.
+        annotations: {label_en: "Women and Girls", label_de: "Frauen und Mädchen"}
+      lgbtq:
+        description: LGBTQ+ people.
+        annotations: {label_en: "LGBTQ+ People", label_de: "LGBTQ+ Personen"}
+      veterans_military_families:
+        description: Veterans and military families.
+        annotations: {label_en: "Veterans and Military Families", label_de: "Veteran:innen und Militärfamilien"}
+      racial_ethnic_indigenous_groups:
+        description: Racial, ethnic, and Indigenous groups.
+        annotations: {label_en: "Racial, Ethnic and Indigenous Groups", label_de: "Ethnische und indigene Gruppen"}
+      people_with_health_conditions:
+        description: People living with chronic illness or health conditions.
+        annotations: {label_en: "People with Health Conditions", label_de: "Menschen mit gesundheitlichen Einschränkungen"}
+      justice_involved:
+        description: Incarcerated and formerly incarcerated people.
+        annotations: {label_en: "Justice-Involved People", label_de: "Straffällige und ehemals inhaftierte Personen"}
+      general_public:
+        description: General/unspecified public — no targeted population group.
+        annotations: {label_en: "General Public", label_de: "Allgemeine Öffentlichkeit"}
+      other:
+        description: >-
+          Population group not covered by the values above. Use sparingly —
+          if a group recurs, add a proper value.
+        annotations: {label_en: "Other", label_de: "Andere"}
+
+  # ── SDG alignment ─────────────────────────────────────────────────────────────
+  SDGGoalEnum:
+    description: >-
+      UN Sustainable Development Goal(s) an organisation's work
+      contributes to. Lightweight ESG/impact anchor — not a full metrics
+      catalog. Deliberately deferred adopting IRIS+/GRI/B Impact in this
+      pass; see docs/social_organisation_taxonomy_research.md.
+    see_also:
+      - https://sdgs.un.org/goals
+    permissible_values:
+      no_poverty:
+        meaning: https://metadata.un.org/sdg/1
+        annotations: {label_en: "No Poverty", label_de: "Keine Armut"}
+      zero_hunger:
+        meaning: https://metadata.un.org/sdg/2
+        annotations: {label_en: "Zero Hunger", label_de: "Kein Hunger"}
+      good_health_and_well_being:
+        meaning: https://metadata.un.org/sdg/3
+        annotations: {label_en: "Good Health and Well-being", label_de: "Gesundheit und Wohlergehen"}
+      quality_education:
+        meaning: https://metadata.un.org/sdg/4
+        annotations: {label_en: "Quality Education", label_de: "Hochwertige Bildung"}
+      gender_equality:
+        meaning: https://metadata.un.org/sdg/5
+        annotations: {label_en: "Gender Equality", label_de: "Geschlechtergleichheit"}
+      clean_water_and_sanitation:
+        meaning: https://metadata.un.org/sdg/6
+        annotations: {label_en: "Clean Water and Sanitation", label_de: "Sauberes Wasser und Sanitärversorgung"}
+      affordable_and_clean_energy:
+        meaning: https://metadata.un.org/sdg/7
+        annotations: {label_en: "Affordable and Clean Energy", label_de: "Bezahlbare und saubere Energie"}
+      decent_work_and_economic_growth:
+        meaning: https://metadata.un.org/sdg/8
+        annotations: {label_en: "Decent Work and Economic Growth", label_de: "Menschenwürdige Arbeit und Wirtschaftswachstum"}
+      industry_innovation_and_infrastructure:
+        meaning: https://metadata.un.org/sdg/9
+        annotations: {label_en: "Industry, Innovation and Infrastructure", label_de: "Industrie, Innovation und Infrastruktur"}
+      reduced_inequality:
+        meaning: https://metadata.un.org/sdg/10
+        annotations: {label_en: "Reduced Inequality", label_de: "Weniger Ungleichheiten"}
+      sustainable_cities_and_communities:
+        meaning: https://metadata.un.org/sdg/11
+        annotations: {label_en: "Sustainable Cities and Communities", label_de: "Nachhaltige Städte und Gemeinden"}
+      responsible_consumption_and_production:
+        meaning: https://metadata.un.org/sdg/12
+        annotations: {label_en: "Responsible Consumption and Production", label_de: "Nachhaltiger Konsum und Produktion"}
+      climate_action:
+        meaning: https://metadata.un.org/sdg/13
+        annotations: {label_en: "Climate Action", label_de: "Maßnahmen zum Klimaschutz"}
+      life_below_water:
+        meaning: https://metadata.un.org/sdg/14
+        annotations: {label_en: "Life Below Water", label_de: "Leben unter Wasser"}
+      life_on_land:
+        meaning: https://metadata.un.org/sdg/15
+        annotations: {label_en: "Life on Land", label_de: "Leben an Land"}
+      peace_justice_and_strong_institutions:
+        meaning: https://metadata.un.org/sdg/16
+        annotations: {label_en: "Peace, Justice and Strong Institutions", label_de: "Frieden, Gerechtigkeit und starke Institutionen"}
+      partnerships_for_the_goals:
+        meaning: https://metadata.un.org/sdg/17
+        annotations: {label_en: "Partnerships for the Goals", label_de: "Partnerschaften zur Erreichung der Ziele"}
 ...
