@@ -2749,20 +2749,19 @@ class FoodCategory(ConfiguredBaseModel):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ungeöffnet & unbeschädigt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Lagerungsanforderung'},
+    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lagerung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
          'domain_of': ['FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -2795,8 +2794,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -3210,20 +3209,19 @@ class FoodPhysicalItemMixin(FoodContextRulesMixin, FoodCategory):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ungeöffnet & unbeschädigt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Lagerungsanforderung'},
+    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lagerung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
          'domain_of': ['FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -3268,8 +3266,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -3340,14 +3338,14 @@ class DonationItem(ConfiguredBaseModel):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3412,20 +3410,19 @@ class FoodItem(DonationItem, FoodContextRulesMixin, FoodCategory):
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Verpackung intakt'},
+    packaging_intact: Optional[bool] = Field(default=None, description="""Whether the item's original packaging is intact and uncompromised. Required except for bread_bakery, fruit_vegetables, and meat_fish — commonly donated without commercial packaging (loose bakery goods, loose produce, butcher-wrapped meat/fish). See lc-food-packaging-intact-required. UC block: false + perishable subcategory → must not redistribute. Primary safety signal for food items — analogous to is_sealed in PersonalCareCategory.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ungeöffnet & unbeschädigt'},
                          'label_en': {'tag': 'label_en', 'value': 'packaging intact'}},
          'domain_of': ['FoodCategory'],
          'see_also': ['foodon:00001043']} })
-    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Lagerungsanforderung'},
+    storage_requirement: Optional[StorageRequirementEnum] = Field(default=None, description="""Required storage condition. Valid values constrained by subcategory via vm-storage-* rules. Set during sorting to enable correct storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Lagerung'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'storage requirement'}},
          'domain_of': ['FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -3441,14 +3438,14 @@ class FoodItem(DonationItem, FoodContextRulesMixin, FoodCategory):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3494,8 +3491,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -3521,14 +3518,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3573,14 +3570,14 @@ class StorageCollection(ConfiguredBaseModel):
                                   'range': 'ItemUsageEnum',
                                   'required': False}}})
 
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: BaseCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: BaseCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3606,14 +3603,14 @@ class SortedCollection(ConfiguredBaseModel):
                                   'range': 'ItemUsageEnum',
                                   'required': True}}})
 
-    usage: ItemUsageEnum = Field(default=..., description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: ItemUsageEnum = Field(default=..., description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3660,7 +3657,7 @@ class DemandSignal(ConfiguredBaseModel):
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    category: BaseCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: BaseCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -3669,7 +3666,10 @@ class DemandSignal(ConfiguredBaseModel):
          'see_also': ['openeligibility:ServiceTag'],
          'slot_uri': 'schema:additionalType'} })
     urgency_tier: Optional[UrgencyTierEnum] = Field(default=None, description="""Urgency classification.  Null for standing signals; set for campaign and specific types.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal'], 'see_also': ['openeligibility:HumanSituation']} })
-    household_situation: Optional[HouseholdSituationEnum] = Field(default=None, description="""Household composition of the beneficiary/holder this signal concerns — informs suitability of matched items.""", json_schema_extra = { "linkml_meta": {'domain_of': ['DemandSignal']} })
+    household_situation: Optional[HouseholdSituationEnum] = Field(default=None, description="""Household composition of the beneficiary/holder this signal concerns — informs suitability of matched items.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Haushaltssituation'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Household situation'}},
+         'domain_of': ['DemandSignal']} })
     lifecycle_state: DemandSignalLifecycleEnum = Field(default=..., description="""Current lifecycle state of the entity. Concrete enum range applied via slot_usage. Transitions enforced by Django model clean().""", json_schema_extra = { "linkml_meta": {'domain_of': ['DonationSource',
                        'DonationCollection',
                        'DonationItem',
@@ -4060,8 +4060,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4120,7 +4120,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4151,8 +4151,7 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['ClothingCategory', 'FootwearCategory'],
          'see_also': ['schema:itemCondition']} })
     intact_labels: Optional[bool] = Field(default=None, description="""Whether care and composition labels are present and legible. Improves match quality for beneficiaries with care requirements (e.g. allergy to certain materials). Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Unversehrte Pflege- und '
-                                               'Materialetiketten'},
+                                      'value': 'Pflege- und Materialetikett vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Intact care and composition labels'},
                          'show_if': {'tag': 'show_if',
@@ -4176,8 +4175,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4236,7 +4235,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4267,8 +4266,7 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['ClothingCategory', 'FootwearCategory'],
          'see_also': ['schema:itemCondition']} })
     intact_labels: Optional[bool] = Field(default=None, description="""Whether care and composition labels are present and legible. Improves match quality for beneficiaries with care requirements (e.g. allergy to certain materials). Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Unversehrte Pflege- und '
-                                               'Materialetiketten'},
+                                      'value': 'Pflege- und Materialetikett vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Intact care and composition labels'},
                          'show_if': {'tag': 'show_if',
@@ -4354,7 +4352,7 @@ class AccessoriesCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4380,8 +4378,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4423,7 +4421,7 @@ class AccessoriesPhysicalItemMixin(AccessoriesCategory, AccessoriesContextRulesM
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4449,8 +4447,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4581,8 +4579,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4635,7 +4633,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4671,8 +4669,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -4725,7 +4723,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -4823,11 +4821,15 @@ class FurnitureCategory(CategoryMixin):
                        'HouseholdCategory',
                        'ToysCategory',
                        'CategoryMixin']} })
-    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'required_if': {'tag': 'required_if',
+    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abmessungen'},
+                         'label_en': {'tag': 'label_en', 'value': 'Dimensions'},
+                         'required_if': {'tag': 'required_if',
                                          'value': 'subcategory in [tables, beds]'}},
          'domain_of': ['FurnitureCategory'],
          'see_also': ['schema:SizeSpecification']} })
-    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'domain_of': ['FurnitureCategory']} })
+    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Stil'},
+                         'label_en': {'tag': 'label_en', 'value': 'Style'}},
+         'domain_of': ['FurnitureCategory']} })
 
 
 class FurnitureAssessmentMixin(FurnitureCategory, FurnitureContextRulesMixin):
@@ -4921,11 +4923,15 @@ class FurnitureAssessmentMixin(FurnitureCategory, FurnitureContextRulesMixin):
                        'HouseholdCategory',
                        'ToysCategory',
                        'CategoryMixin']} })
-    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'required_if': {'tag': 'required_if',
+    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abmessungen'},
+                         'label_en': {'tag': 'label_en', 'value': 'Dimensions'},
+                         'required_if': {'tag': 'required_if',
                                          'value': 'subcategory in [tables, beds]'}},
          'domain_of': ['FurnitureCategory'],
          'see_also': ['schema:SizeSpecification']} })
-    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'domain_of': ['FurnitureCategory']} })
+    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Stil'},
+                         'label_en': {'tag': 'label_en', 'value': 'Style'}},
+         'domain_of': ['FurnitureCategory']} })
 
 
 class BeddingTextilesCategory(CategoryMixin):
@@ -5193,7 +5199,7 @@ class HouseholdCategory(CategoryMixin):
                                                    'value': 'subcategory, '
                                                             'is_set_complete, usage, '
                                                             'condition_grade'},
-                         'label_de': {'tag': 'label_de', 'value': 'Haustechnik'},
+                         'label_de': {'tag': 'label_de', 'value': 'Haushaltswaren'},
                          'label_en': {'tag': 'label_en', 'value': 'Household'}},
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/categories/household',
          'mixin': True,
@@ -5251,8 +5257,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5317,8 +5323,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5388,8 +5394,15 @@ class ElectronicsCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
-    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
+    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ladegerät vorhanden'},
+                         'label_en': {'tag': 'label_en', 'value': 'Includes Charger'}},
+         'domain_of': ['ElectronicsCategory']} })
+    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Originalverpackung vorhanden'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Includes Original Packaging'}},
+         'domain_of': ['ElectronicsCategory']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
          'domain_of': ['ClothingCategory',
@@ -5466,8 +5479,15 @@ class ElectronicsAssessmentMixin(ElectronicsCategory, ElectronicsContextRulesMix
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
-    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
+    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ladegerät vorhanden'},
+                         'label_en': {'tag': 'label_en', 'value': 'Includes Charger'}},
+         'domain_of': ['ElectronicsCategory']} })
+    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Originalverpackung vorhanden'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Includes Original Packaging'}},
+         'domain_of': ['ElectronicsCategory']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
          'domain_of': ['ClothingCategory',
@@ -5577,8 +5597,8 @@ class ToysCategory(CategoryMixin):
                        'CategoryMixin']} })
     age_range: Optional[ToyAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -5596,8 +5616,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5651,8 +5671,8 @@ class ToysPhysicalItemMixin(ToysCategory, ToysContextRulesMixin):
                        'CategoryMixin']} })
     age_range: Optional[ToyAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -5670,8 +5690,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5770,8 +5790,8 @@ class SportsCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5787,7 +5807,7 @@ class SportsCategory(CategoryMixin):
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
     sport_type: Optional[str] = Field(default=None, description="""Sport or activity type (free text, e.g. \"football\", \"cycling\").""", json_schema_extra = { "linkml_meta": {'domain_of': ['SportsCategory']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -5894,8 +5914,8 @@ class SportsProtectiveAssessmentMixin(SportsCategory, SportsContextRulesMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -5911,7 +5931,7 @@ class SportsProtectiveAssessmentMixin(SportsCategory, SportsContextRulesMixin):
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
     sport_type: Optional[str] = Field(default=None, description="""Sport or activity type (free text, e.g. \"football\", \"cycling\").""", json_schema_extra = { "linkml_meta": {'domain_of': ['SportsCategory']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -5988,11 +6008,13 @@ class BooksCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['BooksCategory']} })
+    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Sprache'},
+                         'label_en': {'tag': 'label_en', 'value': 'Language'}},
+         'domain_of': ['BooksCategory']} })
     age_range: Optional[BookAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
@@ -6000,8 +6022,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -6053,11 +6075,13 @@ class BooksPhysicalItemMixin(BooksCategory, BooksContextRulesMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['BooksCategory']} })
+    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Sprache'},
+                         'label_en': {'tag': 'label_en', 'value': 'Language'}},
+         'domain_of': ['BooksCategory']} })
     age_range: Optional[BookAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
@@ -6065,8 +6089,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -6152,8 +6176,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -6218,8 +6242,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -6386,8 +6410,7 @@ class PersonalCareCategory(CategoryMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date from the packaging. UC block: expiry_date < today (runtime check by Django model clean()). Secondary safety signal — important for medications, skincare, food.""", json_schema_extra = { "linkml_meta": {'annotations': {'uc_action': {'tag': 'uc_action', 'value': 'block'},
@@ -6396,11 +6419,10 @@ class PersonalCareCategory(CategoryMixin):
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -6442,8 +6464,7 @@ class PersonalCarePhysicalItemMixin(PersonalCareCategory, PersonalCareContextRul
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date from the packaging. UC block: expiry_date < today (runtime check by Django model clean()). Secondary safety signal — important for medications, skincare, food.""", json_schema_extra = { "linkml_meta": {'annotations': {'uc_action': {'tag': 'uc_action', 'value': 'block'},
@@ -6452,11 +6473,10 @@ class PersonalCarePhysicalItemMixin(PersonalCareCategory, PersonalCareContextRul
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -6864,7 +6884,7 @@ class BabyInfantCategory(CategoryMixin):
                                               'pushchairs_prams]'}},
          'domain_of': ['BabyInfantCategory']} })
     includes_original_accessories: Optional[bool] = Field(default=None, description="""Whether standard accessories/components are included (e.g. pushchair includes rain cover and harness; cot includes mattress and side rails).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Enthält Originalzubehör'},
+                                      'value': 'Originalzubehör vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Includes original accessories'}},
          'domain_of': ['BabyInfantCategory']} })
@@ -6875,8 +6895,7 @@ class BabyInfantCategory(CategoryMixin):
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date. UC block: expiry_date < today (runtime check).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Ablaufdatum'},
@@ -6887,8 +6906,8 @@ class BabyInfantCategory(CategoryMixin):
                                               'enforcement'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7008,7 +7027,7 @@ class BabyEquipmentAssessmentMixin(BabyInfantCategory, BabyInfantContextRulesMix
                                               'pushchairs_prams]'}},
          'domain_of': ['BabyInfantCategory']} })
     includes_original_accessories: Optional[bool] = Field(default=None, description="""Whether standard accessories/components are included (e.g. pushchair includes rain cover and harness; cot includes mattress and side rails).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Enthält Originalzubehör'},
+                                      'value': 'Originalzubehör vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Includes original accessories'}},
          'domain_of': ['BabyInfantCategory']} })
@@ -7019,8 +7038,7 @@ class BabyEquipmentAssessmentMixin(BabyInfantCategory, BabyInfantContextRulesMix
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date. UC block: expiry_date < today (runtime check).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Ablaufdatum'},
@@ -7031,8 +7049,8 @@ class BabyEquipmentAssessmentMixin(BabyInfantCategory, BabyInfantContextRulesMix
                                               'enforcement'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7080,7 +7098,7 @@ class ClothingItem(ClothingCategory, DonationItem, ClothingContextRulesMixin):
                                                   'clothes',
                                                   'garment',
                                                   'apparel']},
-                         'label_de': {'tag': 'label_de', 'value': 'Kleidung'},
+                         'label_de': {'tag': 'label_de', 'value': 'Bekleidung'},
                          'label_en': {'tag': 'label_en', 'value': 'Clothing'}},
          'class_uri': 'cpi:ClothingAndAccessories',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -7093,8 +7111,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7153,7 +7171,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -7184,8 +7202,7 @@ Categories using structured assessment_result enums instead (furniture, electron
          'domain_of': ['ClothingCategory', 'FootwearCategory'],
          'see_also': ['schema:itemCondition']} })
     intact_labels: Optional[bool] = Field(default=None, description="""Whether care and composition labels are present and legible. Improves match quality for beneficiaries with care requirements (e.g. allergy to certain materials). Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Unversehrte Pflege- und '
-                                               'Materialetiketten'},
+                                      'value': 'Pflege- und Materialetikett vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Intact care and composition labels'},
                          'show_if': {'tag': 'show_if',
@@ -7204,14 +7221,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7272,7 +7289,7 @@ class AccessoriesItem(AccessoriesCategory, DonationItem, AccessoriesContextRules
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[AccessoriesDemographicEnum] = Field(default=None, description="""Optional age group. Not applicable to most accessories (bags, jewellery, belts are generally adult by default). Use for clearly age-targeted items: children's hats, baby mittens, baby carriers (though carriers belong in BabyInfantItem).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -7298,8 +7315,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7325,14 +7342,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7385,8 +7402,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7439,7 +7456,7 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Combined age-and-gender demographic suitability of clothing items. Valid values depend on subcategory (see value_map above). Grounded in cpi:designatedFor and schema.org wearable size groups. Not applicable to AccessoriesItem — accessories use the simpler AccessoriesDemographicEnum (baby/child/adult/all_ages).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -7470,14 +7487,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7537,14 +7554,14 @@ class FurnitureItem(FurnitureAssessmentMixin, DonationItem, FurnitureContextRule
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7594,11 +7611,15 @@ class FurnitureItem(FurnitureAssessmentMixin, DonationItem, FurnitureContextRule
                        'HouseholdCategory',
                        'ToysCategory',
                        'CategoryMixin']} })
-    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'required_if': {'tag': 'required_if',
+    dimensions: Optional[str] = Field(default=None, description="""Physical dimensions in centimetres, e.g. \"100*50*75 cm\" (W*D*H). Required for tables and beds to enable storage slot assignment and demand signal matching.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abmessungen'},
+                         'label_en': {'tag': 'label_en', 'value': 'Dimensions'},
+                         'required_if': {'tag': 'required_if',
                                          'value': 'subcategory in [tables, beds]'}},
          'domain_of': ['FurnitureCategory'],
          'see_also': ['schema:SizeSpecification']} })
-    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'domain_of': ['FurnitureCategory']} })
+    style: Optional[str] = Field(default=None, description="""Style or design description (e.g. \"Scandinavian\", \"Industrial\", \"Rustic\"). Free text. Optional — detailed completeness tier. Supports demand signal matching for beneficiaries with style preferences.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Stil'},
+                         'label_en': {'tag': 'label_en', 'value': 'Style'}},
+         'domain_of': ['FurnitureCategory']} })
 
 
 class BeddingTextilesItem(BeddingAssessmentMixin, DonationItem, BeddingContextRulesMixin):
@@ -7610,9 +7631,9 @@ class BeddingTextilesItem(BeddingAssessmentMixin, DonationItem, BeddingContextRu
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['bedding', 'textiles']},
                          'label_de': {'tag': 'label_de',
-                                      'value': 'Bettwäsche und Textilien'},
+                                      'value': 'Bettwäsche & Textilien'},
                          'label_en': {'tag': 'label_en',
-                                      'value': 'Bedding and Textiles'}},
+                                      'value': 'Bedding & Textiles'}},
          'class_uri': 'pto:Bedding',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['BeddingAssessmentMixin', 'BeddingContextRulesMixin'],
@@ -7639,14 +7660,14 @@ class BeddingTextilesItem(BeddingAssessmentMixin, DonationItem, BeddingContextRu
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7721,8 +7742,8 @@ class HouseholdItem(HouseholdCategory, DonationItem, HouseholdContextRulesMixin)
                                                   'Domestikum']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['household goods', 'domestic items']},
-                         'label_de': {'tag': 'label_de', 'value': 'Haustechnik'},
-                         'label_en': {'tag': 'label_en', 'value': 'Household'}},
+                         'label_de': {'tag': 'label_de', 'value': 'Haushaltswaren'},
+                         'label_en': {'tag': 'label_en', 'value': 'Household Items'}},
          'class_uri': 'pto:Household_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['HouseholdCategory', 'HouseholdContextRulesMixin'],
@@ -7768,8 +7789,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -7795,14 +7816,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7866,14 +7887,14 @@ class ElectronicsItem(ElectronicsAssessmentMixin, DonationItem, ElectronicsConte
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -7913,8 +7934,15 @@ class ElectronicsItem(ElectronicsAssessmentMixin, DonationItem, ElectronicsConte
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
-    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['ElectronicsCategory']} })
+    includes_charger: Optional[bool] = Field(default=None, description="""Whether a compatible charger is included. Affects redistribution value — a device without a charger is significantly less useful. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Ladegerät vorhanden'},
+                         'label_en': {'tag': 'label_en', 'value': 'Includes Charger'}},
+         'domain_of': ['ElectronicsCategory']} })
+    includes_original_packaging: Optional[bool] = Field(default=None, description="""Whether original retail packaging is present. Optional — detailed tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Originalverpackung vorhanden'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'Includes Original Packaging'}},
+         'domain_of': ['ElectronicsCategory']} })
     material: Optional[str] = Field(default=None, description="""Primary material composition. Range overridden per class.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Material'},
                          'label_en': {'tag': 'label_en', 'value': 'Material'}},
          'domain_of': ['ClothingCategory',
@@ -7935,9 +7963,8 @@ class ToysItem(ToysCategory, DonationItem, ToysContextRulesMixin):
                                         'value': ['Spielzeug', 'Spiele']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['toys', 'games']},
-                         'label_de': {'tag': 'label_de',
-                                      'value': 'Spielzeug und Spiele'},
-                         'label_en': {'tag': 'label_en', 'value': 'Toys and Games'}},
+                         'label_de': {'tag': 'label_de', 'value': 'Spielzeug & Spiele'},
+                         'label_en': {'tag': 'label_en', 'value': 'Toys & Games'}},
          'class_uri': 'pto:Toy',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['ToysCategory', 'ToysContextRulesMixin'],
@@ -7973,8 +8000,8 @@ class ToysItem(ToysCategory, DonationItem, ToysContextRulesMixin):
                        'CategoryMixin']} })
     age_range: Optional[ToyAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     is_set_complete: Optional[bool] = Field(default=None, description="""Whether all components of the set are present. Optional — standard completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Set vollständig'},
                          'label_en': {'tag': 'label_en', 'value': 'Set Complete'}},
@@ -7992,8 +8019,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -8019,14 +8046,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8059,7 +8086,7 @@ class SportsItem(SportsProtectiveAssessmentMixin, DonationItem, SportsContextRul
                                         'value': ['Sport', 'Fitness']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['sports', 'fitness']},
-                         'label_de': {'tag': 'label_de', 'value': 'Sport'},
+                         'label_de': {'tag': 'label_de', 'value': 'Sport & Freizeit'},
                          'label_en': {'tag': 'label_en', 'value': 'Sports'}},
          'class_uri': 'pto:Sporting_goods',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -8086,14 +8113,14 @@ class SportsItem(SportsProtectiveAssessmentMixin, DonationItem, SportsContextRul
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8133,8 +8160,8 @@ class SportsItem(SportsProtectiveAssessmentMixin, DonationItem, SportsContextRul
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for general sports equipment (non-protective-gear). Required when subcategory ≠ protective_gear.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -8150,7 +8177,7 @@ class SportsItem(SportsProtectiveAssessmentMixin, DonationItem, SportsContextRul
                       'schema:DamagedCondition',
                       'schema:itemCondition']} })
     sport_type: Optional[str] = Field(default=None, description="""Sport or activity type (free text, e.g. \"football\", \"cycling\").""", json_schema_extra = { "linkml_meta": {'domain_of': ['SportsCategory']} })
-    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Demografie'},
+    demographic: Optional[DemographicEnum] = Field(default=None, description="""Age/gender demographic (from DemographicEnum in clothing.yaml). Optional — detailed completeness tier for sports equipment.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Geeignet für'},
                          'label_en': {'tag': 'label_en', 'value': 'Demographic'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
@@ -8209,11 +8236,13 @@ class BooksItem(BooksCategory, DonationItem, BooksContextRulesMixin):
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'domain_of': ['BooksCategory']} })
+    language: Optional[str] = Field(default=None, description="""Language of item content (ISO 639-1 code, e.g. \"de\", \"en\", \"ar\", \"fa\"). Important for demand signal matching — organisations serving specific language communities have targeted language preferences. Optional — detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Sprache'},
+                         'label_en': {'tag': 'label_en', 'value': 'Language'}},
+         'domain_of': ['BooksCategory']} })
     age_range: Optional[BookAgeRangeEnum] = Field(default=None, description="""Age suitability. Range overridden per class:
   ToysItem  → ToyAgeRangeEnum
-  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersbereich'},
-                         'label_en': {'tag': 'label_en', 'value': 'Age Range'}},
+  BooksItem → BookAgeRangeEnum""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Altersempfehlung'},
+                         'label_en': {'tag': 'label_en', 'value': 'Recommended Age'}},
          'domain_of': ['ToysCategory', 'BooksCategory']} })
     condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Observed wear/quality grade at sorting time. Grounded in schema:OfferItemCondition and schema:itemCondition. Applied to wear-graded categories: clothing, accessories, footwear, books, stationery, household, toys, general sports equipment.
 Required at sorted state regardless of usage:
@@ -8221,8 +8250,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -8248,14 +8277,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8333,8 +8362,8 @@ Required at sorted state regardless of usage:
   new item, manufacturing defect → fair or poor
   used item, minimal wear        → like_new or good
 Sorters record what they observe, not what the label says.
-Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+Categories using structured assessment_result enums instead (furniture, electronics, bedding, protective sports gear, mobility aids, baby equipment) do NOT declare this slot.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',
@@ -8360,14 +8389,14 @@ Categories using structured assessment_result enums instead (furniture, electron
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8410,7 +8439,8 @@ class PersonalCareItem(PersonalCareCategory, DonationItem, PersonalCareContextRu
                                         'value': ['Personalhygiene', 'Hygiene']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['personal care', 'hygiene']},
-                         'label_de': {'tag': 'label_de', 'value': 'Personalhygiene'},
+                         'label_de': {'tag': 'label_de',
+                                      'value': 'Körperpflege & Hygieneartikel'},
                          'label_en': {'tag': 'label_en', 'value': 'Personal Care'}},
          'class_uri': 'pto:Personal_hygiene',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
@@ -8436,8 +8466,7 @@ class PersonalCareItem(PersonalCareCategory, DonationItem, PersonalCareContextRu
                        'MobilityAidsCategory',
                        'BabyInfantCategory',
                        'FoodCategory']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Whether the item's original packaging/seal is intact. UC block for most consumable subcategories when false. Primary safety signal for personal care items — replaces condition_grade.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date from the packaging. UC block: expiry_date < today (runtime check by Django model clean()). Secondary safety signal — important for medications, skincare, food.""", json_schema_extra = { "linkml_meta": {'annotations': {'uc_action': {'tag': 'uc_action', 'value': 'block'},
@@ -8446,11 +8475,10 @@ class PersonalCareItem(PersonalCareCategory, DonationItem, PersonalCareContextRu
                                               'enforcement by Django model clean()'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nettoinhalt'},
+    net_content_value: Optional[Decimal] = Field(default=None, description="""Numeric net content of a single donated item, as printed on its packaging (e.g. 500 for a 500ml bottle, 1 for a 1kg bag, 30 for a 30-tablet box). Describes one unit, not a donated batch — how many units were donated is tracked by the application, not this schema. Paired with net_content_unit. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Mengenangabe'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory']} })
-    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Nettoinhalt-Einheit'},
+    net_content_unit: Optional[NetContentUnitEnum] = Field(default=None, description="""Unit of measure for net_content_value. Grounded in UN/CEFACT Recommendation 20 unit-of-measure codes — the same code list schema:unitCode and GS1's netContent property reference for packaged goods. Detailed completeness tier.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Einheit'},
                          'label_en': {'tag': 'label_en', 'value': 'Net content unit'}},
          'domain_of': ['PersonalCareCategory', 'FoodCategory'],
          'see_also': ['https://schema.org/unitCode',
@@ -8466,14 +8494,14 @@ class PersonalCareItem(PersonalCareCategory, DonationItem, PersonalCareContextRu
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8518,9 +8546,9 @@ class MobilityAidsItem(MobilityAssessmentMixin, DonationItem, MobilityAidsContex
                                         'value': ['mobility aids',
                                                   'assistive devices']},
                          'label_de': {'tag': 'label_de',
-                                      'value': 'Mobilitätshilfen und Hilfsgeräte'},
+                                      'value': 'Mobilitäts- & Alltagshilfen'},
                          'label_en': {'tag': 'label_en',
-                                      'value': 'Mobility Aids and Assistive Devices'}},
+                                      'value': 'Mobility Aids & Assistive Devices'}},
          'class_uri': 'pto:Assistive_technology',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['MobilityAssessmentMixin', 'MobilityAidsContextRulesMixin'],
@@ -8547,14 +8575,14 @@ class MobilityAidsItem(MobilityAssessmentMixin, DonationItem, MobilityAidsContex
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8613,19 +8641,16 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
     """
     linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'annotations': {'aliases_de': {'tag': 'aliases_de',
                                         'value': ['Babyausstattung',
-                                                  'Kleinkindausstattung',
                                                   'Babybedarf',
-                                                  'Kleinkindbedarf',
                                                   'Baby sachen']},
                          'aliases_en': {'tag': 'aliases_en',
                                         'value': ['baby supplies',
                                                   'infant supplies',
                                                   'baby things',
                                                   'infant things']},
-                         'label_de': {'tag': 'label_de',
-                                      'value': 'Baby- und Kleinkindausstattung'},
+                         'label_de': {'tag': 'label_de', 'value': 'Babyausstattung'},
                          'label_en': {'tag': 'label_en',
-                                      'value': 'Baby and Infant Supplies'}},
+                                      'value': 'Baby & Infant Items'}},
          'class_uri': 'pto:Baby_transport',
          'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/donation_item',
          'mixins': ['BabyEquipmentAssessmentMixin', 'BabyInfantContextRulesMixin'],
@@ -8654,14 +8679,14 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
                        'ProvenanceRecord',
                        'NamedThing'],
          'slot_uri': 'schema:identifier'} })
-    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
-                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
+    usage: Optional[ItemUsageEnum] = Field(default=None, description="""Provenance condition — was the item ever used before donation? Orthogonal to condition_grade and assessment_result. Maps to schema:NewCondition / schema:UsedCondition. usage = new does NOT imply no defects — manufacturing defects are possible and assessment must always be performed regardless of usage.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Nutzungsstatus'},
+                         'label_en': {'tag': 'label_en', 'value': 'Usage Status'}},
          'domain_of': ['DonationItem', 'StorageCollection', 'SortedCollection'],
          'see_also': ['schema:OfferItemCondition',
                       'schema:NewCondition',
                       'schema:UsedCondition'],
          'slot_uri': 'schema:itemCondition'} })
-    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Artikeltyp'},
+    category: SortingCategoryEnum = Field(default=..., description="""Category identity. Each root overrides range via its own slot_usage to either BaseCategoryEnum or SortingCategoryEnum (see those enums below) — whichever enum applies, the generator dispatches by reading its values' dispatch_to annotations.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Kategorie'},
                          'label_en': {'tag': 'label_en', 'value': 'Item Type'}},
          'domain_of': ['DonationItem',
                        'StorageCollection',
@@ -8708,7 +8733,7 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
                                               'pushchairs_prams]'}},
          'domain_of': ['BabyInfantCategory']} })
     includes_original_accessories: Optional[bool] = Field(default=None, description="""Whether standard accessories/components are included (e.g. pushchair includes rain cover and harness; cot includes mattress and side rails).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Enthält Originalzubehör'},
+                                      'value': 'Originalzubehör vorhanden'},
                          'label_en': {'tag': 'label_en',
                                       'value': 'Includes original accessories'}},
          'domain_of': ['BabyInfantCategory']} })
@@ -8719,8 +8744,7 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
                        'BeddingTextilesCategory',
                        'BabyInfantCategory'],
          'see_also': ['schema:itemCondition']} })
-    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
-                                      'value': 'Versiegelte Verpackung'},
+    is_sealed: Optional[bool] = Field(default=None, description="""Packaging/seal integrity for Track 2 consumables. Required when subcategory in [infant_formula, feeding_bottles_teats, nappies].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Originalverpackt'},
                          'label_en': {'tag': 'label_en', 'value': 'Sealed Packaging'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory']} })
     expiry_date: Optional[date] = Field(default=None, description="""Expiry or best-before date. UC block: expiry_date < today (runtime check).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Ablaufdatum'},
@@ -8731,8 +8755,8 @@ class BabyInfantItem(BabyEquipmentAssessmentMixin, DonationItem, BabyInfantConte
                                               'enforcement'},
                          'uc_suggest': {'tag': 'uc_suggest', 'value': 'disposal'}},
          'domain_of': ['PersonalCareCategory', 'BabyInfantCategory', 'FoodCategory']} })
-    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Abnutzungsgrad'},
-                         'label_en': {'tag': 'label_en', 'value': 'Wear Grade'}},
+    condition_grade: Optional[UsedConditionGradeEnum] = Field(default=None, description="""Wear grade for Track 3 general baby gear. Required when subcategory in [bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other].""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'Zustand'},
+                         'label_en': {'tag': 'label_en', 'value': 'Condition'}},
          'domain_of': ['ClothingCategory',
                        'AccessoriesCategory',
                        'FootwearCategory',

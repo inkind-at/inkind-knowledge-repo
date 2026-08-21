@@ -575,10 +575,7 @@ enums:
         description: >-
           Suitable for warm weather; not appropriate for cold conditions.
           Implies is_winter_suitable=false.
-          Examples: t-shirt, shorts, sundress, swimwear, linen top.Household and kitchen goods: cookware, crockery, small appliances,
-      cleaning tools, home decor, garden tools. COICOP 05.3–05.5. Bedding
-      and textiles (05.2) are BeddingTextilesItem, not this class.
-      Assessment: condition_grade (wear grade).
+          Examples: t-shirt, shorts, sundress, swimwear, linen top.
         annotations:
           label_en: "Summer"
           label_de: "Sommer"
