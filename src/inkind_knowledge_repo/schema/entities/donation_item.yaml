@@ -247,7 +247,7 @@ classes:
     see_also:
       - http://www.productontology.org/id/Household_goods
     annotations:
-      label_en: "Household"
+      label_en: "Household Items"
       label_de: "Haushaltswaren"
       aliases_en: ["household goods", "domestic items"]
       aliases_de: ["Haushaltsgegenstände", "Domestikum"]
@@ -444,10 +444,10 @@ classes:
       - https://company.auntbertha.com/openeligibility/
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
     annotations:
-      label_en: "Baby & Infant Supplies"
-      label_de: "Baby- & Kleinkindbedarf"
+      label_en: "Baby & Infant Items"
+      label_de: "Babyausstattung"
       aliases_en: ["baby supplies", "infant supplies", "baby things", "infant things"]
-      aliases_de: ["Babyausstattung", "Kleinkindausstattung", "Babybedarf", "Kleinkindbedarf", "Baby sachen"]
+      aliases_de: ["Babyausstattung", "Babybedarf", "Baby sachen"]
 
 
   FoodItem:

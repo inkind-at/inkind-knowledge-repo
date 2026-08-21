@@ -114,4 +114,4 @@ enums:
       children_6_12: {description: "Middle-grade readers, chapter books (6-12 years)", annotations: {label_en: "Children (6-12)", label_de: "Kinder (6-12 Jahre)"}}
       young_adult:   {description: "Young adult (13-17 years)", annotations: {label_en: "Young Adult", label_de: "Jugendliche"}}
       adult:         {description: "Adult readership", annotations: {label_en: "Adult", label_de: "Erwachsene"}}
-      all_ages:      {description: "Suitable for all ages", annotations: {label_en: "All Ages", label_de: "Alle Altersgruppen"}}
+      all_ages:      {description: "Suitable for all ages", annotations: {label_en: "All ages", label_de: "Alle Altersgruppen"}}

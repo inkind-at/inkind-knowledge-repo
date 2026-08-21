@@ -455,7 +455,7 @@ enums:
           donated as part of a food collection.
         see_also: [foodon:00002640]
         annotations:
-          label_en: "baby food"
+          label_en: "Baby Food"
           label_de: "Babynahrung"
           aliases_en: ["Baby food", "Infant food"]
           aliases_de: ["Babynahrung", "Säuglingsnahrung", "Püree", "Gläschen"]
@@ -481,7 +481,7 @@ enums:
       ambient:
         description: "Room temperature (15-25°C), dry conditions. Standard pantry/warehouse shelf."
         annotations:
-          label_en: "ambient"
+          label_en: "Room temperature"
           label_de: "Raumtemperatur"
       refrigerated:
         description: "Refrigerated storage (0-4°C)."

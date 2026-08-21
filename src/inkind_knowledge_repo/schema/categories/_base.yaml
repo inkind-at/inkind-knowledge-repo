@@ -95,7 +95,7 @@ slots:
         ToysItem  → ToyAgeRangeEnum
         BooksItem → BookAgeRangeEnum
     annotations:
-      label_en: "Age Range"
+      label_en: "Recommended Age"
       label_de: "Altersempfehlung"
 
   expiry_date:

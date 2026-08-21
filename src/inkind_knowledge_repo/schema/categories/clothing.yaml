@@ -575,7 +575,10 @@ enums:
         description: >-
           Suitable for warm weather; not appropriate for cold conditions.
           Implies is_winter_suitable=false.
-          Examples: t-shirt, shorts, sundress, swimwear, linen top.
+          Examples: t-shirt, shorts, sundress, swimwear, linen top.Household and kitchen goods: cookware, crockery, small appliances,
+      cleaning tools, home decor, garden tools. COICOP 05.3–05.5. Bedding
+      and textiles (05.2) are BeddingTextilesItem, not this class.
+      Assessment: condition_grade (wear grade).
         annotations:
           label_en: "Summer"
           label_de: "Sommer"
@@ -787,7 +790,7 @@ enums:
         description: "Adult male / menswear. Valid sizes: xs through one_size."
         see_also: [schema:WearableSizeGroupMens]
         annotations:
-          label_en: "Adult Male"
+          label_en: "Men"
           label_de: "Herren"
           aliases_en: ["Male", "Men", "Man", "Adult Male"]
           aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann"]
@@ -795,7 +798,7 @@ enums:
         description: "Adult female / womenswear. Valid sizes: xs through one_size."
         see_also: [ schema:WearableSizeGroupMisses, schema:WearableSizeGroupWomens]
         annotations:
-          label_en: "Adult Female"
+          label_en: "Women"
           label_de: "Damen"
           aliases_en: ["Female", "Women", "Woman", "Adult Female", "Ladies"]
           aliases_de: ["Weiblich", "Frauen", "Frau", "Erwachsene Frau", "Damen"]

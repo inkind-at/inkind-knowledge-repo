@@ -312,15 +312,15 @@ enums:
       baby:
         description: "Baby (0-24 months). e.g. baby hats, scratch mittens."
         annotations:
-          label_en: "Baby (0-24 months)"
-          label_de: "Baby (0-24 Monate)"
+          label_en: "Baby"
+          label_de: "Baby"
           aliases_en: ["Baby", "Infant", "Newborn"]
           aliases_de: ["Baby", "Säugling", "Neugeborenes"]
       child:
         description: "Child (2-14 years). e.g. children's hats, gloves."
         annotations:
-          label_en: "Child (2-14 years)"
-          label_de: "Kind (2-14 Jahre)"
+          label_en: "Child"
+          label_de: "Kind"
           aliases_en: ["Child", "Minor"]
           aliases_de: ["Kind", "Minderjähriger"]
       adult:
@@ -333,7 +333,7 @@ enums:
       all_ages:
         description: "Suitable for all ages or demographic not applicable."
         annotations:
-          label_en: "All"
+          label_en: "All ages"
           label_de: "Alle"  
           aliases_en: ["All", "Universal", "Unisex"]
           aliases_de: ["Alle", "Universell", "Unisex"]
