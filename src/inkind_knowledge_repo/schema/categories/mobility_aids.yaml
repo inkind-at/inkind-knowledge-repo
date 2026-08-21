@@ -180,7 +180,7 @@ enums:
           action: warn — sorting_notes required.
         annotations:
           label_en: "Safe After Cleaning"
-          label_de: "Nach Reinigung sicher" 
+          label_de: "Nach Reinigung verwendebar" 
       non_functional:
         description: >-
           Powered device does not operate as expected. Consider repair referral.
@@ -202,7 +202,7 @@ enums:
           action: block from normal redistribution; flag for specialist organisation.
         annotations:
           label_en: "Specialist Referral Required"
-          label_de: "Spezialistenbewertung erforderlich"  
+          label_de: "Fachliche Prüfung erforderlich"  
 
   MobilityAidsSubcategoryEnum:
     description: >-
@@ -210,9 +210,9 @@ enums:
       Grounded in Product Types Ontology and Open Eligibility taxonomy.
     permissible_values:
       wheelchairs:          {description: "Manual and powered wheelchairs. Structural + functional assessment required.", see_also: [pto:Wheelchair], annotations: {label_en: "Wheelchairs", label_de: "Rollstühle", aliases_en: ["Wheelchair", "Manual Wheelchair", "Powered Wheelchair"], aliases_de: ["Rollstuhl", "Manueller Rollstuhl", "Elektrischer Rollstuhl"]}}
-      crutches:             {description: "Axillary and forearm crutches, walking sticks. Structural assessment.", see_also: [pto:Crutch], annotations: {label_en: "Crutches and Walking Sticks", label_de: "Krücken und Gehstöcke", aliases_en: ["Crutch", "Walking Stick", "Cane"], aliases_de: ["Krücke", "Gehstock", "Stock"]}}
-      walking_frames:       {description: "Walking frames, Zimmer frames, wheeled walkers, rollators.", see_also: [pto:Walking_frame], annotations: {label_en: "Walking Frames", label_de: "Gehgestelle", aliases_en: ["Walking Frame", "Zimmer Frame", "Wheeled Walker", "Rollator"], aliases_de: ["Gehgestell", "Rollator"]}}
-      mobility_scooters:    {description: "Electric mobility scooters. Full functional + structural assessment.", annotations: {label_en: "Mobility Scooters", label_de: "Mobilitätsscooter",alias_en: ["Mobility Scooter", "Electric Scooter"], aliases_de: ["Mobilitätsscooter", "Elektroroller"]}}
+      crutches:             {description: "Axillary and forearm crutches, walking sticks. Structural assessment.", see_also: [pto:Crutch], annotations: {label_en: "Crutches & Walking Sticks", label_de: "Krücken & Gehstöcke", aliases_en: ["Crutch", "Walking Stick", "Cane"], aliases_de: ["Krücke", "Gehstock", "Stock"]}}
+      walking_frames:       {description: "Walking frames, Zimmer frames, wheeled walkers, rollators.", see_also: [pto:Walking_frame], annotations: {label_en: "Walking Frames", label_de: "Gehhilfen", aliases_en: ["Walking Frame", "Zimmer Frame", "Wheeled Walker", "Rollator"], aliases_de: ["Gehgestell", "Rollator"]}}
+      mobility_scooters:    {description: "Electric mobility scooters. Full functional + structural assessment.", annotations: {label_en: "Mobility Scooters", label_de: "Elektromobile",alias_en: ["Mobility Scooter", "Electric Scooter"], aliases_de: ["Mobilitätsscooter", "Elektroroller"]}}
       hearing_aids:         {description: "In-ear and behind-ear hearing aids. Body-contact — safe_after_cleaning minimum.", see_also: [pto:Hearing_aid], annotations: {label_en: "Hearing Aids", label_de: "Hörgeräte", aliases_en: ["Hearing Aid", "In-ear Hearing Aid", "Behind-ear Hearing Aid"], aliases_de: ["Hörgerät", "In-Ear-Hörgerät", "Hinter-dem-Ohr-Hörgerät"]}}
       visual_aids:          {description: "Reading glasses (non-prescription), magnifiers, white canes.", annotations: {label_en: "Visual Aids", label_de: "Sehhilfen", aliases_en: ["Visual Aid", "Reading Glasses", "Magnifier", "White Cane"], aliases_de: ["Sehhilfe", "Lesebrille", "Lupe", "Weißer Stock"]}}
       orthotics:            {description: "Splints, braces, supports. Body-contact assessment applies.", see_also: [pto:Orthopedic_equipment], annotations: {label_en: "Orthotics", label_de: "Orthesen", aliases_en: ["Orthotic", "Splint", "Brace", "Support"], aliases_de: ["Orthese", "Schiene", "Bandage", "Stütze"]}}

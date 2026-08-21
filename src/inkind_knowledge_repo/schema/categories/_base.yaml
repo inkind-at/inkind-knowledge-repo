@@ -78,7 +78,7 @@ slots:
       - schema:WearableSizeGroupAdult
     annotations:
       label_en: "Demographic"
-      label_de: "Demografie"
+      label_de: "Geeignet für"
 
   is_set_complete:
     range: boolean
@@ -96,7 +96,7 @@ slots:
         BooksItem → BookAgeRangeEnum
     annotations:
       label_en: "Age Range"
-      label_de: "Altersbereich"
+      label_de: "Altersempfehlung"
 
   expiry_date:
     range: date
@@ -117,4 +117,4 @@ slots:
       Primary safety signal for personal care items — replaces condition_grade.
     annotations:
       label_en: "Sealed Packaging"
-      label_de: "Versiegelte Verpackung"
+      label_de: "Originalverpackt"

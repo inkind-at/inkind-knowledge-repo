@@ -515,7 +515,7 @@ slots:
     annotations:
       show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear, swimwear]"
       label_en: "Intact care and composition labels"
-      label_de: "Unversehrte Pflege- und Materialetiketten"
+      label_de: "Pflege- und Materialetikett vorhanden"
 
   is_maternity:
     range: boolean
@@ -590,7 +590,7 @@ enums:
           school uniform shirt.
         annotations:
           label_en: "All Season"
-          label_de: "Alle Jahreszeiten"
+          label_de: "Ganzjährig"
           aliases_en: ["All Season", "Year-round"]
           aliases_de: ["Alle Jahreszeiten", "Ganzjährig"]
 
@@ -656,7 +656,7 @@ enums:
           Seasonal weight varies — lightweight vs. fleece nightwear.
         annotations:
           label_en: "Nightwear"
-          label_de: "Nachtanzüge"
+          label_de: "Nachtwäsche"
           aliases_en: ["Pyjamas", "Nightgown", "Dressing gown", "Sleep set"]
           aliases_de: ["Pyjama", "Nachtanzug", "Bademantel", "Schlafset"]
       sportswear:
@@ -666,7 +666,7 @@ enums:
           SportsItem. Swimwear is a separate subcategory — see swimwear.
         annotations:
           label_en: "Sportswear"
-          label_de: "Sportartikel"
+          label_de: "Sportbekleidung"
           aliases_en: ["Athletic wear", "Gym top", "Leggings", "Base layer"]
           aliases_de: ["Sportbekleidung", "Sportartikel", "Sportleggings", "Sporttop"]
       swimwear:
@@ -788,7 +788,7 @@ enums:
         see_also: [schema:WearableSizeGroupMens]
         annotations:
           label_en: "Adult Male"
-          label_de: "Erwachsener Mann"
+          label_de: "Herren"
           aliases_en: ["Male", "Men", "Man", "Adult Male"]
           aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann"]
       adult_female:
@@ -796,7 +796,7 @@ enums:
         see_also: [ schema:WearableSizeGroupMisses, schema:WearableSizeGroupWomens]
         annotations:
           label_en: "Adult Female"
-          label_de: "Erwachsene Frau"
+          label_de: "Damen"
           aliases_en: ["Female", "Women", "Woman", "Adult Female", "Ladies"]
           aliases_de: ["Weiblich", "Frauen", "Frau", "Erwachsene Frau", "Damen"]
       unisex:

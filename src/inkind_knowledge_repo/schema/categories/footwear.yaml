@@ -289,7 +289,7 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Canvas"
-          label_de: "Segeltuch"
+          label_de: "Canvas"
       synthetic_mesh:
         description: >-
           Breathable synthetic mesh or knit upper. Standard material for

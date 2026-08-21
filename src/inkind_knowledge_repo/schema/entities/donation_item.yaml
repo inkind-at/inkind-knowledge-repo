@@ -138,7 +138,7 @@ classes:
       - http://www.ebusiness-unibw.org/ontologies/cpi/ns#ClothingAndAccessories
     annotations:
       label_en: "Clothing"
-      label_de: "Kleidung"
+      label_de: "Bekleidung"
       aliases_en: ["clothing", "clothes", "garment", "apparel"]
       aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel", "Gewand", "Kleidungsartikel"]
 
@@ -227,8 +227,8 @@ classes:
       - http://www.productontology.org/id/Bedding
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
     annotations:
-      label_en: "Bedding and Textiles"
-      label_de: "Bettwäsche und Textilien"
+      label_en: "Bedding & Textiles"
+      label_de: "Bettwäsche & Textilien"
       aliases_en: ["bedding", "textiles"]
       aliases_de: ["Bettwäsche", "Textilien"]
 
@@ -248,7 +248,7 @@ classes:
       - http://www.productontology.org/id/Household_goods
     annotations:
       label_en: "Household"
-      label_de: "Haustechnik"
+      label_de: "Haushaltswaren"
       aliases_en: ["household goods", "domestic items"]
       aliases_de: ["Haushaltsgegenstände", "Domestikum"]
 
@@ -293,8 +293,8 @@ classes:
       - http://www.productontology.org/id/Toy
       - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0048
     annotations:
-      label_en: "Toys and Games"
-      label_de: "Spielzeug und Spiele"
+      label_en: "Toys & Games"
+      label_de: "Spielzeug & Spiele"
       aliases_en: ["toys", "games"]
       aliases_de: ["Spielzeug", "Spiele"]
 
@@ -316,7 +316,7 @@ classes:
       - http://www.productontology.org/id/Sporting_goods
     annotations:
       label_en: "Sports"
-      label_de: "Sport"
+      label_de: "Sport & Freizeit"
       aliases_en: ["sports", "fitness"]
       aliases_de: ["Sport", "Fitness"]
 
@@ -386,7 +386,7 @@ classes:
       - https://company.auntbertha.com/openeligibility/
     annotations:
       label_en: "Personal Care"
-      label_de: "Personalhygiene"
+      label_de: "Körperpflege & Hygieneartikel"
       aliases_en: ["personal care", "hygiene"]
       aliases_de: ["Personalhygiene", "Hygiene"]
 
@@ -407,8 +407,8 @@ classes:
       - http://www.productontology.org/id/Assistive_technology
       - https://company.auntbertha.com/openeligibility/
     annotations:
-      label_en: "Mobility Aids and Assistive Devices"
-      label_de: "Mobilitätshilfen und Hilfsgeräte"
+      label_en: "Mobility Aids & Assistive Devices"
+      label_de: "Mobilitäts- & Alltagshilfen"
       aliases_en: ["mobility aids", "assistive devices"]
       aliases_de: ["Mobilitätshilfen", "Hilfsgeräte"]
 
@@ -444,8 +444,8 @@ classes:
       - https://company.auntbertha.com/openeligibility/
       - https://emergency.unhcr.org/emergency-assistance/core-relief-items/kind-non-food-item-distribution
     annotations:
-      label_en: "Baby and Infant Supplies"
-      label_de: "Baby- und Kleinkindausstattung"
+      label_en: "Baby & Infant Supplies"
+      label_de: "Baby- & Kleinkindbedarf"
       aliases_en: ["baby supplies", "infant supplies", "baby things", "infant things"]
       aliases_de: ["Babyausstattung", "Kleinkindausstattung", "Babybedarf", "Kleinkindbedarf", "Baby sachen"]
 

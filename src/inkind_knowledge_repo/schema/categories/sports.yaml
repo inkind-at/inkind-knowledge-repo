@@ -202,14 +202,14 @@ enums:
           Appropriate for new items with no observed defects.
         annotations:
           label_en: "Safe to redistribute"
-          label_de: "Sicher zum Weitergeben"
+          label_de: "Zur Weitergabe geeignet"
       safe_cosmetic_wear_only:
         description: >-
           Minor cosmetic wear (scratches, scuffs) but structurally sound with
           no impact damage. Safe to redistribute.
         annotations:
           label_en: "Safe with cosmetic wear only"
-          label_de: "Sicher mit kosmetischen Gebrauchsspuren"
+          label_de: "Nur leichte Gebrauchsspuren"
       unknown_impact_history:
         description: >-
           No visible damage but impact history cannot be confirmed.
@@ -217,14 +217,14 @@ enums:
           certification cannot be guaranteed.
         annotations:
           label_en: "Unknown impact history"
-          label_de: "Unbekannte Aufprallhistorie"
+          label_de: "Mögliche Vorschäden unklar"
       visible_structural_damage:
         description: >-
           Cracks, dents, deformation, or compromised structural components.
           Must not be redistributed regardless of usage. action: block.
         annotations:
           label_en: "Visible structural damage"
-          label_de: "Sichtbare strukturelle Schäden"
+          label_de: "Stark beschädigt"
       unsafe_do_not_redistribute:
         description: >-
           Definitively unsafe: confirmed post-impact, recalled model, expired
@@ -232,17 +232,17 @@ enums:
           action: block — consider specialist recycling.
         annotations:
           label_en: "Unsafe — do not redistribute"
-          label_de: "Unsicher — nicht weitergeben"
+          label_de: "Ungeeignet zur Weitergabe"
 
   SportsSubcategoryEnum:
     description: Sports equipment subcategories. Grounded in Product Types Ontology.
     permissible_values:
       balls:             {description: "Footballs, basketballs, tennis balls, rugby balls.", annotations: {label_en: "Balls", label_de: "Bälle", aliases_en: ["balls", "football", "basketball", "tennis ball", "rugby ball"], aliases_de: ["Bälle", "Fußball", "Basketball", "Tennisball", "Rugbyball"]}}
-      rackets_bats:      {description: "Tennis/badminton rackets, cricket bats, ping-pong bats.", see_also: [pto:Racket], annotations: {label_en: "Rackets and Bats", label_de: "Schläger und Schläger", aliases_en: ["rackets and bats", "tennis racket", "badminton racket", "cricket bat", "ping-pong bat"], aliases_de: ["Schläger und Schläger", "Tennisschläger", "Badmintonschläger", "Krikettschläger", "Ping-Pong-Schläger"]}}
+      rackets_bats:      {description: "Tennis/badminton rackets, cricket bats, ping-pong bats.", see_also: [pto:Racket], annotations: {label_en: "Rackets and Bats", label_de: "Sportschläger", aliases_en: ["rackets and bats", "tennis racket", "badminton racket", "cricket bat", "ping-pong bat"], aliases_de: ["Schläger und Schläger", "Tennisschläger", "Badmintonschläger", "Krikettschläger", "Ping-Pong-Schläger"]}}
       protective_gear:   {description: "Helmets, shin pads, knee pads, life jackets. Structured assessment required.", see_also: [pto:Protective_gear], annotations: {label_en: "Protective Gear", label_de: "Schutzausrüstung", aliases_en: ["protective gear", "helmet", "shin pad", "knee pad", "life jacket"], aliases_de: ["Schutzausrüstung", "Helm", "Schienbeinschutz", "Kniepads", "Rettungsgürtel"]}}
       fitness_equipment: {description: "Weights, resistance bands, yoga mats, exercise machines.", see_also: [pto:Exercise_equipment], annotations: {label_en: "Fitness Equipment", label_de: "Fitnessgeräte", aliases_en: ["fitness equipment", "weights", "resistance band", "yoga mat", "exercise machine"], aliases_de: ["Fitnessgeräte", "Gewichte", "Widerstandsbänder", "Yogamatte", "Fitnessmaschine"]}}
-      bicycles:          {description: "Bicycles and cycling accessories. Domain convention — COICOP 07 (Transport).", see_also: [pto:Bicycle], annotations: {label_en: "Bicycles and Cycling Equipment", label_de: "Fahrräder und Fahrradausrüstung", aliases_en: ["bicycles and cycling equipment", "bicycle", "cycling accessory"], aliases_de: ["Fahrräder und Fahrradausrüstung", "Fahrrad", "Fahrradausstattung"]}}
+      bicycles:          {description: "Bicycles and cycling accessories. Domain convention — COICOP 07 (Transport).", see_also: [pto:Bicycle], annotations: {label_en: "Bicycles & Cycling Equipment", label_de: "Fahrräder & Fahrradausrüstung", aliases_en: ["bicycles and cycling equipment", "bicycle", "cycling accessory"], aliases_de: ["Fahrräder und Fahrradausrüstung", "Fahrrad", "Fahrradausstattung"]}}
       water_sports:      {description: "Swimming goggles, snorkels, fins, wetsuits.", annotations: {label_en: "Water Sports Equipment", label_de: "Wassersportausrüstung", aliases_en: ["water sports equipment", "swimming goggles", "snorkel", "fins", "wetsuit"], aliases_de: ["Wassersportausrüstung", "Schwimmbrillen", "Snorkel", "Flossen", "Nassanzug"]}}
       winter_sports:     {description: "Skis, snowboards, ice skates, sleds.", see_also: [pto:Ski], annotations: {label_en: "Winter Sports Equipment", label_de: "Wintersportausrüstung"}}
-      camping_outdoor:   {description: "Tents, sleeping bags, backpacks, hiking poles.", see_also: [pto:Camping], annotations: {label_en: "Camping and Outdoor Equipment", label_de: "Camping- und Outdoor-Ausrüstung"}}
+      camping_outdoor:   {description: "Tents, sleeping bags, backpacks, hiking poles.", see_also: [pto:Camping], annotations: {label_en: "Camping & Outdoor Equipment", label_de: "Camping- & Outdoor-Ausrüstung"}}
       other:             {description: "Sports equipment not fitting above subcategories.", annotations: {label_en: "Other Sports Equipment", label_de: "Sonstige Sportausrüstung"}}

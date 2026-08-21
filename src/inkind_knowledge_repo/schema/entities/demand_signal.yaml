@@ -101,6 +101,9 @@ slots:
     description: >-
       Household composition of the beneficiary/holder this signal concerns —
       informs suitability of matched items.
+    annotations:
+      label_en: "Household situation"
+      label_de: "Haushaltssituation"
 
 enums:
 

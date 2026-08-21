@@ -327,7 +327,7 @@ enums:
           action: warn — sorting_notes required.
         annotations:
           label_en: "Used (Not Confirmed Washed)"
-          label_de: "Verwendet (Nicht bestätigt)"
+          label_de: "Gebraucht (unklar, ob gewaschen)"
       hygiene_concern:
         description: >-
           Visible contamination, significant staining, odour, infestation,
@@ -335,7 +335,7 @@ enums:
           action: block, suggest: disposal.
         annotations:
           label_en: "Hygiene Concern"
-          label_de: "Hygiene-Bedingung"
+          label_de: "Hygienisch bedenklich"
 
   BeddingTextilesSubcategoryEnum:
     description: >-
@@ -403,9 +403,9 @@ enums:
         description: Fitted sheets, flat sheets, pillowcases, duvet covers.
         annotations:
           label_en: "Bedsheets"
-          label_de: "Bettwäsche"
+          label_de: "Bettlaken & Leintücher"
           aliases_en: ["bedsheet", "fitted sheet", "flat sheet"]
-          aliases_de: ["Bettwäsche", "Belegung", "Flachbettwäsche"]
+          aliases_de: ["Bettlaken", "Leintücher", "Flachbettwäsche", "Spannbettlaken"]
       towels:
         description: >-
           Bath, hand, face, beach towels. is_winter_suitable not meaningful
@@ -423,9 +423,9 @@ enums:
         see_also: [pto:Curtain]
         annotations:
           label_en: "Curtains & Blinds"
-          label_de: "Vorhänge & Jalousien"
+          label_de: "Vorhänge & Sichtschutz"
           aliases_en: ["curtain", "net curtain", "roller blind"]
-          aliases_de: ["Vorhang", "Nettovorhang", "Rolljalousie"]
+          aliases_de: ["Vorhang", "Nettovorhang", "Rolljalousie", "Sichtschutz"]
       tablecloths_napkins:
         description: Tablecloths, placemats, cloth napkins. Seasonal not applicable.
         annotations:

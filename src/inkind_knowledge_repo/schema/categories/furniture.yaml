@@ -183,6 +183,8 @@ slots:
     see_also:
       - schema:SizeSpecification
     annotations:
+      label_en: "Dimensions"
+      label_de: "Abmessungen"
       required_if: "subcategory in [tables, beds]"
 
   style:
@@ -191,7 +193,9 @@ slots:
       Style or design description (e.g. "Scandinavian", "Industrial",
       "Rustic"). Free text. Optional — detailed completeness tier.
       Supports demand signal matching for beneficiaries with style preferences.
-
+    annotations:
+      label_en: "Style"
+      label_de: "Stil"
 
 enums:
 
@@ -215,7 +219,7 @@ enums:
           unaffected. Fully redistributable.
         annotations:
             label_en: "Minor Cosmetic Damage"
-            label_de: "Geringe Kosmetische Schäden"
+            label_de: "Leichte Gebrauchsspuren"
       significant_cosmetic_damage:
         description: >-
           Visible staining, discolouration, or notable surface damage.
@@ -223,7 +227,7 @@ enums:
           action: warn for seating/beds — sorting_notes required.
         annotations:
           label_en: "Significant Cosmetic Damage"
-          label_de: "Erhebliche Kosmetische Schäden"
+          label_de: "Deutliche Gebrauchsspuren"
       functional_with_repairs:
         description: >-
           Item is usable but benefits from minor repair before redistribution
@@ -231,7 +235,7 @@ enums:
           action: warn — sorting_notes required.
         annotations:
           label_en: "Functional with Repairs"
-          label_de: "Funktionstüchtig mit Reparaturen"
+          label_de: "Reparatur erforderlich"
       structurally_compromised:
         description: >-
           Load-bearing components cracked, broken, or unsafe. Must not be
@@ -239,7 +243,7 @@ enums:
           action: block, suggest: disposal or repair referral.
         annotations:
           label_en: "Structurally Compromised"
-          label_de: "Strukturell Beeinträchtigt"
+          label_de: "Instabil, stark beschädigt"
 
   FurnitureSubcategoryEnum:
     description: Furniture subcategories. Grounded in Product Types Ontology.
@@ -247,7 +251,7 @@ enums:
       seating:       {description: "Chairs, sofas, armchairs, benches.", see_also: [pto:Chair], annotations: {label_en: "Seating", label_de: "Sitzmöbel", aliases_en: ["Seating", "Chair", "Sofa", "Armchair", "Bench"], aliases_de: ["Sitzmöbel", "Stuhl", "Sofa", "Sessel", "Bank"]}}
       tables:        {description: "Dining tables, coffee tables, desks. dimensions required.", see_also: [pto:Table], annotations: {label_en: "Tables", label_de: "Tische", aliases_en: ["Tables", "Table"], aliases_de: ["Tische", "Tisch"]}}
       beds:          {description: "Bed frames and divans. dimensions required.", see_also: [pto:Bed], annotations: {label_en: "Beds", label_de: "Betten", aliases_en: ["Beds", "Bed"], aliases_de: ["Betten", "Bett"]}}
-      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage Units", label_de: "Aufbewahrungseinheiten", aliases_en: ["Storage units", "Wardrobe", "Cabinet", "Chest of drawers"], aliases_de: ["Aufbewahrungseinheiten", "Kleiderschrank", "Schrank", "Kommode"]}}
+      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage Units", label_de: "Schränke & Aufbewahrung", aliases_en: ["Storage units", "Wardrobe", "Cabinet", "Chest of drawers"], aliases_de: ["Aufbewahrungseinheiten", "Kleiderschrank", "Schrank", "Kommode"]}}
       shelving:      {description: "Shelving units, bookcases, wall-mounted shelves.", annotations: {label_en: "Shelving", label_de: "Regale", aliases_en: ["Shelving", "Bookcase", "Shelf"], aliases_de: ["Regale", "Bücherregal", "Regal"]}}
       other:         {description: "Furniture not fitting above subcategories.", annotations: {label_en: "Other Furniture", label_de: "Sonstige Möbel"}}
 
@@ -263,4 +267,4 @@ enums:
       plastic: {description: "Plastic or synthetic polymer primary construction.", see_also: [schema:material], annotations: {label_en: "Plastic", label_de: "Kunststoff"}}
       fabric:  {description: "Upholstered fabric (sofas, chairs). Not valid for tables or beds.", see_also: [schema:material], annotations: {label_en: "Fabric", label_de: "Stoff"}}
       glass:   {description: "Glass panels or surface (glass-top tables). Not valid for beds.", see_also: [schema:material], annotations: {label_en: "Glass", label_de: "Glas"}}
-      mixed:   {description: "Mixed or composite materials.", see_also: [schema:material], annotations: {label_en: "Mixed", label_de: "Gemischt"}}
+      mixed:   {description: "Mixed or composite materials.", see_also: [schema:material], annotations: {label_en: "Mixed", label_de: "Materialmix"}}

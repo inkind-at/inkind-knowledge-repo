@@ -220,7 +220,7 @@ slots:
       values' dispatch_to annotations.
     annotations:
       label_en: "Item Type"
-      label_de: "Artikeltyp"
+      label_de: "Kategorie"
 
   # ── Notes / sorting notes ────────────────────────────────────────────────────
   notes:
@@ -271,7 +271,7 @@ slots:
       Paired with net_content_unit. Detailed completeness tier.
     annotations:
       label_en: "Net content"
-      label_de: "Nettoinhalt"
+      label_de: "Mengenangabe"
 
   net_content_unit:
     range: NetContentUnitEnum
@@ -285,7 +285,7 @@ slots:
       - https://unece.org/trade/uncefact/cl-recommendations
     annotations:
       label_en: "Net content unit"
-      label_de: "Nettoinhalt-Einheit"
+      label_de: "Einheit"
 
   # ── Subcategory ───────────────────────────────────────────────────────────────
   subcategory:
@@ -313,8 +313,8 @@ slots:
       - schema:NewCondition
       - schema:UsedCondition
     annotations:
-      label_en: "Condition"
-      label_de: "Zustand"
+      label_en: "Usage Status"
+      label_de: "Nutzungsstatus"
 
   # ── CONDITION DIMENSION 2a: Wear grade ───────────────────────────────────────
   condition_grade:
@@ -341,8 +341,8 @@ slots:
       - schema:DamagedCondition
       - schema:itemCondition
     annotations:
-      label_en: "Wear Grade"
-      label_de: "Abnutzungsgrad"
+      label_en: "Condition"
+      label_de: "Zustand"
 
   # ── CONDITION DIMENSION 2b: Structured assessment ─────────────────────────
   assessment_result:
@@ -459,7 +459,7 @@ enums:
         meaning: schema:DamagedCondition
         annotations:
           label_en: "Poor"
-          label_de: "Schlecht"
+          label_de: "Abgenutzt"
           aliases_en: ["Poor", "Heavily Used"]
           aliases_de: ["Schlecht", "Stark Abgenutzt"]
 
