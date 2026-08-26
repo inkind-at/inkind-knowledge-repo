@@ -81,3 +81,66 @@ See the schema implementation in
 [organisation.yaml](../src/inkind_knowledge_repo/schema/entities/organisation.yaml) for the
 resulting `OrgActivityAreaEnum`, `OrgPopulationServedEnum`, `SDGGoalEnum`, and the `mission_statement`,
 `activity_areas`, `population_served`, `sdg_alignment` slots on `SocialOrganisation`.
+
+## 5. Estimating people served without beneficiary-level data
+
+This platform deliberately does not collect beneficiary-level data (privacy and operational
+constraints), yet estimating social impact/ESG needs *some* figure for how many people an org
+reaches. This section surveys how existing frameworks handle organisations that cannot produce an
+exact unduplicated headcount.
+
+**Closest existing standard metric: IRIS+ PI4060 "Client Individuals: Total"** (GIIN). Defined as an
+*unduplicated* count of individuals served **during the reporting period**. Critically, IRIS+
+explicitly anticipates organisations without direct client data (e.g. indirect distribution
+channels, such as selling through local distributors) and endorses a **"best estimate"
+methodology**: derive the count from a proxy (units distributed, capacity, etc.) and **footnote the
+assumptions** used — exactly this platform's situation, since donation routing here doesn't capture
+individual beneficiary identities either.
+
+**Reporting period is annual, universally.** Every framework surveyed anchors "people served" to a
+~12-month period, not a single month or a point-in-time snapshot:
+- IRIS+ PI4060's "reporting period" convention.
+- IRS Form 990 — the mandatory annual filing for US 501(c)(3) orgs includes narrative reporting on
+  "how many people were served" per program, on an annual cadence.
+- HUD's Annual Homeless Assessment Report (AHAR) — a defined 12-month window for sheltered-population
+  counts, distinct from HUD's Point-In-Time (PIT) Count (a single night in January). The PIT count is
+  a narrower, different-purpose metric (federal funding eligibility) and is known to *undercount*
+  annual reach because it misses client turnover across the year — a caution against using any
+  single-snapshot figure as a stand-in for annual reach.
+- Social Value International's SROI guidance — "evaluative" SROI is conducted retrospectively over a
+  defined reporting period using actual stakeholder data from that period.
+
+**Why not monthly?** Nonprofit activity is seasonally skewed — over a third of annual nonprofit
+revenue arrives in Q4 alone in aggregate giving data, and donation-based orgs in this platform's
+domain see comparable seasonal swings (winter clothing, holiday food drives, back-to-school
+supplies). A single month's figure is not representative of the year; if a monthly figure is wanted
+for display, it must be computed as an *average across a full 12-month period*, not read off any one
+month.
+
+**Two concrete proxy-estimation methods recur in adjacent sectors** and map directly onto orgs this
+platform already onboards:
+- **Capacity/turnover-based** (HUD AHAR bed-utilization methodology): bed (or slot) utilization rate
+  is calculated as people served over a period ÷ available bed-nights in that period; HUD's expected
+  utilization range is roughly 65–105%. Converting capacity into an annual unique-individuals estimate
+  follows the same logic: `beds × occupancy_rate × 365 ÷ average_length_of_stay_days`. Directly
+  applicable to shelter-type orgs — e.g. Haus der Frau's 18-bed capacity.
+- **Distribution-volume-based** (food-bank/food-pantry sector convention): food pantry clients visit
+  on average roughly 8–12 times per year (frequently monthly), so `total distributions ÷
+  typical_visits_per_person_per_year` approximates annual unique individuals. Applicable to food
+  banks and other recurring-donation orgs — e.g. Wiener Tafel.
+- Feeding America's own network reporting is commonly expressed as *unduplicated individuals served
+  per month*, reflecting that food assistance is often a recurring, monthly-cadence need — but this
+  is a sector-specific operational convention layered on top of (not a replacement for) the annual
+  total used for cross-framework ESG comparison.
+- Many orgs will simply **self-report** a figure they already compute for their own annual
+  report/990 — `self_reported` must remain a first-class, equally valid method, not a fallback of
+  last resort.
+
+**Decisions**: annual reporting period only (`period_start`/`period_end`, no separately-stored
+monthly figure — derive one at the application layer if needed); count individuals only (not
+households, to compose directly with `sdg_alignment` without a conversion step — orgs that only
+track households apply their own multiplier and document it); and require a documented
+`estimation_method` (`self_reported`, `capacity_based`, `distribution_volume_based`,
+`survey_sample_based`, `other`) plus optional free-text `method_note`, per IRIS+'s explicit
+footnote-your-assumptions guidance. See `PeopleServedEstimate` and the `people_served_estimate` slot
+in [organisation.yaml](../src/inkind_knowledge_repo/schema/entities/organisation.yaml).

@@ -36,6 +36,7 @@ classes:
       - activity_areas
       - population_served
       - sdg_alignment
+      - people_served_estimate
     class_uri: org:Organization
     slot_usage:
       parent:
@@ -69,6 +70,60 @@ classes:
       locale:
         range: string
         description: BCP-47 locale code (e.g., "de-AT").
+
+  # ── People served estimate ────────────────────────────────────────────────────
+  PeopleServedEstimate:
+    description: >-
+      Estimated unique individuals served by the organisation during a ~12-month
+      reporting period. This platform does not collect beneficiary-level data,
+      so this is necessarily an estimate rather than a measured unduplicated
+      count — grounded in IRIS+ PI4060 ("Client Individuals: Total"), which
+      explicitly endorses a "best estimate" methodology (derive from a proxy,
+      footnote the assumptions) for organisations without direct client data.
+      Annual period only — a single month or point-in-time snapshot is not
+      representative (seasonal donation/need patterns skew any shorter window);
+      matches the reporting cadence of IRIS+, Form 990, HUD AHAR, and SROI.
+      Phase 1: current estimate only, no history.
+      Full research: docs/social_organisation_taxonomy_research.md.
+    see_also:
+      - https://iris.thegiin.org/metric/5.3/pi4060/
+    attributes:
+      count:
+        range: integer
+        required: true
+        description: >-
+          Estimated number of unique individuals served during
+          [period_start, period_end]. Individuals, not households — orgs
+          that only track households must convert and document the
+          multiplier used in method_note.
+      estimation_method:
+        range: PeopleServedEstimationMethodEnum
+        required: true
+        description: >-
+          How count was derived. Required — an unauditable bare number is
+          not usable for ESG reporting; see PeopleServedEstimationMethodEnum.
+      method_note:
+        range: string
+        required: false
+        description: >-
+          Free-text explanation of the specific calculation/assumptions,
+          e.g. "18 beds × 90% occupancy × 365 ÷ 21-day avg stay" or
+          "3200 distributions ÷ 10 visits/person/year".
+      period_start:
+        range: date
+        required: true
+        description: Start of the ~12-month period the estimate covers.
+      period_end:
+        range: date
+        required: true
+        description: End of the ~12-month period the estimate covers.
+      as_of:
+        range: date
+        required: false
+        description: >-
+          Date the estimate was last reviewed or entered. Used to flag
+          staleness — not the same as period_end, which is fixed by the
+          reporting period itself.
 
 slots:
 
@@ -130,6 +185,16 @@ slots:
     annotations:
       label_en: "SDG Alignment"
       label_de: "SDG-Bezug"
+
+  people_served_estimate:
+    range: PeopleServedEstimate
+    required: false
+    description: >-
+      Current estimate of unique individuals served annually. See
+      PeopleServedEstimate for methodology and grounding.
+    annotations:
+      label_en: "People Served (Estimate)"
+      label_de: "Erreichte Personen (Schätzung)"
 
 enums:
 
@@ -309,4 +374,41 @@ enums:
       partnerships_for_the_goals:
         meaning: https://metadata.un.org/sdg/17
         annotations: {label_en: "Partnerships for the Goals", label_de: "Partnerschaften zur Erreichung der Ziele"}
+
+  # ── People served estimation method ──────────────────────────────────────────
+  PeopleServedEstimationMethodEnum:
+    description: >-
+      How a PeopleServedEstimate.count was derived. Required per IRIS+
+      PI4060's "best estimate" guidance for organisations without direct
+      unduplicated client data: footnote your assumptions rather than
+      report a bare, unauditable number.
+      Full research: docs/social_organisation_taxonomy_research.md.
+    see_also:
+      - https://iris.thegiin.org/metric/5.3/pi4060/
+    permissible_values:
+      self_reported:
+        description: >-
+          Figure taken from the organisation's own existing reporting
+          (e.g. annual report, Form 990-equivalent filing).
+        annotations: {label_en: "Self-Reported", label_de: "Selbstauskunft"}
+      capacity_based:
+        description: >-
+          Derived from service capacity and turnover, e.g. beds ×
+          occupancy_rate × 365 ÷ average_length_of_stay_days (HUD AHAR
+          bed-utilization methodology). Typical for shelter-type orgs.
+        annotations: {label_en: "Capacity-Based", label_de: "Kapazitätsbasiert"}
+      distribution_volume_based:
+        description: >-
+          Derived from distribution/donation volume divided by typical
+          visits-per-person-per-year (food-bank sector convention).
+          Typical for recurring-donation orgs.
+        annotations: {label_en: "Distribution Volume-Based", label_de: "Auf Basis des Ausgabevolumens"}
+      survey_sample_based:
+        description: Extrapolated from a survey or sample of beneficiaries.
+        annotations: {label_en: "Survey/Sample-Based", label_de: "Umfrage-/Stichprobenbasiert"}
+      other:
+        description: >-
+          Method not covered by the values above. Use method_note to
+          explain.
+        annotations: {label_en: "Other", label_de: "Andere"}
 ...

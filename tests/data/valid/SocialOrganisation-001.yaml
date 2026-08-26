@@ -15,6 +15,16 @@ sdg_alignment:
   - no_poverty
   - zero_hunger
   - reduced_inequality
+people_served_estimate:
+  count: 4500
+  estimation_method: distribution_volume_based
+  method_note: >-
+    45,000 food parcels distributed to partner organisations in the period
+    ÷ ~10 visits/person/year (food-pantry sector average) ≈ 4,500 unique
+    individuals reached indirectly through partner orgs.
+  period_start: "2025-01-01"
+  period_end: "2025-12-31"
+  as_of: "2026-02-15"
 geo_point:
   lat: 48.2082
   long: 16.3738

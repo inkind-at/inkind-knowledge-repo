@@ -1,0 +1,13 @@
+# SocialOrganisation-003.yaml
+# Invalid: people_served_estimate missing required estimation_method —
+# an unauditable bare count is not permitted (see PeopleServedEstimate).
+
+id: urn:uuid:invalidorg2-4567-4567-4567-invalidorg2456789
+name: Test Organisation
+is_active: true
+activity_areas:
+  - social_services
+people_served_estimate:
+  count: 100
+  period_start: "2025-01-01"
+  period_end: "2025-12-31"

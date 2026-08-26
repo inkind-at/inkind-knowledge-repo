@@ -529,6 +529,32 @@ class SDGGoalEnum(str, Enum):
     partnerships_for_the_goals = "partnerships_for_the_goals"
 
 
+class PeopleServedEstimationMethodEnum(str, Enum):
+    """
+    How a PeopleServedEstimate.count was derived. Required per IRIS+ PI4060's "best estimate" guidance for organisations without direct unduplicated client data: footnote your assumptions rather than report a bare, unauditable number. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    self_reported = "self_reported"
+    """
+    Figure taken from the organisation's own existing reporting (e.g. annual report, Form 990-equivalent filing).
+    """
+    capacity_based = "capacity_based"
+    """
+    Derived from service capacity and turnover, e.g. beds × occupancy_rate × 365 ÷ average_length_of_stay_days (HUD AHAR bed-utilization methodology). Typical for shelter-type orgs.
+    """
+    distribution_volume_based = "distribution_volume_based"
+    """
+    Derived from distribution/donation volume divided by typical visits-per-person-per-year (food-bank sector convention). Typical for recurring-donation orgs.
+    """
+    survey_sample_based = "survey_sample_based"
+    """
+    Extrapolated from a survey or sample of beneficiaries.
+    """
+    other = "other"
+    """
+    Method not covered by the values above. Use method_note to explain.
+    """
+
+
 class ActorRoleEnum(str, Enum):
     """
     Valid actor roles within a SocialOrganisation.
@@ -2488,6 +2514,11 @@ class SocialOrganisation(ConfiguredBaseModel):
     sdg_alignment: Optional[list[SDGGoalEnum]] = Field(default=None, description="""UN Sustainable Development Goal(s) the organisation's work contributes to. Lightweight anchor for future social impact / ESG estimation — not a full metrics catalog (see docs/social_organisation_taxonomy_research.md).""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de', 'value': 'SDG-Bezug'},
                          'label_en': {'tag': 'label_en', 'value': 'SDG Alignment'}},
          'domain_of': ['SocialOrganisation']} })
+    people_served_estimate: Optional[PeopleServedEstimate] = Field(default=None, description="""Current estimate of unique individuals served annually. See PeopleServedEstimate for methodology and grounding.""", json_schema_extra = { "linkml_meta": {'annotations': {'label_de': {'tag': 'label_de',
+                                      'value': 'Erreichte Personen (Schätzung)'},
+                         'label_en': {'tag': 'label_en',
+                                      'value': 'People Served (Estimate)'}},
+         'domain_of': ['SocialOrganisation']} })
 
 
 class GeoPoint(ConfiguredBaseModel):
@@ -2508,6 +2539,21 @@ class OrgConfig(ConfiguredBaseModel):
 
     timezone: Optional[str] = Field(default=None, description="""IANA timezone identifier (e.g., \"Europe/Vienna\").""", json_schema_extra = { "linkml_meta": {'domain_of': ['OrgConfig']} })
     locale: Optional[str] = Field(default=None, description="""BCP-47 locale code (e.g., \"de-AT\").""", json_schema_extra = { "linkml_meta": {'domain_of': ['OrgConfig']} })
+
+
+class PeopleServedEstimate(ConfiguredBaseModel):
+    """
+    Estimated unique individuals served by the organisation during a ~12-month reporting period. This platform does not collect beneficiary-level data, so this is necessarily an estimate rather than a measured unduplicated count — grounded in IRIS+ PI4060 (\"Client Individuals: Total\"), which explicitly endorses a \"best estimate\" methodology (derive from a proxy, footnote the assumptions) for organisations without direct client data. Annual period only — a single month or point-in-time snapshot is not representative (seasonal donation/need patterns skew any shorter window); matches the reporting cadence of IRIS+, Form 990, HUD AHAR, and SROI. Phase 1: current estimate only, no history. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({'from_schema': 'https://inkind-at.github.io/inkind-knowledge-repo/organisation',
+         'see_also': ['https://iris.thegiin.org/metric/5.3/pi4060/']})
+
+    count: int = Field(default=..., description="""Estimated number of unique individuals served during [period_start, period_end]. Individuals, not households — orgs that only track households must convert and document the multiplier used in method_note.""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
+    estimation_method: PeopleServedEstimationMethodEnum = Field(default=..., description="""How count was derived. Required — an unauditable bare number is not usable for ESG reporting; see PeopleServedEstimationMethodEnum.""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
+    method_note: Optional[str] = Field(default=None, description="""Free-text explanation of the specific calculation/assumptions, e.g. \"18 beds × 90% occupancy × 365 ÷ 21-day avg stay\" or \"3200 distributions ÷ 10 visits/person/year\".""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
+    period_start: date = Field(default=..., description="""Start of the ~12-month period the estimate covers.""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
+    period_end: date = Field(default=..., description="""End of the ~12-month period the estimate covers.""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
+    as_of: Optional[date] = Field(default=None, description="""Date the estimate was last reviewed or entered. Used to flag staleness — not the same as period_end, which is fixed by the reporting period itself.""", json_schema_extra = { "linkml_meta": {'domain_of': ['PeopleServedEstimate']} })
 
 
 class Actor(ConfiguredBaseModel):
@@ -9010,6 +9056,7 @@ class NamedThing(ConfiguredBaseModel):
 SocialOrganisation.model_rebuild()
 GeoPoint.model_rebuild()
 OrgConfig.model_rebuild()
+PeopleServedEstimate.model_rebuild()
 Actor.model_rebuild()
 StorageLocation.model_rebuild()
 DonationSource.model_rebuild()

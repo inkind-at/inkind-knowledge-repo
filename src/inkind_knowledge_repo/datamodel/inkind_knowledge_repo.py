@@ -1,5 +1,5 @@
 # Auto generated from inkind_knowledge_repo.yaml by pythongen.py version: 0.0.1
-# Generation date: 2026-08-21T15:00:23
+# Generation date: 2026-08-21T16:16:28
 # Schema: inkind-knowledge-repo
 #
 # id: https://inkind-at.github.io/inkind-knowledge-repo
@@ -239,6 +239,7 @@ class SocialOrganisation(YAMLRoot):
     mission_statement: Optional[str] = None
     population_served: Optional[Union[Union[str, "OrgPopulationServedEnum"], list[Union[str, "OrgPopulationServedEnum"]]]] = empty_list()
     sdg_alignment: Optional[Union[Union[str, "SDGGoalEnum"], list[Union[str, "SDGGoalEnum"]]]] = empty_list()
+    people_served_estimate: Optional[Union[dict, "PeopleServedEstimate"]] = None
 
     def __post_init__(self, *_: str, **kwargs: Any):
         if self._is_empty(self.id):
@@ -279,6 +280,9 @@ class SocialOrganisation(YAMLRoot):
         if not isinstance(self.sdg_alignment, list):
             self.sdg_alignment = [self.sdg_alignment] if self.sdg_alignment is not None else []
         self.sdg_alignment = [v if isinstance(v, SDGGoalEnum) else SDGGoalEnum(v) for v in self.sdg_alignment]
+
+        if self.people_served_estimate is not None and not isinstance(self.people_served_estimate, PeopleServedEstimate):
+            self.people_served_estimate = PeopleServedEstimate(**as_dict(self.people_served_estimate))
 
         super().__post_init__(**kwargs)
 
@@ -329,6 +333,61 @@ class OrgConfig(YAMLRoot):
 
         if self.locale is not None and not isinstance(self.locale, str):
             self.locale = str(self.locale)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass(repr=False)
+class PeopleServedEstimate(YAMLRoot):
+    """
+    Estimated unique individuals served by the organisation during a ~12-month reporting period. This platform does
+    not collect beneficiary-level data, so this is necessarily an estimate rather than a measured unduplicated count —
+    grounded in IRIS+ PI4060 ("Client Individuals: Total"), which explicitly endorses a "best estimate" methodology
+    (derive from a proxy, footnote the assumptions) for organisations without direct client data. Annual period only —
+    a single month or point-in-time snapshot is not representative (seasonal donation/need patterns skew any shorter
+    window); matches the reporting cadence of IRIS+, Form 990, HUD AHAR, and SROI. Phase 1: current estimate only, no
+    history. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    _inherited_slots: ClassVar[list[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO["PeopleServedEstimate"]
+    class_class_curie: ClassVar[str] = "inkind_knowledge_repo:PeopleServedEstimate"
+    class_name: ClassVar[str] = "PeopleServedEstimate"
+    class_model_uri: ClassVar[URIRef] = INKIND_KNOWLEDGE_REPO.PeopleServedEstimate
+
+    count: int = None
+    estimation_method: Union[str, "PeopleServedEstimationMethodEnum"] = None
+    period_start: Union[str, XSDDate] = None
+    period_end: Union[str, XSDDate] = None
+    method_note: Optional[str] = None
+    as_of: Optional[Union[str, XSDDate]] = None
+
+    def __post_init__(self, *_: str, **kwargs: Any):
+        if self._is_empty(self.count):
+            self.MissingRequiredField("count")
+        if not isinstance(self.count, int):
+            self.count = int(self.count)
+
+        if self._is_empty(self.estimation_method):
+            self.MissingRequiredField("estimation_method")
+        if not isinstance(self.estimation_method, PeopleServedEstimationMethodEnum):
+            self.estimation_method = PeopleServedEstimationMethodEnum(self.estimation_method)
+
+        if self._is_empty(self.period_start):
+            self.MissingRequiredField("period_start")
+        if not isinstance(self.period_start, XSDDate):
+            self.period_start = XSDDate(self.period_start)
+
+        if self._is_empty(self.period_end):
+            self.MissingRequiredField("period_end")
+        if not isinstance(self.period_end, XSDDate):
+            self.period_end = XSDDate(self.period_end)
+
+        if self.method_note is not None and not isinstance(self.method_note, str):
+            self.method_note = str(self.method_note)
+
+        if self.as_of is not None and not isinstance(self.as_of, XSDDate):
+            self.as_of = XSDDate(self.as_of)
 
         super().__post_init__(**kwargs)
 
@@ -3547,6 +3606,33 @@ class SDGGoalEnum(EnumDefinitionImpl):
         description="""UN Sustainable Development Goal(s) an organisation's work contributes to. Lightweight ESG/impact anchor — not a full metrics catalog. Deliberately deferred adopting IRIS+/GRI/B Impact in this pass; see docs/social_organisation_taxonomy_research.md.""",
     )
 
+class PeopleServedEstimationMethodEnum(EnumDefinitionImpl):
+    """
+    How a PeopleServedEstimate.count was derived. Required per IRIS+ PI4060's "best estimate" guidance for
+    organisations without direct unduplicated client data: footnote your assumptions rather than report a bare,
+    unauditable number. Full research: docs/social_organisation_taxonomy_research.md.
+    """
+    self_reported = PermissibleValue(
+        text="self_reported",
+        description="""Figure taken from the organisation's own existing reporting (e.g. annual report, Form 990-equivalent filing).""")
+    capacity_based = PermissibleValue(
+        text="capacity_based",
+        description="""Derived from service capacity and turnover, e.g. beds × occupancy_rate × 365 ÷ average_length_of_stay_days (HUD AHAR bed-utilization methodology). Typical for shelter-type orgs.""")
+    distribution_volume_based = PermissibleValue(
+        text="distribution_volume_based",
+        description="""Derived from distribution/donation volume divided by typical visits-per-person-per-year (food-bank sector convention). Typical for recurring-donation orgs.""")
+    survey_sample_based = PermissibleValue(
+        text="survey_sample_based",
+        description="Extrapolated from a survey or sample of beneficiaries.")
+    other = PermissibleValue(
+        text="other",
+        description="Method not covered by the values above. Use method_note to explain.")
+
+    _defn = EnumDefinition(
+        name="PeopleServedEstimationMethodEnum",
+        description="""How a PeopleServedEstimate.count was derived. Required per IRIS+ PI4060's \"best estimate\" guidance for organisations without direct unduplicated client data: footnote your assumptions rather than report a bare, unauditable number. Full research: docs/social_organisation_taxonomy_research.md.""",
+    )
+
 class ActorRoleEnum(EnumDefinitionImpl):
     """
     Valid actor roles within a SocialOrganisation.
@@ -5431,6 +5517,9 @@ slots.population_served = Slot(uri=INKIND_KNOWLEDGE_REPO.population_served, name
 slots.sdg_alignment = Slot(uri=INKIND_KNOWLEDGE_REPO.sdg_alignment, name="sdg_alignment", curie=INKIND_KNOWLEDGE_REPO.curie('sdg_alignment'),
                    model_uri=INKIND_KNOWLEDGE_REPO.sdg_alignment, domain=None, range=Optional[Union[Union[str, "SDGGoalEnum"], list[Union[str, "SDGGoalEnum"]]]])
 
+slots.people_served_estimate = Slot(uri=INKIND_KNOWLEDGE_REPO.people_served_estimate, name="people_served_estimate", curie=INKIND_KNOWLEDGE_REPO.curie('people_served_estimate'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.people_served_estimate, domain=None, range=Optional[Union[dict, PeopleServedEstimate]])
+
 slots.role = Slot(uri=INKIND_KNOWLEDGE_REPO.role, name="role", curie=INKIND_KNOWLEDGE_REPO.curie('role'),
                    model_uri=INKIND_KNOWLEDGE_REPO.role, domain=None, range=Union[str, "ActorRoleEnum"])
 
@@ -5628,6 +5717,24 @@ slots.orgConfig__timezone = Slot(uri=INKIND_KNOWLEDGE_REPO.timezone, name="orgCo
 
 slots.orgConfig__locale = Slot(uri=INKIND_KNOWLEDGE_REPO.locale, name="orgConfig__locale", curie=INKIND_KNOWLEDGE_REPO.curie('locale'),
                    model_uri=INKIND_KNOWLEDGE_REPO.orgConfig__locale, domain=None, range=Optional[str])
+
+slots.peopleServedEstimate__count = Slot(uri=INKIND_KNOWLEDGE_REPO.count, name="peopleServedEstimate__count", curie=INKIND_KNOWLEDGE_REPO.curie('count'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__count, domain=None, range=int)
+
+slots.peopleServedEstimate__estimation_method = Slot(uri=INKIND_KNOWLEDGE_REPO.estimation_method, name="peopleServedEstimate__estimation_method", curie=INKIND_KNOWLEDGE_REPO.curie('estimation_method'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__estimation_method, domain=None, range=Union[str, "PeopleServedEstimationMethodEnum"])
+
+slots.peopleServedEstimate__method_note = Slot(uri=INKIND_KNOWLEDGE_REPO.method_note, name="peopleServedEstimate__method_note", curie=INKIND_KNOWLEDGE_REPO.curie('method_note'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__method_note, domain=None, range=Optional[str])
+
+slots.peopleServedEstimate__period_start = Slot(uri=INKIND_KNOWLEDGE_REPO.period_start, name="peopleServedEstimate__period_start", curie=INKIND_KNOWLEDGE_REPO.curie('period_start'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__period_start, domain=None, range=Union[str, XSDDate])
+
+slots.peopleServedEstimate__period_end = Slot(uri=INKIND_KNOWLEDGE_REPO.period_end, name="peopleServedEstimate__period_end", curie=INKIND_KNOWLEDGE_REPO.curie('period_end'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__period_end, domain=None, range=Union[str, XSDDate])
+
+slots.peopleServedEstimate__as_of = Slot(uri=INKIND_KNOWLEDGE_REPO.as_of, name="peopleServedEstimate__as_of", curie=INKIND_KNOWLEDGE_REPO.curie('as_of'),
+                   model_uri=INKIND_KNOWLEDGE_REPO.peopleServedEstimate__as_of, domain=None, range=Optional[Union[str, XSDDate]])
 
 slots.SocialOrganisation_parent = Slot(uri=INKIND_KNOWLEDGE_REPO.parent, name="SocialOrganisation_parent", curie=INKIND_KNOWLEDGE_REPO.curie('parent'),
                    model_uri=INKIND_KNOWLEDGE_REPO.SocialOrganisation_parent, domain=SocialOrganisation, range=Optional[Union[str, SocialOrganisationId]])

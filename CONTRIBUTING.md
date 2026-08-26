@@ -102,12 +102,34 @@ Core developers should read the material on the [LinkML site](https://linkml.io/
 - Include examples and counter-examples (intentionally invalid examples)
     - Rationale: these serve as documentation and unit tests
     - These will be used by the automated test suite
-    - All elements of the schema must be illustrated with valid and invalid data examples in src/data. New schema elements will not be merged into the main branch until examples are provided
+    - All elements of the schema must be illustrated with valid and invalid data examples in `tests/data/` (`valid/` and `invalid/` subfolders; see [tests/data/README.md](tests/data/README.md)). New schema elements will not be merged into the main branch until examples are provided
     - Invalid example data files should be invalid for one single reason, which should be reflected in the filename. It should be possible to render the invalid example files valid by addressing that single fault.
 - Use enums for categorical values
     - Rationale: Open-ended string ranges encourage multiple values to represent the same entity, like “water”, “H2O” and “HOH”
     - Any slot whose values could be constrained to a finite set should use an Enum
     - Non-categorical values, e.g. descriptive fields like `name` or `description` fall outside of this.
+- Ground new enums in existing external taxonomies, vocabularies, or ontologies rather than inventing categories from scratch
+    - Rationale: reusing an established standard makes the schema comparable/interoperable with other
+      systems and saves re-litigating category boundaries other domains have already worked out
+    - Document which external standard(s) an enum aligns with — and where/why it deviates — in a
+      header comment on the schema file (e.g. see the "Category taxonomy" block at the top of
+      `core.yaml`, or the source list in
+      [docs/social_organisation_taxonomy_research.md](docs/social_organisation_taxonomy_research.md)
+      for `entities/organisation.yaml`)
+    - Ground individual permissible values with `meaning:` (a resolvable IRI) when the external
+      standard publishes one per term, or `see_also:` (a reference link) when it doesn't (e.g. ICNPO
+      codes have no stable public per-value IRI)
+    - If reproducing an external taxonomy verbatim isn't possible (e.g. it's a licensed/proprietary
+      product like Candid's Population Served taxonomy), define a repo-owned enum *inspired by* it,
+      grounded via `see_also`, rather than copying its full controlled hierarchy
+- Colocate enums and supporting classes with the entity that uses them (e.g. in `entities/*.yaml` or
+  the relevant `categories/*.yaml`), rather than centralizing all taxonomies in a separate folder —
+  `core.yaml` is reserved for genuinely cross-cutting vocabulary
+- Bilingual labels
+    - German (`de`) is a first-class supported locale alongside English (`en`)
+    - Every categorical enum value, and most slots, should carry `label_en`/`label_de` annotations
+      in the `annotations:` block (see any enum in `core.yaml` or `entities/organisation.yaml` for
+      the pattern)
 - Reuse
     - Existing scheme elements should be reused where appropriate, rather than making duplicative elements
     - More specific classes can be created by refinining classes using inheritance (`is_a`)

@@ -1,0 +1,39 @@
+# SocialOrganisation-002.yaml
+# Scenario: real-world org with every optional attribute populated.
+# Haus der Frau St. Pölten (hdfp.at) — an autonomous women's shelter (Frauenhaus)
+# in Lower Austria; not part of a modeled parent hierarchy, so `parent` is
+# intentionally omitted rather than left unset by oversight.
+
+id: https://hdfp.at/#org
+name: "Haus der Frau - Verein zur Hilfe für Frauen und Kinder in Notsituationen"
+is_active: true
+mission_statement: >-
+  Schutz, Unterkunft, Beratung und Begleitung für Frauen und ihre Kinder, die
+  von häuslicher und sexualisierter Gewalt betroffen oder bedroht sind —
+  unabhängig von Nationalität, Religion oder Einkommen. Krisenaufnahme rund
+  um die Uhr; Platz für 18 Frauen und ihre Kinder, begleitet durch
+  Sozialarbeiterinnen und Sozialpädagoginnen.
+activity_areas:
+  - social_services
+population_served:
+  - women_girls
+  - children_youth
+sdg_alignment:
+  - gender_equality
+  - peace_justice_and_strong_institutions
+  - good_health_and_well_being
+people_served_estimate:
+  count: 282
+  estimation_method: capacity_based
+  method_note: >-
+    18 beds × 90% average occupancy × 365 nights ÷ 21-day average length
+    of stay ≈ 282 individuals (women and children combined) per year.
+  period_start: "2025-01-01"
+  period_end: "2025-12-31"
+  as_of: "2026-01-20"
+geo_point:
+  lat: 48.2047
+  long: 15.6256
+config:
+  timezone: "Europe/Vienna"
+  locale: "de-AT"

@@ -1572,6 +1572,72 @@ enums:
           label_de:
             tag: label_de
             value: Partnerschaften zur Erreichung der Ziele
+  PeopleServedEstimationMethodEnum:
+    name: PeopleServedEstimationMethodEnum
+    definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/PeopleServedEstimationMethodEnum
+    description: 'How a PeopleServedEstimate.count was derived. Required per IRIS+
+      PI4060''s "best estimate" guidance for organisations without direct unduplicated
+      client data: footnote your assumptions rather than report a bare, unauditable
+      number. Full research: docs/social_organisation_taxonomy_research.md.'
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    see_also:
+    - https://iris.thegiin.org/metric/5.3/pi4060/
+    permissible_values:
+      self_reported:
+        text: self_reported
+        description: Figure taken from the organisation's own existing reporting (e.g.
+          annual report, Form 990-equivalent filing).
+        annotations:
+          label_en:
+            tag: label_en
+            value: Self-Reported
+          label_de:
+            tag: label_de
+            value: Selbstauskunft
+      capacity_based:
+        text: capacity_based
+        description: "Derived from service capacity and turnover, e.g. beds \xD7 occupancy_rate\
+          \ \xD7 365 \xF7 average_length_of_stay_days (HUD AHAR bed-utilization methodology).\
+          \ Typical for shelter-type orgs."
+        annotations:
+          label_en:
+            tag: label_en
+            value: Capacity-Based
+          label_de:
+            tag: label_de
+            value: "Kapazit\xE4tsbasiert"
+      distribution_volume_based:
+        text: distribution_volume_based
+        description: Derived from distribution/donation volume divided by typical
+          visits-per-person-per-year (food-bank sector convention). Typical for recurring-donation
+          orgs.
+        annotations:
+          label_en:
+            tag: label_en
+            value: Distribution Volume-Based
+          label_de:
+            tag: label_de
+            value: Auf Basis des Ausgabevolumens
+      survey_sample_based:
+        text: survey_sample_based
+        description: Extrapolated from a survey or sample of beneficiaries.
+        annotations:
+          label_en:
+            tag: label_en
+            value: Survey/Sample-Based
+          label_de:
+            tag: label_de
+            value: Umfrage-/Stichprobenbasiert
+      other:
+        text: other
+        description: Method not covered by the values above. Use method_note to explain.
+        annotations:
+          label_en:
+            tag: label_en
+            value: Other
+          label_de:
+            tag: label_de
+            value: Andere
   ActorRoleEnum:
     name: ActorRoleEnum
     definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/ActorRoleEnum
@@ -8012,6 +8078,27 @@ slots:
     range: SDGGoalEnum
     required: false
     multivalued: true
+  people_served_estimate:
+    name: people_served_estimate
+    definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/people_served_estimate
+    annotations:
+      label_en:
+        tag: label_en
+        value: People Served (Estimate)
+      label_de:
+        tag: label_de
+        value: "Erreichte Personen (Sch\xE4tzung)"
+    description: Current estimate of unique individuals served annually. See PeopleServedEstimate
+      for methodology and grounding.
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:people_served_estimate
+    owner: SocialOrganisation
+    domain_of:
+    - SocialOrganisation
+    range: PeopleServedEstimate
+    required: false
+    inlined: true
+    inlined_as_list: true
   role:
     name: role
     definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/role
@@ -9037,6 +9124,79 @@ slots:
     domain_of:
     - OrgConfig
     range: string
+  peopleServedEstimate__count:
+    name: peopleServedEstimate__count
+    description: "Estimated number of unique individuals served during [period_start,\
+      \ period_end]. Individuals, not households \u2014 orgs that only track households\
+      \ must convert and document the multiplier used in method_note."
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:count
+    alias: count
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: integer
+    required: true
+  peopleServedEstimate__estimation_method:
+    name: peopleServedEstimate__estimation_method
+    description: "How count was derived. Required \u2014 an unauditable bare number\
+      \ is not usable for ESG reporting; see PeopleServedEstimationMethodEnum."
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:estimation_method
+    alias: estimation_method
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: PeopleServedEstimationMethodEnum
+    required: true
+  peopleServedEstimate__method_note:
+    name: peopleServedEstimate__method_note
+    description: "Free-text explanation of the specific calculation/assumptions, e.g.\
+      \ \"18 beds \xD7 90% occupancy \xD7 365 \xF7 21-day avg stay\" or \"3200 distributions\
+      \ \xF7 10 visits/person/year\"."
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:method_note
+    alias: method_note
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: string
+    required: false
+  peopleServedEstimate__period_start:
+    name: peopleServedEstimate__period_start
+    description: Start of the ~12-month period the estimate covers.
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:period_start
+    alias: period_start
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: date
+    required: true
+  peopleServedEstimate__period_end:
+    name: peopleServedEstimate__period_end
+    description: End of the ~12-month period the estimate covers.
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:period_end
+    alias: period_end
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: date
+    required: true
+  peopleServedEstimate__as_of:
+    name: peopleServedEstimate__as_of
+    description: "Date the estimate was last reviewed or entered. Used to flag staleness\
+      \ \u2014 not the same as period_end, which is fixed by the reporting period\
+      \ itself."
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    slot_uri: inkind_knowledge_repo:as_of
+    alias: as_of
+    owner: PeopleServedEstimate
+    domain_of:
+    - PeopleServedEstimate
+    range: date
+    required: false
   SocialOrganisation_parent:
     name: SocialOrganisation_parent
     definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/parent
@@ -11333,6 +11493,7 @@ classes:
     - activity_areas
     - population_served
     - sdg_alignment
+    - people_served_estimate
     slot_usage:
       parent:
         name: parent
@@ -11378,6 +11539,68 @@ classes:
         description: BCP-47 locale code (e.g., "de-AT").
         range: string
     class_uri: inkind_knowledge_repo:OrgConfig
+  PeopleServedEstimate:
+    name: PeopleServedEstimate
+    definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/PeopleServedEstimate
+    description: "Estimated unique individuals served by the organisation during a\
+      \ ~12-month reporting period. This platform does not collect beneficiary-level\
+      \ data, so this is necessarily an estimate rather than a measured unduplicated\
+      \ count \u2014 grounded in IRIS+ PI4060 (\"Client Individuals: Total\"), which\
+      \ explicitly endorses a \"best estimate\" methodology (derive from a proxy,\
+      \ footnote the assumptions) for organisations without direct client data. Annual\
+      \ period only \u2014 a single month or point-in-time snapshot is not representative\
+      \ (seasonal donation/need patterns skew any shorter window); matches the reporting\
+      \ cadence of IRIS+, Form 990, HUD AHAR, and SROI. Phase 1: current estimate\
+      \ only, no history. Full research: docs/social_organisation_taxonomy_research.md."
+    from_schema: https://inkind-at.github.io/inkind-knowledge-repo/organisation
+    see_also:
+    - https://iris.thegiin.org/metric/5.3/pi4060/
+    slots:
+    - peopleServedEstimate__count
+    - peopleServedEstimate__estimation_method
+    - peopleServedEstimate__method_note
+    - peopleServedEstimate__period_start
+    - peopleServedEstimate__period_end
+    - peopleServedEstimate__as_of
+    attributes:
+      count:
+        name: count
+        description: "Estimated number of unique individuals served during [period_start,\
+          \ period_end]. Individuals, not households \u2014 orgs that only track households\
+          \ must convert and document the multiplier used in method_note."
+        range: integer
+        required: true
+      estimation_method:
+        name: estimation_method
+        description: "How count was derived. Required \u2014 an unauditable bare number\
+          \ is not usable for ESG reporting; see PeopleServedEstimationMethodEnum."
+        range: PeopleServedEstimationMethodEnum
+        required: true
+      method_note:
+        name: method_note
+        description: "Free-text explanation of the specific calculation/assumptions,\
+          \ e.g. \"18 beds \xD7 90% occupancy \xD7 365 \xF7 21-day avg stay\" or \"\
+          3200 distributions \xF7 10 visits/person/year\"."
+        range: string
+        required: false
+      period_start:
+        name: period_start
+        description: Start of the ~12-month period the estimate covers.
+        range: date
+        required: true
+      period_end:
+        name: period_end
+        description: End of the ~12-month period the estimate covers.
+        range: date
+        required: true
+      as_of:
+        name: as_of
+        description: "Date the estimate was last reviewed or entered. Used to flag\
+          \ staleness \u2014 not the same as period_end, which is fixed by the reporting\
+          \ period itself."
+        range: date
+        required: false
+    class_uri: inkind_knowledge_repo:PeopleServedEstimate
   Actor:
     name: Actor
     definition_uri: https://inkind-at.github.io/inkind-knowledge-repo/Actor
@@ -15696,5 +15919,5 @@ metamodel_version: 1.7.0
 source_file: inkind_knowledge_repo.yaml
 source_file_date: '2026-08-15T11:04:05'
 source_file_size: 3260
-generation_date: '2026-08-21T15:33:27'
+generation_date: '2026-08-21T16:20:28'
 
