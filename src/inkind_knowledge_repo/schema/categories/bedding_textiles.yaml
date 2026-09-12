@@ -100,8 +100,8 @@ classes:
       unhcr_nfi_category: "household_items"
       winter_suitable_subcategories: "blankets, duvets_quilts, pillows, mattresses, sleeping_bags, bedsheets"
       winter_suppress_subcategories: "towels, curtains_blinds, tablecloths_napkins"
-      label_en: "Bedding and Textiles"
-      label_de: "Bettwäsche und Textilien"
+      label_en: "Home textiles"
+      label_de: "Heimtextilien"
       aliases_en: ["bedding", "textiles"]
       aliases_de: ["Bettwäsche", "Textilien"]
     rules:
@@ -254,7 +254,7 @@ enums:
           and asthma sufferers. Requires low-heat tumble drying.
         see_also: [pto:Down_feather]
         annotations:
-          label_en: "Down / Feather"
+          label_en: "Down / Feathers"
           label_de: "Daunen / Federn"
           winter_hint: "true"
       silk:
@@ -283,8 +283,8 @@ enums:
           acrylic blends, and other mixed compositions.
         see_also: [schema:material]
         annotations:
-          label_en: "Synthetic Blend"
-          label_de: "Synthetische Mischung"
+          label_en: "Mixed fibres"
+          label_de: "Mischgewebe"
       other:
         description: >-
           Materials not covered above. Record the specific material in
@@ -305,36 +305,36 @@ enums:
           Clearly unused/new with original packaging intact or no signs of
           previous use. No hygiene concerns.
         annotations:
-          label_en: "Clean (Unused)"
-          label_de: "Sauber (Unbenutzt)"
+          label_en: "Clean & unused"
+          label_de: "Sauber & unbenutzt"
       clean_washed:
         description: >-
           Previously used but confirmed laundered and clean. No staining,
           odour, or hygiene concerns. Fully redistributable.
         annotations:
-          label_en: "Clean (Washed)"
-          label_de: "Sauber (Gewaschen)"
+          label_en: "Clean & washed"
+          label_de: "Sauber & gewaschen"
       clean_with_visible_staining:
         description: >-
           Clean and odour-free but with visible staining. Structurally sound.
           action: warn — sorting_notes required.
         annotations:
-          label_en: "Clean (With Visible Staining)"
-          label_de: "Sauber (Mit sichtbaren Flecken)"
+          label_en: "Clean, visible stains"
+          label_de: "Sauber, sichtbare Flecken"
       used_not_confirmed_washed:
         description: >-
           Used item where laundering cannot be confirmed.
           action: warn — sorting_notes required.
         annotations:
-          label_en: "Used (Not Confirmed Washed)"
-          label_de: "Gebraucht (unklar, ob gewaschen)"
+          label_en: "Used, washing status unknown"
+          label_de: "Gebraucht, unklar, ob gewaschen"
       hygiene_concern:
         description: >-
           Visible contamination, significant staining, odour, infestation,
           or other hygiene issue. Redistribution unsafe.
           action: block, suggest: disposal.
         annotations:
-          label_en: "Hygiene Concern"
+          label_en: "Hygiene concern"
           label_de: "Hygienisch bedenklich"
 
   BeddingTextilesSubcategoryEnum:
@@ -360,7 +360,7 @@ enums:
           tog rating (if legible) may be noted in sorting_notes.
         see_also: [pto:Duvet]
         annotations:
-          label_en: "Duvets & Quilts"
+          label_en: "Duvets & quilts"
           label_de: "Bettdecken & Steppdecken"
           aliases_en: ["duvet", "quilt", "continental quilt"]
           aliases_de: ["Bettdecke", "Steppdecke", "Kontinentaldecke"]
@@ -395,7 +395,7 @@ enums:
           armhole safety assessment required. Do not sort into this category.
         see_also: [pto:Sleeping_bag]
         annotations:
-          label_en: "Sleeping Bags"
+          label_en: "Sleeping bags"
           label_de: "Schlafsäcke"
           aliases_en: ["sleeping bag", "camping bedding"]
           aliases_de: ["Schlafsack", "Camping-Bettwäsche"]
@@ -422,14 +422,14 @@ enums:
           meaningful at item level — suppressed by fragment compiler.
         see_also: [pto:Curtain]
         annotations:
-          label_en: "Curtains & Blinds"
+          label_en: "Curtains & blinds"
           label_de: "Vorhänge & Sichtschutz"
           aliases_en: ["curtain", "net curtain", "roller blind"]
           aliases_de: ["Vorhang", "Nettovorhang", "Rolljalousie", "Sichtschutz"]
       tablecloths_napkins:
         description: Tablecloths, placemats, cloth napkins. Seasonal not applicable.
         annotations:
-          label_en: "Tablecloths & Napkins"
+          label_en: "Tablecloths & napkins"
           label_de: "Tischdecken & Servietten"
           aliases_en: ["tablecloth", "placemat", "cloth napkin"]
           aliases_de: ["Tischdecke", "Platzset", "Stoffserviette"]
