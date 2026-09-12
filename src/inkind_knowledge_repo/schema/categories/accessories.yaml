@@ -97,7 +97,7 @@ classes:
       completeness_detailed: "subcategory, demographic, material, usage, condition_grade"
       coicop_division: "03.1"
       label_en: "Accessories"
-      label_de: "Accesoires"
+      label_de: "Accessoires"
       aliases_en: ["accessories", "accessory", "fashion accessory"]
       aliases_de: ["Accesoires", "Accessoire", "Modeaccessoire"]
 
@@ -119,13 +119,13 @@ enums:
           label_en: "Headwear"
           label_de: "Kopfbedeckungen"
           aliases_en: ["Hat", "Headwear", "Cap", "Beanie", "Headscarf", "Beret"]
-          aliases_de: ["Hut", "Kopfbedeckung", "Mütze", "Beanie", "Kopftuch", "Baretts", "Haube"]
+          aliases_de: ["Hut", "Kopfbedeckung", "Mütze", "Beanie", "Kopftuch", "Baretts", "Haube", "Hüte"]
       scarves:
         description: Scarves and shawls worn at neck or shoulders.
         see_also: [pto:Scarf]
         annotations:
-          label_en: "Scarves"
-          label_de: "Schal"
+          label_en: "Scarves & shawls"
+          label_de: "Schals & Tücher"
           aliases_en: ["Scarf", "Shawl"]
           aliases_de: ["Schal", "Schleier"]
       gloves_mittens:
@@ -152,7 +152,7 @@ enums:
         annotations:
           label_en: "Bags"
           label_de: "Taschen"
-          aliases_en: ["Handbag", "Tote Bag", "Backpack", "Shoulder Bag", "Wallet", "Purse", "Clutch Bag", "Luggage", "Wallet", "Purse", "Clutch", "Briefcase", "Satchel"]
+          aliases_en: ["Handbag", "Tote Bag", "Backpack", "Shoulder Bag", "Wallet", "Purse", "Clutch Bag", "Luggage", "Clutch", "Briefcase", "Satchel"]
           aliases_de: ["Handtasche", "Tasche", "Rucksack", "Schultertasche", "Brieftasche", "Purse", "Clutch-Tasche", "Reisegepäck", "Geldbörse", "Portemonnaie", "Clutch", "Aktentasche", "Umhängetasche"]
       jewellery:
         description: Necklaces, bracelets, rings, earrings, brooches.
@@ -182,7 +182,7 @@ enums:
         description: Accessories not fitting above subcategories.
         annotations:
           label_en: "Other"
-          label_de: "Sonstiges"
+          label_de: "Andere"
           aliases_en: ["Other", "Miscellaneous", "Unknown"]
           aliases_de: ["Sonstiges", "Verschiedenes", "Unbekannt"]
 
@@ -216,17 +216,17 @@ enums:
           label_en: "Wool"
           label_de: "Wolle"
           aliases_en: ["Wool", "Merino", "Cashmere"]
-          aliases_de: ["Wolle", "Merino", "Camel"]
+          aliases_de: ["Wolle", "Merino", "Kamelhaar"]
       cotton:
         description: >-
           Cotton or cotton-dominant woven fabric. Common in fabric hats,
           canvas bags, and some gloves and scarves. All-season versatile.
         see_also: [pto:Cotton]
         annotations:
-          label_en: "Cotton / Canvas Fabric"
-          label_de: "Baumwolle / Segeltuch"
-          aliases_en: ["Cotton", "Canvas Fabric"]
-          aliases_de: ["Baumwolle", "Segeltuch"]
+          label_en: "Cotton / Canvas"
+          label_de: "Baumwolle / Canvas"
+          aliases_en: ["Cotton", "Canvas"]
+          aliases_de: ["Baumwolle", "Canvas"]
       silk:
         description: >-
           Silk or silk-blend. Typical for elegant scarves and ties.
@@ -267,7 +267,7 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Synthetic"
-          label_de: "Synthetisch"
+          label_de: "Synthetik"
           aliases_en: ["Synthetic", "Nylon", "Polyester"]
           aliases_de: ["Synthetisch", "Nylon", "Polyester"]
       natural_fibre:
@@ -319,14 +319,14 @@ enums:
       child:
         description: "Child (2-14 years). e.g. children's hats, gloves."
         annotations:
-          label_en: "Child"
-          label_de: "Kind"
+          label_en: "Children"
+          label_de: "Kinder"
           aliases_en: ["Child", "Minor"]
           aliases_de: ["Kind", "Minderjähriger"]
       adult:
         description: "Adult. Default for most accessories when demographic matters."
         annotations:
-          label_en: "Adult"
+          label_en: "Adults"
           label_de: "Erwachsene"
           aliases_en: ["Adult", "General"]
           aliases_de: ["Erwachsene", "Allgemein"]
@@ -334,6 +334,6 @@ enums:
         description: "Suitable for all ages or demographic not applicable."
         annotations:
           label_en: "All ages"
-          label_de: "Alle"  
+          label_de: "Alle"
           aliases_en: ["All", "Universal", "Unisex"]
           aliases_de: ["Alle", "Universell", "Unisex"]
