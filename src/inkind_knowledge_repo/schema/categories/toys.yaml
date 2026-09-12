@@ -136,7 +136,7 @@ slots:
       UC block: has_small_parts=true → age_range must exclude age_0_to_3.
       Implements EU Toy Safety Directive 2009/48/EC.
     annotations:
-      label_en: "Has Small Parts"
+      label_en: "Contains Small Parts"
       label_de: "Enthält Kleinteile"
 
 
@@ -234,7 +234,7 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Mixed"
-          label_de: "Gemischt"
+          label_de: "Materialmix"
       other:
         description: >-
           Materials not covered above. Record the specific material in
@@ -242,14 +242,14 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Other"
-          label_de: "Andere"
+          label_de: "Sonstiges"
 
   ToysSubcategoryEnum:
     description: Toys subcategories. Grounded in Product Types Ontology.
     permissible_values:
       construction:     {description: "Building blocks, LEGO-style, construction sets.", see_also: [pto:Construction_toy], annotations: {label_en: "Construction toys", label_de: "Bau- & Konstruktionsspielzeug", aliases_en: ["Construction Toy", "Building Blocks", "LEGO", "Construction Set"], aliases_de: ["Konstruktionsspielzeug", "Bausteine", "LEGO", "Konstruktionsset"]}}
       dolls_figures:    {description: "Dolls, action figures, puppets, plush toys.", see_also: [pto:Doll], annotations: {label_en: "Dolls & figures", label_de: "Puppen & Figuren", aliases_en: ["Doll", "Action Figure", "Puppet", "Plush Toy"], aliases_de: ["Puppe", "Actionfigur", "Puppe", "Plüschtier"]}}
-      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game], annotations: {label_en: "Board games", label_de: "Brettspiele", aliases_en: ["Board Game", "Card Game", "Dice Game"], aliases_de: ["Brettspiel", "Kartenspiel", "Würfelspiel"]}}
+      board_games:      {description: "Board games, card games, dice games.", see_also: [pto:Board_game], annotations: {label_en: "Board & card games", label_de: "Karten- & Brettspiele", aliases_en: ["Board Game", "Card Game", "Dice Game"], aliases_de: ["Brettspiel", "Kartenspiel", "Würfelspiel"]}}
       puzzles:          {description: "Jigsaw puzzles, 3D puzzles, shape sorters.", see_also: [pto:Puzzle], annotations: {label_en: "Puzzles", label_de: "Puzzles", aliases_en: ["Puzzle", "Jigsaw Puzzle", "3D Puzzle", "Shape Sorter"], aliases_de: ["Puzzle", "Puzzles", "3D-Puzzle", "Formen-Sortierer"]}}
       outdoor_toys:     {description: "Balls, kites, skipping ropes, sandpit toys.", annotations: {label_en: "Outdoor toys", label_de: "Outdoor-Spielzeug", aliases_en: ["Outdoor Toy", "Ball", "Kite", "Skipping Rope", "Sandpit Toy"], aliases_de: ["Draußen-Spielzeug", "Ball", "Drachen", "Springseil", "Sandspielzeug"]}}
       ride_on:          {description: "Tricycles, balance bikes, scooters, ride-on cars.", see_also: [pto:Ride-on_toy], annotations: {label_en: "Ride-on toys", label_de: "Kinderfahrzeuge", aliases_en: ["Ride-on Toy", "Tricycle", "Balance Bike", "Scooter", "Ride-on Car"], aliases_de: ["Rutschfahrzeug", "Dreirad", "Laufrad", "Roller", "Rutschauto"]}}
@@ -270,5 +270,5 @@ enums:
       age_3_to_6:  {description: "3-6 years.", annotations: {label_en: "3-6 years", label_de: "3-6 Jahre"}}
       age_6_to_12: {description: "6-12 years.", annotations: {label_en: "6-12 years", label_de: "6-12 Jahre"}}
       age_12_plus: {description: "12 years and above.", annotations: {label_en: "12+ years", label_de: "Ab 12 Jahren"}}
-      adult:       {description: "Adult games / collector items; not for children.", annotations: {label_en: "Adult", label_de: "Erwachsene"}}
+      adult:       {description: "Adult games / collector items; not for children.", annotations: {label_en: "Adults", label_de: "Erwachsene"}}
       all_ages:    {description: "Suitable for all ages.", annotations: {label_en: "All ages", label_de: "Alle Altersgruppen"}}
