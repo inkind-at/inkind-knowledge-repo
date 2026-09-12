@@ -118,7 +118,7 @@ slots:
       a device without a charger is significantly less useful.
       Optional — detailed completeness tier.
     annotations:
-      label_en: "Includes Charger"
+      label_en: "Charger included"
       label_de: "Ladegerät vorhanden"
 
   includes_original_packaging:
@@ -126,8 +126,8 @@ slots:
     description: >-
       Whether original retail packaging is present. Optional — detailed tier.
     annotations:
-      label_en: "Includes Original Packaging"
-      label_de: "Originalverpackung vorhanden"
+      label_en: "In original packaging"
+      label_de: "Originalverpackt"
 
 
 enums:
@@ -151,23 +151,23 @@ enums:
           Fully functional but with minor cosmetic issues (light scratches,
           small scuffs) that do not affect operation. Redistributable.
         annotations:
-          label_en: "Functional (Minor Cosmetic)"
-          label_de: "Leichte Gebrauchsspuren, funktionstüchtig"
+          label_en: "Minor signs of wear"
+          label_de: "Leichte Gebrauchsspuren"
       functional_significant_cosmetic:
         description: >-
           Fully functional but with significant cosmetic damage (cracked bezel,
           major scratches, missing casing components). Functional but appearance
           notably affected.
         annotations:
-          label_en: "Functional (Significant Cosmetic)"
-          label_de: "Deutliche Gebrauchsspuren, funktionstüchtig"
+          label_en: "Significant signs of wear"
+          label_de: "Deutliche Gebrauchsspuren"
       functional_with_issues:
         description: >-
           Powers on but has functional issues (cracked screen still displays,
           missing key, camera not working, port not functioning). Redistributable
           with explicit description — sorting_notes required.
         annotations:
-          label_en: "Functional (With Issues)"
+          label_en: "Partially functional"
           label_de: "Eingeschränkt funktionstüchtig"
       non_functional:
         description: >-
@@ -175,14 +175,14 @@ enums:
           action: warn — sorting_notes required. Consider repair referral or
           electronics recycling.
         annotations:
-          label_en: "Non-Functional"
+          label_en: "Not functional"
           label_de: "Nicht funktionstüchtig"
       untested:
         description: >-
           Not yet tested. Valid only at received state — blocked at sorted state
           by lc-sorted-electronics-not-untested rule in donation_item.yaml.
         annotations:
-          label_en: "Untested"
+          label_en: "Not tested"
           label_de: "Nicht getestet"
 
   ElectronicsSubcategoryEnum:
@@ -195,7 +195,7 @@ enums:
       monitors:          {description: "Computer monitors and display screens.", see_also: [pto:Computer_monitor], annotations: {label_en: "Monitors", label_de: "Monitore"}}
       cameras:           {description: "Digital cameras and camcorders.", see_also: [pto:Camera], annotations: {label_en: "Cameras", label_de: "Kameras"}}
       audio:             {description: "Headphones, speakers, radios, MP3 players.", see_also: [pto:Audio_equipment], annotations: {label_en: "Audio Equipment", label_de: "Audiogeräte"}}
-      cables_chargers:   {description: "USB cables, charging adapters, power banks, extension leads.", annotations: {label_en: "Cables & Chargers", label_de: "Kabel & Ladegeräte"}}
-      peripherals:       {description: "Keyboards, mice, printers, webcams.", see_also: [pto:Computer_hardware], annotations: {label_en: "Peripherals", label_de: "Peripheriegeräte"}}
+      cables_chargers:   {description: "USB cables, charging adapters, power banks, extension leads.", annotations: {label_en: "Cables & chargers", label_de: "Kabel & Ladegeräte"}}
+      peripherals:       {description: "Keyboards, mice, printers, webcams.", see_also: [pto:Computer_hardware], annotations: {label_en: "Computer peripherals", label_de: "Computerzubehör"}}
       gaming:            {description: "Gaming consoles, controllers, handheld gaming devices.", see_also: [pto:Video_game_console], annotations: {label_en: "Gaming", label_de: "Gaming"}}
       other:             {description: "Electronics not fitting above subcategories.", annotations: {label_en: "Other", label_de: "Andere"}}
