@@ -168,15 +168,15 @@ slots:
       Shoe size as a string. Use with shoe_size_system to disambiguate
       (e.g. "42" with system "EU", "8" with system "UK").
     annotations:
-      label_en: "shoe size"
+      label_en: "Shoe size"
       label_de: "Schuhgröße"
 
   shoe_size_system:
     range: ShoeSizeSystemEnum
     description: Sizing system for the shoe_size value.
     annotations:
-      label_en: "shoe size system"
-      label_de: "Schuhgrößen-System"
+      label_en: "Size system"
+      label_de: "Größensystem"
 
   is_pair_complete:
     range: boolean
@@ -184,8 +184,8 @@ slots:
       Whether both shoes of the pair are present.
       UC warn if false — sorting_notes required.
     annotations:
-      label_en: "is pair complete"
-      label_de: "Ist das Paar vollständig?"
+      label_en: "Pair complete"
+      label_de: "Paar vollständig"
 
 
 enums:
@@ -204,7 +204,7 @@ enums:
           leather Oxford shoes can be all_season.
         see_also: [pto:Shoe]
         annotations:
-          label_en: "shoes"
+          label_en: "Shoes"
           label_de: "Schuhe"
       boots:
         description: >-
@@ -213,7 +213,7 @@ enums:
           overrides for summer ankle boots, fashion boots without insulation.
         see_also: [pto:Boot]
         annotations:
-          label_en: "boots"
+          label_en: "Boots"
           label_de: "Stiefel"
       sandals:
         description: >-
@@ -221,14 +221,14 @@ enums:
           is_winter_suitable=false.
         see_also: [pto:Sandal]
         annotations:
-          label_en: "sandals"
+          label_en: "Sandals"
           label_de: "Sandalen"
       slippers:
         description: >-
           Indoor slippers and house shoes. Typically all_season
           (indoor use, climate-controlled environment).
         annotations:
-          label_en: "slippers"
+          label_en: "Slippers"
           label_de: "Hausschuhe"
       sports_footwear:
         description: >-
@@ -236,13 +236,13 @@ enums:
           Specialist sports footwear.
         see_also: [cpi:SportShoes]
         annotations:
-          label_en: "sports footwear"
+          label_en: "Sports shoes"
           label_de: "Sportschuhe"
       other:
         description: Footwear not fitting above subcategories.
         annotations:
           label_en: "other"
-          label_de: "Sonstige"
+          label_de: "Andere"
 
   FootwearMaterialEnum:
     description: >-
@@ -297,8 +297,8 @@ enums:
           Lightweight and quick-drying. Primarily spring-autumn or summer.
         see_also: [schema:material]
         annotations:
-          label_en: "Synthetic / Mesh"
-          label_de: "Synthetisch / Mesh"
+          label_en: "Synthetic mesh"
+          label_de: "Synthetisches Mesh"
       rubber:
         description: >-
           Rubber or PVC. Primary material for Wellington boots, rain boots,
@@ -333,7 +333,7 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Other"
-          label_de: "Andere"
+          label_de: "Sonstiges"
 
   ShoeSizeSystemEnum:
     description: >-
