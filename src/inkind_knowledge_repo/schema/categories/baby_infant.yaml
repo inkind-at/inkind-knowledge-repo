@@ -117,8 +117,8 @@ classes:
       track_consumable_subcategories: "infant_formula, feeding_bottles_teats, nappies, baby_care"
       track_general_subcategories:    "bath_equipment, changing, baby_monitors, bouncers_swings, breastfeeding, other"
       regulatory_references: "EN 1888, EN 716, EN 14344, EN 14350, EN 16781"
-      label_en: "Baby and Infant Supplies"
-      label_de: "Baby- und Kleinkindausstattung"
+      label_en: "Baby and infant supplies"
+      label_de: "Baby- und Kleinkindbedarf"
       aliases_en: ["baby supplies", "infant supplies", "baby things", "infant things"]
       aliases_de: ["Babyausstattung", "Kleinkindausstattung", "Babybedarf", "Kleinkindbedarf", "Baby sachen"]
     rules:
@@ -340,7 +340,7 @@ slots:
       (EN 1888) to verify age of safety-relevant components.
     annotations:
       show_if: "subcategory in [car_seats, cots_cribs, pushchairs_prams]"
-      label_en: "Manufacture year"
+      label_en: "Year of manufacture"
       label_de: "Herstellungsjahr"
 
   includes_original_accessories:
@@ -349,7 +349,7 @@ slots:
       Whether standard accessories/components are included (e.g. pushchair
       includes rain cover and harness; cot includes mattress and side rails).
     annotations:
-      label_en: "Includes original accessories"
+      label_en: "Original accessories included"
       label_de: "Originalzubehör vorhanden"
 
   nappy_size:
@@ -391,14 +391,14 @@ enums:
           acceptable range; no safety concerns. Ready for redistribution.
           Appropriate for new items with no observed defects.
         annotations:
-          label_en: "Safe to redistribute"
-          label_de: "Sicher zur Weiterverteilung"
+          label_en: "Suitable to redistribute"
+          label_de: "Zur Weitergabe geeignet"
       safe_minor_wear:
         description: >-
           Minor cosmetic wear but structurally sound and all safety-relevant
           components intact. Safe to redistribute.
         annotations:
-          label_en: "Safe to redistribute with minor wear"
+          label_en: "Minor signs of wear"
           label_de: "Leichte Gebrauchsspuren"
       requires_specialist_check:
         description: >-
@@ -406,7 +406,7 @@ enums:
           locking mechanism, unfamiliar harness system, unclear provenance).
           action: warn — redistribution only after specialist confirmation.
         annotations:
-          label_en: "Requires specialist check"
+          label_en: "Professional assessment required"
           label_de: "Fachliche Prüfung erforderlich"
       structural_concern:
         description: >-
@@ -414,7 +414,7 @@ enums:
           harness buckle. Applies to new (manufacturing defect) and used items.
           action: block.
         annotations:
-          label_en: "Structural concern — do not redistribute"
+          label_en: "Safte concern"
           label_de: "Sicherheitsbedenken"
       do_not_redistribute:
         description: >-
@@ -423,7 +423,7 @@ enums:
           model, missing critical safety components.
           action: block.
         annotations:
-          label_en: "Do not redistribute"
+          label_en: "Not suitable for redistribution"
           label_de: "Nicht zur Weitergabe geeignet"
 
   BabyInfantSubcategoryEnum:
@@ -431,19 +431,19 @@ enums:
       Baby and infant supplies subcategories. Grounded in Product Types
       Ontology. Baby clothing belongs in ClothingItem (demographic=baby).
     permissible_values:
-      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pram", label_de: "Kinderwagen & Buggys", aliases_en: ["pushchair", "pram", "stroller"], aliases_de: ["Kinderwagen", "Pram", "Stroller"]}}
-      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car & Booster seats", label_de: "Kindersitze & Sitzerhöhungen", aliases_en: ["car seat", "booster seat", "Maxi-Cosi"], aliases_de: ["Autositz", "Booster-Sitz", "Maxi-Cosi", "Kindersitz"]}}
-      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cot", label_de: "Babybetten & Stubenwagen", aliases_en: ["cot", "crib", "moses basket"], aliases_de: ["Kinderbett", "Crib", "Moseskorb", "Beistellbett", "Gitterbett"]}}
-      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carrier", label_de: "Babytrage", aliases_en: ["baby carrier", "baby sling", "baby wrap"], aliases_de: ["Baby-Trager", "Baby-Hängematte", "Baby-Umhängetuch"]}}
+      pushchairs_prams:      {description: "Pushchairs, prams, strollers. Structural assessment required (EN 1888).", see_also: [pto:Baby_transport], annotations: {label_en: "Pram & strollers", label_de: "Kinderwagen & Buggys", aliases_en: ["pushchair", "pram", "stroller"], aliases_de: ["Kinderwagen", "Pram", "Stroller"]}}
+      car_seats:             {description: "Car and booster seats. Assessment + manufacture_year required (EN 14344).", see_also: [pto:Child_safety_seat], annotations: {label_en: "Car seats & booster", label_de: "Kindersitze & Sitzerhöhungen", aliases_en: ["car seat", "booster seat", "Maxi-Cosi"], aliases_de: ["Autositz", "Booster-Sitz", "Maxi-Cosi", "Kindersitz"]}}
+      cots_cribs:            {description: "Cots, cribs, moses baskets. Structural assessment required (EN 716). Dropside cots banned.", see_also: [pto:Infant_bed], annotations: {label_en: "Cots & cribs", label_de: "Babybetten & Stubenwagen", aliases_en: ["cot", "crib", "moses basket"], aliases_de: ["Kinderbett", "Crib", "Moseskorb", "Beistellbett", "Gitterbett"]}}
+      baby_carriers:         {description: "Baby slings, carriers, wraps. Structural assessment required.", see_also: [pto:Baby_transport], annotations: {label_en: "Baby carriers", label_de: "Babytrage", aliases_en: ["baby carrier", "baby sling", "baby wrap"], aliases_de: ["Baby-Trager", "Baby-Hängematte", "Baby-Umhängetuch"]}}
       infant_formula:        {description: "Infant formula. Must be sealed + within expiry. UNHCR NFI core item.", see_also: [pto:Infant_formula], annotations: {label_en: "Infant formula", label_de: "Säuglingsnahrung"}}
       feeding_bottles_teats: {description: "Feeding bottles and teats. Must be sealed + unused (EN 14350).", annotations: {label_en: "Baby bottle & teats", label_de: "Babyflaschen & Sauger", aliases_en: ["feeding bottle", "teat", "bottle and teat", "baby bottle"], aliases_de: ["Flasche und Sauger", "Flasche mit Sauger", "Babyflasche", "Sauger"]}}
       nappies:               {description: "Baby nappies/diapers. Must be sealed. UNHCR NFI core item. nappy_size required.", see_also: [pto:Diaper], annotations: {label_en: "Nappies", label_de: "Windeln", aliases_en: ["nappy", "diaper", "nappies", "diapers"], aliases_de: ["Windel", "Windeln"]}}
-      baby_care:             {description: "Baby wipes, powder, lotion, oil, wash, shampoo, diaper rash cream, teething gel, baby sunscreen. Must be sealed. (Adult-equivalent toiletries → PersonalCareItem.)", annotations: {label_en: "Baby Care", label_de: "Babypflege", aliases_en: ["baby wipes", "wet wipes", "baby powder", "baby lotion", "baby oil", "baby wash", "baby shampoo", "diaper rash cream", "nappy cream", "teething gel", "baby sunscreen"], aliases_de: ["Feuchttücher", "Babypuder", "Babylotion", "Babyöl", "Baby-Waschlotion", "Baby-Shampoo", "Wundschutzcreme", "Zahnungsgel", "Baby-Sonnencreme"]}}
+      baby_care:             {description: "Baby wipes, powder, lotion, oil, wash, shampoo, diaper rash cream, teething gel, baby sunscreen. Must be sealed. (Adult-equivalent toiletries → PersonalCareItem.)", annotations: {label_en: "Baby care", label_de: "Babypflege", aliases_en: ["baby wipes", "wet wipes", "baby powder", "baby lotion", "baby oil", "baby wash", "baby shampoo", "diaper rash cream", "nappy cream", "teething gel", "baby sunscreen"], aliases_de: ["Feuchttücher", "Babypuder", "Babylotion", "Babyöl", "Baby-Waschlotion", "Baby-Shampoo", "Wundschutzcreme", "Zahnungsgel", "Baby-Sonnencreme"]}}
       breastfeeding:         {description: "Breast pumps, nursing pads, sterilisers.", annotations: {label_en: "Breastfeeding supplies", label_de: "Stillzubehör", aliases_en: ["breastfeeding supplies", "breast pump", "nursing pads", "steriliser"], aliases_de: ["Brustpflegeartikel", "Brustpumpe", "Stilleinlagen", "Sterilisator"]}}
       bath_equipment:        {description: "Baby baths, bath seats, bath thermometers.", annotations: {label_en: "Bath equipment", label_de: "Badezubehör (Baby & Kleinkind)", aliases_en: ["baby bath", "bath seat", "bath thermometer"], aliases_de: ["Babybadewanne", "Badsitz", "Badethermometer"]}}
       changing:              {description: "Changing mats, nappy bags, changing bags.", annotations: {label_en: "Changing supplies", label_de: "Wickelzubehör", aliases_en: ["changing mat", "nappy bag", "changing bag"], aliases_de: ["Wickelunterlage", "Windeltasche", "Wickeltasche", "Wickelzubehör"]}}
-      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitor", label_de: "Babyphones", aliases_en: ["baby monitor", "audio monitor", "video monitor", "babyphone"], aliases_de: ["Baby-Überwachungskamera", "Audio-Monitor", "Video-Monitor", "Babyphone"]}}
-      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "play gym", label_de: "Babywippen & Schaukeln", aliases_en: ["bouncer", "swing", "rocker", "play gym"], aliases_de: ["Kinderwippe", "Schaukel", "Rocker", "Spielgerät"]}}
+      baby_monitors:         {description: "Audio and video baby monitors.", see_also: [pto:Baby_monitor], annotations: {label_en: "Baby monitors", label_de: "Babyphones", aliases_en: ["baby monitor", "audio monitor", "video monitor", "babyphone"], aliases_de: ["Baby-Überwachungskamera", "Audio-Monitor", "Video-Monitor", "Babyphone"]}}
+      bouncers_swings:       {description: "Baby bouncers, swings, rockers, play gyms.", annotations: {label_en: "Bouncers & swings", label_de: "Babywippen & Schaukeln", aliases_en: ["bouncer", "swing", "rocker", "play gym"], aliases_de: ["Kinderwippe", "Schaukel", "Rocker", "Spielgerät"]}}
       sleeping_bags:
         description: >-
           Baby sleeping bags for home use (0-24 months). Track 1 — structured
@@ -459,8 +459,8 @@ enums:
         see_also:
           - pto:Sleeping_bag
         annotations:
-          label_en: "Baby sleeping bag"
-          label_de: "Baby-Schlafsack"
+          label_en: "Baby sleeping bags"
+          label_de: "Baby-Schlafsäcke"
           aliases_en: ["baby sleeping bag", "infant sleeping bag", "baby sleep sack", "infant sleep sack"]
           aliases_de: ["Baby-Schlafsack", "Säuglings-Schlafsack", "Baby-Schlafsack mit Beinen", "Säuglings-Schlafsack mit Beinen"]
       other: {description: "Baby and infant supplies not fitting above subcategories.", annotations: {label_en: "Other baby/infant item", label_de: "Sonstiger Baby-/Kleinkindartikel"}}
@@ -475,11 +475,11 @@ enums:
     see_also:
       - pto:Diaper
     permissible_values:
-      newborn:  {description: "Newborn, up to ~4kg.", annotations: {label_en: "Newborn", label_de: "Neugeboren", aliases_en: ["newborn", "size 0"], aliases_de: ["Neugeboren", "Größe 0"]}}
+      newborn:  {description: "Newborn, up to ~4kg.", annotations: {label_en: "Newborn", label_de: "Neugeborene", aliases_en: ["newborn", "size 0"], aliases_de: ["Neugeboren", "Größe 0"]}}
       size_1:   {description: "Size 1, ~2-5kg.", annotations: {label_en: "Size 1", label_de: "Größe 1"}}
       size_2:   {description: "Size 2, ~3-6kg.", annotations: {label_en: "Size 2", label_de: "Größe 2"}}
       size_3:   {description: "Size 3, ~4-9kg.", annotations: {label_en: "Size 3", label_de: "Größe 3"}}
       size_4:   {description: "Size 4, ~7-18kg.", annotations: {label_en: "Size 4", label_de: "Größe 4"}}
       size_5:   {description: "Size 5, ~11-25kg.", annotations: {label_en: "Size 5", label_de: "Größe 5"}}
       size_6:   {description: "Size 6, ~16kg and up.", annotations: {label_en: "Size 6", label_de: "Größe 6"}}
-      other:    {description: "Size not fitting the standard bands, or unlabeled/unknown.", annotations: {label_en: "Other/Unknown", label_de: "Andere/Unbekannt"}}
+      other:    {description: "Size not fitting the standard bands, or unlabeled/unknown.", annotations: {label_en: "Other / Unknown", label_de: "Andere / Unbekannt"}}
