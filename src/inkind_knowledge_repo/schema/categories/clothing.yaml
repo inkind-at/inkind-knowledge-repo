@@ -150,7 +150,7 @@ classes:
       label_en: "Clothing"
       label_de: "Kleidung"
       aliases_en: ["clothing", "clothes", "garment", "apparel"]
-      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Apparel", "Gewand", "Kleidungsartikel"]
+      aliases_de: ["Kleidung", "Bekleidung", "Kleidungsstück", "Gewand", "Kleidungsartikel"]
     rules:
       # ── UC: underwear ─────────────────────────────────────────────────────
       - title: uc-underwear-condition-block
@@ -449,8 +449,8 @@ slots:
       subcategory=tops.
     annotations:
       show_if: "subcategory in [tops]"
-      label_en: "Tops Type"
-      label_de: "Oberteil-Typ"
+      label_en: "Type of tops"
+      label_de: "Art des Oberteils"
 
   bottoms_subcategory:
     range: BottomsSubcategoryEnum
@@ -461,8 +461,8 @@ slots:
       subcategory=bottoms.
     annotations:
       show_if: "subcategory in [bottoms]"
-      label_en: "Bottoms Type"
-      label_de: "Unterteil-Typ"
+      label_en: "Type of bottoms"
+      label_de: "Art Unterteil-Typ"
 
   size:
     range: ClothingSizeEnum
@@ -489,7 +489,7 @@ slots:
     see_also:
       - schema:itemCondition
     annotations:
-      label_en: "Winter Suitable"
+      label_en: "Winter suitable"
       label_de: "Wintertauglich"
 
   season:
@@ -514,8 +514,8 @@ slots:
       (e.g. allergy to certain materials). Detailed completeness tier.
     annotations:
       show_if: "subcategory in [tops, bottoms, outerwear, underwear, nightwear, sportswear, swimwear]"
-      label_en: "Intact care and composition labels"
-      label_de: "Pflege- und Materialetikett vorhanden"
+      label_en: "Care and composition labels available"
+      label_de: "Pflege- & Materialetikett vorhanden"
 
   is_maternity:
     range: boolean
@@ -526,7 +526,7 @@ slots:
       Optional, detailed completeness tier.
     annotations:
       show_if: "subcategory in [tops, bottoms, outerwear, swimwear]"
-      label_en: "Maternity"
+      label_en: "Maternity wear"
       label_de: "Umstandsmode"
       aliases_en: ["Maternity", "Pregnancy"]
       aliases_de: ["Umstandsmode", "Schwangerschaft"]
@@ -567,8 +567,8 @@ enums:
           winter and summer. is_winter_suitable is sorter's call.
           Examples: light jacket, cardigan, jeans, hoodie, trench coat.
         annotations:
-          label_en: "Spring/Autumn"
-          label_de: "Frühling/Herbst"
+          label_en: "Spring / Autumn"
+          label_de: "Frühling / Herbst"
           aliases_en: ["Spring", "Autumn", "Transitional"]
           aliases_de: ["Frühling", "Herbst", "Übergang"]
       summer:
@@ -579,8 +579,8 @@ enums:
         annotations:
           label_en: "Summer"
           label_de: "Sommer"
-          aliases_en: ["Summer", "Leicht"]
-          aliases_de: ["Sommer", "Light"]
+          aliases_en: ["Summer", "Light"]
+          aliases_de: ["Sommer", "Leicht"]
       all_season:
         description: >-
           No meaningful seasonal constraint — appropriate across all seasons
@@ -589,7 +589,7 @@ enums:
           Examples: underwear, plain cotton t-shirt used as a base layer,
           school uniform shirt.
         annotations:
-          label_en: "All Season"
+          label_en: "Year-round"
           label_de: "Ganzjährig"
           aliases_en: ["All Season", "Year-round"]
           aliases_de: ["Alle Jahreszeiten", "Ganzjährig"]
@@ -612,7 +612,7 @@ enums:
           label_en: "Tops"
           label_de: "Oberteile"
           aliases_en: ["Shirt", "Blouse", "T-shirt", "Sweater", "Hoodie", "Upper-body garments", "Top"]
-          aliases_de: ["Hemd", "Bluse", "T-Shirt", "Wollpullover", "Hoodie", "Oberkörperkleidung", "Oberteile", "Top", "Laibel"]
+          aliases_de: ["Hemd", "Bluse", "T-Shirt", "Wollpullover", "Hoodie", "Oberkörperkleidung", "Oberteile", "Top", "Leiberl"]
       bottoms:
         description: >-
           Trousers, skirts, shorts, leggings, lower-body garments.
@@ -637,7 +637,7 @@ enums:
         see_also: [pto:Coat]
         annotations:
           label_en: "Outerwear"
-          label_de: "Oberbekleidung"
+          label_de: "Jacken & Mäntel"
           aliases_en: ["Jacket", "Coat", "Outer layer", "Outerwear", "Parka"]
           aliases_de: ["Jacke", "Mantel", "Oberbekleidung", "Parka"]
       underwear:
@@ -732,7 +732,7 @@ enums:
         description: "Trousers, pants, jeans."
         annotations:
           label_en: "Trousers"
-          label_de: "Hose"
+          label_de: "Hosen"
           aliases_en: ["Trousers", "Pants", "Jeans"]
           aliases_de: ["Hose", "Jeans"]
       shorts:
@@ -744,7 +744,7 @@ enums:
         description: "Skirts."
         annotations:
           label_en: "Skirt"
-          label_de: "Rock"
+          label_de: "Röcke"
       leggings:
         description: "Leggings, tights."
         annotations:
@@ -779,8 +779,8 @@ enums:
         description: "Child (2-14 years). Valid sizes: child_2T through child_14."
         see_also: [schema:WearableSizeGroupJuniors, schema:WearableSizeGroupBoys, schema:WearableSizeGroupGirls]
         annotations:
-          label_en: "Child"
-          label_de: "Kind"
+          label_en: "Children"
+          label_de: "Kinder"
           aliases_en: ["Child", "Toddler", "Kid", "Girl", "Boy", "Junior"]
           aliases_de: ["Kind", "Kleinkind", "Junior", "Mädchen", "Junge"]
       adult_male:
@@ -790,7 +790,7 @@ enums:
           label_en: "Men"
           label_de: "Herren"
           aliases_en: ["Male", "Men", "Man", "Adult Male"]
-          aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann"]
+          aliases_de: ["Männlich", "Herren", "Mann", "Erwachsener Mann", "Männer"]
       adult_female:
         description: "Adult female / womenswear. Valid sizes: xs through one_size."
         see_also: [ schema:WearableSizeGroupMisses, schema:WearableSizeGroupWomens]
@@ -972,8 +972,8 @@ enums:
           acrylic/polyester blends.
         see_also: [schema:material]
         annotations:
-          label_en: "Synthetic Blend"
-          label_de: "Synthetische Mischung"
+          label_en: "Mixed fibres"
+          label_de: "Mischgewebe"
       other:
         description: >-
           Materials not covered above — e.g. viscose/rayon, bamboo, modal,
@@ -982,4 +982,4 @@ enums:
         see_also: [schema:material]
         annotations:
           label_en: "Other"
-          label_de: "Andere"
+          label_de: "Sonstiges"
