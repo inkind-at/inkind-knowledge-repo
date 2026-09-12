@@ -211,14 +211,14 @@ enums:
           instability. Safe for redistribution without qualification.
           Appropriate for new items with no observed defects.
         annotations:
-          label_en: "Structurally Sound"
-          label_de: "Strukturell Unbeschädigt"
+          label_en: "Stable & intact"
+          label_de: "Stabil & intakt"
       minor_cosmetic_damage:
         description: >-
           Scratches, scuffs, minor surface damage. Structural integrity
           unaffected. Fully redistributable.
         annotations:
-            label_en: "Minor Cosmetic Damage"
+            label_en: "Minor signs of wear"
             label_de: "Leichte Gebrauchsspuren"
       significant_cosmetic_damage:
         description: >-
@@ -226,7 +226,7 @@ enums:
           Structurally sound but appearance significantly affected.
           action: warn for seating/beds — sorting_notes required.
         annotations:
-          label_en: "Significant Cosmetic Damage"
+          label_en: "Significant signs of wear"
           label_de: "Deutliche Gebrauchsspuren"
       functional_with_repairs:
         description: >-
@@ -234,7 +234,7 @@ enums:
           (loose screw, wobbly leg, minor adjustment needed).
           action: warn — sorting_notes required.
         annotations:
-          label_en: "Functional with Repairs"
+          label_en: "Repair required"
           label_de: "Reparatur erforderlich"
       structurally_compromised:
         description: >-
@@ -242,7 +242,7 @@ enums:
           redistributed. Applies to new items (manufacturing defect) and used.
           action: block, suggest: disposal or repair referral.
         annotations:
-          label_en: "Structurally Compromised"
+          label_en: "Unstable & heavily damaged"
           label_de: "Instabil, stark beschädigt"
 
   FurnitureSubcategoryEnum:
@@ -251,7 +251,7 @@ enums:
       seating:       {description: "Chairs, sofas, armchairs, benches.", see_also: [pto:Chair], annotations: {label_en: "Seating", label_de: "Sitzmöbel", aliases_en: ["Seating", "Chair", "Sofa", "Armchair", "Bench"], aliases_de: ["Sitzmöbel", "Stuhl", "Sofa", "Sessel", "Bank"]}}
       tables:        {description: "Dining tables, coffee tables, desks. dimensions required.", see_also: [pto:Table], annotations: {label_en: "Tables", label_de: "Tische", aliases_en: ["Tables", "Table"], aliases_de: ["Tische", "Tisch"]}}
       beds:          {description: "Bed frames and divans. dimensions required.", see_also: [pto:Bed], annotations: {label_en: "Beds", label_de: "Betten", aliases_en: ["Beds", "Bed"], aliases_de: ["Betten", "Bett"]}}
-      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage Units", label_de: "Schränke & Aufbewahrung", aliases_en: ["Storage units", "Wardrobe", "Cabinet", "Chest of drawers"], aliases_de: ["Aufbewahrungseinheiten", "Kleiderschrank", "Schrank", "Kommode"]}}
+      storage_units: {description: "Wardrobes, cabinets, chests of drawers.", see_also: [pto:Cabinet], annotations: {label_en: "Storage furniture", label_de: "Schränke & Aufbewahrung", aliases_en: ["Storage units", "Wardrobe", "Cabinet", "Chest of drawers"], aliases_de: ["Aufbewahrungseinheiten", "Kleiderschrank", "Schrank", "Kommode"]}}
       shelving:      {description: "Shelving units, bookcases, wall-mounted shelves.", annotations: {label_en: "Shelving", label_de: "Regale", aliases_en: ["Shelving", "Bookcase", "Shelf"], aliases_de: ["Regale", "Bücherregal", "Regal"]}}
       other:         {description: "Furniture not fitting above subcategories.", annotations: {label_en: "Other Furniture", label_de: "Sonstige Möbel"}}
 
