@@ -79,8 +79,8 @@ classes:
         see_also:
           - foodon:00001017
         annotations:
-          label_en: "food type"
-          label_de: "Lebensmitteltyp"
+          label_en: "Food category"
+          label_de: "Lebensmittelgruppen"
       packaging_intact:
         required: false
       storage_requirement:
@@ -342,8 +342,8 @@ slots:
       via vm-storage-* rules. Set during sorting to enable correct
       storage slot assignment and demand signal matching.
     annotations:
-      label_en: "storage requirement"
-      label_de: "Lagerung"
+      label_en: "Storage requirement"
+      label_de: "Lagerhinweis"
 
 
 enums:
@@ -361,7 +361,7 @@ enums:
           Storage: ambient or frozen.
         see_also: [foodon:03000288]
         annotations:
-          label_en: "bread & bakery"
+          label_en: "Bread & bakery"
           label_de: "Brot & Backwaren"
           aliases_en: ["Bread", "Bakery", "Bakery items", "Rolls", "Pastries", "Cakes"]
           aliases_de: ["Brot", "Backwaren", "Brötchen", "Gebäck", "Kuchen"]
@@ -371,7 +371,7 @@ enums:
           rule applies. May be stored ambient, refrigerated, or frozen.
         see_also: [foodon:00001015]
         annotations:
-          label_en: "fruit & vegetables"
+          label_en: "Fruit & vegetables"
           label_de: "Obst & Gemüse"
           aliases_en: ["Fruit and vegetables", "Produce", "Fresh produce", "Fruit", "Vegetable"]
           aliases_de: ["Obst und Gemüse", "Frischprodukte", "Obst", "Gemüse"]
@@ -382,8 +382,8 @@ enums:
           or frozen storage.
         see_also: [foodon:03400793, foodon:03315173]
         annotations:
-          label_en: "meat & fish"
-          label_de: "Fleisch & Fisch"
+          label_en: "Fish & mean"
+          label_de: "Fisch & Fleisch"
           aliases_en: ["Meat", "Fish", "Poultry", "Sausage", "Seafood"]
           aliases_de: ["Fleisch", "Fisch", "Geflügel", "Wurst", "Meeresfrüchte"]
       dairy_eggs:
@@ -392,7 +392,7 @@ enums:
           refrigeration or freezing.
         see_also: [foodon:00001180]
         annotations:
-          label_en: "dairy & eggs"
+          label_en: "Dairy & eggs"
           label_de: "Milchprodukte & Eier"
           aliases_en: ["Dairy", "Milk", "Cheese", "Yogurt", "Eggs"]
           aliases_de: ["Milchprodukte", "Milch", "Käse", "Joghurt", "Eier"]
@@ -402,7 +402,7 @@ enums:
           Storage: ambient or dry_cool.
         see_also: [foodon:00001256]
         annotations:
-          label_en: "dry goods"
+          label_en: "Dry goods"
           label_de: "Haltbare Lebensmittel"
           aliases_en: ["Dry goods", "Staples", "Pantry items", "Pasta", "Rice", "Flour", "Cereals", "Pulses"]
           aliases_de: ["Trockene Lebensmittel", "Grundnahrungsmittel", "Vorratsartikel", "Nudeln", "Reis", "Mehl", "Getreide", "Hülsenfrüchte"]
@@ -412,7 +412,7 @@ enums:
           Storage: ambient only.
         see_also: [foodon:00002403]
         annotations:
-          label_en: "canned goods"
+          label_en: "cCanned goods"
           label_de: "Konserven"
           aliases_en: ["Canned goods", "Canned items", "Can"]
           aliases_de: ["Dosenlebensmittel", "Konserven", "Dose"]
@@ -420,7 +420,7 @@ enums:
         description: Bottled or packaged drinks (non-alcoholic).
         see_also: [foodon:00001062]
         annotations:
-          label_en: "beverages"
+          label_en: "Beverages"
           label_de: "Getränke"
           aliases_en: ["Beverages", "Drinks", "Juice", "Soda", "Water"]
           aliases_de: ["Getränke", "Saft", "Limonade", "Wasser"]
@@ -433,7 +433,7 @@ enums:
           Salzig"). Storage: ambient.
         see_also: [foodon:03400978, foodon:03310825]
         annotations:
-          label_en: "snacks & confectionery"
+          label_en: "Snacks & confectionery"
           label_de: "Süß & Salzig"
           aliases_en: ["Confectionery", "Sweets", "Candy", "Chocolate", "Desserts", "Snacks", "Crisps", "Chips", "Pretzels", "Popcorn", "Crackers", "Nuts"]
           aliases_de: ["Süßwaren", "Süßigkeiten", "Bonbons", "Schokolade", "Nachspeisen", "Snacks", "Chips", "Salzgebäck", "Popcorn", "Cracker", "Nüsse"]
@@ -442,7 +442,7 @@ enums:
           Prepared meals — ambient (shelf-stable), refrigerated, or frozen.
         see_also: [foodon:03400172]
         annotations:
-          label_en: "ready meals"
+          label_en: "Ready meals"
           label_de: "Fertiggerichte"
           aliases_en: ["Ready meals", "Prepared meals", "Convenience meals"]
           aliases_de: ["Fertiggerichte", "Fertigkost", "Convenience-Food"]
@@ -455,7 +455,7 @@ enums:
           donated as part of a food collection.
         see_also: [foodon:00002640]
         annotations:
-          label_en: "Baby Food"
+          label_en: "Baby food"
           label_de: "Babynahrung"
           aliases_en: ["Baby food", "Infant food"]
           aliases_de: ["Babynahrung", "Säuglingsnahrung", "Püree", "Gläschen"]
@@ -486,15 +486,15 @@ enums:
       refrigerated:
         description: "Refrigerated storage (0-4°C)."
         annotations:
-          label_en: "refrigerated"
-          label_de: "Gekühlt"
+          label_en: "Refrigerated"
+          label_de: "Kühl lagern"
       frozen:
         description: "Frozen storage (-18°C or below)."
         annotations:
-          label_en: "frozen"
-          label_de: "Gefroren"
+          label_en: "Frozen"
+          label_de: "Tiefkühlt lagern"
       dry_cool:
         description: "Cool, dry conditions (8-15°C) — root vegetable or wine-cellar type."
         annotations:
-          label_en: "dry cool"
-          label_de: "Kühl & trocken"
+          label_en: "Cool & dry"
+          label_de: "Kühl & trocken lagern"
